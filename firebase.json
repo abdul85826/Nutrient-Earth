@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "nutrient-earth",
+          "appId": "1:624869273309:android:ec6d7bd4e8600dc0613534",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "nutrient-earth",
+          "configurations": {
+            "android": "1:624869273309:android:ec6d7bd4e8600dc0613534",
+            "ios": "1:624869273309:ios:7ae61b9e52bb5211613534",
+            "macos": "1:624869273309:ios:7ae61b9e52bb5211613534",
+            "web": "1:624869273309:web:8aad95fc376d9de9613534",
+            "windows": "1:624869273309:web:564db8223612b95e613534"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}
