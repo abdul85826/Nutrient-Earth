@@ -1,37 +1,93 @@
-<<<<<<< HEAD
-# flutter_application_1
+# 🌿 Nutrient Earth
 
-A new Flutter project.
+**Precision biology for high-performance humans.**
 
-## Getting Started
+Nutrient Earth is an intelligent health system that understands your body, explains what’s happening inside, and guides daily recovery using real-time logic.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 What makes this different
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+This is NOT a normal fitness app.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
-# flutter_application_1
+It does:
 
-A new Flutter project.
+* 🧠 Understands how you feel ("I feel tired")
+* 🔍 Explains WHY it’s happening (biology-based reasoning)
+* ⚡ Shows impact (energy, focus, hydration)
+* 🎯 Gives actionable recovery steps
+* 🌍 Considers environment (AQI + temperature)
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🧩 Core System
 
-A few resources to get you started if this is your first Flutter project:
+```plaintext
+Input → Interpretation → Health Engine → State → Reason → Action → Impact
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
->>>>>>> c26a895f6545e60d8d99ddd04a72a3bcd600b329
+## 📱 Features
+
+* 🔥 Live Today Dashboard (real-time body state)
+* 🌍 Environment awareness (AQI + temperature)
+* 🧠 NE Assistant (AI-ready)
+* 🛒 Smart Store (state-based recommendations)
+* 📚 Digital Library
+* 👨‍⚕️ Doctor consultation (UI)
+* 📊 Task & recovery system
+
+---
+
+## 🔐 Authentication
+
+* Google Sign-In
+* Mobile OTP (via Supabase)
+
+---
+
+## ⚙️ Tech Stack
+
+* Flutter
+* Supabase (Auth + backend)
+* Riverpod (state management)
+* Custom Health Engine (logic layer)
+
+---
+
+## 🧠 Vision
+
+To build a system that doesn’t just track health —
+but **understands and guides it intelligently.**
+
+---
+
+## 🛠️ Setup
+
+```bash
+flutter pub get
+flutter run
+```
+
+---
+
+## 🔑 API Setup (Required)
+
+Add your keys in:
+
+* Supabase → Auth
+* AI Service → (OpenAI or other LLM)
+
+---
+
+## 📌 Status
+
+🚧 Active Development
+Core system implemented and evolving
+
+---
+
+## 👤 Author
+
+Syed Abdul
