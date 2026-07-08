@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# Groq API key for Supabase Edge Functions
+supabase/functions/.env

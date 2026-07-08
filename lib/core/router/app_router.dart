@@ -10,6 +10,7 @@ import '../../features/splash/splash_screen.dart';
 import '../../features/auth/auth_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/flow/flow_screen.dart';
+import '../../features/chat/chat_screen.dart';
 import '../bootstrap/app_bootstrap.dart';
 import '../providers/biological_profile_provider.dart';
 import '../../features/debug/developer_playground_screen.dart';
@@ -132,6 +133,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/assistant',
         builder: (context, state) => const FlowScreen(),
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) => const ChatScreen(),
       ),
 
       GoRoute(

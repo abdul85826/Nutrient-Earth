@@ -30,6 +30,15 @@ class _DeveloperPlaygroundScreenState extends ConsumerState<DeveloperPlaygroundS
               ),
               child: const Text('OPEN FOUNDER DASHBOARD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => context.push('/chat'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green[700],
+                padding: const EdgeInsets.all(16),
+              ),
+              child: const Text('TEST AI CHAT PIPELINE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
             const SizedBox(height: 24),
             const Card(
               color: Colors.white10,

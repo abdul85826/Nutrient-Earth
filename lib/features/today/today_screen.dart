@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/providers/graph_provider.dart';
@@ -340,18 +341,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     }
 
     return GestureDetector(
-      // Tapping navigates to Body tab (index 1) via GoRouter
-      onTap: () {
-        // Navigate to Body tab — use the router to push /body if available
-        final navigator = Navigator.of(context, rootNavigator: false);
-        // If using GoRouter shell, goBranch is not accessible here;
-        // use a route push fallback
-        try {
-          navigator.pushNamed('/body');
-        } catch (_) {
-          // Silently ignore if route not registered — user can use tab bar
-        }
-      },
+      // Tapping navigates to Chat screen via GoRouter
+      onTap: () => context.push('/chat'),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
