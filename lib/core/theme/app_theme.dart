@@ -1,116 +1,287 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+
 export 'app_colors.dart';
 
+/// Nutrient Earth v2 Theme
+/// Clean, calm, premium — inspired by Apple Health + Pixel UI
 class AppTheme {
-  // Legacy/Unified Color Mappings
-  static const Color nutrientGreen = AppColors.nutrientGreen;
-  static const Color background = AppColors.background;
-  static const Color surface = AppColors.surface;
-  static const Color glassWhite = AppColors.glassWhite;
-  static const Color glassBorder = AppColors.glassBorder;
-  
-  // Mapping old names to new system
-  static const Color earth = AppColors.nutrientGreen;
-  static const Color moss = Color(0xFF8CEE4B);
-  static const Color forestMid = Color(0xFF0D2118);
-  static const Color forestDeep = Color(0xFF06100B);
-  static const Color cloud = Colors.white;
+  AppTheme._();
 
-  static BoxDecoration glassStyle({
-    double blur = 20,
-    double opacity = 0.05,
-    double borderRadius = 24,
+  // ─── Spacing System (Apple-style 4pt grid) ──────────────────────────────────
+  static const double space4 = 4;
+  static const double space8 = 8;
+  static const double space12 = 12;
+  static const double space16 = 16;
+  static const double space20 = 20;
+  static const double space24 = 24;
+  static const double space32 = 32;
+  static const double space48 = 48;
+  static const double space64 = 64;
+
+  // ─── Radius ─────────────────────────────────────────────────────────────────
+  static const double radiusSm = 8;
+  static const double radiusMd = 12;
+  static const double radiusLg = 16;
+  static const double radiusXl = 24;
+  static const double radiusFull = 100;
+
+  // ─── Card Decoration ────────────────────────────────────────────────────────
+  static BoxDecoration cardDecoration({
+    Color? color,
+    double radius = radiusLg,
+    Border? border,
   }) {
     return BoxDecoration(
-      color: Colors.white.withValues(alpha: opacity),
-      borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.all(color: glassBorder),
+      color: color ?? NEColors.surface,
+      borderRadius: BorderRadius.circular(radius),
+      border: border,
     );
   }
 
+  // ─── Dark Theme ─────────────────────────────────────────────────────────────
   static ThemeData get dark {
-    final textTheme = GoogleFonts.outfitTextTheme().copyWith(
-      displayLarge: GoogleFonts.outfit(
-        fontSize: 42,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-        letterSpacing: -1,
-      ),
-      displayMedium: GoogleFonts.outfit(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-      headlineLarge: GoogleFonts.outfit(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: AppColors.nutrientGreen,
-        letterSpacing: 1.5,
-      ),
-      bodyLarge: GoogleFonts.inter(
-        fontSize: 16,
-        color: Colors.white.withValues(alpha: 0.9),
-        height: 1.6,
-      ),
-      bodyMedium: GoogleFonts.inter(
-        fontSize: 14,
-        color: Colors.white.withValues(alpha: 0.7),
-      ),
-      labelLarge: GoogleFonts.outfit(
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2,
-        color: AppColors.nutrientGreen,
-      ),
-    );
+    final textTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
 
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: NEColors.background,
+
+      // Color Scheme
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.nutrientGreen,
-        secondary: Color(0xFF8CEE4B),
-        surface: AppColors.surface,
-        onSurface: Colors.white,
+        primary: NEColors.accent,
+        onPrimary: NEColors.textInverse,
+        secondary: NEColors.accentLight,
+        surface: NEColors.surface,
+        onSurface: NEColors.textPrimary,
+        error: NEColors.statusRed,
+        outline: NEColors.border,
       ),
-      textTheme: textTheme,
-      cardTheme: CardThemeData(
-        color: AppColors.surface,
+
+      // App Bar
+      appBarTheme: AppBarTheme(
+        backgroundColor: NEColors.background,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: AppColors.glassBorder),
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        titleTextStyle: GoogleFonts.inter(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: NEColors.textPrimary,
+        ),
+        iconTheme: const IconThemeData(color: NEColors.textPrimary),
+      ),
+
+      // Text Theme
+      textTheme: textTheme.copyWith(
+        displayLarge: GoogleFonts.inter(
+          fontSize: 34,
+          fontWeight: FontWeight.w700,
+          color: NEColors.textPrimary,
+          letterSpacing: -0.5,
+          height: 1.2,
+        ),
+        displayMedium: GoogleFonts.inter(
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: NEColors.textPrimary,
+          letterSpacing: -0.3,
+        ),
+        headlineLarge: GoogleFonts.inter(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: NEColors.textPrimary,
+        ),
+        headlineMedium: GoogleFonts.inter(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: NEColors.textPrimary,
+        ),
+        headlineSmall: GoogleFonts.inter(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: NEColors.textPrimary,
+        ),
+        titleLarge: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: NEColors.textPrimary,
+        ),
+        titleMedium: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: NEColors.textPrimary,
+        ),
+        bodyLarge: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: NEColors.textPrimary,
+          height: 1.5,
+        ),
+        bodyMedium: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          color: NEColors.textSecondary,
+          height: 1.5,
+        ),
+        bodySmall: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: NEColors.textTertiary,
+        ),
+        labelLarge: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: NEColors.textPrimary,
+          letterSpacing: 0.1,
+        ),
+        labelMedium: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: NEColors.textSecondary,
+        ),
+        labelSmall: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: NEColors.textTertiary,
+          letterSpacing: 0.5,
         ),
       ),
+
+      // Card Theme
+      cardTheme: CardThemeData(
+        color: NEColors.surface,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusLg),
+        ),
+      ),
+
+      // Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.nutrientGreen,
-          foregroundColor: Colors.black,
-          textStyle: GoogleFonts.outfit(
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-            fontSize: 14,
+          backgroundColor: NEColors.accent,
+          foregroundColor: NEColors.textInverse,
+          elevation: 0,
+          textStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(radiusMd),
+          ),
+          minimumSize: const Size(double.infinity, 52),
+        ),
+      ),
+
+      // Outlined Button
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: NEColors.textPrimary,
+          side: const BorderSide(color: NEColors.border),
+          textStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(radiusMd),
+          ),
+          minimumSize: const Size(double.infinity, 52),
+        ),
+      ),
+
+      // Text Button
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: NEColors.accent,
+          textStyle: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
           ),
         ),
       ),
+
+      // Input
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.05),
+        fillColor: NEColors.surfaceLight,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide.none,
         ),
-        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
-        contentPadding: const EdgeInsets.all(20),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+          borderSide: const BorderSide(color: NEColors.accent, width: 1.5),
+        ),
+        hintStyle: GoogleFonts.inter(
+          color: NEColors.textTertiary,
+          fontSize: 15,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+      ),
+
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: NEColors.divider,
+        thickness: 0.5,
+        space: 0,
+      ),
+
+      // Bottom Nav
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: NEColors.surface,
+        selectedItemColor: NEColors.accent,
+        unselectedItemColor: NEColors.textTertiary,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+
+      // Bottom Sheet
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: NEColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+
+      // Slider
+      sliderTheme: SliderThemeData(
+        activeTrackColor: NEColors.accent,
+        inactiveTrackColor: NEColors.surfaceLight,
+        thumbColor: NEColors.accent,
+        overlayColor: NEColors.accent.withValues(alpha: 0.12),
+        trackHeight: 4,
+      ),
+
+      // Progress Indicator
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: NEColors.accent,
+        linearTrackColor: NEColors.surfaceLight,
+      ),
+
+      // Snackbar
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: NEColors.surfaceBright,
+        contentTextStyle: GoogleFonts.inter(color: NEColors.textPrimary),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusMd),
+        ),
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
 }
-

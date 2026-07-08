@@ -1,7 +1,8 @@
 class SupabaseConfig {
-  static const String url = 'http://127.0.0.1:54321';
-  static const String anonKey = 
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZmF1bHQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY3ODYyNjc2NiwiZXhwIjoxOTk0MjAyNzY2fQ.hR-c2qD2x3E7mZlW3PjQzVzXJm5-k2cZ5b4-xH3o3N0';
+  static const String url = 'https://esdhhbdzjmbdqstdsjro.supabase.co';
+
+  static const String anonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzZGhoYmR6am1iZHFzdGRzanJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MTA5NjIsImV4cCI6MjA5MjA4Njk2Mn0.dU-l3IqaVyRx8VD4rndgHnX6uN3TguOTStlCjKsb8pw';
 
   static bool get isConfigured => url.isNotEmpty && anonKey.isNotEmpty;
 }

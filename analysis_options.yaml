@@ -1,5 +1,12 @@
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  errors:
+    experimental_member_use: ignore
+  exclude:
+    - lib/infrastructure/local/isar_schemas.g.dart
+
 linter:
   rules:
     avoid_print: false
+    unnecessary_to_list_in_spreads: false

@@ -1,43 +1,153 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/models/app_models.dart';
+import '../../domain/models/intelligence/biological_twin_snapshot.dart';
 import '../services/sync_service.dart';
+import '../services/local_storage_service.dart';
+import '../services/supabase_service.dart';
+import 'biological_profile_provider.dart';
+import 'graph_provider.dart';
+import '../bootstrap/identity_manager.dart';
+// ─────────────────────────────────────────────────────────────────────────────
+// RE-EXPORT ENVIRONMENT FROM SERVICE
+// ─────────────────────────────────────────────────────────────────────────────
+import '../services/device_intelligence_service.dart';
+export '../services/environment_service.dart';
+export '../services/device_intelligence_service.dart';
 
 final syncServiceProvider = Provider((ref) => SyncService());
+final supabaseServiceProvider = Provider((ref) => SupabaseService());
 
-final actionProvider = StateNotifierProvider<ActionNotifier, ActionState>((ref) {
-  return ActionNotifier(ref.watch(syncServiceProvider));
+final deviceIntelligenceProvider = FutureProvider<DeviceIntelligenceState>((ref) async {
+  return DeviceIntelligenceService().analyzeDeviceState();
 });
 
 class ActionState {
   final List<ActionStep> steps;
   final DateTime lastReset;
+  final BodyState bodyState;
+  final double currentTemp;
+  final double energyLevel;
+  final int waterIntake;
+  final HealthIdentity? profile;
 
-  ActionState({required this.steps, required this.lastReset});
+  ActionState({
+    required this.steps,
+    required this.lastReset,
+    required this.bodyState,
+    this.currentTemp = 37.0,
+    this.energyLevel = 0.7,
+    this.waterIntake = 2000,
+    this.profile,
+  });
+
+  factory ActionState.fromMap(
+    Map<String, dynamic> map, [
+    HealthIdentity? profile,
+  ]) {
+    final temp = ((map['current_temp'] as num?)?.toDouble() ?? 37.0).clamp(
+      30.0,
+      45.0,
+    );
+    final energy = ((map['energy_level'] as num?)?.toDouble() ?? 0.7).clamp(
+      0.0,
+      1.0,
+    );
+    final water = (map['water_intake'] as int? ?? 2000).clamp(0, 4000);
+
+    return ActionState(
+      steps:
+          (map['steps'] as List?)?.map((s) => ActionStep.fromMap(s)).toList() ??
+          [],
+      lastReset: map['last_reset'] != null
+          ? DateTime.parse(map['last_reset'])
+          : DateTime.now(),
+      bodyState: BodyState(
+        energyScore: 70,
+        recoveryScore: 80,
+        stressLoad: 30,
+        hydrationStatus: 80,
+        primaryMessage: 'System balance optimal. Keep following your rhythm.',
+        status: 'GREEN',
+        emoji: '⚡',
+        headline: 'Metabolic Flux Stable',
+        subtext: 'Your biological metrics indicate high adaptive capacity today.',
+        actions: [],
+      ),
+      currentTemp: temp,
+      energyLevel: energy,
+      waterIntake: water,
+      profile: profile,
+    );
+  }
+
+  ActionState copyWith({
+    List<ActionStep>? steps,
+    DateTime? lastReset,
+    BodyState? bodyState,
+    double? currentTemp,
+    double? energyLevel,
+    int? waterIntake,
+    HealthIdentity? profile,
+  }) {
+    return ActionState(
+      steps: steps ?? this.steps,
+      lastReset: lastReset ?? this.lastReset,
+      bodyState: bodyState ?? this.bodyState,
+      currentTemp: currentTemp ?? this.currentTemp,
+      energyLevel: energyLevel ?? this.energyLevel,
+      waterIntake: waterIntake ?? this.waterIntake,
+      profile: profile ?? this.profile,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
       'steps': steps.map((s) => s.toMap()).toList(),
       'last_reset': lastReset.toIso8601String(),
+      'current_temp': currentTemp,
+      'energy_level': energyLevel,
+      'water_intake': waterIntake,
     };
-  }
-
-  factory ActionState.fromMap(Map<String, dynamic> map) {
-    return ActionState(
-      steps: (map['steps'] as List?)?.map((s) => ActionStep.fromMap(s as Map<String, dynamic>)).toList() ?? [],
-      lastReset: DateTime.parse(map['last_reset'] ?? DateTime.now().toIso8601String()),
-    );
   }
 }
 
 class ActionNotifier extends StateNotifier<ActionState> {
   final SyncService _syncService;
+  final SupabaseService _supabaseService;
+  final Ref _ref;
 
-  ActionNotifier(this._syncService) : super(ActionState(steps: _generateInitialSteps(), lastReset: DateTime.now())) {
+  ActionNotifier(this._syncService, this._supabaseService, this._ref)
+    : super(
+        ActionState(
+          steps: [],
+          lastReset: DateTime.now(),
+          bodyState: BodyState(
+            energyScore: 70,
+            recoveryScore: 80,
+            stressLoad: 30,
+            hydrationStatus: 80,
+            primaryMessage: 'System balance optimal. Keep following your rhythm.',
+            status: 'GREEN',
+            emoji: '⚡',
+            headline: 'Metabolic Flux Stable',
+            subtext: 'Your biological metrics indicate high adaptive capacity today.',
+            actions: [],
+          ),
+        ),
+      ) {
     _init();
   }
 
   Future<void> _init() async {
+    _ref.listen<AsyncValue<GraphState?>>(graphStateProvider, (previous, next) {
+      next.whenData((graph) {
+        if (graph != null) {
+          _updateFromGraph(graph);
+        }
+      });
+    }, fireImmediately: true);
+
     final localState = await _syncService.loadActionStateLocally();
     if (localState != null) {
       state = localState;
@@ -45,206 +155,189 @@ class ActionNotifier extends StateNotifier<ActionState> {
     _checkDailyReset();
   }
 
-  static List<ActionStep> _generateInitialSteps() {
-    return [
-      ActionStep(
-        id: '1',
-        title: 'WAKE HYDRATION',
-        instruction: '200ml warm water + pinch of fenugreek.',
-        benefit: 'The Ignition: Flushes system for recovery.',
-        isLocked: false,
-      ),
-      ActionStep(
-        id: '2',
-        title: 'GENTLE MOVEMENT',
-        instruction: 'Move for 5 minutes in fresh air.',
-        benefit: 'The Taxi: Readies muscles for glucose uptake.',
-      ),
-      ActionStep(
-        id: '3',
-        title: 'BREATH RESET',
-        instruction: '3 cycles of Box Breathing (4-4-4-4).',
-        benefit: 'Engine Check: Oxygenates pancreas & liver.',
-      ),
-      ActionStep(
-        id: '4',
-        title: 'FIRST INTAKE',
-        instruction: 'Take 1 serving of NE Body Reset Formula.',
-        benefit: 'The Thrust: Direct nutrient delivery to cells.',
-      ),
-      ActionStep(
-        id: '5',
-        title: 'STABILIZATION',
-        instruction: 'Avoid sitting. Light movement for 5 mins.',
-        benefit: 'Takeoff: Prevents insulin spike.',
-      ),
-    ];
+  void _updateFromGraph(GraphState graph) {
+    final actionRecs = graph.candidateRecommendations;
+
+    final steps = actionRecs.map((rec) => ActionStep(
+      id: rec.recommendationId,
+      title: rec.title,
+      instruction: rec.summary,
+      benefit: rec.explanation,
+      timing: rec.category,
+      isCompleted: false,
+      isLocked: false,
+    )).toList();
+
+    if (steps.isEmpty && state.steps.isNotEmpty) {
+      return;
+    }
+
+    final bodyState = _calculateBodyState(graph.twinSnapshot, steps);
+    state = state.copyWith(
+      steps: steps,
+      bodyState: bodyState,
+    );
+    _persist();
   }
 
-  void completeStep(String id) {
+  BodyState _calculateBodyState(BiologicalTwinSnapshot snapshot, List<ActionStep> steps) {
+    final current = snapshot.currentState;
+    final energy = ((current['recovery'] ?? 0.7) * 100).toDouble();
+    final recovery = ((current['sleep'] ?? 0.8) * 100).toDouble();
+    final stress = ((current['stress'] ?? 0.3) * 100).toDouble();
+    final hydration = ((current['hydration'] ?? 0.8) * 100).toDouble();
+
+    final status = stress > 70 ? 'RED' : (energy < 50 ? 'YELLOW' : 'GREEN');
+    final emoji = status == 'RED' ? '🔥' : (status == 'YELLOW' ? '🔋' : '⚡');
+    final headline = status == 'RED' ? 'Hyper-Stress Detected' : (status == 'YELLOW' ? 'Energy Conservation' : 'Metabolic Flux Stable');
+    final subtext = status == 'RED' ? 'System is entering a compensatory state. Immediate cooldown required.' : (status == 'YELLOW' ? 'Cellular ATP production is sub-optimal. Prioritize restorative protocols.' : 'Your biological metrics indicate high adaptive capacity today.');
+
+    final actions = steps.map((s) => DailyAction(
+      title: s.title,
+      type: s.id.contains('walk') ? 'activity' : (s.id.contains('water') ? 'hydration' : 'food'),
+      instruction: s.instruction,
+      benefit: s.benefit,
+      icon: s.id.contains('walk') ? '🏃' : (s.id.contains('water') ? '💧' : '🍊'),
+    )).toList();
+
+    return BodyState(
+      energyScore: energy,
+      recoveryScore: recovery,
+      stressLoad: stress,
+      hydrationStatus: hydration,
+      primaryMessage: subtext,
+      status: status,
+      emoji: emoji,
+      headline: headline,
+      subtext: subtext,
+      actions: actions,
+    );
+  }
+
+  void updateBiometrics({double? temp, double? energy, int? water}) {
+    state = state.copyWith(
+      currentTemp: temp?.clamp(30.0, 45.0),
+      energyLevel: energy?.clamp(0.0, 1.0),
+      waterIntake: water?.clamp(0, 4000),
+    );
+    _persist();
+  }
+
+  void refreshPlan() {
+    // Reactively updated via graphStateProvider
+  }
+
+  void completeStep(String id) async {
+    final user = _ref.read(userProvider);
+    if (user == null) return;
+
     final index = state.steps.indexWhere((s) => s.id == id);
     if (index == -1) return;
 
     final updatedSteps = List<ActionStep>.from(state.steps);
     updatedSteps[index] = updatedSteps[index].copyWith(isCompleted: true);
 
-    // Unlock next step
     if (index + 1 < updatedSteps.length) {
-      updatedSteps[index + 1] = updatedSteps[index + 1].copyWith(isLocked: false);
+      updatedSteps[index + 1] = updatedSteps[index + 1].copyWith(
+        isLocked: false,
+      );
     }
 
-    state = ActionState(steps: updatedSteps, lastReset: state.lastReset);
+    state = state.copyWith(steps: updatedSteps);
     _persist();
-  }
 
-  void updateSteps(List<ActionStep> newSteps) {
-    state = ActionState(steps: newSteps, lastReset: state.lastReset);
-    _persist();
+    await _supabaseService.markTaskComplete(user.id, id, state.steps.length);
   }
 
   void _persist() {
     _syncService.saveActionStateLocally(state);
-    _syncService.syncActionStateToCloud(state);
   }
 
   void _checkDailyReset() {
     final now = DateTime.now();
     final dayDiff = now.difference(state.lastReset).inDays;
     if (dayDiff >= 1) {
-      state = ActionState(steps: _generateInitialSteps(), lastReset: now);
+      state = state.copyWith(lastReset: now);
+      _persist();
     }
   }
 }
+
+final actionProvider = StateNotifierProvider<ActionNotifier, ActionState>((
+  ref,
+) {
+  return ActionNotifier(
+    ref.watch(syncServiceProvider),
+    ref.watch(supabaseServiceProvider),
+    ref,
+  );
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // USER PROGRESS & PROFILE
 // ─────────────────────────────────────────────────────────────────────────────
 
-enum ProblemArea { sugar, energy, weight, stress, bp, none }
-
-class UserProfile {
-  final String? gender;
-  final int? age;
-  final double? weight;
-  final ProblemArea problemArea;
-  final bool hasCompletedOnboarding;
-
-  UserProfile({
-    this.gender,
-    this.age,
-    this.weight,
-    this.problemArea = ProblemArea.none,
-    this.hasCompletedOnboarding = false,
-  });
-
-  UserProfile copyWith({
-    String? gender,
-    int? age,
-    double? weight,
-    ProblemArea? problemArea,
-    bool? hasCompletedOnboarding,
-  }) {
-    return UserProfile(
-      gender: gender ?? this.gender,
-      age: age ?? this.age,
-      weight: weight ?? this.weight,
-      problemArea: problemArea ?? this.problemArea,
-      hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'gender': gender,
-      'age': age,
-      'weight': weight,
-      'problem_area': problemArea.name,
-      'has_completed_onboarding': hasCompletedOnboarding,
-    };
-  }
-
-  factory UserProfile.fromMap(Map<String, dynamic> map) {
-    return UserProfile(
-      gender: map['gender'],
-      age: map['age'],
-      weight: map['weight']?.toDouble(),
-      problemArea: ProblemArea.values.firstWhere(
-        (e) => e.name == map['problem_area'],
-        orElse: () => ProblemArea.none,
-      ),
-      hasCompletedOnboarding: map['has_completed_onboarding'] ?? false,
-    );
-  }
-
-  double get completionPercentage {
-    int totalFields = 4;
-    int filledFields = 0;
-    if (gender != null) filledFields++;
-    if (age != null) filledFields++;
-    if (weight != null) filledFields++;
-    if (problemArea != ProblemArea.none) filledFields++;
-    
-    // Start at 47% as requested in requirements for "existing progress"
-    double base = 0.47;
-    double remaining = 0.53;
-    return base + (remaining * (filledFields / totalFields));
-  }
-
-  bool get isComplete => completionPercentage >= 1.0;
-}
-
-class UserProgressNotifier extends StateNotifier<UserProfile> {
-  final SyncService _syncService;
-
-  UserProgressNotifier(this._syncService) : super(UserProfile()) {
-    _init();
-  }
-
-  Future<void> _init() async {
-    final localProfile = await _syncService.loadProfileLocally();
-    if (localProfile != null) {
-      state = localProfile;
+final appUserProvider = FutureProvider<AppUser?>((ref) async {
+  final session = ref.watch(sessionProvider);
+  final isGuest = IdentityManager().isGuest;
+  
+  final uid = session?.user.id ?? (isGuest ? IdentityManager().currentUuid : null);
+  if (uid == null) return null;
+  
+  if (session != null) {
+    try {
+      final appUser = await SupabaseService().getAppUser(uid);
+      if (appUser != null && appUser.healthIdentity != null) {
+        await saveHealthIdentityToIsar(uid, appUser.healthIdentity!.toMap());
+        return appUser;
+      }
+    } catch (e) {
+      print('appUserProvider: Supabase fetch failed/errored: $e');
     }
   }
 
-  void updateGender(String gender) {
-    state = state.copyWith(gender: gender);
-    _persist();
+  // Fallback to local Isar load
+  try {
+    final localProfileData = await readHealthIdentityFromIsar(uid);
+    if (localProfileData != null) {
+      final userProfile = HealthIdentity.fromMap(localProfileData);
+      return AppUser(
+        id: uid,
+        email: session?.user.email ?? 'guest@nutrientearth.local',
+        profileCompleted: true,
+        healthIdentity: userProfile,
+      );
+    }
+  } catch (e) {
+    print('appUserProvider: Fallback Isar load failed: $e');
   }
 
-  void updateAge(int age) {
-    state = state.copyWith(age: age);
-    _persist();
-  }
-
-  void updateWeight(double weight) {
-    state = state.copyWith(weight: weight);
-    _persist();
-  }
-
-  void updateProblemArea(ProblemArea area) {
-    state = state.copyWith(problemArea: area);
-    _persist();
-  }
-
-  void setOnboardingComplete(bool complete) {
-    state = state.copyWith(hasCompletedOnboarding: complete);
-    _persist();
-  }
-
-  void _persist() {
-    _syncService.saveProfileLocally(state);
-    _syncService.syncProfileToCloud(state);
-  }
-}
-
-final userProgressProvider = StateNotifierProvider<UserProgressNotifier, UserProfile>((ref) {
-  return UserProgressNotifier(ref.watch(syncServiceProvider));
+  return null;
 });
 
-// Legacy personaProvider (kept for compatibility, but should migrate to userProgressProvider)
-final personaProvider = StateProvider<ProblemArea>((ref) {
-  return ref.watch(userProgressProvider).problemArea;
+final userProfileProvider = Provider<HealthIdentity?>((ref) {
+  return ref.watch(appUserProvider).value?.healthIdentity;
+});
+
+final bottomNavIndexProvider = StateProvider<int>((ref) => 0);
+final personaProvider = StateProvider<ProblemArea>((ref) => ProblemArea.none);
+
+final userProgressProvider = StateProvider<double>((ref) {
+  final profile = ref.watch(userProfileProvider);
+  if (profile == null) return 0.47; // Start at 47% as per requirement
+
+  int totalFields = 8;
+  int filledFields = 0;
+  if (profile.age > 0) filledFields++;
+  if (profile.gender.isNotEmpty) filledFields++;
+  if (profile.weight > 0) filledFields++;
+  if (profile.height > 0) filledFields++;
+  if (profile.primaryGoal.isNotEmpty) filledFields++;
+  if (profile.sleepTime.isNotEmpty) filledFields++;
+  if (profile.activityLevel.isNotEmpty) filledFields++;
+  if (profile.waterIntake > 0) filledFields++;
+
+  return 0.47 + (0.53 * (filledFields / totalFields));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -265,3 +358,16 @@ final userProvider = Provider<User?>((ref) {
   return session?.user;
 });
 
+final userPlanProvider = FutureProvider<UserPlan?>((ref) async {
+  final user = ref.watch(userProvider);
+  if (user == null) return null;
+  return SupabaseService().getActivePlan(user.id);
+});
+
+final recentInsightsProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+  ref.watch(graphStateProvider);
+  final userId = IdentityManager().currentUuid;
+  if (userId.isEmpty) return const [];
+  final allRecs = await LocalStorageService().readRecommendations(userId);
+  return allRecs.where((r) => r['type'] == 'insight').toList();
+});

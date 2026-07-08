@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../core/theme/app_theme.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/lifecycle/app_lifecycle_notifier.dart';
+import '../../core/lifecycle/app_lifecycle_state.dart';
+import '../../core/utils/error_utils.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -10,43 +12,25 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1500),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.8, curve: Curves.elasticOut),
-      ),
-    );
-
-    _controller.forward().then((_) => _navigateToNext());
-  }
-
-  Future<void> _navigateToNext() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (!mounted) return;
-
-    // Navigate to root and let the router's redirect logic handle the destination
-    // (e.g., /auth, /onboarding, or /)
-    context.go('/');
+    _controller.forward();
   }
 
   @override
@@ -57,94 +41,121 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final lifecycle = ref.watch(appLifecycleProvider);
+    final startupState = lifecycle.startupState;
+    final errorMessage = lifecycle.error;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          // Subtle background glow
-          Center(
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.nutrientGreen.withValues(alpha: 0.15),
-                    AppColors.nutrientGreen.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
+      backgroundColor: NEColors.background,
+      body: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // BRANDING
+              _buildLogo(),
+              const SizedBox(height: 32),
+              _buildTitle(context),
+              const SizedBox(height: 8),
+              _buildSubtitle(context),
+              
+              const SizedBox(height: 64),
+
+              // LOADING OR ERROR
+              if (startupState == AppStartupState.error)
+                _buildErrorFailsafe(errorMessage)
+              else
+                _buildLoader(),
+            ],
           ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return Opacity(
-                      opacity: _fadeAnimation.value,
-                      child: Transform.scale(
-                        scale: _scaleAnimation.value,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/logo.png',
-                        width: 120,
-                        height: 120,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'NUTRIENT EARTH',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          letterSpacing: 8,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'PRECISION WELLNESS',
-                        style: TextStyle(
-                          color: AppColors.nutrientGreen.withValues(alpha: 0.5),
-                          letterSpacing: 4,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Loading indicator at bottom
-          Positioned(
-            bottom: 60,
-            left: 0,
-            right: 0,
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 1,
-                  child: LinearProgressIndicator(
-                    backgroundColor: Colors.white10,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.nutrientGreen.withValues(alpha: 0.5)),
-                  ),
-                ),
-              ),
-            ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: NEColors.morningGradient,
+        boxShadow: [
+          BoxShadow(
+            color: NEColors.accent.withValues(alpha: 0.4),
+            blurRadius: 30,
+            spreadRadius: 10,
           ),
         ],
       ),
+      child: const Icon(
+        Icons.auto_awesome_mosaic_rounded,
+        color: Colors.white,
+        size: 50,
+      ),
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    return Text(
+      'NUTRIENT EARTH',
+      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            color: Colors.white,
+            letterSpacing: 4,
+            fontWeight: FontWeight.w900,
+          ),
+    );
+  }
+
+  Widget _buildSubtitle(BuildContext context) {
+    return Text(
+      'BIOLOGICAL OPERATING SYSTEM',
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: NEColors.accent.withValues(alpha: 0.8),
+            letterSpacing: 2,
+          ),
+    );
+  }
+
+  Widget _buildLoader() {
+    return const CircularProgressIndicator(
+      strokeWidth: 2,
+      valueColor: AlwaysStoppedAnimation<Color>(NEColors.accent),
+    );
+  }
+
+  Widget _buildErrorFailsafe(String? error) {
+    final friendlyMsg = getFriendlyErrorMessage(error);
+    return Column(
+      children: [
+        const Icon(Icons.wifi_off_rounded, color: Colors.redAccent, size: 48),
+        const SizedBox(height: 16),
+        const Text(
+          "Initialization Issue",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+          child: Text(
+            friendlyMsg,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 13),
+          ),
+        ),
+        const SizedBox(height: 24),
+        ElevatedButton(
+          onPressed: () {
+            ref.read(appLifecycleProvider.notifier).initializeApp();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: NEColors.accent,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          child: const Text("Retry Connection"),
+        ),
+      ],
     );
   }
 }

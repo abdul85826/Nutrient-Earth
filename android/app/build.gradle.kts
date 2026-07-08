@@ -6,8 +6,8 @@ plugins {
 }
 
 android {
-    namespace = "com.example.flutter_application_1"
-    compileSdk = 34
+    namespace = "com.nutrientearth.app"
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -21,9 +21,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.flutter_application_1"
-        minSdk = 21
-        targetSdk = 34
+       applicationId = "com.nutrientearth.app"
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled = true
@@ -42,5 +42,5 @@ flutter {
 
 dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -1,347 +1,288 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:ui';
 import '../../core/theme/app_theme.dart';
-import '../today/widgets/success_stories_carousel.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/providers/app_providers.dart';
+import '../../core/models/app_models.dart';
 
-class FlowScreen extends StatefulWidget {
+class FlowScreen extends ConsumerStatefulWidget {
   const FlowScreen({super.key});
 
   @override
-  State<FlowScreen> createState() => _FlowScreenState();
+  ConsumerState<FlowScreen> createState() => _FlowScreenState();
 }
 
-class _FlowScreenState extends State<FlowScreen> {
-  String _selectedTopic = 'Sugar Control';
-  final List<String> _topics = ['Sugar Control', 'Weight Loss', 'Energy Boost', 'Mental Calm', 'Beginners'];
-  
-  List<Map<String, dynamic>> _contentList = [];
-  bool _isLoadingContent = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchFlowContent();
-  }
-
-  Future<void> _fetchFlowContent() async {
-    try {
-      final res = await Supabase.instance.client.from('flow_content').select();
-      if (res.isNotEmpty && mounted) {
-        setState(() {
-          _contentList = List<Map<String, dynamic>>.from(res);
-          _isLoadingContent = false;
-        });
-        return;
-      }
-    } catch (e) {
-      // Fallback
-    }
-
-    // Local fallback for testing unpopulated schema
-    if (mounted) {
-      setState(() {
-        _contentList = [
-          {'title': 'Morning Sunlight Routine', 'insight': 'Expose your eyes to early sun (before 9AM) to reset cortisol levels and spike energy naturally.', 'tag': '⚡ ENERGY RISE'},
-          {'title': 'Herbal Cinnamon Hack', 'insight': 'Add 2g of Ceylon cinnamon to your morning tea to reduce post-meal sugar spikes by 24%.', 'tag': '🧪 SUGAR CONTROL'},
-          {'title': 'The 5-Min Micro-Walk', 'insight': 'Just 5 minutes of walking after every meal is more effective for weight loss than a 60-min gym session once a day.', 'tag': '⚖️ WEIGHT LOSS'}
-        ];
-        _isLoadingContent = false;
-      });
-    }
-  }
+class _FlowScreenState extends ConsumerState<FlowScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   Widget build(BuildContext context) {
+    final actionState = ref.watch(actionProvider);
+    final bodyState = actionState.bodyState;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
-          _buildBackground(),
-          SafeArea(
-            child: Column(
+          _buildVerticalFlow(bodyState),
+          _buildFloatingHeader(bodyState),
+          _buildProgressIndicator(bodyState.actions.length),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerticalFlow(BodyState state) {
+    return PageView.builder(
+      controller: _pageController,
+      scrollDirection: Axis.vertical,
+      onPageChanged: (idx) {
+        setState(() => _currentPage = idx);
+        HapticFeedback.selectionClick();
+      },
+      itemCount: state.actions.length,
+      itemBuilder: (context, index) {
+        return _ProtocolSession(
+          action: state.actions[index],
+          isActive: _currentPage == index,
+          isLast: index == state.actions.length - 1,
+          onComplete: () {
+            if (index < state.actions.length - 1) {
+              _pageController.nextPage(
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.easeInOutExpo,
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFloatingHeader(BodyState state) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
+            color: Colors.black.withValues(alpha: 0.4),
+            child: Row(
               children: [
-                _buildCustomAppBar(),
-                Expanded(
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    children: [
-                      const SuccessStoriesCarousel(),
-                      const SizedBox(height: 36),
-                      _buildTopicSelector(),
-                      const SizedBox(height: 36),
-                      _buildMomentsSection(),
-                      const SizedBox(height: 36),
-                      Text(
-                        'FOR YOUR BIOLOGY',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                      const SizedBox(height: 20),
-                      if (_isLoadingContent)
-                        const Center(child: CircularProgressIndicator(color: AppColors.nutrientGreen))
-                      else
-                        ..._contentList.map((c) => _buildContentCard(c['title'] ?? '', c['insight'] ?? '', c['tag'] ?? '')),
-                      const SizedBox(height: 120),
-                    ],
+                const Icon(Icons.bolt, color: AppColors.neonGreen, size: 20),
+                const SizedBox(width: 12),
+                const Text(
+                  'ADAPTIVE FLOW',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    fontSize: 12,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${state.energyScore.round()}% ENERGY',
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
-          boxShadow: [
-            BoxShadow(color: AppColors.nutrientGreen.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: -5),
-          ],
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () => _showUploadCard(context),
-          backgroundColor: AppColors.nutrientGreen,
-          icon: const Icon(Icons.add_rounded, color: Colors.black),
-          label: const Text('UPLOAD', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, letterSpacing: 1)),
         ),
       ),
     );
   }
 
-  Widget _buildBackground() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: AppColors.darkGradient,
-      ),
-    );
-  }
-
-  Widget _buildCustomAppBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'FLOW',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'The collective biological pulse.',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopicSelector() {
-    return SizedBox(
-      height: 40,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: _topics.length,
-        itemBuilder: (context, index) {
-          final topic = _topics[index];
-          final isSelected = topic == _selectedTopic;
-          return Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedTopic = topic),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.center,
-                decoration: isSelected
-                    ? BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(20),
-                      )
-                    : AppTheme.glassStyle(opacity: 0.05, borderRadius: 20),
-                child: Text(
-                  topic.toUpperCase(),
-                  style: TextStyle(
-                    color: isSelected ? Colors.black : Colors.white60,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildContentCard(String title, String insight, String tag) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(24),
-      decoration: AppTheme.glassStyle(opacity: 0.05),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.nutrientGreen.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppColors.nutrientGreen.withValues(alpha: 0.2)),
-                ),
-                child: Text(tag, style: const TextStyle(color: AppColors.nutrientGreen, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-              ),
-              const Spacer(),
-              const Icon(Icons.more_horiz, color: Colors.white24),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, letterSpacing: -0.5)),
-          const SizedBox(height: 12),
-          Text(
-            insight,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), height: 1.6, fontSize: 14),
-          ),
-          const SizedBox(height: 28),
-          Row(
-            children: [
-              _buildActionIcon(Icons.favorite_outline_rounded, '2.4k'),
-              const SizedBox(width: 24),
-              _buildActionIcon(Icons.chat_bubble_outline_rounded, '128'),
-              const Spacer(),
-              _buildActionIcon(Icons.share_outlined, ''),
-            ],
-          ),
-          const SizedBox(height: 28),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Routine synced to your biological runway.'),
-                    backgroundColor: AppColors.nutrientGreen,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withValues(alpha: 0.05),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-              child: const Text('💡 TRY THIS ROUTINE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionIcon(IconData icon, String count) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.white38, size: 20),
-        if (count.isNotEmpty) ...[
-          const SizedBox(width: 8),
-          Text(count, style: const TextStyle(color: Colors.white38, fontSize: 12, fontWeight: FontWeight.bold)),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildMomentsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('LIVE MOMENTS', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 20),
-        SizedBox(
-          height: 140,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            children: [
-              _buildMomentCard('🧘', 'Box Breath', '1.2k active'),
-              _buildMomentCard('🚶', 'Meal Walk', '840 active'),
-              _buildMomentCard('🍵', 'Herbal Fix', '2.1k active'),
-              _buildMomentCard('🥑', 'Clean Eat', '3.5k active'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMomentCard(String icon, String label, String active) {
-    return Container(
-      width: 120,
-      margin: const EdgeInsets.only(right: 16),
-      decoration: AppTheme.glassStyle(opacity: 0.03),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Text(icon, style: const TextStyle(fontSize: 28)),
-          ),
-          const SizedBox(height: 16),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(active, style: const TextStyle(color: AppColors.nutrientGreen, fontSize: 9, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  void _showUploadCard(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(32),
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(36)),
-        ),
+  Widget _buildProgressIndicator(int total) {
+    return Positioned(
+      right: 12,
+      top: 0,
+      bottom: 0,
+      child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 32),
-            Text('CONTRIBUTE TO FLOW', style: Theme.of(context).textTheme.labelLarge),
-            const SizedBox(height: 24),
-            _buildUploadOption(Icons.show_chart_rounded, 'Share Bio-Progress', 'Inspire others with your 7-day trends.'),
-            _buildUploadOption(Icons.timer_outlined, 'Share Routine', 'What protocol worked for you today?'),
-            _buildUploadOption(Icons.camera_alt_outlined, 'Visual Impact', 'Share a photo of your NE preparation.'),
-            const SizedBox(height: 24),
-          ],
+          children: List.generate(total, (index) {
+            final active = _currentPage == index;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: 4,
+              height: active ? 32 : 8,
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              decoration: BoxDecoration(
+                color: active ? AppColors.neonGreen : Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
+}
 
-  Widget _buildUploadOption(IconData icon, String title, String sub) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 8),
-      leading: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(14)),
-        child: Icon(icon, color: AppColors.nutrientGreen),
+class _ProtocolSession extends StatelessWidget {
+  final DailyAction action;
+  final bool isActive;
+  final bool isLast;
+  final VoidCallback onComplete;
+
+  const _ProtocolSession({
+    required this.action,
+    required this.isActive,
+    required this.isLast,
+    required this.onComplete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = action.type == 'activity'
+        ? AppColors.neonGreen
+        : (action.type == 'hydration'
+              ? Colors.cyanAccent
+              : AppColors.warmOrange);
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.black, color.withValues(alpha: 0.1), Colors.black],
+        ),
       ),
-      title: Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-      subtitle: Text(sub, style: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 12)),
-      onTap: () => Navigator.pop(context),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Biological Icon
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: isActive ? 1.0 : 0.8),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.elasticOut,
+                builder: (context, value, _) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: color.withValues(alpha: 0.1),
+                        border: Border.all(
+                          color: color.withValues(alpha: 0.3),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withValues(alpha: 0.2),
+                            blurRadius: 40,
+                            spreadRadius: 10,
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          action.icon,
+                          style: const TextStyle(fontSize: 48),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 48),
+
+              // Instruction
+              Text(
+                action.title.toUpperCase(),
+                style: TextStyle(
+                  color: color,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                action.instruction,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -1,
+                  height: 1.1,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                action.benefit,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4),
+                  fontSize: 16,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const Spacer(),
+
+              // Action Button
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.heavyImpact();
+                  onComplete();
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'INITIATE PROTOCOL',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              if (!isLast)
+                const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white24,
+                  size: 32,
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,9 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../core/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/bootstrap/identity_manager.dart';
+import '../../core/lifecycle/app_lifecycle_notifier.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/utils/error_utils.dart';
 
+/// Auth Screen — Google Sign-In + Guest access only.
+/// Email/OTP and Magic Link are disabled until email confirmation flow is ready.
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
@@ -11,369 +19,272 @@ class AuthScreen extends ConsumerStatefulWidget {
   ConsumerState<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends ConsumerState<AuthScreen> {
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _otpController = TextEditingController();
+class _AuthScreenState extends ConsumerState<AuthScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeIn;
   bool _isLoading = false;
-  bool _otpSent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    HapticFeedback.lightImpact();
+    setState(() => _isLoading = true);
+    try {
+      // The scheme MUST match applicationId in build.gradle.kts AND
+      // android:scheme in AndroidManifest.xml intent-filter.
+      // Current applicationId = com.nutrientearth.app
+      final String redirectTo = kIsWeb
+          ? Uri.base.origin
+          : 'com.nutrientearth.app://login-callback/';
+
+      debugPrint('AUTH: Triggering Google OAuth');
+
+      final success = await Supabase.instance.client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: redirectTo,
+      );
+
+      if (success) {
+        debugPrint('AUTH: Google OAuth initiated — awaiting callback');
+      } else {
+        throw Exception('OAuth trigger failed to initiate.');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(getFriendlyErrorMessage(e)),
+            backgroundColor: NEColors.statusRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleGuestSignIn() async {
+    HapticFeedback.lightImpact();
+    setState(() => _isLoading = true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('ne_auth_mode', 'guest');
+      await IdentityManager().initialize();
+      await ref.read(appLifecycleProvider.notifier).initializeApp();
+      debugPrint('AUTH: Guest mode initialized');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(getFriendlyErrorMessage(e)),
+            backgroundColor: NEColors.statusRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: NEColors.background,
       body: Stack(
         children: [
-          _buildBackgroundGlow(),
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 60),
-                  _buildHeader(),
-                  const Spacer(),
-                  if (!_otpSent) ...[
-                    _buildPhoneInput(),
-                    const SizedBox(height: 24),
-                    _buildPrimaryButton(
-                      label: 'SEND OTP',
-                      onPressed: () => _handlePhoneAuth(),
+            child: FadeTransition(
+              opacity: _fadeIn,
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 48),
+
+                    // Logo
+                    Center(
+                      child: Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: NEColors.morningGradient,
+                          boxShadow: [
+                            BoxShadow(
+                              color: NEColors.accent.withValues(alpha: 0.3),
+                              blurRadius: 30,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.eco_rounded, color: Colors.black, size: 44),
+                      ),
                     ),
-                  ] else ...[
-                    _buildOtpInput(),
-                    const SizedBox(height: 24),
-                    _buildPrimaryButton(
-                      label: 'VERIFY & CONTINUE',
-                      onPressed: () => _handleVerifyOtp(),
+
+                    const SizedBox(height: 32),
+
+                    // Title
+                    Text(
+                      'Nutrient Earth',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1,
+                        fontSize: 32,
+                      ),
                     ),
-                    TextButton(
-                      onPressed: () => setState(() => _otpSent = false),
-                      child: const Text('EDIT NUMBER', style: TextStyle(color: AppColors.nutrientGreen, fontSize: 10)),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      'Your Biological Operating System',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: NEColors.textSecondary,
+                        letterSpacing: 2,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 13,
+                      ),
                     ),
+
+                    const SizedBox(height: 64),
+
+                    // Google Sign-In
+                    _AuthButton(
+                      onTap: _handleGoogleSignIn,
+                      icon: Icons.g_mobiledata_rounded,
+                      label: 'Sign in with Google',
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      isLoading: _isLoading,
+                    ).animate().shimmer(duration: 2.seconds, color: Colors.white54),
+
+                    const SizedBox(height: 16),
+
+                    // Guest Sign-In
+                    _AuthButton(
+                      onTap: _handleGuestSignIn,
+                      icon: Icons.person_outline_rounded,
+                      label: 'Continue as Guest',
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: Colors.white70,
+                      border: const BorderSide(color: Colors.white24),
+                      isLoading: _isLoading,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    const Text(
+                      'Connect your biological data to begin intelligence calibration.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: NEColors.textTertiary, fontSize: 11),
+                    ),
+
+                    const SizedBox(height: 48),
+
+                    Text(
+                      'By continuing, you agree to our Terms and Privacy Policy',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: NEColors.textTertiary,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
-                  const SizedBox(height: 32),
-                  _buildDivider(),
-                  const SizedBox(height: 32),
-                  _buildSocialButton(
-                    label: 'SIGN IN WITH GOOGLE',
-                    icon: Icons.g_mobiledata_rounded,
-                    onPressed: () => _handleGoogleAuth(),
-                  ),
-                  const SizedBox(height: 48),
-                  _buildFooter(),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            ),
-          ),
-          if (_isLoading) _buildOverlay(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackgroundGlow() {
-    return Positioned(
-      top: -100,
-      right: -100,
-      child: Container(
-        width: 400,
-        height: 400,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [
-              AppColors.nutrientGreen.withValues(alpha: 0.1),
-              AppColors.nutrientGreen.withValues(alpha: 0.0),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'WELCOME TO\nNUTRIENT EARTH',
-          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontSize: 32,
-                height: 1.1,
-              ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Precision biology for high-performance humans.',
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.4),
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPhoneInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'MOBILE NUMBER',
-          style: TextStyle(
-            color: Colors.white38,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.glassBorder),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          child: Row(
-            children: [
-              const Text(
-                '+91',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(width: 12),
-              Container(width: 1, height: 20, color: Colors.white12),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                  cursorColor: AppColors.nutrientGreen,
-                  decoration: InputDecoration(
-                    hintText: '00000 00000',
-                    hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.1)),
-                    border: InputBorder.none,
-                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOtpInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'ENTER VERIFICATION CODE',
-          style: TextStyle(
-            color: Colors.white38,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.03),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.glassBorder),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-          child: TextField(
-            controller: _otpController,
-            keyboardType: TextInputType.number,
-            maxLength: 6,
-            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 8),
-            cursorColor: AppColors.nutrientGreen,
-            textAlign: TextAlign.center,
-            decoration: InputDecoration(
-              counterText: '',
-              hintText: '000000',
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.1)),
-              border: InputBorder.none,
             ),
           ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildPrimaryButton({required String label, required VoidCallback onPressed}) {
-    return Container(
-      width: double.infinity,
-      height: 60,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.nutrientGreen.withValues(alpha: 0.2),
-            blurRadius: 20,
-            spreadRadius: -5,
-          ),
+          // Loading overlay
+          if (_isLoading)
+            Container(
+              color: NEColors.scrim,
+              child: const Center(
+                child: CircularProgressIndicator(color: NEColors.accent),
+              ),
+            ),
         ],
       ),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.nutrientGreen,
-          foregroundColor: Colors.black,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 0,
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 14),
-        ),
-      ),
     );
   }
+}
 
-  Widget _buildSocialButton({required String label, required IconData icon, required VoidCallback onPressed}) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(16),
+class _AuthButton extends StatelessWidget {
+  final VoidCallback onTap;
+  final IconData icon;
+  final String label;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final BorderSide? border;
+  final bool isLoading;
+
+  const _AuthButton({
+    required this.onTap,
+    required this.icon,
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+    this.border,
+    this.isLoading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
       child: Container(
-        width: double.infinity,
-        height: 60,
+        height: 56,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white12),
-          color: Colors.white.withValues(alpha: 0.02),
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(14),
+          border: border != null ? Border.fromBorderSide(border!) : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 24),
+            if (isLoading)
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                ),
+              )
+            else
+              Icon(icon, color: foregroundColor, size: 24),
             const SizedBox(width: 12),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                letterSpacing: 1,
+              style: TextStyle(
+                color: foregroundColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildDivider() {
-    return Row(
-      children: [
-        Expanded(child: Container(height: 1, color: AppTheme.glassBorder)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'OR',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.1), fontSize: 10, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Expanded(child: Container(height: 1, color: AppTheme.glassBorder)),
-      ],
-    );
-  }
-
-  Widget _buildFooter() {
-    return Center(
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.2), fontSize: 11),
-          children: const [
-            TextSpan(text: 'By continuing, you agree to our '),
-            TextSpan(
-              text: 'Terms of Service',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            TextSpan(text: ' and '),
-            TextSpan(
-              text: 'Privacy Policy',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOverlay() {
-    return Container(
-      color: Colors.black54,
-      child: const Center(
-        child: CircularProgressIndicator(color: AppColors.nutrientGreen),
-      ),
-    );
-  }
-
-  void _handlePhoneAuth() async {
-    if (_phoneController.text.length < 10) return;
-    
-    setState(() => _isLoading = true);
-    try {
-      // Real Supabase Auth Logic
-      await Supabase.instance.client.auth.signInWithOtp(
-        phone: '+91${_phoneController.text}',
-      );
-      setState(() {
-        _otpSent = true;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Auth Error: $e'), backgroundColor: Colors.red),
-      );
-    }
-  }
-
-  void _handleVerifyOtp() async {
-    if (_otpController.text.length < 6) return;
-    
-    setState(() => _isLoading = true);
-    try {
-      final response = await Supabase.instance.client.auth.verifyOTP(
-        phone: '+91${_phoneController.text}',
-        token: _otpController.text,
-        type: OtpType.sms,
-      );
-      
-      if (response.user != null) {
-        if (!mounted) return;
-        context.go('/onboarding');
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification Failed: $e'), backgroundColor: Colors.red),
-      );
-    }
-  }
-
-  void _handleGoogleAuth() async {
-    setState(() => _isLoading = true);
-    try {
-      // This will trigger external browser for Google login
-      await Supabase.instance.client.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: 'com.nutrientearth.app://login-callback/',
-      );
-      // Success is handled by auth state listener in router
-    } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google Sign-In Failed: $e'), backgroundColor: Colors.red),
-      );
-    }
   }
 }
