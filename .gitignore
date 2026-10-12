@@ -1,0 +1,103 @@
+# -----------------------------------------------------------------------------
+# NUTRIENT EARTH — ROOT .GITIGNORE
+# -----------------------------------------------------------------------------
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.swp
+*.swo
+
+# IDE & Editor Files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# -----------------------------------------------------------------------------
+# CRITICAL SECURITY: SECRETS & CREDENTIALS (NEVER COMMIT)
+# -----------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+!server/.env.example
+!client/config/dev.json.example
+*.key
+*.pem
+*.cert
+*.crt
+*.p12
+*.pfx
+*.keystore
+*.jks
+key.properties
+google-services.json
+GoogleService-Info.plist
+
+# -----------------------------------------------------------------------------
+# CLIENT (FLUTTER & DART)
+# -----------------------------------------------------------------------------
+client/.dart_tool/
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/.pub-cache/
+client/.pub/
+client/build/
+**/build/
+client/coverage/
+client/android/app/build/
+client/android/.gradle/
+client/android/local.properties
+client/ios/Pods/
+client/ios/.symlinks/
+client/ios/Flutter/Flutter.framework
+client/ios/Flutter/Flutter.podspec
+client/ios/Flutter/Generated.xcconfig
+client/ios/Flutter/app.flx
+client/ios/Flutter/app.zip
+client/ios/Flutter/flutter_assets/
+client/ios/ServiceDefinitions.json
+client/web/icons/
+
+# Dart Generated Files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# -----------------------------------------------------------------------------
+# SERVER (PYTHON & FASTAPI)
+# -----------------------------------------------------------------------------
+server/__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+server/.venv/
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+
+# -----------------------------------------------------------------------------
+# INFRASTRUCTURE & LOCAL DATA
+# -----------------------------------------------------------------------------
+infrastructure/docker/data/
+postgres_data/
+redis_data/
+*.log
+node_modules

@@ -1,0 +1,103 @@
+name: nutrient_earth
+description: "Nutrient Earth — Health Memory & Decision Intelligence Client"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.11.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management & Dependency Injection
+  flutter_riverpod: ^2.6.1
+
+  # Declarative Routing
+  go_router: ^14.8.0
+
+  # HTTP Networking & REST
+  dio: ^5.8.0
+
+  # Local Persistence (Encrypted SQLite via Drift + sqlite3mc)
+  drift: ^2.26.0
+  sqlite3_flutter_libs: ^0.5.28
+
+  # Secure Storage (iOS Keychain / Android Keystore-backed EncryptedSharedPreferences)
+  flutter_secure_storage: ^9.2.4
+
+  # Health Data Platform (HealthKit / Health Connect)
+  health: ^13.1.2
+
+  # UI, Typography, Icons & Media
+  cached_network_image: ^3.4.1
+  flutter_image_compress: ^2.4.0
+  image_picker: ^1.1.2
+  phosphor_flutter: ^2.1.0
+  lottie: ^3.3.1
+  intl: ^0.20.2
+
+  # Privacy-Preserving Crash Diagnostics & Observability
+  sentry_flutter: ^8.14.2
+
+  uuid: any
+  shared_preferences: any
+  supabase_flutter: any
+  http: any
+  battery_plus: any
+  connectivity_plus: any
+  geolocator: any
+  pedometer: any
+  permission_handler: any
+  flutter_local_notifications: any
+  timezone: any
+  google_fonts: any
+  meta: any
+  flutter_dotenv: any
+  flutter_animate: any
+  flutter_3d_controller: any
+  flutter_inappwebview_platform_interface: any
+  flutter_svg: ^2.0.17
+  path: any
+  path_provider: any
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # Code generation — versions pinned to resolve analyzer ≥ 14.x for Dart 3.13.
+  # Removed freezed/freezed_annotation: not used in this project.
+  build_runner: ^2.12.0
+  json_serializable: ^6.9.4
+  drift_dev: ^2.26.0
+  mocktail: ^1.0.4
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/lottie/
+    - assets/models/
+    - assets/brand/
+    - assets/brand/logo/
+    - assets/brand/logo/source/
+    - assets/brand/logo/primary/
+    - assets/brand/logo/mark/
+    - assets/brand/logo/monochrome/
+    - assets/brand/logo/dark/
+    - assets/brand/logo/light/
+    - assets/brand/logo/app/
+    - assets/brand/logo/web/
+    - assets/brand/logo/wordmark/
+    - assets/brand/logo/transparent/
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc

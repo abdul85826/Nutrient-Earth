@@ -1,0 +1,30 @@
+{
+  "deno.enable": false,
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "dart.flutterSdkPath": "D:\\Downloads\\flutter",
+  "dart.projectSearchDepth": 3,
+  "deno.lint": true,
+  "deno.unstable": [
+    "bare-node-builtins",
+    "byonm",
+    "sloppy-imports",
+    "unsafe-proto",
+    "webgpu",
+    "broadcast-channel",
+    "worker-options",
+    "cron",
+    "kv",
+    "ffi",
+    "fs",
+    "http",
+    "net"
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "java.gradle.buildServer.enabled": "off",
+  "cmake.sourceDirectory": "${workspaceFolder}/client/windows",
+  "cmake.configureOnOpen": false
+}

@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Nutrient Earth (Chrome Web)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": [
+        "--web-port",
+        "5656"
+      ],
+      "preLaunchTask": "prepare-dev-environment"
+    },
+    {
+      "name": "Nutrient Earth (Web Server)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "web-server",
+      "args": [
+        "--web-port",
+        "5656"
+      ],
+      "preLaunchTask": "prepare-dev-environment"
+    }
+  ]
+}
