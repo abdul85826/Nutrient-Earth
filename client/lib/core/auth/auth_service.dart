@@ -132,6 +132,9 @@ class AuthService extends StateNotifier<AuthState> {
   }
 
   Future<void> signInWithGoogle() async {
+    if (state is AuthLoading) {
+      return;
+    }
     state = const AuthLoading('Connecting with Google...');
     try {
       final client = _supabaseClient ?? _safeGetSupabase();

@@ -8,9 +8,10 @@
 - Links: Privacy, Terms, accessibility, supported regions/languages.
 
 ### Screen 1 — Authentication
-- Preferred sign-in: passkey or supported OAuth/OIDC provider; email magic link/password only if securely supported by identity provider.
 - OAuth: use Authorization Code + PKCE for public/native clients; validate state and nonce; exact redirect URI allowlist; never embed client secrets in app; refresh tokens stored in platform-secure storage; revoke sessions on logout/account deletion.
-- Explain optional profile data is separate from account creation.
+  - Web callback: Dynamically resolved from active browser origin (`${Uri.base.origin}/`, e.g. `http://localhost:5656/` in development) with in-app PKCE session exchange and query-param error handling.
+  - Native callback: Custom app scheme `com.nutrientearth.app://login-callback` registered in `AndroidManifest.xml` and `Info.plist`.
+  - Identity provider allowlist must explicitly permit web origin wildcards (`http://localhost:*/**`) and native custom schemes (`com.nutrientearth.app://**`); never fall back to unmanaged static ports (e.g. 3000).
 
 ### Screen 2 — Language and accessibility
 - Language, preferred units, text size, reduced motion, captions, voice/TTS preferences.

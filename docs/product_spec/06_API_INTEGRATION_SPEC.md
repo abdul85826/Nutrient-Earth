@@ -67,7 +67,10 @@ Thresholds: configurable 50%, 75%, 90%, 100% of budget/known quota. De-duplicate
 Email/dashboard alerts must be independent of the AI/search provider that is exhausting. Do not include prompts, health documents, API keys, or full request bodies in alert emails. Include provider, threshold, period, evidence source, last observed usage, confidence, and next action. Monitor 429s and `Retry-After`; alert when provider telemetry is unavailable.
 
 ## 8. Email and OAuth security
-OAuth redirect URIs exact-match allowlist; state and nonce validation; PKCE; least scopes; token rotation/revocation; CSRF protections; secure cookies for web; secure OS storage for native refresh tokens; no tokens in URLs/logs. Email verification and recovery links must be single-use, time-bound, and rate-limited. Account linking requires proof of control of both identities.
+OAuth redirect URIs exact-match and wildcard allowlist (`http://localhost:*/**`, `http://localhost:5656/**`, `com.nutrientearth.app://**`); state and nonce validation; PKCE; least scopes; token rotation/revocation; CSRF protections; platform-secure storage for native tokens; no tokens or authorization codes in URLs/logs/exception telemetry.
+- Supabase Auth Site URL: `http://localhost:5656` in local development; production domain in staging/production.
+- Google Cloud OAuth Web Client: Authorized Redirect URI points to `https://<supabase-project-ref>.supabase.co/auth/v1/callback`.
+Email verification and recovery links must be single-use, time-bound, and rate-limited. Account linking requires proof of control of both identities.
 
 ## 9. Live-provider policy
 A screen may say “live” only if data source timestamp, provider response, and freshness threshold are available. Every provider has an explicit disabled/degraded state. No fake fallback data, fake weather, invented prices, synthetic stock, or fabricated availability.

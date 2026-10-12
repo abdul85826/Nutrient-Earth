@@ -14,8 +14,9 @@
 3. Start local DB/services with version-pinned containers where possible.
 4. Apply migrations against a fresh database.
 5. Run formatter, linter, static/type checks, unit tests, integration tests.
-6. Run client build and backend health checks.
-7. Verify app starts with external providers disabled; degraded mode should be clear.
+6. Run client: for Flutter Web, bind explicitly to the authorized port `flutter run -d chrome --web-port 5656`; for Android/iOS run `flutter run`.
+7. Verify Google OAuth callback redirects to the active app origin (`http://localhost:5656/` on web, `com.nutrientearth.app://login-callback` on native) and establishes an authenticated session.
+8. Verify app starts with external providers disabled; degraded mode should be clear.
 
 ## 3. CI pipeline
 Required stages:

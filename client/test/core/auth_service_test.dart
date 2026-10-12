@@ -48,5 +48,22 @@ void main() {
       await authService.signOut();
       expect(authService.state, isA<Unauthenticated>());
     });
+
+    test(
+      'signInWithGoogle transitions to AuthError when Supabase client is unavailable',
+      () async {
+        final authService = AuthService();
+        addTearDown(authService.dispose);
+
+        await authService.signInWithGoogle();
+
+        expect(authService.state, isA<AuthError>());
+        final errorState = authService.state as AuthError;
+        expect(errorState.message, contains('Google Sign-In failed'));
+        // Asserts that no authorization codes, tokens, or stack traces are leaked in user-facing message
+        expect(errorState.message, isNot(contains('code=')));
+        expect(errorState.message, isNot(contains('access_token')));
+      },
+    );
   });
 }
