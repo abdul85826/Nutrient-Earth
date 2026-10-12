@@ -26,7 +26,8 @@ class UserHealthProfile {
       primaryGoals: primaryGoals ?? this.primaryGoals,
       dietaryBaseline: dietaryBaseline ?? this.dietaryBaseline,
       activityLevel: activityLevel ?? this.activityLevel,
-      hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
     );
   }
 }
@@ -77,6 +78,7 @@ class OnboardingNotifier extends StateNotifier<UserHealthProfile> {
   }
 }
 
-final onboardingProvider = StateNotifierProvider<OnboardingNotifier, UserHealthProfile>((ref) {
-  return OnboardingNotifier();
-});
+final onboardingProvider =
+    StateNotifierProvider<OnboardingNotifier, UserHealthProfile>((ref) {
+      return OnboardingNotifier();
+    });

@@ -9,10 +9,13 @@ class AppShell extends StatelessWidget {
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/today')) return 0;
-    if (location.startsWith('/body')) return 1;
+    if (location.startsWith('/ask') ||
+        location.startsWith('/research') ||
+        location.startsWith('/today'))
+      return 0;
+    if (location.startsWith('/explore')) return 1;
     if (location.startsWith('/growth')) return 2;
-    if (location.startsWith('/explore')) return 3;
+    if (location.startsWith('/body')) return 3;
     if (location.startsWith('/store')) return 4;
     return 0;
   }
@@ -20,16 +23,16 @@ class AppShell extends StatelessWidget {
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
-        context.go('/today');
+        context.go('/ask');
         break;
       case 1:
-        context.go('/body');
+        context.go('/explore');
         break;
       case 2:
         context.go('/growth');
         break;
       case 3:
-        context.go('/explore');
+        context.go('/body');
         break;
       case 4:
         context.go('/store');

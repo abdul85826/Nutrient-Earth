@@ -150,10 +150,18 @@ class NERadius {
   static const double chip = 20.0;
   static const double pill = 100.0;
 
-  static const BorderRadius cardRadius = BorderRadius.all(Radius.circular(card));
-  static const BorderRadius cardSecondaryRadius = BorderRadius.all(Radius.circular(cardSecondary));
-  static const BorderRadius inputRadius = BorderRadius.all(Radius.circular(input));
-  static const BorderRadius pillRadius = BorderRadius.all(Radius.circular(pill));
+  static const BorderRadius cardRadius = BorderRadius.all(
+    Radius.circular(card),
+  );
+  static const BorderRadius cardSecondaryRadius = BorderRadius.all(
+    Radius.circular(cardSecondary),
+  );
+  static const BorderRadius inputRadius = BorderRadius.all(
+    Radius.circular(input),
+  );
+  static const BorderRadius pillRadius = BorderRadius.all(
+    Radius.circular(pill),
+  );
 }
 
 class NeTokens {
@@ -167,6 +175,7 @@ class NeTokens {
   static const Color sandDune = Color(0xFFE2DDD3);
   static const Color slateMuted = Color(0xFF56655D);
   static const Color alertCrimson = Color(0xFFB3261E);
+  static const Color amberWarning = Color(0xFF8D5B00);
   static const Color pureWhite = Color(0xFFFFFFFF);
 
   // Fonts
@@ -186,9 +195,12 @@ class NeTokens {
   static const double spacing32 = 32.0;
 
   // Radius
+  static const double radius4 = 4.0;
   static const double radius6 = 6.0;
+  static const double radius8 = 8.0;
   static const double radius10 = 10.0;
   static const double radius12 = 12.0;
+  static const double radius14 = 14.0;
   static const double radius16 = 16.0;
   static const double radius24 = 24.0;
   static const double radiusFull = 999.0;
@@ -200,4 +212,3 @@ class NeTokens {
     offset: Offset(0, 4),
   );
 }
-

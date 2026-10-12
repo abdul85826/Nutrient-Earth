@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/design_system/design_system.dart';
 import '../../../core/intelligence/intelligence_contracts.dart';
@@ -11,10 +12,12 @@ class ResearchWorkspaceScreen extends ConsumerStatefulWidget {
   const ResearchWorkspaceScreen({super.key, this.initialQuery});
 
   @override
-  ConsumerState<ResearchWorkspaceScreen> createState() => _ResearchWorkspaceScreenState();
+  ConsumerState<ResearchWorkspaceScreen> createState() =>
+      _ResearchWorkspaceScreenState();
 }
 
-class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScreen> {
+class _ResearchWorkspaceScreenState
+    extends ConsumerState<ResearchWorkspaceScreen> {
   late final TextEditingController _queryController;
   final ImagePicker _picker = ImagePicker();
 
@@ -24,7 +27,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
     _queryController = TextEditingController(text: widget.initialQuery ?? '');
     if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(researchProvider.notifier).executeResearch(widget.initialQuery!);
+        ref
+            .read(researchProvider.notifier)
+            .executeResearch(widget.initialQuery!);
       });
     }
   }
@@ -59,7 +64,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
       context: context,
       backgroundColor: NeTokens.warmIvory,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(NeTokens.radius24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(NeTokens.radius24),
+        ),
       ),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(NeTokens.spacing24),
@@ -108,7 +115,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Thank you! Feedback integrated into Health Memory.'),
+                    content: Text(
+                      'Thank you! Feedback integrated into Health Memory.',
+                    ),
                     backgroundColor: NeTokens.botanicalEvergreen,
                   ),
                 );
@@ -129,12 +138,17 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
       appBar: AppBar(
         backgroundColor: NeTokens.warmIvory,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: NeTokens.deepForest),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        leading: Navigator.of(context).canPop()
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: NeTokens.deepForest,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
         title: const Text(
-          'Research Workspace',
+          'Ask Research Workspace',
           style: TextStyle(
             fontFamily: NeTokens.fontFamilySerif,
             fontSize: 18,
@@ -143,10 +157,21 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
           ),
         ),
         actions: [
+          IconButton(
+            tooltip: 'Privacy & Settings',
+            icon: const Icon(
+              Icons.settings_outlined,
+              color: NeTokens.deepForest,
+            ),
+            onPressed: () => GoRouter.of(context).push('/settings'),
+          ),
           if (state.currentAnswerPlan != null)
             IconButton(
               tooltip: 'Feedback / Report',
-              icon: const Icon(Icons.feedback_outlined, color: NeTokens.mossGreen),
+              icon: const Icon(
+                Icons.feedback_outlined,
+                color: NeTokens.mossGreen,
+              ),
               onPressed: () => _showFeedbackModal(context),
             ),
         ],
@@ -156,7 +181,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
           children: [
             // Multimodal Input Card
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: NeTokens.spacing16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: NeTokens.spacing16,
+              ),
               child: NeCard(
                 padding: const EdgeInsets.all(NeTokens.spacing12),
                 child: Column(
@@ -170,7 +197,8 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                         color: NeTokens.deepForest,
                       ),
                       decoration: const InputDecoration(
-                        hintText: 'Enter nutrient, food product, or physiological query...',
+                        hintText:
+                            'Enter nutrient, food product, or physiological query...',
                         hintStyle: TextStyle(
                           fontFamily: NeTokens.fontFamilySans,
                           fontSize: 13,
@@ -179,7 +207,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                         border: InputBorder.none,
                       ),
                       onSubmitted: (val) {
-                        ref.read(researchProvider.notifier).executeResearch(val);
+                        ref
+                            .read(researchProvider.notifier)
+                            .executeResearch(val);
                       },
                     ),
 
@@ -189,7 +219,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                       Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(NeTokens.radius12),
+                            borderRadius: BorderRadius.circular(
+                              NeTokens.radius12,
+                            ),
                             child: Image.memory(
                               state.capturedImageBytes!,
                               height: 120,
@@ -202,12 +234,20 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                             right: 6,
                             child: CircleAvatar(
                               radius: 14,
-                              backgroundColor: Colors.black.withValues(alpha: 0.6),
+                              backgroundColor: Colors.black.withValues(
+                                alpha: 0.6,
+                              ),
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.close, size: 14, color: Colors.white),
+                                icon: const Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
                                 onPressed: () {
-                                  ref.read(researchProvider.notifier).clearCapturedImage();
+                                  ref
+                                      .read(researchProvider.notifier)
+                                      .clearCapturedImage();
                                 },
                               ),
                             ),
@@ -222,12 +262,18 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                       children: [
                         IconButton(
                           tooltip: 'Take Photo',
-                          icon: const Icon(Icons.camera_alt_outlined, color: NeTokens.mossGreen),
+                          icon: const Icon(
+                            Icons.camera_alt_outlined,
+                            color: NeTokens.mossGreen,
+                          ),
                           onPressed: () => _pickImage(ImageSource.camera),
                         ),
                         IconButton(
                           tooltip: 'Upload from Gallery',
-                          icon: const Icon(Icons.photo_library_outlined, color: NeTokens.mossGreen),
+                          icon: const Icon(
+                            Icons.photo_library_outlined,
+                            color: NeTokens.mossGreen,
+                          ),
                           onPressed: () => _pickImage(ImageSource.gallery),
                         ),
                         const Spacer(),
@@ -236,7 +282,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                           icon: Icons.auto_awesome_rounded,
                           isLoading: state.isLoading,
                           onPressed: () {
-                            ref.read(researchProvider.notifier).executeResearch(_queryController.text);
+                            ref
+                                .read(researchProvider.notifier)
+                                .executeResearch(_queryController.text);
                           },
                         ),
                       ],
@@ -255,7 +303,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(color: NeTokens.botanicalEvergreen),
+                          CircularProgressIndicator(
+                            color: NeTokens.botanicalEvergreen,
+                          ),
                           SizedBox(height: NeTokens.spacing16),
                           Text(
                             'Orchestrating 5-Domain Clinical Intelligence...',
@@ -270,30 +320,37 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                       ),
                     )
                   : state.errorMessage != null
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(NeTokens.spacing24),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.error_outline, size: 48, color: NeTokens.alertCrimson),
-                                const SizedBox(height: NeTokens.spacing12),
-                                Text(
-                                  state.errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontFamily: NeTokens.fontFamilySans,
-                                    fontSize: 14,
-                                    color: NeTokens.slateMuted,
-                                  ),
-                                ),
-                              ],
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(NeTokens.spacing24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: NeTokens.alertCrimson,
                             ),
-                          ),
-                        )
-                      : state.currentAnswerPlan != null
-                          ? _buildAnswerPlanView(state.currentAnswerPlan!, state.isSpeaking)
-                          : _buildEmptyState(),
+                            const SizedBox(height: NeTokens.spacing12),
+                            Text(
+                              state.errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontFamily: NeTokens.fontFamilySans,
+                                fontSize: 14,
+                                color: NeTokens.slateMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : state.currentAnswerPlan != null
+                  ? _buildAnswerPlanView(
+                      state.currentAnswerPlan!,
+                      state.isSpeaking,
+                    )
+                  : _buildEmptyState(),
             ),
           ],
         ),
@@ -316,7 +373,11 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                 shape: BoxShape.circle,
               ),
               child: const Center(
-                child: Icon(Icons.biotech_rounded, size: 36, color: NeTokens.mossGreen),
+                child: Icon(
+                  Icons.biotech_rounded,
+                  size: 36,
+                  color: NeTokens.mossGreen,
+                ),
               ),
             ),
             const SizedBox(height: NeTokens.spacing16),
@@ -348,8 +409,92 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
 
   Widget _buildAnswerPlanView(AnswerPlan plan, bool isSpeaking) {
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: NeTokens.spacing16, vertical: NeTokens.spacing8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: NeTokens.spacing16,
+        vertical: NeTokens.spacing8,
+      ),
       children: [
+        if (plan.isEmergency) ...[
+          Container(
+            margin: const EdgeInsets.only(bottom: NeTokens.spacing12),
+            padding: const EdgeInsets.all(NeTokens.spacing14),
+            decoration: BoxDecoration(
+              color: NeTokens.alertCrimson.withValues(alpha: 0.12),
+              border: Border.all(color: NeTokens.alertCrimson, width: 1.5),
+              borderRadius: BorderRadius.circular(NeTokens.radius14),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  color: NeTokens.alertCrimson,
+                  size: 28,
+                ),
+                const SizedBox(width: NeTokens.spacing12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'CRITICAL MEDICAL SAFETY NOTICE',
+                        style: TextStyle(
+                          fontFamily: NeTokens.fontFamilySans,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: NeTokens.alertCrimson,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        plan.emergencyNotice ??
+                            'Acute emergency symptoms detected. Seek emergency medical care immediately.',
+                        style: const TextStyle(
+                          fontFamily: NeTokens.fontFamilySans,
+                          fontSize: 12,
+                          color: NeTokens.deepForest,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (plan.isAbstained && !plan.isEmergency) ...[
+          Container(
+            margin: const EdgeInsets.only(bottom: NeTokens.spacing12),
+            padding: const EdgeInsets.all(NeTokens.spacing12),
+            decoration: BoxDecoration(
+              color: NeTokens.sandDune.withValues(alpha: 0.4),
+              border: Border.all(color: NeTokens.sandDune),
+              borderRadius: BorderRadius.circular(NeTokens.radius12),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
+                  color: NeTokens.slateMuted,
+                  size: 20,
+                ),
+                const SizedBox(width: NeTokens.spacing10),
+                Expanded(
+                  child: Text(
+                    plan.abstentionReason ??
+                        'Sufficient evidence was not found to verify this query safely.',
+                    style: const TextStyle(
+                      fontFamily: NeTokens.fontFamilySans,
+                      fontSize: 12,
+                      color: NeTokens.deepForest,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         // Executive Summary Card with Natural Speech Audio Toggle
         NeCard(
           color: NeTokens.pureWhite,
@@ -372,22 +517,34 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                   ),
                   // Natural Speech Toggle
                   InkWell(
-                    onTap: () => ref.read(researchProvider.notifier).toggleSpeech(),
+                    onTap: () =>
+                        ref.read(researchProvider.notifier).toggleSpeech(),
                     borderRadius: BorderRadius.circular(NeTokens.radiusFull),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSpeaking ? NeTokens.mossGreen : NeTokens.warmIvory,
-                        borderRadius: BorderRadius.circular(NeTokens.radiusFull),
+                        color: isSpeaking
+                            ? NeTokens.mossGreen
+                            : NeTokens.warmIvory,
+                        borderRadius: BorderRadius.circular(
+                          NeTokens.radiusFull,
+                        ),
                         border: Border.all(color: NeTokens.sandDune),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            isSpeaking ? Icons.volume_up_rounded : Icons.volume_mute_rounded,
+                            isSpeaking
+                                ? Icons.volume_up_rounded
+                                : Icons.volume_mute_rounded,
                             size: 14,
-                            color: isSpeaking ? NeTokens.warmIvory : NeTokens.deepForest,
+                            color: isSpeaking
+                                ? NeTokens.warmIvory
+                                : NeTokens.deepForest,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -396,7 +553,9 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                               fontFamily: NeTokens.fontFamilySans,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: isSpeaking ? NeTokens.warmIvory : NeTokens.deepForest,
+                              color: isSpeaking
+                                  ? NeTokens.warmIvory
+                                  : NeTokens.deepForest,
                             ),
                           ),
                         ],
@@ -419,7 +578,11 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
               const SizedBox(height: NeTokens.spacing10),
               Row(
                 children: [
-                  const Icon(Icons.verified_rounded, size: 14, color: NeTokens.mossGreen),
+                  const Icon(
+                    Icons.verified_rounded,
+                    size: 14,
+                    color: NeTokens.mossGreen,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     'Synthesis Confidence: ${(plan.overallConfidence * 100).toStringAsFixed(0)}%',
@@ -449,49 +612,55 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
           ),
         ),
         const SizedBox(height: NeTokens.spacing8),
-        ...plan.verifiedClaims.map((claim) => Padding(
-          padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
-          child: NeCard(
-            padding: const EdgeInsets.all(NeTokens.spacing12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 2),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: claim.epistemicState == ClaimEpistemicState.supported
-                        ? NeTokens.mossGreen.withValues(alpha: 0.15)
-                        : NeTokens.sandDune,
-                    borderRadius: BorderRadius.circular(NeTokens.radius6),
-                  ),
-                  child: Text(
-                    claim.epistemicState.name.toUpperCase(),
-                    style: const TextStyle(
-                      fontFamily: NeTokens.fontFamilySans,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      color: NeTokens.botanicalEvergreen,
+        ...plan.verifiedClaims.map(
+          (claim) => Padding(
+            padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
+            child: NeCard(
+              padding: const EdgeInsets.all(NeTokens.spacing12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(top: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          claim.epistemicState == ClaimEpistemicState.supported
+                          ? NeTokens.mossGreen.withValues(alpha: 0.15)
+                          : NeTokens.sandDune,
+                      borderRadius: BorderRadius.circular(NeTokens.radius6),
+                    ),
+                    child: Text(
+                      claim.epistemicState.name.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: NeTokens.fontFamilySans,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: NeTokens.botanicalEvergreen,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: NeTokens.spacing10),
-                Expanded(
-                  child: Text(
-                    claim.statement,
-                    style: const TextStyle(
-                      fontFamily: NeTokens.fontFamilySans,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: NeTokens.deepForest,
-                      height: 1.4,
+                  const SizedBox(width: NeTokens.spacing10),
+                  Expanded(
+                    child: Text(
+                      claim.statement,
+                      style: const TextStyle(
+                        fontFamily: NeTokens.fontFamilySans,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: NeTokens.deepForest,
+                        height: 1.4,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        )),
+        ),
 
         const SizedBox(height: NeTokens.spacing16),
 
@@ -506,99 +675,115 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
           ),
         ),
         const SizedBox(height: NeTokens.spacing8),
-        ...plan.domainFindings.map((df) => Padding(
-          padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
-          child: NeCard(
-            padding: const EdgeInsets.all(NeTokens.spacing12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      df.title,
-                      style: const TextStyle(
-                        fontFamily: NeTokens.fontFamilySans,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: NeTokens.deepForest,
+        ...plan.domainFindings.map(
+          (df) => Padding(
+            padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
+            child: NeCard(
+              padding: const EdgeInsets.all(NeTokens.spacing12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        df.title,
+                        style: const TextStyle(
+                          fontFamily: NeTokens.fontFamilySans,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: NeTokens.deepForest,
+                        ),
                       ),
+                      Text(
+                        '${(df.domainConfidence * 100).toStringAsFixed(0)}% Conf.',
+                        style: const TextStyle(
+                          fontFamily: NeTokens.fontFamilySans,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: NeTokens.mossGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    df.summary,
+                    style: const TextStyle(
+                      fontFamily: NeTokens.fontFamilySans,
+                      fontSize: 12,
+                      color: NeTokens.slateMuted,
                     ),
-                    Text(
-                      '${(df.domainConfidence * 100).toStringAsFixed(0)}% Conf.',
-                      style: const TextStyle(
-                        fontFamily: NeTokens.fontFamilySans,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: NeTokens.mossGreen,
+                  ),
+                  if (df.insights.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    ...df.insights.map(
+                      (ins) => Padding(
+                        padding: const EdgeInsets.only(bottom: 2),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '• ',
+                              style: TextStyle(
+                                color: NeTokens.mossGreen,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Expanded(
+                              child: Text(
+                                ins,
+                                style: const TextStyle(
+                                  fontFamily: NeTokens.fontFamilySans,
+                                  fontSize: 12,
+                                  color: NeTokens.deepForest,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  df.summary,
-                  style: const TextStyle(
-                    fontFamily: NeTokens.fontFamilySans,
-                    fontSize: 12,
-                    color: NeTokens.slateMuted,
-                  ),
-                ),
-                if (df.insights.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  ...df.insights.map((ins) => Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('• ', style: TextStyle(color: NeTokens.mossGreen, fontWeight: FontWeight.bold)),
-                        Expanded(
-                          child: Text(
-                            ins,
-                            style: const TextStyle(
-                              fontFamily: NeTokens.fontFamilySans,
-                              fontSize: 12,
-                              color: NeTokens.deepForest,
-                            ),
-                          ),
+                  if (df.warnings.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    ...df.warnings.map(
+                      (warn) => Container(
+                        margin: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: NeTokens.alertCrimson.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(NeTokens.radius6),
                         ),
-                      ],
-                    ),
-                  )),
-                ],
-                if (df.warnings.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  ...df.warnings.map((warn) => Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: NeTokens.alertCrimson.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(NeTokens.radius6),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.warning_amber_rounded, size: 14, color: NeTokens.alertCrimson),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            warn,
-                            style: const TextStyle(
-                              fontFamily: NeTokens.fontFamilySans,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.warning_amber_rounded,
+                              size: 14,
                               color: NeTokens.alertCrimson,
                             ),
-                          ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                warn,
+                                style: const TextStyle(
+                                  fontFamily: NeTokens.fontFamilySans,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: NeTokens.alertCrimson,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  )),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
-        )),
+        ),
 
         const SizedBox(height: NeTokens.spacing16),
 
@@ -615,51 +800,57 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
               color: NeTokens.deepForest,
             ),
           ),
-          children: plan.evidenceCitations.map((ev) => Padding(
-            padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
-            child: NeCard(
-              padding: const EdgeInsets.all(NeTokens.spacing12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ev.title,
-                    style: const TextStyle(
-                      fontFamily: NeTokens.fontFamilySans,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: NeTokens.deepForest,
+          children: plan.evidenceCitations
+              .map(
+                (ev) => Padding(
+                  padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
+                  child: NeCard(
+                    padding: const EdgeInsets.all(NeTokens.spacing12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          ev.title,
+                          style: const TextStyle(
+                            fontFamily: NeTokens.fontFamilySans,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: NeTokens.deepForest,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${ev.authors} (${ev.year}) — ${ev.source}',
+                          style: const TextStyle(
+                            fontFamily: NeTokens.fontFamilySans,
+                            fontSize: 11,
+                            color: NeTokens.slateMuted,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: NeTokens.sandDune.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(
+                              NeTokens.radius6,
+                            ),
+                          ),
+                          child: Text(
+                            'Finding: ${ev.keyFinding}',
+                            style: const TextStyle(
+                              fontFamily: NeTokens.fontFamilySans,
+                              fontSize: 11,
+                              color: NeTokens.deepForest,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${ev.authors} (${ev.year}) — ${ev.source}',
-                    style: const TextStyle(
-                      fontFamily: NeTokens.fontFamilySans,
-                      fontSize: 11,
-                      color: NeTokens.slateMuted,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: NeTokens.sandDune.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(NeTokens.radius6),
-                    ),
-                    child: Text(
-                      'Finding: ${ev.keyFinding}',
-                      style: const TextStyle(
-                        fontFamily: NeTokens.fontFamilySans,
-                        fontSize: 11,
-                        color: NeTokens.deepForest,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )).toList(),
+                ),
+              )
+              .toList(),
         ),
 
         const SizedBox(height: NeTokens.spacing16),
@@ -682,18 +873,20 @@ class _ResearchWorkspaceScreenState extends ConsumerState<ResearchWorkspaceScree
                 ),
               ),
               const SizedBox(height: NeTokens.spacing6),
-              ...plan.safetyDisclaimers.map((disc) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  '• $disc',
-                  style: const TextStyle(
-                    fontFamily: NeTokens.fontFamilySans,
-                    fontSize: 11,
-                    color: NeTokens.slateMuted,
-                    height: 1.3,
+              ...plan.safetyDisclaimers.map(
+                (disc) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    '• $disc',
+                    style: const TextStyle(
+                      fontFamily: NeTokens.fontFamilySans,
+                      fontSize: 11,
+                      color: NeTokens.slateMuted,
+                      height: 1.3,
+                    ),
                   ),
                 ),
-              )),
+              ),
             ],
           ),
         ),

@@ -1,12 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum IntelligenceDomain {
-  nutrition,
-  body,
-  environment,
-  behavior,
-  evidence,
-}
+enum IntelligenceDomain { nutrition, body, environment, behavior, evidence }
 
 enum ClaimEpistemicState {
   supported,
@@ -106,13 +100,7 @@ class DomainFinding {
   };
 }
 
-enum QueryInputType {
-  text,
-  camera,
-  gallery,
-  link,
-  voice,
-}
+enum QueryInputType { text, camera, gallery, link, voice }
 
 @immutable
 class AgentTask {
@@ -147,6 +135,10 @@ class AnswerPlan {
   final List<String> safetyDisclaimers;
   final double overallConfidence;
   final DateTime generatedAt;
+  final bool isAbstained;
+  final String? abstentionReason;
+  final bool isEmergency;
+  final String? emergencyNotice;
 
   const AnswerPlan({
     required this.taskId,
@@ -159,5 +151,9 @@ class AnswerPlan {
     required this.safetyDisclaimers,
     required this.overallConfidence,
     required this.generatedAt,
+    this.isAbstained = false,
+    this.abstentionReason,
+    this.isEmergency = false,
+    this.emergencyNotice,
   });
 }

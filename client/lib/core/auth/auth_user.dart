@@ -32,10 +32,16 @@ class AuthUser {
     return AuthUser(
       id: userMap['id'] as String? ?? '',
       email: userMap['email'] as String?,
-      displayName: (meta['full_name'] ?? meta['name'] ?? userMap['email']?.toString().split('@').first) as String?,
+      displayName:
+          (meta['full_name'] ??
+                  meta['name'] ??
+                  userMap['email']?.toString().split('@').first)
+              as String?,
       photoUrl: (meta['avatar_url'] ?? meta['picture']) as String?,
       isGuest: false,
-      createdAt: DateTime.tryParse(userMap['created_at']?.toString() ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(userMap['created_at']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 
@@ -54,7 +60,8 @@ class AuthUser {
     displayName: json['displayName'] as String?,
     photoUrl: json['photoUrl'] as String?,
     isGuest: json['isGuest'] as bool? ?? false,
-    createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    createdAt:
+        DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
   );
 
   @override

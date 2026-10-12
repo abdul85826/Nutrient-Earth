@@ -26,7 +26,7 @@ class LoginScreen extends ConsumerWidget {
           ),
         );
       } else if (next is Authenticated) {
-        context.go('/onboarding');
+        context.go('/ask');
       }
     });
 
@@ -46,7 +46,8 @@ class LoginScreen extends ConsumerWidget {
                   child: PopupMenuButton<AppLanguage>(
                     initialValue: language,
                     tooltip: NeStrings.get('switch_language', language),
-                    onSelected: (lang) => ref.read(languageProvider.notifier).setLanguage(lang),
+                    onSelected: (lang) =>
+                        ref.read(languageProvider.notifier).setLanguage(lang),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: NeTokens.spacing12,
@@ -54,13 +55,19 @@ class LoginScreen extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: NeTokens.pureWhite,
-                        borderRadius: BorderRadius.circular(NeTokens.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          NeTokens.radiusFull,
+                        ),
                         border: Border.all(color: NeTokens.sandDune),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.language, size: 16, color: NeTokens.deepForest),
+                          const Icon(
+                            Icons.language,
+                            size: 16,
+                            color: NeTokens.deepForest,
+                          ),
                           const SizedBox(width: NeTokens.spacing6),
                           Text(
                             language.nativeName,
@@ -152,7 +159,7 @@ class LoginScreen extends ConsumerWidget {
                 onPressed: () {
                   if (isLoading) return;
                   ref.read(authServiceProvider.notifier).signInAsGuest();
-                  context.go('/onboarding');
+                  context.go('/ask');
                 },
               ),
 

@@ -50,7 +50,8 @@ class ResearchNotifier extends StateNotifier<ResearchState> {
   final IntelligenceOrchestrator _orchestrator;
   final Ref _ref;
 
-  ResearchNotifier(this._orchestrator, this._ref) : super(const ResearchState());
+  ResearchNotifier(this._orchestrator, this._ref)
+    : super(const ResearchState());
 
   void setCapturedImage(Uint8List bytes) {
     state = state.copyWith(capturedImageBytes: bytes);
@@ -68,7 +69,10 @@ class ResearchNotifier extends StateNotifier<ResearchState> {
     state = state.copyWith(isSpeaking: !state.isSpeaking);
   }
 
-  Future<void> executeResearch(String query, {QueryInputType inputType = QueryInputType.text}) async {
+  Future<void> executeResearch(
+    String query, {
+    QueryInputType inputType = QueryInputType.text,
+  }) async {
     if (query.trim().isEmpty && state.capturedImageBytes == null) return;
 
     state = state.copyWith(
@@ -81,19 +85,21 @@ class ResearchNotifier extends StateNotifier<ResearchState> {
       final env = await _ref.read(ambientEnvironmentalProvider.future);
       final task = AgentTask(
         id: const Uuid().v4(),
-        query: query.isNotEmpty ? query : 'Image Analysis & Nutritional Verification',
+        query: query.isNotEmpty
+            ? query
+            : 'Image Analysis & Nutritional Verification',
         inputType: inputType,
         imageBytes: state.capturedImageBytes,
         url: state.pastedUrl,
         timestamp: DateTime.now(),
       );
 
-      final plan = await _orchestrator.orchestrate(task, environmentalContext: env);
-
-      state = state.copyWith(
-        isLoading: false,
-        currentAnswerPlan: plan,
+      final plan = await _orchestrator.orchestrate(
+        task,
+        environmentalContext: env,
       );
+
+      state = state.copyWith(isLoading: false, currentAnswerPlan: plan);
     } catch (e) {
       debugPrint('[ResearchNotifier] Research execution error: $e');
       state = state.copyWith(
@@ -104,7 +110,9 @@ class ResearchNotifier extends StateNotifier<ResearchState> {
   }
 }
 
-final researchProvider = StateNotifierProvider<ResearchNotifier, ResearchState>((ref) {
-  final orchestrator = ref.watch(intelligenceOrchestratorProvider);
-  return ResearchNotifier(orchestrator, ref);
-});
+final researchProvider = StateNotifierProvider<ResearchNotifier, ResearchState>(
+  (ref) {
+    final orchestrator = ref.watch(intelligenceOrchestratorProvider);
+    return ResearchNotifier(orchestrator, ref);
+  },
+);

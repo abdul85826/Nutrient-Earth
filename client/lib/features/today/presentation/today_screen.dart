@@ -41,7 +41,11 @@ class TodayScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(NeTokens.radius12),
                     ),
                     child: const Center(
-                      child: Icon(Icons.spa_rounded, color: NeTokens.warmIvory, size: 22),
+                      child: Icon(
+                        Icons.spa_rounded,
+                        color: NeTokens.warmIvory,
+                        size: 22,
+                      ),
                     ),
                   ),
                   const SizedBox(width: NeTokens.spacing12),
@@ -81,16 +85,24 @@ class TodayScreen extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: NeTokens.pureWhite,
-                        borderRadius: BorderRadius.circular(NeTokens.radiusFull),
+                        borderRadius: BorderRadius.circular(
+                          NeTokens.radiusFull,
+                        ),
                         border: Border.all(color: NeTokens.sandDune),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.thermostat_rounded, size: 14, color: NeTokens.mossGreen),
+                          const Icon(
+                            Icons.thermostat_rounded,
+                            size: 14,
+                            color: NeTokens.mossGreen,
+                          ),
                           const SizedBox(width: 4),
                           Text(
-                            env != null ? '${env.temperatureC.toStringAsFixed(0)}°C' : '--°C',
+                            env != null
+                                ? '${env.temperatureC.toStringAsFixed(0)}°C'
+                                : '--°C',
                             style: const TextStyle(
                               fontFamily: NeTokens.fontFamilySans,
                               fontSize: 12,
@@ -104,7 +116,10 @@ class TodayScreen extends ConsumerWidget {
                     loading: () => const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: NeTokens.botanicalEvergreen),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: NeTokens.botanicalEvergreen,
+                      ),
                     ),
                     error: (_, __) => const SizedBox.shrink(),
                   ),
@@ -115,7 +130,9 @@ class TodayScreen extends ConsumerWidget {
             // Main Scrollable Body
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: NeTokens.spacing20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: NeTokens.spacing20,
+                ),
                 children: [
                   const SizedBox(height: NeTokens.spacing8),
 
@@ -126,7 +143,9 @@ class TodayScreen extends ConsumerWidget {
                       child: Center(
                         child: Padding(
                           padding: EdgeInsets.all(NeTokens.spacing16),
-                          child: CircularProgressIndicator(color: NeTokens.botanicalEvergreen),
+                          child: CircularProgressIndicator(
+                            color: NeTokens.botanicalEvergreen,
+                          ),
                         ),
                       ),
                     ),
@@ -167,58 +186,64 @@ class TodayScreen extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: NeTokens.spacing10),
-                  ...todayState.habits.map((habit) => Padding(
-                    padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
-                    child: InkWell(
-                      onTap: () => ref.read(todayStateProvider.notifier).toggleHabit(habit.id),
-                      borderRadius: BorderRadius.circular(NeTokens.radius12),
-                      child: NeCard(
-                        padding: const EdgeInsets.all(NeTokens.spacing12),
-                        child: Row(
-                          children: [
-                            Icon(
-                              habit.isCompleted
-                                  ? Icons.check_circle_rounded
-                                  : Icons.radio_button_unchecked_rounded,
-                              color: habit.isCompleted ? NeTokens.mossGreen : NeTokens.slateMuted,
-                              size: 22,
-                            ),
-                            const SizedBox(width: NeTokens.spacing12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    habit.title,
-                                    style: TextStyle(
-                                      fontFamily: NeTokens.fontFamilySans,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: habit.isCompleted
-                                          ? NeTokens.slateMuted
-                                          : NeTokens.deepForest,
-                                      decoration: habit.isCompleted
-                                          ? TextDecoration.lineThrough
-                                          : null,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    habit.subtitle,
-                                    style: const TextStyle(
-                                      fontFamily: NeTokens.fontFamilySans,
-                                      fontSize: 12,
-                                      color: NeTokens.slateMuted,
-                                    ),
-                                  ),
-                                ],
+                  ...todayState.habits.map(
+                    (habit) => Padding(
+                      padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
+                      child: InkWell(
+                        onTap: () => ref
+                            .read(todayStateProvider.notifier)
+                            .toggleHabit(habit.id),
+                        borderRadius: BorderRadius.circular(NeTokens.radius12),
+                        child: NeCard(
+                          padding: const EdgeInsets.all(NeTokens.spacing12),
+                          child: Row(
+                            children: [
+                              Icon(
+                                habit.isCompleted
+                                    ? Icons.check_circle_rounded
+                                    : Icons.radio_button_unchecked_rounded,
+                                color: habit.isCompleted
+                                    ? NeTokens.mossGreen
+                                    : NeTokens.slateMuted,
+                                size: 22,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: NeTokens.spacing12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      habit.title,
+                                      style: TextStyle(
+                                        fontFamily: NeTokens.fontFamilySans,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: habit.isCompleted
+                                            ? NeTokens.slateMuted
+                                            : NeTokens.deepForest,
+                                        decoration: habit.isCompleted
+                                            ? TextDecoration.lineThrough
+                                            : null,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      habit.subtitle,
+                                      style: const TextStyle(
+                                        fontFamily: NeTokens.fontFamilySans,
+                                        fontSize: 12,
+                                        color: NeTokens.slateMuted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  )),
+                  ),
 
                   const SizedBox(height: NeTokens.spacing16),
 
@@ -239,19 +264,27 @@ class TodayScreen extends ConsumerWidget {
                     children: [
                       NeChip(
                         label: '🔬 Pea protein vs Whey protein',
-                        onTap: () => context.push('/research?q=Pea protein vs Whey protein'),
+                        onTap: () => context.push(
+                          '/research?q=Pea protein vs Whey protein',
+                        ),
                       ),
                       NeChip(
                         label: '☀️ UV Index & Vitamin D synthesis',
-                        onTap: () => context.push('/research?q=UV Index & Vitamin D synthesis'),
+                        onTap: () => context.push(
+                          '/research?q=UV Index & Vitamin D synthesis',
+                        ),
                       ),
                       NeChip(
                         label: '🦴 Calcium bioavailability & bone density',
-                        onTap: () => context.push('/research?q=Calcium bioavailability & bone density'),
+                        onTap: () => context.push(
+                          '/research?q=Calcium bioavailability & bone density',
+                        ),
                       ),
                       NeChip(
                         label: '⚡ Magnesium glycinate for sleep',
-                        onTap: () => context.push('/research?q=Magnesium glycinate for sleep'),
+                        onTap: () => context.push(
+                          '/research?q=Magnesium glycinate for sleep',
+                        ),
                       ),
                     ],
                   ),
@@ -283,7 +316,11 @@ class TodayScreen extends ConsumerWidget {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.public_rounded, color: NeTokens.warmIvory, size: 16),
+                  Icon(
+                    Icons.public_rounded,
+                    color: NeTokens.warmIvory,
+                    size: 16,
+                  ),
                   SizedBox(width: NeTokens.spacing6),
                   Text(
                     'LIVE AMBIENT SENSORS',
@@ -333,7 +370,11 @@ class TodayScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEnvMetric({required String label, required String value, required String sub}) {
+  Widget _buildEnvMetric({
+    required String label,
+    required String value,
+    required String sub,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -455,7 +496,11 @@ class TodayScreen extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.search_rounded, color: NeTokens.mossGreen, size: 22),
+              const Icon(
+                Icons.search_rounded,
+                color: NeTokens.mossGreen,
+                size: 22,
+              ),
               const SizedBox(width: NeTokens.spacing10),
               Expanded(
                 child: Text(
@@ -470,9 +515,17 @@ class TodayScreen extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Icon(Icons.camera_alt_outlined, color: NeTokens.deepForest, size: 20),
+              const Icon(
+                Icons.camera_alt_outlined,
+                color: NeTokens.deepForest,
+                size: 20,
+              ),
               const SizedBox(width: NeTokens.spacing12),
-              const Icon(Icons.mic_none_rounded, color: NeTokens.deepForest, size: 20),
+              const Icon(
+                Icons.mic_none_rounded,
+                color: NeTokens.deepForest,
+                size: 20,
+              ),
             ],
           ),
         ),

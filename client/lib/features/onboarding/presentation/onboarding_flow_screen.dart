@@ -8,7 +8,8 @@ class OnboardingFlowScreen extends ConsumerStatefulWidget {
   const OnboardingFlowScreen({super.key});
 
   @override
-  ConsumerState<OnboardingFlowScreen> createState() => _OnboardingFlowScreenState();
+  ConsumerState<OnboardingFlowScreen> createState() =>
+      _OnboardingFlowScreenState();
 }
 
 class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
@@ -87,7 +88,9 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                           color: isActive || isPassed
                               ? NeTokens.botanicalEvergreen
                               : NeTokens.sandDune,
-                          borderRadius: BorderRadius.circular(NeTokens.radiusFull),
+                          borderRadius: BorderRadius.circular(
+                            NeTokens.radiusFull,
+                          ),
                         ),
                       );
                     }),
@@ -118,7 +121,8 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   // Step 1: Health Focus
                   _buildStep(
                     title: 'What are your core health priorities?',
-                    subtitle: 'Nutrient Earth calibrates personalized clinical reasoning around your physiological goals.',
+                    subtitle:
+                        'Nutrient Earth calibrates personalized clinical reasoning around your physiological goals.',
                     content: Wrap(
                       spacing: NeTokens.spacing8,
                       runSpacing: NeTokens.spacing10,
@@ -127,7 +131,9 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                         return NeChip(
                           label: goal,
                           isSelected: isSelected,
-                          onTap: () => ref.read(onboardingProvider.notifier).toggleGoal(goal),
+                          onTap: () => ref
+                              .read(onboardingProvider.notifier)
+                              .toggleGoal(goal),
                         );
                       }).toList(),
                     ),
@@ -136,27 +142,40 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   // Step 2: Dietary Baseline
                   _buildStep(
                     title: 'What is your dietary foundation?',
-                    subtitle: 'Helps us verify micronutrient bioavailability and identify potential nutritional deficits.',
+                    subtitle:
+                        'Helps us verify micronutrient bioavailability and identify potential nutritional deficits.',
                     content: Column(
                       children: availableDiets.map((diet) {
                         final isSelected = profile.dietaryBaseline == diet;
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
+                          padding: const EdgeInsets.only(
+                            bottom: NeTokens.spacing8,
+                          ),
                           child: InkWell(
-                            onTap: () => ref.read(onboardingProvider.notifier).setDietaryBaseline(diet),
-                            borderRadius: BorderRadius.circular(NeTokens.radius12),
+                            onTap: () => ref
+                                .read(onboardingProvider.notifier)
+                                .setDietaryBaseline(diet),
+                            borderRadius: BorderRadius.circular(
+                              NeTokens.radius12,
+                            ),
                             child: NeCard(
                               padding: const EdgeInsets.all(NeTokens.spacing14),
                               border: Border.all(
-                                color: isSelected ? NeTokens.botanicalEvergreen : NeTokens.sandDune,
+                                color: isSelected
+                                    ? NeTokens.botanicalEvergreen
+                                    : NeTokens.sandDune,
                                 width: isSelected ? 1.5 : 1.0,
                               ),
                               child: Row(
                                 children: [
                                   Icon(
-                                    isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+                                    isSelected
+                                        ? Icons.radio_button_checked
+                                        : Icons.radio_button_off,
                                     size: 20,
-                                    color: isSelected ? NeTokens.botanicalEvergreen : NeTokens.slateMuted,
+                                    color: isSelected
+                                        ? NeTokens.botanicalEvergreen
+                                        : NeTokens.slateMuted,
                                   ),
                                   const SizedBox(width: NeTokens.spacing12),
                                   Text(
@@ -164,7 +183,9 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                                     style: TextStyle(
                                       fontFamily: NeTokens.fontFamilySans,
                                       fontSize: 14,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
                                       color: NeTokens.deepForest,
                                     ),
                                   ),
@@ -180,27 +201,40 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   // Step 3: Activity & Environment
                   _buildStep(
                     title: 'What is your typical daily movement?',
-                    subtitle: 'Correlates metabolic turnover with external ambient temperature and UV exposure.',
+                    subtitle:
+                        'Correlates metabolic turnover with external ambient temperature and UV exposure.',
                     content: Column(
                       children: availableActivity.map((activity) {
                         final isSelected = profile.activityLevel == activity;
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: NeTokens.spacing8),
+                          padding: const EdgeInsets.only(
+                            bottom: NeTokens.spacing8,
+                          ),
                           child: InkWell(
-                            onTap: () => ref.read(onboardingProvider.notifier).setActivityLevel(activity),
-                            borderRadius: BorderRadius.circular(NeTokens.radius12),
+                            onTap: () => ref
+                                .read(onboardingProvider.notifier)
+                                .setActivityLevel(activity),
+                            borderRadius: BorderRadius.circular(
+                              NeTokens.radius12,
+                            ),
                             child: NeCard(
                               padding: const EdgeInsets.all(NeTokens.spacing14),
                               border: Border.all(
-                                color: isSelected ? NeTokens.botanicalEvergreen : NeTokens.sandDune,
+                                color: isSelected
+                                    ? NeTokens.botanicalEvergreen
+                                    : NeTokens.sandDune,
                                 width: isSelected ? 1.5 : 1.0,
                               ),
                               child: Row(
                                 children: [
                                   Icon(
-                                    isSelected ? Icons.check_circle : Icons.circle_outlined,
+                                    isSelected
+                                        ? Icons.check_circle
+                                        : Icons.circle_outlined,
                                     size: 20,
-                                    color: isSelected ? NeTokens.botanicalEvergreen : NeTokens.slateMuted,
+                                    color: isSelected
+                                        ? NeTokens.botanicalEvergreen
+                                        : NeTokens.slateMuted,
                                   ),
                                   const SizedBox(width: NeTokens.spacing12),
                                   Text(
@@ -208,7 +242,9 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                                     style: TextStyle(
                                       fontFamily: NeTokens.fontFamilySans,
                                       fontSize: 14,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
                                       color: NeTokens.deepForest,
                                     ),
                                   ),
@@ -231,8 +267,12 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                 vertical: NeTokens.spacing16,
               ),
               child: NeButton(
-                label: _currentStep == 2 ? 'Initialize Health Memory' : 'Continue',
-                icon: _currentStep == 2 ? Icons.bolt_rounded : Icons.arrow_forward_rounded,
+                label: _currentStep == 2
+                    ? 'Initialize Health Memory'
+                    : 'Continue',
+                icon: _currentStep == 2
+                    ? Icons.bolt_rounded
+                    : Icons.arrow_forward_rounded,
                 onPressed: _nextPage,
               ),
             ),

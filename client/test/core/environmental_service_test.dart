@@ -3,16 +3,19 @@ import 'package:nutrient_earth/core/network/environmental_service.dart';
 
 void main() {
   group('EnvironmentalService Privacy Tests', () {
-    test('truncateCoordinate rounds coordinate to 2 decimal places for user location privacy', () {
-      const rawLat = 37.7749295;
-      const rawLon = -122.4194155;
+    test(
+      'truncateCoordinate rounds coordinate to 2 decimal places for user location privacy',
+      () {
+        const rawLat = 37.7749295;
+        const rawLon = -122.4194155;
 
-      final truncLat = EnvironmentalService.truncateCoordinate(rawLat);
-      final truncLon = EnvironmentalService.truncateCoordinate(rawLon);
+        final truncLat = EnvironmentalService.truncateCoordinate(rawLat);
+        final truncLon = EnvironmentalService.truncateCoordinate(rawLon);
 
-      expect(truncLat, equals(37.77));
-      expect(truncLon, equals(-122.41));
-    });
+        expect(truncLat, equals(37.77));
+        expect(truncLon, equals(-122.41));
+      },
+    );
 
     test('EnvironmentalMetrics calculates AQI categories accurately', () {
       final goodMetrics = EnvironmentalMetrics(

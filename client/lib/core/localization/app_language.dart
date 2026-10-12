@@ -53,7 +53,9 @@ class LanguageNotifier extends StateNotifier<AppLanguage> {
   }
 }
 
-final languageProvider = StateNotifierProvider<LanguageNotifier, AppLanguage>((ref) {
+final languageProvider = StateNotifierProvider<LanguageNotifier, AppLanguage>((
+  ref,
+) {
   return LanguageNotifier();
 });
 
@@ -61,8 +63,11 @@ class NeStrings {
   NeStrings._();
 
   static String get(String key, AppLanguage lang) {
-    final translations = _localizedStrings[lang] ?? _localizedStrings[AppLanguage.english]!;
-    return translations[key] ?? _localizedStrings[AppLanguage.english]![key] ?? key;
+    final translations =
+        _localizedStrings[lang] ?? _localizedStrings[AppLanguage.english]!;
+    return translations[key] ??
+        _localizedStrings[AppLanguage.english]![key] ??
+        key;
   }
 
   static const Map<AppLanguage, Map<String, String>> _localizedStrings = {
@@ -137,7 +142,8 @@ class NeStrings {
     AppLanguage.spanish: {
       'app_title': 'Nutrient Earth',
       'tagline': 'Memoria de Salud e Inteligencia de Decisiones',
-      'ask_earth': 'Pregunta a Earth sobre alimentos, nutrientes o el cuerpo...',
+      'ask_earth':
+          'Pregunta a Earth sobre alimentos, nutrientes o el cuerpo...',
       'today': 'Hoy',
       'body': 'Cuerpo',
       'growth': 'Crecimiento',

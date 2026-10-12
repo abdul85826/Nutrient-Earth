@@ -26,16 +26,21 @@ class NECard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color bg = color ?? NEColors.surface;
-    BoxBorder effectiveBorder = border ?? Border.fromBorderSide(
-      BorderSide(color: NEColors.border.withValues(alpha: 0.8), width: 1.0),
-    );
+    BoxBorder effectiveBorder =
+        border ??
+        Border.fromBorderSide(
+          BorderSide(color: NEColors.border.withValues(alpha: 0.8), width: 1.0),
+        );
 
     if (color == null && border == null) {
       switch (variant) {
         case NECardVariant.primary:
           bg = NEColors.surface;
           effectiveBorder = Border.fromBorderSide(
-            BorderSide(color: NEColors.border.withValues(alpha: 0.8), width: 1.0),
+            BorderSide(
+              color: NEColors.border.withValues(alpha: 0.8),
+              width: 1.0,
+            ),
           );
           break;
         case NECardVariant.secondary:
@@ -47,7 +52,10 @@ class NECard extends StatelessWidget {
         case NECardVariant.subtle:
           bg = NEColors.background;
           effectiveBorder = Border.fromBorderSide(
-            BorderSide(color: NEColors.border.withValues(alpha: 0.5), width: 1.0),
+            BorderSide(
+              color: NEColors.border.withValues(alpha: 0.5),
+              width: 1.0,
+            ),
           );
           break;
       }
@@ -73,10 +81,7 @@ class NECard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: NERadius.cardRadius,
-          child: Padding(
-            padding: padding,
-            child: child,
-          ),
+          child: Padding(padding: padding, child: child),
         ),
       ),
     );
@@ -86,4 +91,3 @@ class NECard extends StatelessWidget {
 }
 
 typedef NeCard = NECard;
-

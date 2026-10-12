@@ -27,7 +27,9 @@ class NEChip extends StatelessWidget {
 
     switch (variant) {
       case NEChipVariant.primary:
-        bg = isSelected ? NEColors.primary : NEColors.primary.withValues(alpha: 0.08);
+        bg = isSelected
+            ? NEColors.primary
+            : NEColors.primary.withValues(alpha: 0.08);
         fg = isSelected ? Colors.white : NEColors.primary;
         borderSide = BorderSide(
           color: NEColors.primary.withValues(alpha: isSelected ? 1.0 : 0.2),
@@ -60,10 +62,7 @@ class NEChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const SizedBox(width: 6.0),
-              ],
+              if (icon != null) ...[icon!, const SizedBox(width: 6.0)],
               Text(
                 label,
                 style: NETypography.labelSmall.copyWith(
@@ -80,4 +79,3 @@ class NEChip extends StatelessWidget {
 }
 
 typedef NeChip = NEChip;
-

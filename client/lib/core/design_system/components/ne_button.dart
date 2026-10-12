@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../tokens/ne_tokens.dart';
 
 enum NEButtonVariant { primary, secondary, ghost }
+
 enum NEButtonSize { small, medium, large }
 
 class NEButton extends StatelessWidget {
@@ -94,10 +95,7 @@ class NEButton extends StatelessWidget {
             ),
           )
         else ...[
-          if (iconWidget != null) ...[
-            iconWidget!,
-            const SizedBox(width: 8.0),
-          ],
+          if (iconWidget != null) ...[iconWidget!, const SizedBox(width: 8.0)],
           Text(label, style: style),
         ],
       ],
@@ -133,4 +131,3 @@ class NEButton extends StatelessWidget {
 typedef NeButton = NEButton;
 typedef NeButtonVariant = NEButtonVariant;
 typedef NeButtonSize = NEButtonSize;
-

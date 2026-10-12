@@ -11,6 +11,7 @@ void main() async {
   try {
     await Supabase.initialize(
       url: SupabaseConfig.supabaseUrl,
+      // ignore: deprecated_member_use
       anonKey: SupabaseConfig.supabaseAnonKey,
       authOptions: const FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
@@ -20,11 +21,7 @@ void main() async {
     debugPrint('[Main] Supabase initialization note: $e');
   }
 
-  runApp(
-    const ProviderScope(
-      child: NutrientEarthApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: NutrientEarthApp()));
 }
 
 class NutrientEarthApp extends ConsumerWidget {

@@ -14,10 +14,14 @@ class NENavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      (Icons.spa_rounded, Icons.spa_outlined, 'Today'),
-      (Icons.accessibility_new_rounded, Icons.accessibility_new_outlined, 'Body'),
-      (Icons.trending_up_rounded, Icons.trending_up_outlined, 'Growth'),
+      (Icons.biotech_rounded, Icons.biotech_outlined, 'Ask'),
       (Icons.explore_rounded, Icons.explore_outlined, 'Explore'),
+      (Icons.trending_up_rounded, Icons.trending_up_outlined, 'Growth'),
+      (
+        Icons.accessibility_new_rounded,
+        Icons.accessibility_new_outlined,
+        'Body',
+      ),
       (Icons.storefront_rounded, Icons.storefront_outlined, 'Store'),
     ];
 
@@ -51,21 +55,30 @@ class NENavigationBar extends StatelessWidget {
                 onTap: () => onTap(i),
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 4.0,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         isSelected ? item.$1 : item.$2,
                         size: 24,
-                        color: isSelected ? NEColors.primary : NEColors.textTertiary,
+                        color: isSelected
+                            ? NEColors.primary
+                            : NEColors.textTertiary,
                       ),
                       const SizedBox(height: 3),
                       Text(
                         item.$3,
                         style: NETypography.labelSmall.copyWith(
-                          color: isSelected ? NEColors.primary : NEColors.textTertiary,
-                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? NEColors.primary
+                              : NEColors.textTertiary,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
                           fontSize: 10.5,
                         ),
                       ),

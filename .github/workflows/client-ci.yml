@@ -45,5 +45,5 @@ jobs:
       - name: Static Analysis
         run: flutter analyze
 
-      - name: Run Unit & Substrate Tests
-        run: flutter test test/substrate_test.dart
+      - name: Run Unit & Intelligence Tests
+        run: flutter test

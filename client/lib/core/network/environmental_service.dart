@@ -76,12 +76,15 @@ class EnvironmentalMetrics {
 class EnvironmentalService {
   final Dio _dio;
 
-  EnvironmentalService({Dio? dio}) : _dio = dio ?? Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
-    ),
-  );
+  EnvironmentalService({Dio? dio})
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 10),
+            ),
+          );
 
   /// Truncates coordinates to 2 decimal places (~1.1 km resolution) to protect user location privacy.
   static double truncateCoordinate(double val) {
@@ -102,7 +105,8 @@ class EnvironmentalService {
         queryParameters: {
           'latitude': lat,
           'longitude': lon,
-          'current': 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,uv_index',
+          'current':
+              'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,uv_index',
         },
       );
 
@@ -116,7 +120,8 @@ class EnvironmentalService {
         },
       );
 
-      final weatherCurrent = weatherRes.data?['current'] as Map<String, dynamic>?;
+      final weatherCurrent =
+          weatherRes.data?['current'] as Map<String, dynamic>?;
       final aqiCurrent = aqiRes.data?['current'] as Map<String, dynamic>?;
 
       if (weatherCurrent == null) {
@@ -126,9 +131,14 @@ class EnvironmentalService {
       return EnvironmentalMetrics(
         latitude: lat,
         longitude: lon,
-        temperatureC: (weatherCurrent['temperature_2m'] as num?)?.toDouble() ?? 22.0,
-        relativeHumidity: (weatherCurrent['relative_humidity_2m'] as num?)?.toDouble() ?? 50.0,
-        apparentTemperatureC: (weatherCurrent['apparent_temperature'] as num?)?.toDouble() ?? 22.0,
+        temperatureC:
+            (weatherCurrent['temperature_2m'] as num?)?.toDouble() ?? 22.0,
+        relativeHumidity:
+            (weatherCurrent['relative_humidity_2m'] as num?)?.toDouble() ??
+            50.0,
+        apparentTemperatureC:
+            (weatherCurrent['apparent_temperature'] as num?)?.toDouble() ??
+            22.0,
         uvIndex: (weatherCurrent['uv_index'] as num?)?.toDouble() ?? 3.0,
         weatherCode: weatherCurrent['weather_code'] as int?,
         pm25: (aqiCurrent?['pm2_5'] as num?)?.toDouble(),
@@ -148,8 +158,13 @@ final environmentalServiceProvider = Provider<EnvironmentalService>((ref) {
 });
 
 /// Ambient environmental metrics state provider.
-final ambientEnvironmentalProvider = FutureProvider<EnvironmentalMetrics?>((ref) async {
+final ambientEnvironmentalProvider = FutureProvider<EnvironmentalMetrics?>((
+  ref,
+) async {
   final service = ref.watch(environmentalServiceProvider);
   // Default regional reference coordinate (e.g. San Francisco Bay 37.77, -122.41) if GPS is disabled
-  return service.fetchRealMetrics(rawLatitude: 37.7749, rawLongitude: -122.4194);
+  return service.fetchRealMetrics(
+    rawLatitude: 37.7749,
+    rawLongitude: -122.4194,
+  );
 });

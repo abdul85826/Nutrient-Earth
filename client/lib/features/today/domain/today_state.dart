@@ -73,8 +73,10 @@ class TodayState {
     return TodayState(
       healthReadinessScore: healthReadinessScore ?? this.healthReadinessScore,
       habits: habits ?? this.habits,
-      hydrationCurrentLiters: hydrationCurrentLiters ?? this.hydrationCurrentLiters,
-      hydrationTargetLiters: hydrationTargetLiters ?? this.hydrationTargetLiters,
+      hydrationCurrentLiters:
+          hydrationCurrentLiters ?? this.hydrationCurrentLiters,
+      hydrationTargetLiters:
+          hydrationTargetLiters ?? this.hydrationTargetLiters,
     );
   }
 }
@@ -94,11 +96,16 @@ class TodayNotifier extends StateNotifier<TodayState> {
   }
 
   void addHydration(double liters) {
-    final newHydration = (state.hydrationCurrentLiters + liters).clamp(0.0, 5.0);
+    final newHydration = (state.hydrationCurrentLiters + liters).clamp(
+      0.0,
+      5.0,
+    );
     state = state.copyWith(hydrationCurrentLiters: newHydration);
   }
 }
 
-final todayStateProvider = StateNotifierProvider<TodayNotifier, TodayState>((ref) {
+final todayStateProvider = StateNotifierProvider<TodayNotifier, TodayState>((
+  ref,
+) {
   return TodayNotifier();
 });

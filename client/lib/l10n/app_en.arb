@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appTitle": "Nutrient Earth",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "tagline": "Health Memory & Evidence Intelligence Platform",
+  "@tagline": {
+    "description": "Application tagline"
+  },
+  "guestMode": "Sovereign Guest Mode",
+  "@guestMode": {
+    "description": "Button label for guest access"
+  }
+}
