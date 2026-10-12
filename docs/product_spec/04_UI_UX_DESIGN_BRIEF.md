@@ -14,14 +14,20 @@ Every health-related answer/detail page should make these visible in order:
 7. Source/data freshness and controls.
 
 ## 3. Core design system
-Define tokens centrally: color roles (surface, text, muted text, border, focus, success, warning, danger), spacing scale, typography scale, radii, elevation, motion, breakpoints, chart palette, and evidence badge semantics. Do not hardcode per-screen colors or spacing. Use design tokens that pass WCAG contrast checks; validate actual rendered states.
+Define tokens centrally in `BRAND_AND_DESIGN_SYSTEM.md`:
+- **Color Roles**: Primary Botanical Evergreen (`#0E382B`), Interactive Evergreen Light (`#1B4332`), Obsidian Forest Text (`#112019`), Luminous Lime Illumination (`#B4F35E`), Warm Ivory Canvas (`#FBF9F4`), Elevated Surface White (`#FFFFFF`), Subtle Cream (`#F3EFE6`), Subtle Border (`#E3DDD3`).
+- **Luminous Illumination Constraint**: The logo's luminous lime halo is reserved for brand entrance, verification badges, and completion moments; never used as full-screen glow or continuous pulsing loops.
+- **Typography**: Dual-font architecture—High-Contrast Display Serif (`Playfair Display` or `Georgia`) for editorial titles, and Functional Sans-Serif (`Inter` or `Roboto`) for reading prose, tabular biometric data, and controls.
+- **Geometry & Spacing**: 4dp spatial grid scale (4, 8, 12, 16, 20, 24, 32, 48, 64dp); 16dp primary card radius, 12dp input radius, 999dp pill radius. Minimum 48dp touch targets.
+- **Contrast**: Full WCAG 2.1 AAA compliance for primary text (12.6:1) and AA for secondary metadata (5.2:1) over Warm Ivory.
 
-## 4. Five-tab structure
-- Ask: dominant input area; clear text/image/audio/document/URL entry; attachments preview and remove; answer status; evidence drawer.
-- Explore: search, topic cards, evidence filters, “traditional use vs clinical evidence” distinction, professional credential badges with verification date.
-- Growth: goals, plan duration, ability/equipment filters, accessible exercise cards, movement demonstration with captions and alternatives.
-- Body: timeline and metrics first; 3D anatomy as a navigational layer, not a decorative diagnostic body. Always show source and observation date when an organ/region is selected.
-- Store: product comparison tables, ingredient and allergen transparency, testing evidence, batch identity, price/stock timestamps, warnings, and no undisclosed paid ranking.
+## 4. Five-field structure
+Each of the five fields possesses a distinct product role, visual layout, and component inventory:
+- **Ask (Field 1 — Research & Personal Intelligence)**: Primary flagship destination. Quiet scientific workspace with central `NEResearchComposer`, editorial answer hierarchy, inline clickable citations `[1]`, verified source drawer, and immediate deterministic clinical red-flag triage.
+- **Explore (Field 2 — Scientific Knowledge Discovery)**: Editorial scientific journal. Structured taxonomy (Vitamins, Minerals, Amino Acids, Botanicals), evidence grade badges (Grade A, B, C, Traditional), and pharmacokinetics detail sheets. Never a conversational prompt clone.
+- **Growth (Field 3 — Habits & Lifestyle Progress)**: Calm circadian workspace. Day-timed protocols (Morning Solar Exposure, Hydration, Protein Pacing, Postprandial Ambulation), non-punitive weekly consistency matrix, and zero anxiety-inducing streak breaks.
+- **Body (Field 4 — Health Memory & Physiology)**: Sovereign health record. Tabular biomarker ledger with clinical reference intervals, 6-system physiological anatomical map, provenance tags (`Lab PDF`, `Wearable`), and cryptographic data export console.
+- **Store (Field 5 — Product & Formulation Intelligence)**: Impartial formulation benchmark catalog. Complete ingredient transparency, bioavailable elemental yields, allergen disclosure, and third-party laboratory seals (USP, NSF). Direct checkout is permanently disabled.
 
 ## 5. Evidence components
 - Citation chip opens source metadata: title, publisher, publication date, access date, link, relevant passage, and source type.

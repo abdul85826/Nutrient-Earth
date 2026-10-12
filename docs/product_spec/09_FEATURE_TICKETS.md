@@ -16,6 +16,10 @@ Antigravity must first inspect the existing repository and produce a read-only a
 - Identify existing Groq/weather/other APIs by code references and env variable names; verify usage, quota source, license, privacy, and fallback.
 - Acceptance: provider registry completed without exposing credentials.
 
+**NE-0004 Design system freeze & five-field UX specification**
+- Establish authoritative brand tokens from official emblem; define dual-font typography; specify five distinct field UX models; deliver Google Stitch design brief.
+- Acceptance: `BRAND_AND_DESIGN_SYSTEM.md`, `FIVE_FIELD_UX_SPECIFICATION.md`, and `STITCH_IMPLEMENTATION_BRIEF.md` committed; 100% WCAG contrast verified; no code or API modifications in design phase.
+
 ## EPIC 1 — Identity, profile, consent
 **NE-0101 Authentication and session audit**
 - Confirm OIDC/OAuth provider and secure flow; validate PKCE/state/nonce/redirect URI/session behavior.

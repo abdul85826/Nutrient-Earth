@@ -78,7 +78,9 @@ Ask family history only when relevant to a user-requested risk explanation or cl
 - Performance and reliability targets set after baseline load tests; do not invent SLOs before measurement.
 
 ## 9. MVP boundary
-Build one trustworthy vertical slice first: onboarding + account + Ask with text/PDF/URL, retrieval, claim-level citations, answer verification, safe abstention, conversation history, export/delete controls, and public web deployment. The other tabs may be introduced in gated phases; they must not ship as empty visual shells pretending to work. Device health, real-time store, expert booking, video processing, image-based body measurements, and 3D anatomical personalization each require separate acceptance gates.
+Build one trustworthy vertical slice first: sovereign account + Ask (Field 1) with text/PDF/URL ingestion, PubMed/USDA retrieval, claim-level citations, answer verification, safe abstention, emergency triage, conversation history, data export/delete controls, and web deployment. 
+- The brand design system is frozen per `docs/design/BRAND_AND_DESIGN_SYSTEM.md` using the authoritative botanical evergreen, luminous lime, and warm ivory tokens.
+- The five fields (Ask, Explore, Growth, Body, Store) are specified as distinct architectural experiences per `docs/design/FIVE_FIELD_UX_SPECIFICATION.md`. Explore, Growth, Body, and Store are introduced in prioritized phases and must never ship as empty visual shells or conversational clones. Device health sync, real-time store commerce, expert booking, video processing, image-based body measurements, and 3D anatomical personalization each require separate acceptance gates.
 
 ## 10. Success metrics
 Product quality: citation support rate, source freshness, extraction accuracy, calculation correctness, abstention correctness, unsafe-answer rate, report parsing accuracy, user correction rate, and data export/delete success.
