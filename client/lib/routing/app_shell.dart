@@ -11,12 +11,21 @@ class AppShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/ask') ||
         location.startsWith('/research') ||
-        location.startsWith('/today'))
+        location.startsWith('/today')) {
       return 0;
-    if (location.startsWith('/explore')) return 1;
-    if (location.startsWith('/growth')) return 2;
-    if (location.startsWith('/body')) return 3;
-    if (location.startsWith('/store')) return 4;
+    }
+    if (location.startsWith('/explore')) {
+      return 1;
+    }
+    if (location.startsWith('/growth')) {
+      return 2;
+    }
+    if (location.startsWith('/body')) {
+      return 3;
+    }
+    if (location.startsWith('/store')) {
+      return 4;
+    }
     return 0;
   }
 

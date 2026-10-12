@@ -25,19 +25,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         return path == '/login' ? null : '/login';
       }
 
-      // If authenticated user visits login, send directly to main application
-      if (path == '/login') {
-        return '/ask';
-      }
-
-      // Legacy /today route gracefully redirects to /ask
-      if (path == '/today') {
+      // If authenticated user visits root, login, or legacy /today, send directly to main application
+      if (path == '/' || path == '/login' || path == '/today') {
         return '/ask';
       }
 
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/',
+        redirect: (context, state) =>
+            authState is Authenticated ? '/ask' : '/login',
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/onboarding',

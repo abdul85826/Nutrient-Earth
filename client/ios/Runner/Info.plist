@@ -74,5 +74,16 @@
 	<string>Nutrient Earth uses your camera to capture food items and nutrition labels for real-time nutritional analysis.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Nutrient Earth uses your microphone to enable hands-free voice logging of health events and meals.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.nutrientearth.app</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
