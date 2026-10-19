@@ -1,6 +1,0 @@
-# Nutrient Earth - Android Release Keystore Configuration Example
-# Copy to key.properties for local release builds. DO NOT commit key.properties to source control.
-keyAlias=nutrientearth_release
-keyPassword=YOUR_KEY_PASSWORD
-storeFile=../keystores/release.keystore
-storePassword=YOUR_STORE_PASSWORD

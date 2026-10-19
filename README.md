@@ -83,9 +83,3 @@ flutter analyze
 flutter test
 ```
 
----
-
-## 5. Engineering Documentation
-
-- [OAUTH_REPAIR_CHANGELOG.md](file:///d:/Documents/NE_App/Nutrient_Earth/docs/engineering/OAUTH_REPAIR_CHANGELOG.md) — Comprehensive OAuth defect diagnosis, replacement register, and verification log.
-- [docs/product_spec/](file:///d:/Documents/NE_App/Nutrient_Earth/docs/product_spec/) — Source-of-truth architecture, security, and product specifications.
