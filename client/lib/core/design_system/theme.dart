@@ -39,7 +39,7 @@ class NETheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.manrope(
+        titleTextStyle: GoogleFonts.newsreader(
           color: NETokens.onSurface,
           fontSize: 20,
           fontWeight: FontWeight.w700,
@@ -48,44 +48,44 @@ class NETheme {
         iconTheme: const IconThemeData(color: NETokens.onSurface),
       ),
       textTheme: baseTextTheme.copyWith(
-        displayLarge: GoogleFonts.manrope(
+        displayLarge: GoogleFonts.newsreader(
           color: NETokens.onSurface,
           fontSize: 34,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.8,
           height: 1.2,
         ),
-        displayMedium: GoogleFonts.manrope(
+        displayMedium: GoogleFonts.newsreader(
           color: NETokens.onSurface,
           fontSize: 28,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.6,
           height: 1.25,
         ),
-        headlineLarge: GoogleFonts.manrope(
+        headlineLarge: GoogleFonts.newsreader(
           color: NETokens.onSurface,
-          fontSize: 24,
+          fontSize: 26,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.5,
-          height: 1.3,
+          height: 1.2,
         ),
-        headlineMedium: GoogleFonts.manrope(
+        headlineMedium: GoogleFonts.newsreader(
           color: NETokens.onSurface,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
           letterSpacing: -0.3,
-          height: 1.3,
+          height: 1.25,
         ),
-        headlineSmall: GoogleFonts.manrope(
+        headlineSmall: GoogleFonts.newsreader(
           color: NETokens.onSurface,
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          height: 1.35,
+          height: 1.3,
         ),
         titleLarge: GoogleFonts.manrope(
           color: NETokens.onSurface,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           height: 1.4,
         ),
         titleMedium: GoogleFonts.manrope(
@@ -107,7 +107,7 @@ class NETheme {
           height: 1.5,
         ),
         bodySmall: GoogleFonts.manrope(
-          color: NETokens.onSurfaceVariant,
+          color: NETokens.textMuted,
           fontSize: 12,
           fontWeight: FontWeight.w400,
           height: 1.4,

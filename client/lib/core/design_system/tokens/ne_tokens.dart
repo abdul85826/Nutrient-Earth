@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 class NETokens {
   NETokens._();
 
-  // Botanical Palette
+  // Core Botanical Palette
   static const Color background = Color(0xFFFBF9F4);
-  static const Color surface = Color(0xFFFBF9F4);
+  static const Color surface = Color(0xFFF7F5EE);
   static const Color surfaceDim = Color(0xFFDBDAD5);
   static const Color surfaceBright = Color(0xFFFBF9F4);
   
@@ -17,17 +17,18 @@ class NETokens {
   static const Color surfaceContainerHighest = Color(0xFFE4E2DD);
 
   // Typography & Content Colors
-  static const Color onSurface = Color(0xFF1B1C19);
-  static const Color onSurfaceVariant = Color(0xFF414845);
+  static const Color onSurface = Color(0xFF051F20);
+  static const Color onSurfaceVariant = Color(0xFF4F6359);
   static const Color inverseSurface = Color(0xFF30312E);
   static const Color inverseOnSurface = Color(0xFFF2F1EC);
 
-  // Primary & Containers
-  static const Color primary = Color(0xFF000A06);
+  // Primary & Containers (Deep Pine Forest)
+  static const Color primary = Color(0xFF051F20);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color primaryContainer = Color(0xFF00251D);
   static const Color onPrimaryContainer = Color(0xFF6B8E83);
-  static const Color inversePrimary = Color(0xFFA9CEC2);
+  static const Color deepGreen = Color(0xFF0B2B26);
+  static const Color emerald = Color(0xFF166534);
 
   // Secondary & Accents (Pine Sage)
   static const Color secondary = Color(0xFF38675A);
@@ -35,17 +36,22 @@ class NETokens {
   static const Color secondaryContainer = Color(0xFFB8EADA);
   static const Color onSecondaryContainer = Color(0xFF3C6B5E);
 
-  // Tertiary
-  static const Color tertiary = Color(0xFF000B04);
-  static const Color onTertiary = Color(0xFFFFFFFF);
-  static const Color tertiaryContainer = Color(0xFF002614);
-  static const Color onTertiaryContainer = Color(0xFF6A9077);
-
   // Outlines & Borders
   static const Color outline = Color(0xFF717975);
   static const Color outlineVariant = Color(0xFFC1C8C4);
-  static const Color borderSubtle = Color(0xFFE4E2DD);
-  static const Color borderDefault = Color(0xFFC1C8C4);
+  static const Color borderSubtle = Color(0xFFECEFEA);
+  static const Color borderDefault = Color(0xFFE4E9E2);
+  static const Color borderSage = Color(0x14163B32); // rgba(22, 59, 50, 0.08)
+
+  // Telemetry Cluster Colors
+  static const Color solarAmber = Color(0xFFD97706);
+  static const Color solarAmberBg = Color(0xFFFEF9EC);
+  static const Color aqiGreen = Color(0xFF166534);
+  static const Color aqiGreenBg = Color(0xFFEEF5F0);
+  static const Color weatherTeal = Color(0xFF166534);
+  static const Color weatherTealBg = Color(0xFFF3F7F5);
+  static const Color streakFlame = Color(0xFFC85A32);
+  static const Color streakFlameBg = Color(0xFFFAF0EB);
 
   // Errors & Alerts
   static const Color error = Color(0xFFBA1A1A);
@@ -53,24 +59,11 @@ class NETokens {
   static const Color errorContainer = Color(0xFFFFDAD6);
   static const Color onErrorContainer = Color(0xFF93000A);
 
-  // Success & Info
-  static const Color success = Color(0xFF38675A);
-  static const Color warning = Color(0xFFB45309);
-  static const Color info = Color(0xFF1E40AF);
-
-  // Compatibility Aliases for Existing Presentation Components
+  // Semantic Aliases
   static const Color textPrimary = onSurface;
   static const Color textSecondary = onSurfaceVariant;
-  static const Color textMuted = outline;
+  static const Color textMuted = Color(0xFF7D8F85);
   static const Color surfaceElevated = surfaceContainerLowest;
-  static const Color primaryLight = secondaryContainer;
-  static const Color secondaryLight = Color(0xFFE0F4EE);
-
-  // Additional Fixed Surface/Container Tokens
-  static const Color primaryFixed = Color(0xFFC7EBDD);
-  static const Color onPrimaryFixed = Color(0xFF002018);
-  static const Color secondaryFixed = Color(0xFFB8EADA);
-  static const Color onSecondaryFixed = Color(0xFF002018);
 
   // Spacing Scale
   static const double space2 = 2.0;
@@ -93,25 +86,26 @@ class NETokens {
   static const double radiusSm = 8.0;
   static const double radiusMd = 12.0;
   static const double radiusLg = 16.0;
-  static const double radiusXl = 24.0;
+  static const double radiusCard = 18.0;
+  static const double radiusXl = 20.0;
   static const double radiusFull = 9999.0;
 
-  // Box Shadows
-  static const List<BoxShadow> subtleShadow = [
+  // Subtle Box Shadows
+  static const List<BoxShadow> cardShadow = [
     BoxShadow(
-      color: Color(0x0D000000),
+      color: Color(0x0A0B2B26),
       offset: Offset(0, 2),
       blurRadius: 8,
       spreadRadius: 0,
     ),
   ];
 
-  static const List<BoxShadow> cardShadow = [
+  static const List<BoxShadow> buttonShadow = [
     BoxShadow(
-      color: Color(0x12000000),
-      offset: Offset(0, 4),
-      blurRadius: 16,
-      spreadRadius: -2,
+      color: Color(0x0A0B2B26),
+      offset: Offset(0, 2),
+      blurRadius: 8,
+      spreadRadius: 0,
     ),
   ];
 }
