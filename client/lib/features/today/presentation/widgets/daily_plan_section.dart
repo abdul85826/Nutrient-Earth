@@ -135,9 +135,14 @@ class DailyPlanSection extends StatelessWidget {
   }
 
   Widget _buildTaskRow(DailyPlanTask task, int index) {
-    return InkWell(
-      onTap: () => onToggleTask(index),
-      borderRadius: BorderRadius.circular(10),
+    return Semantics(
+      button: true,
+      checked: task.isCompleted,
+      label: '${task.title}. ${task.note}. Scheduled: ${task.timeString}',
+      hint: task.isCompleted ? 'Completed. Double tap to unmark.' : 'Incomplete. Double tap to mark as complete.',
+      child: InkWell(
+        onTap: () => onToggleTask(index),
+        borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
         decoration: BoxDecoration(
@@ -249,6 +254,7 @@ class DailyPlanSection extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

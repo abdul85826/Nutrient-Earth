@@ -14,8 +14,13 @@ class SupabaseConfig {
     final url = AppConfig.supabaseUrl;
     final anonKey = AppConfig.supabaseAnonKey;
 
-    if (url.isEmpty || anonKey.isEmpty || anonKey == 'your-anon-key-here') {
-      // In development/test mode without valid cloud key, operate in mock mode
+    if (url.isEmpty ||
+        anonKey.isEmpty ||
+        anonKey == 'your-anon-key-here' ||
+        anonKey == 'mock-anon-key' ||
+        anonKey == 'placeholder-anon-key' ||
+        url.contains('placeholder.supabase.co')) {
+      // In development/test mode without valid cloud key, operate safely in mock mode
       return;
     }
 
@@ -26,10 +31,10 @@ class SupabaseConfig {
         authOptions: const FlutterAuthClientOptions(
           authFlowType: AuthFlowType.pkce,
         ),
-      );
+      ).timeout(const Duration(seconds: 4));
       _initialized = true;
     } catch (_) {
-      // If network / local emulator is unavailable, graceful fallback
+      // If network / local emulator is unavailable or timed out, graceful fallback
       _initialized = false;
     }
   }

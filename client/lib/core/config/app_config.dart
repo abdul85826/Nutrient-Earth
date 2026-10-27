@@ -7,19 +7,28 @@ class AppConfig {
     try {
       await dotenv.load(fileName: '.env');
     } catch (_) {
-      // Fallback for test environments without .env file
+      // When .env is not present in bundle or fails to load, initialize empty map safely
+      dotenv.testLoad(fileInput: '');
     }
   }
 
-  static String get supabaseUrl =>
-      dotenv.env['SUPABASE_URL'] ?? 'http://localhost:54321';
+  static String get supabaseUrl {
+    if (!dotenv.isInitialized) return '';
+    return dotenv.env['SUPABASE_URL'] ?? '';
+  }
 
-  static String get supabaseAnonKey =>
-      dotenv.env['SUPABASE_ANON_KEY'] ?? 'mock-anon-key';
+  static String get supabaseAnonKey {
+    if (!dotenv.isInitialized) return '';
+    return dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+  }
 
-  static String get apiBaseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:54321/functions/v1';
+  static String get apiBaseUrl {
+    if (!dotenv.isInitialized) return '';
+    return dotenv.env['API_BASE_URL'] ?? '';
+  }
 
-  static bool get useEmulator =>
-      (dotenv.env['USE_EMULATOR'] ?? 'false').toLowerCase() == 'true';
+  static bool get useEmulator {
+    if (!dotenv.isInitialized) return false;
+    return (dotenv.env['USE_EMULATOR'] ?? 'false').toLowerCase() == 'true';
+  }
 }

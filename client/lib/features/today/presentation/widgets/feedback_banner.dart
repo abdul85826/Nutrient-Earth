@@ -38,7 +38,7 @@ class _FeedbackBannerState extends State<FeedbackBanner> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFEEF5F0),
+        color: NETokens.greetingGradientMid,
         borderRadius: BorderRadius.circular(NETokens.radiusMd),
         border: Border.all(color: NETokens.borderDefault),
         boxShadow: const [
@@ -59,7 +59,7 @@ class _FeedbackBannerState extends State<FeedbackBanner> {
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFD5E2D8)),
+              border: Border.all(color: NETokens.borderInput),
             ),
             child: const Icon(
               Icons.chat_bubble_outline_rounded,
@@ -109,9 +109,9 @@ class _FeedbackBannerState extends State<FeedbackBanner> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(NETokens.radiusFull),
-                border: Border.all(color: const Color(0xFFD5E2D8)),
+                border: Border.all(color: NETokens.borderInput),
               ),
-              padding: const EdgeInsets.only(left: 10.0, right: 3.0, top: 2.0, bottom: 2.0),
+              padding: const EdgeInsets.only(left: 10.0, right: 2.0, top: 2.0, bottom: 2.0),
               child: Row(
                 children: [
                   Expanded(
@@ -136,20 +136,24 @@ class _FeedbackBannerState extends State<FeedbackBanner> {
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: _handleSubmit,
-                    borderRadius: BorderRadius.circular(NETokens.radiusFull),
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        color: NETokens.deepGreen,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.arrow_upward_rounded,
-                        color: Colors.white,
-                        size: 13,
+                  Semantics(
+                    button: true,
+                    label: 'Submit feedback',
+                    child: InkWell(
+                      onTap: _handleSubmit,
+                      borderRadius: BorderRadius.circular(NETokens.radiusFull),
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: const BoxDecoration(
+                          color: NETokens.deepGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_upward_rounded,
+                          color: Colors.white,
+                          size: 15,
+                        ),
                       ),
                     ),
                   ),

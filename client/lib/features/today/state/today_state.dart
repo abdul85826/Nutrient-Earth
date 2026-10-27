@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/design_system/tokens/ne_tokens.dart';
+import '../../../core/domain/personalization/user_profile_context.dart';
 import '../../../core/services/diurnal_service.dart';
+import '../../../core/services/profile_repository.dart';
 import '../../../core/services/telemetry_service.dart';
 import '../../../core/services/research_pipeline_service.dart';
 
@@ -82,8 +84,11 @@ class TodayState {
 }
 
 class TodayNotifier extends StateNotifier<TodayState> {
-  TodayNotifier()
-      : super(
+  final ProfileRepository _profileRepository;
+
+  TodayNotifier({ProfileRepository? profileRepository})
+      : _profileRepository = profileRepository ?? SupabaseProfileRepository(),
+        super(
           TodayState(
             diurnal: DiurnalService.getContext(preferredName: 'Sarah'),
             telemetry: TelemetryData(
@@ -160,7 +165,11 @@ class TodayNotifier extends StateNotifier<TodayState> {
     state = state.copyWith(tasks: updatedList);
   }
 
-  Future<void> submitResearch(String query, {String? imagePath}) async {
+  Future<void> submitResearch(
+    String query, {
+    String? imagePath,
+    UserProfileContext? userProfile,
+  }) async {
     if (query.trim().isEmpty) return;
 
     state = state.copyWith(
@@ -169,9 +178,21 @@ class TodayNotifier extends StateNotifier<TodayState> {
     );
 
     try {
+      // Resolve authentic user profile: explicit caller profile, or fetch from ProfileRepository.
+      // If user is unauthenticated or has not configured a profile, remains null (zero mock hallucination).
+      UserProfileContext? profile = userProfile;
+      if (profile == null) {
+        try {
+          profile = await _profileRepository.getCurrentUserProfile();
+        } catch (_) {
+          profile = null;
+        }
+      }
+
       final answer = await ResearchPipelineService.processInquiry(
         query: query,
         imagePath: imagePath,
+        userProfile: profile,
       );
       state = state.copyWith(
         isResearchLoading: false,
@@ -201,5 +222,6 @@ class TodayNotifier extends StateNotifier<TodayState> {
 }
 
 final todayStateProvider = StateNotifierProvider<TodayNotifier, TodayState>((ref) {
-  return TodayNotifier();
+  final profileRepo = ref.watch(profileRepositoryProvider);
+  return TodayNotifier(profileRepository: profileRepo);
 });

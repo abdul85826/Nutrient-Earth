@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../../core/services/learn_repository.dart';
+import '../../../../core/services/profile_repository.dart';
+import '../../../../core/services/research_pipeline_service.dart';
 import '../state/today_state.dart';
 import 'widgets/header_bar.dart';
 import 'widgets/dynamic_greeting_card.dart';
@@ -14,6 +16,7 @@ import 'widgets/feedback_banner.dart';
 import 'widgets/today_drawer.dart';
 import 'widgets/research_result_modal.dart';
 import 'widgets/learn_detail_modal.dart';
+import 'widgets/privacy_data_modal.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
@@ -48,27 +51,42 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
     _scaffoldKey.currentState?.openDrawer();
   }
 
-  void _openProfile() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile: Sarah Jenkins • Active Goal: Endurance Recovery'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+  void _openProfile() async {
+    final profile = await ref.read(profileRepositoryProvider).getCurrentUserProfile();
+    if (!mounted) return;
+    if (profile != null) {
+      final goal = profile.primaryGoals.isNotEmpty ? profile.primaryGoals.first : 'Active Health';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profile: ${profile.displayName} • Active Goal: $goal'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile: Guest • Sign in to configure goals & personalization'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _handleResearchSubmit(String query) async {
+    final currentState = ref.read(todayStateProvider);
+    if (currentState.isResearchLoading) return; // Prevent duplicate submissions
+
     final notifier = ref.read(todayStateProvider.notifier);
     await notifier.submitResearch(query);
 
     if (!mounted) return;
-    final currentState = ref.read(todayStateProvider);
-    if (currentState.activeAnswer != null) {
-      ResearchResultModal.show(context, currentState.activeAnswer!);
-    } else if (currentState.researchError != null) {
+    final updatedState = ref.read(todayStateProvider);
+    if (updatedState.activeAnswer != null) {
+      ResearchResultModal.show(context, updatedState.activeAnswer!);
+    } else if (updatedState.researchError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Research error: ${currentState.researchError}'),
+          content: Text('Research error: ${updatedState.researchError}'),
           backgroundColor: NETokens.error,
         ),
       );
@@ -97,6 +115,32 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
         _handleResearchSubmit('How does dietary magnesium glycinate compare for sleep quality?');
       },
     );
+  }
+
+  void _handleUrlTap() {
+    _showAttachmentDialog(
+      title: 'Analyze Scientific Publication',
+      icon: Icons.link_rounded,
+      message: 'Enter or paste a PubMed URL, DOI identifier, or scientific article link to extract and verify nutritional claims.',
+      actionText: 'Analyze Publication',
+      onConfirm: () {
+        const urlToAnalyze = 'https://pubmed.ncbi.nlm.nih.gov/11794633/';
+        if (!ResearchPipelineService.validateScientificUrl(urlToAnalyze)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Security error: Only HTTPS links to verified scientific repositories are permitted.'),
+              backgroundColor: NETokens.error,
+            ),
+          );
+          return;
+        }
+        _handleResearchSubmit('Analyze nutritional findings from PubMed PMID 11794633');
+      },
+    );
+  }
+
+  void _openPrivacyDataControls() {
+    PrivacyDataModal.show(context);
   }
 
   void _showAttachmentDialog({
@@ -152,12 +196,19 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
       backgroundColor: NETokens.background,
       drawer: TodayDrawer(
         onNewChat: () {
-          // Focus search or trigger fresh prompt
+          ref.read(todayStateProvider.notifier).clearActiveAnswer();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ready for a new inquiry. Enter your question in the research bar.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
         },
         onSelectHistory: (query) {
           _handleResearchSubmit(query);
         },
         onProfileTap: _openProfile,
+        onPrivacyTap: _openPrivacyDataControls,
       ),
       body: SafeArea(
         child: Center(
@@ -194,6 +245,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
                     onSubmit: _handleResearchSubmit,
                     onCameraTap: _handleCameraTap,
                     onVoiceTap: _handleVoiceTap,
+                    onUrlTap: _handleUrlTap,
                   ),
                   const SizedBox(height: 22),
 

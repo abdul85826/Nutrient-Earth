@@ -101,3 +101,6 @@ postgres_data/
 redis_data/
 *.log
 node_modules
+.gemini/
+supabase/.temp/
+supabase/.branches/

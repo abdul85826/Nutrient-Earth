@@ -51,7 +51,7 @@ class LearnTodaySection extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Three fresh picks to help you understand your health better.',
+                      'Handpicked science to help you understand your health and nutrition better.',
                       style: GoogleFonts.manrope(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -62,24 +62,28 @@ class LearnTodaySection extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              InkWell(
-                onTap: onSeeAllTap,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'See all',
-                        style: GoogleFonts.manrope(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: NETokens.primary,
+              Semantics(
+                button: true,
+                label: 'See all learning articles and videos',
+                child: InkWell(
+                  onTap: onSeeAllTap,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'See all',
+                          style: GoogleFonts.manrope(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: NETokens.primary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: NETokens.primary),
-                    ],
+                        const SizedBox(width: 2),
+                        const Icon(Icons.arrow_forward_ios_rounded, size: 10, color: NETokens.primary),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -108,23 +112,26 @@ class LearnTodaySection extends StatelessWidget {
     final isVideo = item.type == LearnContentType.video;
     final tagColor = isVideo ? NETokens.emerald : const Color(0xFFC85A32);
 
-    return InkWell(
-      onTap: () => onItemTap(item),
-      borderRadius: BorderRadius.circular(NETokens.radiusLg),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(NETokens.radiusLg),
-          border: Border.all(color: NETokens.borderDefault),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0B2B26).withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(10.0),
+    return Semantics(
+      button: true,
+      label: '${isVideo ? "Video: " : "Article: "} ${item.title}, ${item.categoryTag}. ${item.description}',
+      child: InkWell(
+        onTap: () => onItemTap(item),
+        borderRadius: BorderRadius.circular(NETokens.radiusLg),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(NETokens.radiusLg),
+            border: Border.all(color: NETokens.borderDefault),
+            boxShadow: [
+              BoxShadow(
+                color: NETokens.darkEvergreen.withValues(alpha: 0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -267,6 +274,7 @@ class LearnTodaySection extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

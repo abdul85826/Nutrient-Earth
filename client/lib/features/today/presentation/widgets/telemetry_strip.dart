@@ -109,48 +109,61 @@ class TelemetryStrip extends StatelessWidget {
     Widget? valueWidget,
     required String label,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 26,
-          height: 26,
-          decoration: BoxDecoration(
-            color: iconBg,
-            shape: BoxShape.circle,
+    final semanticValue = value ?? (label.contains('AQI') ? '${telemetry.aqi}' : '');
+    return Semantics(
+      label: '$label: $semanticValue',
+      button: onRefresh != null,
+      hint: onRefresh != null ? 'Double tap to refresh environmental telemetry' : null,
+      child: InkWell(
+        onTap: onRefresh,
+        borderRadius: BorderRadius.circular(NETokens.radiusSm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 14),
+              ),
+              const SizedBox(height: 5),
+              if (valueWidget != null)
+                valueWidget
+              else
+                Text(
+                  value ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: NETokens.primary,
+                    height: 1.1,
+                  ),
+                ),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: NETokens.textMuted,
+                  height: 1.1,
+                ),
+              ),
+            ],
           ),
-          child: Icon(icon, color: iconColor, size: 14),
         ),
-        const SizedBox(height: 5),
-        if (valueWidget != null)
-          valueWidget
-        else
-          Text(
-            value ?? '',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.manrope(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: NETokens.primary,
-              height: 1.1,
-            ),
-          ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.manrope(
-            fontSize: 11,
-            fontWeight: FontWeight.w500,
-            color: NETokens.textMuted,
-            height: 1.1,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

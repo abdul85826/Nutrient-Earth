@@ -8,8 +8,18 @@ import 'routing/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppConfig.initialize();
-  await SupabaseConfig.initialize();
+
+  try {
+    await AppConfig.initialize();
+  } catch (e) {
+    debugPrint('[AppConfig] Initialization error: $e');
+  }
+
+  try {
+    await SupabaseConfig.initialize();
+  } catch (e) {
+    debugPrint('[SupabaseConfig] Initialization error: $e');
+  }
 
   runApp(const ProviderScope(child: NutrientEarthApp()));
 }

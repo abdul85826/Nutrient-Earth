@@ -63,14 +63,14 @@ class LearnDetailModal extends StatelessWidget {
                           width: double.infinity,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            color: const Color(0xFFEAE5D8),
+                            color: NETokens.surfaceContainer,
                           ),
                           clipBehavior: Clip.antiAlias,
                           child: Image.asset(
                             item.thumbnailAsset,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) => Container(
-                              color: const Color(0xFFEAE5D8),
+                              color: NETokens.surfaceContainer,
                               child: const Icon(Icons.menu_book_rounded, size: 40, color: NETokens.primary),
                             ),
                           ),
@@ -82,7 +82,7 @@ class LearnDetailModal extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF051F20).withValues(alpha: 0.8),
+                                  color: NETokens.deepestForest.withValues(alpha: 0.85),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(

@@ -21,22 +21,31 @@ class HeaderBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Left Hamburger Button
-          InkWell(
-            onTap: onMenuPressed,
-            borderRadius: BorderRadius.circular(NETokens.radiusFull),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: NETokens.borderDefault),
-                boxShadow: NETokens.buttonShadow,
-              ),
-              child: const Icon(
-                Icons.menu_rounded,
-                color: NETokens.primary,
-                size: 20,
+          Semantics(
+            button: true,
+            label: 'Open navigation drawer',
+            child: InkWell(
+              onTap: onMenuPressed,
+              borderRadius: BorderRadius.circular(NETokens.radiusFull),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: NETokens.borderDefault),
+                      boxShadow: NETokens.buttonShadow,
+                    ),
+                    child: const Icon(
+                      Icons.menu_rounded,
+                      color: NETokens.primary,
+                      size: 20,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -101,22 +110,31 @@ class HeaderBar extends StatelessWidget {
           ),
 
           // Right Profile Avatar Button
-          InkWell(
-            onTap: onProfilePressed,
-            borderRadius: BorderRadius.circular(NETokens.radiusFull),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: NETokens.borderDefault),
-                boxShadow: NETokens.buttonShadow,
-              ),
-              child: const Icon(
-                Icons.person_outline_rounded,
-                color: NETokens.primary,
-                size: 20,
+          Semantics(
+            button: true,
+            label: 'View profile and active health context',
+            child: InkWell(
+              onTap: onProfilePressed,
+              borderRadius: BorderRadius.circular(NETokens.radiusFull),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: NETokens.borderDefault),
+                      boxShadow: NETokens.buttonShadow,
+                    ),
+                    child: const Icon(
+                      Icons.person_outline_rounded,
+                      color: NETokens.primary,
+                      size: 20,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

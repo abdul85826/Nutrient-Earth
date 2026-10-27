@@ -7,6 +7,7 @@ class ResearchSearchBar extends StatefulWidget {
   final ValueChanged<String> onSubmit;
   final VoidCallback? onCameraTap;
   final VoidCallback? onVoiceTap;
+  final VoidCallback? onUrlTap;
   final bool isLoading;
 
   const ResearchSearchBar({
@@ -14,6 +15,7 @@ class ResearchSearchBar extends StatefulWidget {
     required this.onSubmit,
     this.onCameraTap,
     this.onVoiceTap,
+    this.onUrlTap,
     this.isLoading = false,
   });
 
@@ -76,24 +78,31 @@ class _ResearchSearchBarState extends State<ResearchSearchBar> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(NETokens.radiusFull),
-            border: Border.all(color: const Color(0xFFD5E2D8), width: 1.2),
+            border: Border.all(color: NETokens.borderInput, width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0B2B26).withValues(alpha: 0.04),
+                color: NETokens.darkEvergreen.withValues(alpha: 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          padding: const EdgeInsets.only(left: 6.0, right: 6.0, top: 4.0, bottom: 4.0),
+          padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
           child: Row(
             children: [
               // Camera button
               IconButton(
                 icon: const Icon(Icons.camera_alt_outlined, color: NETokens.primary, size: 22),
-                tooltip: 'Scan label or meal',
+                tooltip: 'Scan label or meal photo',
                 onPressed: widget.onCameraTap,
               ),
+
+              if (widget.onUrlTap != null)
+                IconButton(
+                  icon: const Icon(Icons.link_rounded, color: NETokens.textSecondary, size: 21),
+                  tooltip: 'Submit research link or DOI',
+                  onPressed: widget.onUrlTap,
+                ),
 
               // Search TextField
               Expanded(
@@ -107,7 +116,7 @@ class _ResearchSearchBarState extends State<ResearchSearchBar> {
                     color: NETokens.primary,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Ask about food, fitness...',
+                    hintText: 'Ask about food, fitness, biology...',
                     hintStyle: GoogleFonts.manrope(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -123,36 +132,45 @@ class _ResearchSearchBarState extends State<ResearchSearchBar> {
               // Voice microphone button
               IconButton(
                 icon: const Icon(Icons.mic_none_rounded, color: NETokens.emerald, size: 22),
-                tooltip: 'Voice inquiry',
+                tooltip: 'Voice research inquiry',
                 onPressed: widget.onVoiceTap,
               ),
 
               // Submit upward arrow button
-              InkWell(
-                onTap: widget.isLoading ? null : _handleSubmitted,
-                borderRadius: BorderRadius.circular(NETokens.radiusFull),
-                child: Container(
-                  width: 34,
-                  height: 34,
-                  decoration: const BoxDecoration(
-                    color: NETokens.deepGreen,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: widget.isLoading
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Icon(
-                            Icons.arrow_upward_rounded,
-                            color: Colors.white,
-                            size: 18,
-                          ),
+              Semantics(
+                button: true,
+                label: 'Submit research inquiry',
+                child: InkWell(
+                  onTap: widget.isLoading ? null : _handleSubmitted,
+                  borderRadius: BorderRadius.circular(NETokens.radiusFull),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                    child: Center(
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: const BoxDecoration(
+                          color: NETokens.deepGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: widget.isLoading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.arrow_upward_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -188,37 +206,41 @@ class _ResearchSearchBarState extends State<ResearchSearchBar> {
   }
 
   Widget _buildSuggestedChip(String label, {required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(NETokens.radiusFull),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(NETokens.radiusFull),
-          border: Border.all(color: const Color(0xFFD5E2D8)),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0B2B26).withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.search_rounded, size: 14, color: NETokens.emerald),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: NETokens.primary,
+    return Semantics(
+      button: true,
+      label: 'Suggested inquiry: $label',
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(NETokens.radiusFull),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 7.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(NETokens.radiusFull),
+            border: Border.all(color: NETokens.borderInput),
+            boxShadow: [
+              BoxShadow(
+                color: NETokens.darkEvergreen.withValues(alpha: 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.search_rounded, size: 14, color: NETokens.emerald),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.manrope(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: NETokens.primary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

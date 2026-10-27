@@ -14,6 +14,8 @@ import 'package:nutrient_earth_client/features/today/presentation/widgets/teleme
 import 'package:nutrient_earth_client/features/today/presentation/widgets/daily_plan_section.dart';
 import 'package:nutrient_earth_client/features/today/presentation/widgets/learn_today_section.dart';
 import 'package:nutrient_earth_client/features/today/presentation/widgets/feedback_banner.dart';
+import 'package:nutrient_earth_client/features/today/presentation/widgets/research_result_modal.dart';
+import 'package:nutrient_earth_client/features/today/presentation/widgets/privacy_data_modal.dart';
 
 Widget createTestHost({required Widget child}) {
   return ProviderScope(
@@ -296,7 +298,66 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('New Research Inquiry'), findsOneWidget);
       expect(find.text('RECENT INQUIRIES'), findsOneWidget);
+      expect(find.text('Privacy & Data Controls'), findsOneWidget);
       expect(find.text('Sarah Jenkins'), findsOneWidget);
     });
   });
+
+  group('ResearchResultModal Tests', () {
+    testWidgets('ResearchResultModal displays inquiry, evidence score, PMID badges, and callout', (tester) async {
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      late final ResearchAnswer answer;
+      await tester.runAsync(() async {
+        answer = await ResearchPipelineService.processInquiry(
+          query: 'What is the best magnesium for sleep?',
+        );
+      });
+
+      await tester.pumpWidget(
+        createTestHost(
+          child: Scaffold(
+            body: ResearchResultModal(answer: answer),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('RESEARCH INQUIRY'), findsOneWidget);
+      expect(find.textContaining('RCT REVIEW'), findsOneWidget);
+      expect(find.text('ANSWER'), findsOneWidget);
+      expect(find.text('EVIDENCE AND SOURCES'), findsOneWidget);
+      expect(find.text('WHAT THIS MEANS FOR YOU'), findsOneWidget);
+      expect(find.text('Save to history'), findsOneWidget);
+      expect(find.text('Turn into a goal'), findsOneWidget);
+    });
+  });
+
+  group('PrivacyDataModal Tests', () {
+    testWidgets('PrivacyDataModal displays assurances, encryption badges, and user controls', (tester) async {
+      tester.view.physicalSize = const Size(800, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.pumpWidget(
+        createTestHost(
+          child: const Scaffold(
+            body: PrivacyDataModal(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('DATA SOVEREIGNTY & PRIVACY'), findsOneWidget);
+      expect(find.text('Your Health Data Controls'), findsOneWidget);
+      expect(find.text('Architectural Assurances'), findsOneWidget);
+      expect(find.text('TLS 1.3 Transport Encryption'), findsOneWidget);
+      expect(find.text('PostgreSQL Row Level Security (RLS) Isolation'), findsOneWidget);
+      expect(find.text('Export Health & Research Data'), findsOneWidget);
+      expect(find.text('Clear Local Inquiries Cache'), findsOneWidget);
+    });
+  });
 }
+

@@ -7,12 +7,14 @@ class TodayDrawer extends StatelessWidget {
   final VoidCallback onNewChat;
   final ValueChanged<String> onSelectHistory;
   final VoidCallback onProfileTap;
+  final VoidCallback? onPrivacyTap;
 
   const TodayDrawer({
     super.key,
     required this.onNewChat,
     required this.onSelectHistory,
     required this.onProfileTap,
+    this.onPrivacyTap,
   });
 
   @override
@@ -159,6 +161,27 @@ class TodayDrawer extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+
+            const Divider(color: NETokens.borderSubtle, height: 1),
+
+            // Privacy & Data Controls
+            ListTile(
+              dense: true,
+              onTap: () {
+                Navigator.pop(context);
+                onPrivacyTap?.call();
+              },
+              leading: const Icon(Icons.shield_outlined, size: 20, color: NETokens.botanicalTeal),
+              title: Text(
+                'Privacy & Data Controls',
+                style: GoogleFonts.manrope(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: NETokens.primary,
+                ),
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: NETokens.textMuted),
             ),
 
             const Divider(color: NETokens.borderSubtle, height: 1),
