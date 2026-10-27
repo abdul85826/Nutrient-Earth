@@ -4,14 +4,25 @@
 // tables (public.ai_conversations and public.ai_messages) enforcing Row Level Security.
 // ==============================================================================
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import 'research_pipeline_service.dart';
 
 class ResearchPersistenceService {
-  ResearchPersistenceService._();
+  ResearchPersistenceService._({SupabaseClient? client}) : _customClient = client;
+
+  final SupabaseClient? _customClient;
 
   static final ResearchPersistenceService instance = ResearchPersistenceService._();
+
+  /// Testing factory allowing dependency injection of a specific authenticated Supabase client.
+  @visibleForTesting
+  factory ResearchPersistenceService.forClient(SupabaseClient client) =>
+      ResearchPersistenceService._(client: client);
+
+  SupabaseClient? get _client => _customClient ?? SupabaseConfig.client;
 
   /// Creates a new conversation or retrieves the active conversation ID.
   /// If unauthenticated or offline, gracefully returns null without crashing.
@@ -19,7 +30,7 @@ class ResearchPersistenceService {
     String? conversationId,
     required String title,
   }) async {
-    final client = SupabaseConfig.client;
+    final client = _client;
     if (client == null) return null;
 
     final user = client.auth.currentUser;
@@ -49,7 +60,7 @@ class ResearchPersistenceService {
     required String query,
     required ResearchAnswer answer,
   }) async {
-    final client = SupabaseConfig.client;
+    final client = _client;
     if (client == null) return false;
 
     final user = client.auth.currentUser;
@@ -87,7 +98,7 @@ class ResearchPersistenceService {
 
   /// Loads recent research conversation summaries for the authenticated user.
   Future<List<Map<String, dynamic>>> loadRecentConversations({int limit = 15}) async {
-    final client = SupabaseConfig.client;
+    final client = _client;
     if (client == null) return const [];
 
     final user = client.auth.currentUser;
@@ -104,6 +115,49 @@ class ResearchPersistenceService {
       return List<Map<String, dynamic>>.from(data);
     } catch (_) {
       return const [];
+    }
+  }
+
+  /// Loads messages for an active conversation owned by the authenticated user.
+  Future<List<Map<String, dynamic>>> loadConversationMessages(String conversationId) async {
+    final client = _client;
+    if (client == null) return const [];
+
+    final user = client.auth.currentUser;
+    if (user == null) return const [];
+
+    try {
+      final data = await client
+          .from('ai_messages')
+          .select()
+          .eq('conversation_id', conversationId)
+          .eq('user_id', user.id)
+          .order('created_at', ascending: true);
+
+      return List<Map<String, dynamic>>.from(data);
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  /// Deletes a conversation owned by the authenticated user.
+  /// Due to ON DELETE CASCADE on the composite foreign key, associated messages are automatically deleted.
+  Future<bool> deleteConversation(String conversationId) async {
+    final client = _client;
+    if (client == null) return false;
+
+    final user = client.auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      await client
+          .from('ai_conversations')
+          .delete()
+          .eq('id', conversationId)
+          .eq('user_id', user.id);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 }
