@@ -4,6 +4,7 @@
 // Backward-compatible with existing Flutter presentation modals and services.
 // ==============================================================================
 
+import '../blockchain/evidence_integrity_service.dart';
 import '../evidence/scientific_evidence_contract.dart';
 import '../nutrition/nutrition_models.dart';
 import '../personalization/goal_alignment_evaluator.dart';
@@ -100,6 +101,7 @@ class StructuredResearchAnswer {
   final double? comparisonIndex;
   final String provider;
   final DateTime generatedAt;
+  final ResearchProvenanceDossier? provenanceDossier;
 
   const StructuredResearchAnswer({
     this.contractVersion = '2026.1',
@@ -122,7 +124,56 @@ class StructuredResearchAnswer {
     this.comparisonIndex,
     this.provider = 'Nutrient Earth Verified Evidence Base',
     required this.generatedAt,
+    this.provenanceDossier,
   });
+
+  StructuredResearchAnswer copyWith({
+    String? contractVersion,
+    String? query,
+    String? referenceId,
+    String? domainCategory,
+    String? quickAnswer,
+    String? detailedExplanation,
+    EffectivenessAssessment? effectivenessAssessment,
+    String? evidenceBadge,
+    List<ScientificSource>? sources,
+    List<ScientificClaim>? claims,
+    List<HealthBenefit>? healthBenefits,
+    List<String>? practicalRecommendations,
+    String? studyLimitations,
+    SafetyInformation? safetyInformation,
+    GoalAssessmentResult? goalAlignment,
+    NutritionAnalysisProfile? nutritionAnalysis,
+    String? comparisonCallout,
+    double? comparisonIndex,
+    String? provider,
+    DateTime? generatedAt,
+    ResearchProvenanceDossier? provenanceDossier,
+  }) {
+    return StructuredResearchAnswer(
+      contractVersion: contractVersion ?? this.contractVersion,
+      query: query ?? this.query,
+      referenceId: referenceId ?? this.referenceId,
+      domainCategory: domainCategory ?? this.domainCategory,
+      quickAnswer: quickAnswer ?? this.quickAnswer,
+      detailedExplanation: detailedExplanation ?? this.detailedExplanation,
+      effectivenessAssessment: effectivenessAssessment ?? this.effectivenessAssessment,
+      evidenceBadge: evidenceBadge ?? this.evidenceBadge,
+      sources: sources ?? this.sources,
+      claims: claims ?? this.claims,
+      healthBenefits: healthBenefits ?? this.healthBenefits,
+      practicalRecommendations: practicalRecommendations ?? this.practicalRecommendations,
+      studyLimitations: studyLimitations ?? this.studyLimitations,
+      safetyInformation: safetyInformation ?? this.safetyInformation,
+      goalAlignment: goalAlignment ?? this.goalAlignment,
+      nutritionAnalysis: nutritionAnalysis ?? this.nutritionAnalysis,
+      comparisonCallout: comparisonCallout ?? this.comparisonCallout,
+      comparisonIndex: comparisonIndex ?? this.comparisonIndex,
+      provider: provider ?? this.provider,
+      generatedAt: generatedAt ?? this.generatedAt,
+      provenanceDossier: provenanceDossier ?? this.provenanceDossier,
+    );
+  }
 
   factory StructuredResearchAnswer.fromJson(Map<String, dynamic> json) {
     return StructuredResearchAnswer(
@@ -170,6 +221,9 @@ class StructuredResearchAnswer {
       generatedAt: json['generatedAt'] != null
           ? DateTime.tryParse(json['generatedAt'].toString()) ?? DateTime.now()
           : DateTime.now(),
+      provenanceDossier: json['provenanceDossier'] != null
+          ? ResearchProvenanceDossier.fromJson(json['provenanceDossier'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -187,6 +241,7 @@ class StructuredResearchAnswer {
         'healthBenefits': healthBenefits.map((b) => b.toJson()).toList(),
         'practicalRecommendations': practicalRecommendations,
         'studyLimitations': studyLimitations,
+        'provenanceDossier': provenanceDossier?.toJson(),
         'safetyInformation': safetyInformation.toJson(),
         'goalAlignment': goalAlignment?.toJson(),
         'nutritionAnalysis': nutritionAnalysis?.toJson(),

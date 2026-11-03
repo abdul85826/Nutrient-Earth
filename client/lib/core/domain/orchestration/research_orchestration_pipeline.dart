@@ -5,8 +5,10 @@
 // ==============================================================================
 
 import '../answer_contract/structured_research_answer.dart';
+import '../blockchain/evidence_integrity_service.dart';
 import '../evidence/citation_validator.dart';
 import '../evidence/scientific_evidence_contract.dart';
+import '../evidence/scientific_evidence_repository.dart';
 import '../nutrition/nutrition_models.dart';
 import '../personalization/goal_alignment_evaluator.dart';
 import '../personalization/user_profile_context.dart';
@@ -21,6 +23,11 @@ class DeterministicArchiveEvidenceAdapter implements EvidenceRetrievalAdapter {
 
   @override
   Future<List<ScientificSource>> retrieveSources(String query, ResearchIntent intent) async {
+    final search = ScientificEvidenceRepository.searchEvidence(query);
+    if (search.matchedSources.isNotEmpty) {
+      return search.matchedSources;
+    }
+
     final lower = query.toLowerCase();
 
     if (lower.contains('magnesium') || lower.contains('sleep') || lower.contains('glycinate')) {
@@ -101,10 +108,12 @@ class PipelineExecutionResult {
 
 class ResearchOrchestrationPipeline {
   final EvidenceRetrievalAdapter evidenceAdapter;
+  final EvidenceIntegrityService integrityService;
 
-  const ResearchOrchestrationPipeline({
+  ResearchOrchestrationPipeline({
     this.evidenceAdapter = const DeterministicArchiveEvidenceAdapter(),
-  });
+    EvidenceIntegrityService? integrityService,
+  }) : integrityService = integrityService ?? EvidenceIntegrityService();
 
   Future<PipelineExecutionResult> execute({
     required String query,
@@ -173,11 +182,16 @@ class ResearchOrchestrationPipeline {
       safetyInfo: safetyInfo,
     );
 
+    // Stage 10: Cryptographic Blockchain Provenance Anchoring (RFC-8785 Manifest + Merkle Proof)
+    stages.add('BlockchainProvenanceAnchoring');
+    final dossier = await integrityService.generateAndAnchorManifest(answer: answer);
+    final finalAnswer = answer.copyWith(provenanceDossier: dossier);
+
     stopwatch.stop();
 
     return PipelineExecutionResult(
       isSuccess: true,
-      answer: answer,
+      answer: finalAnswer,
       detectedIntent: intent,
       executionTimeMs: stopwatch.elapsedMilliseconds,
       stagesExecuted: stages,
@@ -211,6 +225,9 @@ class ResearchOrchestrationPipeline {
           clinicalTakeaway: 'Distributing high-quality leucine-rich protein evenly across 3-4 daily meals optimizes post-exercise recovery kinetics.',
         ),
       ];
+    } else if (lower.contains('antioxidant') || lower.contains('vitamin c') || lower.contains('blunt') || lower.contains('soreness')) {
+      final search = ScientificEvidenceRepository.searchEvidence(query);
+      return search.claims;
     }
 
     return [
@@ -390,6 +407,41 @@ class ResearchOrchestrationPipeline {
         nutritionAnalysis: nutritionProfile,
         comparisonCallout: 'Muscle Protein Synthesis Stimulation',
         comparisonIndex: null,
+        provider: 'Nutrient Earth Verified Evidence Base',
+        generatedAt: DateTime.now(),
+      );
+    } else if (lower.contains('antioxidant') || lower.contains('vitamin c') || lower.contains('blunt') || lower.contains('soreness')) {
+      final search = ScientificEvidenceRepository.searchEvidence(query);
+      return StructuredResearchAnswer(
+        contractVersion: '2026.1',
+        query: query,
+        referenceId: 'REF-2026-AOX',
+        domainCategory: 'Cellular Redox Biology & Exercise Adaptation',
+        quickAnswer:
+            'While acute antioxidant delivery moderately reduces muscle soreness, chronic high-dose supplementation blunts training adaptations.',
+        detailedExplanation:
+            'High-dose pharmacological antioxidant supplementation (1000mg Vitamin C + 400IU Vitamin E) blunts endurance mitochondrial biogenesis by quenching reactive oxygen species (ROS) signaling cascades necessary for PGC-1alpha transcription and cellular adaptation.',
+        effectivenessAssessment: EffectivenessAssessment.contradictedByEvidence,
+        evidenceBadge: 'GRADE X • CONFLICTING EVIDENCE',
+        sources: sources,
+        claims: claims.isNotEmpty ? claims : search.claims,
+        healthBenefits: const [
+          HealthBenefit(
+            benefitSummary: 'Acute Delayed Onset Muscle Soreness Reduction',
+            physiologicalMechanism: 'Scavenges acute post-exercise free radical generation to limit lipid peroxidation.',
+            evidenceStrength: 'Cochrane Systematic Review',
+          ),
+        ],
+        practicalRecommendations: const [
+          'Rely on whole-food dietary polyphenols rather than pharmacological mega-doses.',
+          'Avoid taking >500mg Vitamin C within 2-3 hours of endurance or hypertrophy workouts.',
+          'Reserve targeted antioxidant supplementation for periods of illness or extreme unadapted stress.',
+        ],
+        studyLimitations: search.contradictoryFinding ??
+            'While acute antioxidant delivery moderately reduces subjective delayed onset muscle soreness (DOMS) over 24-48h, chronic administration blunts long-term aerobic enzyme adaptation.',
+        safetyInformation: safetyInfo,
+        goalAlignment: goalAssessment,
+        nutritionAnalysis: nutritionProfile,
         provider: 'Nutrient Earth Verified Evidence Base',
         generatedAt: DateTime.now(),
       );

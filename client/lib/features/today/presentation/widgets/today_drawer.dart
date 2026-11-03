@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
+import '../../../health_sync/presentation/widgets/health_sync_modal.dart';
 
 class TodayDrawer extends StatelessWidget {
   final VoidCallback onNewChat;
@@ -82,7 +84,7 @@ class TodayDrawer extends StatelessWidget {
 
             // New Chat Action Button
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: InkWell(
                 onTap: () {
                   Navigator.pop(context);
@@ -90,7 +92,7 @@ class TodayDrawer extends StatelessWidget {
                 },
                 borderRadius: BorderRadius.circular(NETokens.radiusMd),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 11.0),
                   decoration: BoxDecoration(
                     color: NETokens.surface,
                     borderRadius: BorderRadius.circular(NETokens.radiusMd),
@@ -111,6 +113,82 @@ class TodayDrawer extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Explore & Research Hub Action Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/explore');
+                },
+                borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 11.0),
+                  decoration: BoxDecoration(
+                    color: NETokens.secondaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                    border: Border.all(color: NETokens.paleMint),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.explore_rounded, size: 18, color: NETokens.emerald),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Explore & Research Hub',
+                          style: GoogleFonts.manrope(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: NETokens.primary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: NETokens.textMuted),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Health Integration & Biometrics Sync Action Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  showHealthSyncModal(context);
+                },
+                borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 11.0),
+                  decoration: BoxDecoration(
+                    color: NETokens.surface,
+                    borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                    border: Border.all(color: NETokens.borderDefault),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.favorite_outline_rounded, size: 18, color: NETokens.primary),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Native Health Sync',
+                          style: GoogleFonts.manrope(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: NETokens.primary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: NETokens.textMuted),
                     ],
                   ),
                 ),

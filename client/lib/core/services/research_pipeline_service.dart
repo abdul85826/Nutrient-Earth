@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/supabase_config.dart';
 import '../domain/answer_contract/structured_research_answer.dart';
+import '../domain/blockchain/evidence_integrity_service.dart';
 import '../domain/nutrition/nutrition_models.dart';
 import '../domain/orchestration/research_orchestration_pipeline.dart';
 import '../domain/personalization/goal_alignment_evaluator.dart';
@@ -68,6 +69,7 @@ class ResearchAnswer {
   final StructuredResearchAnswer? structuredAnswer;
   final GoalAssessmentResult? goalAlignment;
   final NutritionAnalysisProfile? nutritionAnalysis;
+  final ResearchProvenanceDossier? provenanceDossier;
 
   const ResearchAnswer({
     required this.query,
@@ -87,6 +89,7 @@ class ResearchAnswer {
     this.structuredAnswer,
     this.goalAlignment,
     this.nutritionAnalysis,
+    this.provenanceDossier,
   });
 
   factory ResearchAnswer.fromStructuredAnswer(StructuredResearchAnswer s) {
@@ -115,6 +118,7 @@ class ResearchAnswer {
       structuredAnswer: s,
       goalAlignment: s.goalAlignment,
       nutritionAnalysis: s.nutritionAnalysis,
+      provenanceDossier: s.provenanceDossier,
     );
   }
 
@@ -155,6 +159,9 @@ class ResearchAnswer {
       nutritionAnalysis: json['nutritionAnalysis'] != null
           ? NutritionAnalysisProfile.fromJson(json['nutritionAnalysis'] as Map<String, dynamic>)
           : null,
+      provenanceDossier: json['provenanceDossier'] != null
+          ? ResearchProvenanceDossier.fromJson(json['provenanceDossier'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -175,6 +182,7 @@ class ResearchAnswer {
         'provider': provider,
         'goalAlignment': goalAlignment?.toJson(),
         'nutritionAnalysis': nutritionAnalysis?.toJson(),
+        'provenanceDossier': provenanceDossier?.toJson(),
         'contractVersion': structuredAnswer?.contractVersion ?? '2026.1',
       };
 }
@@ -306,8 +314,8 @@ class ResearchPipelineService {
       }
     }
 
-    // Execute the full 9-stage deterministic research orchestration pipeline
-    final pipeline = const ResearchOrchestrationPipeline();
+    // Execute the full 10-stage deterministic research orchestration pipeline
+    final pipeline = ResearchOrchestrationPipeline();
     final result = await pipeline.execute(
       query: cleanQuery,
       userProfile: userProfile,
