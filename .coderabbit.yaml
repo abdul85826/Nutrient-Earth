@@ -18,6 +18,13 @@ reviews:
       - "^feat/pr-.*"
       - "^feat/.*"
   path_filters:
+    # Explicitly include core production code, tests, and database migrations
+    - "client/lib/**"
+    - "client/test/**"
+    - "supabase/migrations/**"
+    - "supabase/functions/**"
+
+    # Strictly exclude boilerplate, generated code, locks, and platform shells
     - "!**/*.lock"
     - "!**/*.g.dart"
     - "!**/*.freezed.dart"
@@ -41,6 +48,7 @@ reviews:
     - "!**/.agent/**"
     - "!**/.gsd/**"
     - "!**/.gemini/**"
+    - "!**/design_references/**"
     - "!**/scratch/**"
     - "!docs/**"
     - "!scripts/**"
