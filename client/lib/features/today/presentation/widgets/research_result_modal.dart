@@ -333,7 +333,10 @@ class ResearchResultModal extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -351,8 +354,7 @@ class ResearchResultModal extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  if (citation.pmid != null) ...[
-                                    const SizedBox(width: 6),
+                                  if (citation.pmid != null)
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
@@ -368,8 +370,6 @@ class ResearchResultModal extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                  ],
-                                  const Spacer(),
                                   Text(
                                     'Year: ${citation.year}',
                                     style: GoogleFonts.manrope(

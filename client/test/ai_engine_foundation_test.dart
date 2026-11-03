@@ -346,8 +346,8 @@ void main() {
       );
     });
 
-    test('Orchestrates full 9-stage inquiry pipeline for sleep research', () async {
-      const pipeline = ResearchOrchestrationPipeline();
+    test('Orchestrates full 10-stage inquiry pipeline for sleep research', () async {
+      final pipeline = ResearchOrchestrationPipeline();
       const profile = UserProfileContext(
         userId: 'u1',
         displayName: 'Test User',
@@ -367,16 +367,19 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       expect(result.detectedIntent, equals(ResearchIntent.circadianDiurnal));
-      expect(result.stagesExecuted.length, equals(8)); // Non-nutrient skips nutrition stage
+      expect(result.stagesExecuted.length, equals(9)); // Non-nutrient skips nutrition stage; includes BlockchainProvenanceAnchoring
+      expect(result.stagesExecuted, contains('BlockchainProvenanceAnchoring'));
       expect(result.answer.sources, isNotEmpty);
       expect(result.answer.claims, isNotEmpty);
       expect(result.answer.claims.first.supportStatus, equals(ClaimSupportStatus.supported));
       expect(result.answer.goalAlignment?.status, equals(GoalAlignmentStatus.aligned));
       expect(result.answer.healthBenefits, isNotEmpty);
+      expect(result.answer.provenanceDossier, isNotNull);
+      expect(result.answer.provenanceDossier!.merkleProof.verify(), isTrue);
     });
 
     test('Orchestrates nutrient inquiry and builds detailed nutrition profile', () async {
-      const pipeline = ResearchOrchestrationPipeline();
+      final pipeline = ResearchOrchestrationPipeline();
 
       final result = await pipeline.execute(
         query: 'High protein recovery meal plate calories and macros',
@@ -385,9 +388,12 @@ void main() {
       expect(result.isSuccess, isTrue);
       expect(result.detectedIntent, equals(ResearchIntent.nutrientAnalysis));
       expect(result.stagesExecuted, contains('NutritionComputation'));
+      expect(result.stagesExecuted, contains('BlockchainProvenanceAnchoring'));
+      expect(result.stagesExecuted.length, equals(10)); // Full 10 stages
       expect(result.answer.nutritionAnalysis, isNotNull);
       expect(result.answer.nutritionAnalysis!.caloriesKcal, equals(440.0));
       expect(result.answer.nutritionAnalysis!.macronutrients.proteinGrams, equals(36.0));
+      expect(result.answer.provenanceDossier, isNotNull);
     });
   });
 
@@ -503,7 +509,7 @@ void main() {
     });
 
     test('Non-manufactured metrics: Pipeline produces zero fabricated percentages or unsupported multipliers', () async {
-      const pipeline = ResearchOrchestrationPipeline();
+      final pipeline = ResearchOrchestrationPipeline();
 
       final result = await pipeline.execute(
         query: 'What is the best magnesium for sleep?',
