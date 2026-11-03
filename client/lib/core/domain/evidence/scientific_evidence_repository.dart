@@ -36,11 +36,11 @@ class ScientificEvidenceRepository {
       authorsOrJournal: 'Firoz M, Draper M. Magnesium Research',
       year: '2001',
       evidenceGrade: 'Clinical Pharmacokinetics (Double-blind crossover, N=12)',
-      studyDesign: StudyDesignGrade.inVitroPharmacokinetics,
+      studyDesign: StudyDesignGrade.randomizedControlledTrial,
       pmid: '11794633',
       doi: '10.1684/mrh.2001.0028',
       url: 'https://pubmed.ncbi.nlm.nih.gov/11794633/',
-      verificationStatus: EvidenceVerificationStatus.liveVerified,
+      verificationStatus: EvidenceVerificationStatus.peerReviewedArchive,
       sampleSize: 12,
       isHumanTrial: true,
     ),
@@ -254,7 +254,7 @@ class ScientificEvidenceRepository {
         primaryMechanism: 'mTORC1 ribosomal S6 kinase phosphorylation and myofibrillar fractional synthetic rate acceleration.',
         studyLimitations: 'Upper limit thresholds expand during full-body resistance sessions or in older adults with splanchnic extraction resistance.',
       );
-    } else if (tokens.any((t) => t.contains('antioxidant') || t.contains('vitamin c') || t.contains('soreness') || t.contains('doms'))) {
+    } else if (lower.contains('vitamin c') || tokens.any((t) => t.contains('antioxidant') || t.contains('soreness') || t.contains('doms') || t.contains('blunt'))) {
       // CONFLICTING EVIDENCE EXAMPLE
       final sources = _curatedCorpus.where((s) => s.pmid == '24534167' || s.pmid == '29239023').toList();
       return EvidenceSearchResult(

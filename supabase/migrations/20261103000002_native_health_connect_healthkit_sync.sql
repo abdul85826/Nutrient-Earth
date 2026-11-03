@@ -41,10 +41,10 @@ BEGIN
     END IF;
 END $$;
 
--- 2. Create partial unique index for strict deduplication
+-- 2. Create non-partial unique index for PostgREST onConflict inference
+DROP INDEX IF EXISTS public.idx_health_measurements_dedup;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_health_measurements_dedup
-    ON public.health_measurements (user_id, source_platform, external_record_id)
-    WHERE external_record_id IS NOT NULL;
+    ON public.health_measurements (user_id, source_platform, external_record_id);
 
 -- 3. Create index for timeline queries
 CREATE INDEX IF NOT EXISTS idx_health_measurements_user_metric_time

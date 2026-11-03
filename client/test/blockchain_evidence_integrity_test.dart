@@ -112,7 +112,7 @@ void main() {
       }
     });
 
-    test('Odd-number leaves correctly duplicate last node per RFC-6962', () {
+    test('Odd-number leaves correctly split per RFC-6962 power-of-two rule', () {
       final leaves = [
         'aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111',
         'bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222',
@@ -122,9 +122,10 @@ void main() {
       final tree = MerkleTree.compute(leaves);
       expect(tree.root, isNotEmpty);
 
-      // Verify all 3 leaves verify successfully
+      // Verify all 3 leaves evaluate to root via computeRoot and verify
       for (int i = 0; i < 3; i++) {
         final proof = tree.generateProof(i);
+        expect(proof.computeRoot(), equals(tree.root));
         expect(proof.verify(), isTrue);
       }
     });

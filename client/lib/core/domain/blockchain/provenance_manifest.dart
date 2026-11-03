@@ -130,16 +130,33 @@ class CanonicalProvenanceManifest {
       };
 
   factory CanonicalProvenanceManifest.fromJson(Map<String, dynamic> json) {
+    if (!json.containsKey('inquiry_reference_id') || json['inquiry_reference_id'] == null) {
+      throw const FormatException('Missing required manifest field: inquiry_reference_id');
+    }
+    if (!json.containsKey('domain_category') || json['domain_category'] == null) {
+      throw const FormatException('Missing required manifest field: domain_category');
+    }
+    if (!json.containsKey('evidence_tier') || json['evidence_tier'] == null) {
+      throw const FormatException('Missing required manifest field: evidence_tier');
+    }
+    if (!json.containsKey('claim_hashes') || json['claim_hashes'] == null) {
+      throw const FormatException('Missing required manifest field: claim_hashes');
+    }
+    if (!json.containsKey('source_identifiers') || json['source_identifiers'] == null) {
+      throw const FormatException('Missing required manifest field: source_identifiers');
+    }
+    if (!json.containsKey('generated_at_utc') || json['generated_at_utc'] == null) {
+      throw const FormatException('Missing required manifest field: generated_at_utc');
+    }
+
     return CanonicalProvenanceManifest(
-      inquiryReferenceId: json['inquiry_reference_id'] as String? ?? 'REF-UNKNOWN',
+      inquiryReferenceId: json['inquiry_reference_id'] as String,
       querySanitized: json['query_sanitized'] as String? ?? '',
-      domainCategory: json['domain_category'] as String? ?? 'Nutritional Science',
-      evidenceTier: EvidenceTier.fromString(json['evidence_tier'] as String? ?? 'moderate'),
-      claimHashes: (json['claim_hashes'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
-      sourceIdentifiers: (json['source_identifiers'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
-      generatedAtUtc: json['generated_at_utc'] != null
-          ? DateTime.parse(json['generated_at_utc'] as String).toUtc()
-          : DateTime.now().toUtc(),
+      domainCategory: json['domain_category'] as String,
+      evidenceTier: EvidenceTier.fromString(json['evidence_tier'] as String),
+      claimHashes: (json['claim_hashes'] as List<dynamic>).map((e) => e.toString()).toList(),
+      sourceIdentifiers: (json['source_identifiers'] as List<dynamic>).map((e) => e.toString()).toList(),
+      generatedAtUtc: DateTime.parse(json['generated_at_utc'] as String).toUtc(),
       schemaVersion: json['schema_version'] as String? ?? '1.0.0',
     );
   }

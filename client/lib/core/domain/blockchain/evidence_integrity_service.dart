@@ -5,6 +5,7 @@
 // RESILIENCE RULE: Outages on the blockchain or network NEVER block research answers.
 // ==============================================================================
 
+import 'dart:async';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
@@ -65,12 +66,11 @@ class EvidenceIntegrityService {
     BlockchainAnchorProvider? anchorProvider,
   }) : anchorProvider = anchorProvider ?? MockTestnetAnchorProvider();
 
-  /// Creates a canonical manifest, computes Merkle proof, anchors to chain, and saves record.
-  /// Never throws: fails gracefully to pending state if anchoring fails.
+  /// Creates a canonical manifest, computes Merkle proof, and anchors to chain.
+  /// Never throws: fails gracefully to pending/failed state if anchoring fails or times out.
   Future<ResearchProvenanceDossier> generateAndAnchorManifest({
     required StructuredResearchAnswer answer,
-    String? conversationId,
-    String? messageId,
+    bool containsPersonalHealthData = false,
   }) async {
     final now = DateTime.now().toUtc();
 
@@ -85,7 +85,7 @@ class EvidenceIntegrityService {
       claimHashes.add(sha256.convert(utf8.encode(answer.quickAnswer.trim())).toString());
     }
 
-    // 2. Extract verified scientific source identifiers (PMID / DOI)
+    // 2. Extract verified scientific source identifiers (PMID / DOI / SHA-256 Title Hash)
     final sourceIdentifiers = <String>[];
     for (final src in answer.sources) {
       if (src.pmid != null && src.pmid!.isNotEmpty) {
@@ -93,17 +93,18 @@ class EvidenceIntegrityService {
       } else if (src.doi != null && src.doi!.isNotEmpty) {
         sourceIdentifiers.add('DOI:${src.doi!}');
       } else {
-        sourceIdentifiers.add('TITLE:${src.title.hashCode}');
+        final titleHash = sha256.convert(utf8.encode(src.title.trim())).toString().substring(0, 16);
+        sourceIdentifiers.add('TITLE:$titleHash');
       }
     }
 
     // 3. Map evidence tier
     final evidenceTier = _mapAssessmentToTier(answer.effectivenessAssessment);
 
-    // 4. Construct canonical manifest (STRICTLY NO PII)
+    // 4. Construct canonical manifest (STRICTLY NO PII: use domainCategory to eliminate prompt leak risk)
     final manifest = CanonicalProvenanceManifest(
       inquiryReferenceId: answer.referenceId,
-      querySanitized: answer.query,
+      querySanitized: answer.domainCategory,
       domainCategory: answer.domainCategory,
       evidenceTier: evidenceTier,
       claimHashes: claimHashes,
@@ -113,12 +114,12 @@ class EvidenceIntegrityService {
 
     final manifestHash = manifest.computeManifestHash();
 
-    // 5. Construct Merkle tree (with batching support: single leaf builds valid tree)
+    // 5. Construct Merkle tree (single leaf builds valid tree per RFC-6962)
     final tree = MerkleTree.compute([manifestHash]);
     final proof = tree.generateProof(0);
     final merkleRoot = tree.root;
 
-    // 6. Anchor to blockchain with graceful exception handling
+    // 6. Anchor to blockchain with 4-second bounded timeout and graceful exception handling
     AnchorTransactionResult anchorResult;
     AnchorStatus status;
 
@@ -132,18 +133,18 @@ class EvidenceIntegrityService {
           'claim_count': claimHashes.length,
           'source_count': sourceIdentifiers.length,
         },
-      );
+      ).timeout(const Duration(seconds: 4));
       status = anchorResult.isSuccess ? AnchorStatus.anchored : AnchorStatus.failed;
     } catch (e) {
       anchorResult = AnchorTransactionResult(
         isSuccess: false,
         chainId: anchorProvider.chainId,
-        errorMessage: e.toString(),
+        errorMessage: 'Anchor timeout or error: $e',
       );
       status = AnchorStatus.failed;
     }
 
-    final dossier = ResearchProvenanceDossier(
+    return ResearchProvenanceDossier(
       manifest: manifest,
       manifestHash: manifestHash,
       merkleRoot: merkleRoot,
@@ -152,47 +153,18 @@ class EvidenceIntegrityService {
       status: status,
       createdAt: now,
     );
-
-    // 7. Persist to Supabase if authenticated
-    await _persistProvenanceToSupabase(
-      dossier: dossier,
-      conversationId: conversationId,
-      messageId: messageId,
-    );
-
-    return dossier;
   }
 
-  /// Independently verifies a research provenance dossier.
-  Future<ProofVerificationResult> verifyDossier(ResearchProvenanceDossier dossier) async {
-    return anchorProvider.verifyOnChainProof(
-      merkleRoot: dossier.merkleRoot,
-      proof: dossier.merkleProof,
-      manifestHash: dossier.manifestHash,
-      txHash: dossier.anchorResult.txHash,
-    );
-  }
-
-  EvidenceTier _mapAssessmentToTier(EffectivenessAssessment assessment) {
-    switch (assessment) {
-      case EffectivenessAssessment.stronglySupported:
-        return EvidenceTier.strong;
-      case EffectivenessAssessment.moderatelySupported:
-        return EvidenceTier.moderate;
-      case EffectivenessAssessment.preliminaryEvidence:
-        return EvidenceTier.limited;
-      case EffectivenessAssessment.inconclusive:
-        return EvidenceTier.insufficient;
-      case EffectivenessAssessment.contradictedByEvidence:
-        return EvidenceTier.conflicting;
-    }
-  }
-
-  Future<void> _persistProvenanceToSupabase({
+  /// Persists validated dossier linkage to Supabase once conversation and message exist.
+  /// Bypasses persistence if the inquiry contains personal health data.
+  Future<void> persistDossierLinkage({
     required ResearchProvenanceDossier dossier,
-    String? conversationId,
+    required String conversationId,
     String? messageId,
+    bool containsPersonalHealthData = false,
   }) async {
+    if (containsPersonalHealthData) return;
+
     final client = SupabaseConfig.client;
     if (client == null) return;
 
@@ -223,6 +195,31 @@ class EvidenceIntegrityService {
       });
     } catch (_) {
       // Offline or network error: never throw to keep research available
+    }
+  }
+
+  /// Independently verifies a research provenance dossier.
+  Future<ProofVerificationResult> verifyDossier(ResearchProvenanceDossier dossier) async {
+    return anchorProvider.verifyOnChainProof(
+      merkleRoot: dossier.merkleRoot,
+      proof: dossier.merkleProof,
+      manifestHash: dossier.manifestHash,
+      txHash: dossier.anchorResult.txHash,
+    );
+  }
+
+  EvidenceTier _mapAssessmentToTier(EffectivenessAssessment assessment) {
+    switch (assessment) {
+      case EffectivenessAssessment.stronglySupported:
+        return EvidenceTier.strong;
+      case EffectivenessAssessment.moderatelySupported:
+        return EvidenceTier.moderate;
+      case EffectivenessAssessment.preliminaryEvidence:
+        return EvidenceTier.limited;
+      case EffectivenessAssessment.inconclusive:
+        return EvidenceTier.insufficient;
+      case EffectivenessAssessment.contradictedByEvidence:
+        return EvidenceTier.conflicting;
     }
   }
 }

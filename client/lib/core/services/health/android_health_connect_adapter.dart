@@ -7,15 +7,13 @@ import '../../domain/health/health_platform_adapter.dart';
 import '../../domain/health/health_unit_converter.dart';
 
 /// Android Health Connect infrastructure adapter.
-/// Uses the Google Health Connect SDK via package:health.
+/// Integrates with Google Health Connect via package:health.
 class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
   final pkh.Health _health;
   final Uuid _uuid;
 
-  AndroidHealthConnectAdapter({
-    pkh.Health? health,
-    Uuid? uuid,
-  })  : _health = health ?? pkh.Health(),
+  AndroidHealthConnectAdapter({pkh.Health? health, Uuid? uuid})
+      : _health = health ?? pkh.Health(),
         _uuid = uuid ?? const Uuid();
 
   @override
@@ -30,7 +28,6 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
   Future<bool> isHealthStoreAvailable() async {
     if (!await isPlatformSupported()) return false;
     try {
-      await _health.configure();
       final status = await _health.getHealthConnectSdkStatus();
       return status == pkh.HealthConnectSdkStatus.sdkAvailable;
     } catch (_) {
@@ -46,7 +43,7 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
       final pkhTypes = _mapDomainTypesToPlatform(types);
       if (pkhTypes.isEmpty) return true;
       final hasPerm = await _health.hasPermissions(pkhTypes);
-      return hasPerm ?? false;
+      return hasPerm == true;
     } catch (_) {
       return false;
     }
@@ -59,8 +56,7 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
       await _health.configure();
       final pkhTypes = _mapDomainTypesToPlatform(types);
       if (pkhTypes.isEmpty) return true;
-      final granted = await _health.requestAuthorization(pkhTypes);
-      return granted;
+      return await _health.requestAuthorization(pkhTypes);
     } catch (_) {
       return false;
     }
@@ -91,8 +87,11 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
         if (domainType == null) continue;
 
         final rawValue = _extractValue(dp);
+        if (rawValue == null) continue;
+
         final rawUnit = dp.unitString;
         final normalizedVal = HealthUnitConverter.normalize(domainType, rawValue, rawUnit);
+        if (normalizedVal == null) continue;
 
         // Determine source attribution
         final source = _resolveSourceType(dp);
@@ -110,6 +109,7 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
             deviceModel: dp.sourceName.isNotEmpty ? dp.sourceName : null,
             externalRecordId: dp.uuid.isNotEmpty ? dp.uuid : null,
             metadata: {
+              'native_type': dp.type.name,
               'raw_unit': rawUnit,
               'raw_value': rawValue,
               'source_id': dp.sourceId,
@@ -128,8 +128,9 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
       }
 
       return records;
-    } catch (_) {
-      return [];
+    } catch (e) {
+      if (e is HealthAdapterException) rethrow;
+      throw HealthAdapterException('Health Connect read failed', e);
     }
   }
 
@@ -145,28 +146,24 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
     if (dp.recordingMethod == pkh.RecordingMethod.manual) {
       return HealthDataSourceType.userEntered;
     }
-
     final nameLower = dp.sourceName.toLowerCase();
-    final isWearable = nameLower.contains('watch') ||
+    if (nameLower.contains('watch') ||
+        nameLower.contains('band') ||
         nameLower.contains('garmin') ||
+        nameLower.contains('fitbit') ||
         nameLower.contains('oura') ||
         nameLower.contains('whoop') ||
-        nameLower.contains('fitbit') ||
-        nameLower.contains('galaxy') ||
-        nameLower.contains('band') ||
-        nameLower.contains('ring');
-
-    if (isWearable) {
+        nameLower.contains('polar')) {
       return HealthDataSourceType.wearable;
     }
-
     return HealthDataSourceType.deviceMeasured;
   }
 
-  double _extractValue(pkh.HealthDataPoint dp) {
+  double? _extractValue(pkh.HealthDataPoint dp) {
     final v = dp.value;
     if (v is pkh.NumericHealthValue) {
-      return v.numericValue.toDouble();
+      final num = v.numericValue.toDouble();
+      return (num.isNaN || num.isInfinite) ? null : num;
     } else if (v is pkh.WorkoutHealthValue) {
       // Return duration in minutes
       final duration = dp.dateTo.difference(dp.dateFrom).inMinutes;
@@ -174,9 +171,9 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
     } else if (dp.type == pkh.HealthDataType.SLEEP_SESSION ||
                dp.type == pkh.HealthDataType.SLEEP_ASLEEP) {
       final duration = dp.dateTo.difference(dp.dateFrom).inMinutes;
-      return duration.toDouble();
+      return duration >= 0 ? duration.toDouble() : null;
     }
-    return 0.0;
+    return null;
   }
 
   List<pkh.HealthDataType> _mapDomainTypesToPlatform(List<HealthDataType> types) {
@@ -229,7 +226,6 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
       case pkh.HealthDataType.STEPS:
         return HealthDataType.steps;
       case pkh.HealthDataType.DISTANCE_DELTA:
-      case pkh.HealthDataType.DISTANCE_WALKING_RUNNING:
         return HealthDataType.distance;
       case pkh.HealthDataType.ACTIVE_ENERGY_BURNED:
         return HealthDataType.activeCalories;
@@ -239,9 +235,6 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
         return HealthDataType.restingHeartRate;
       case pkh.HealthDataType.SLEEP_SESSION:
       case pkh.HealthDataType.SLEEP_ASLEEP:
-      case pkh.HealthDataType.SLEEP_DEEP:
-      case pkh.HealthDataType.SLEEP_REM:
-      case pkh.HealthDataType.SLEEP_LIGHT:
         return HealthDataType.sleep;
       case pkh.HealthDataType.WORKOUT:
         return HealthDataType.workout;
@@ -260,4 +253,3 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
     }
   }
 }
-

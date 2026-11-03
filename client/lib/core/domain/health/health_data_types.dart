@@ -1,6 +1,28 @@
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
+/// Typed exception for failures originating inside health platform adapters.
+class HealthAdapterException implements Exception {
+  final String message;
+  final Object? cause;
+  const HealthAdapterException(this.message, [this.cause]);
+
+  @override
+  String toString() => 'HealthAdapterException: $message';
+}
+
+/// Explicit categories of health synchronization failure reasons.
+enum HealthSyncFailureReason {
+  none,
+  permissionDenied,
+  unsupportedPlatform,
+  healthStoreUnavailable,
+  adapterReadError,
+  persistenceError,
+  networkError,
+  unknown,
+}
+
 /// Supported health and biometric data categories.
 enum HealthDataType {
   steps,
@@ -57,7 +79,6 @@ enum HealthDataType {
       case HealthDataType.restingHeartRate:
         return 'bpm';
       case HealthDataType.sleep:
-        return 'minutes';
       case HealthDataType.workout:
         return 'minutes';
       case HealthDataType.weight:
@@ -175,8 +196,12 @@ class HealthRecord {
   }) : metadata = metadata ?? const {};
 
   /// Compute a deterministic fingerprint for content-based deduplication.
+  /// Includes endRecordedAt and native_type from metadata to prevent false collisions
+  /// between overlapping intervals (e.g. concurrent sleep stages).
   String get deterministicFingerprint {
-    final payload = '${type.name}|${value.toStringAsFixed(3)}|$unit|${recordedAt.toUtc().toIso8601String()}|${source.name}|$sourcePlatform';
+    final endUtc = endRecordedAt?.toUtc().toIso8601String() ?? '';
+    final nativeType = metadata['native_type'] as String? ?? '';
+    final payload = '${type.name}|${value.toStringAsFixed(3)}|$unit|${recordedAt.toUtc().toIso8601String()}|$endUtc|$nativeType|${source.name}|$sourcePlatform';
     return sha256.convert(utf8.encode(payload)).toString();
   }
 
@@ -254,6 +279,7 @@ class HealthSyncResult {
   final int duplicatesSkipped;
   final String? syncCursor;
   final String? errorMessage;
+  final HealthSyncFailureReason failureReason;
   final DateTime syncedAt;
 
   const HealthSyncResult({
@@ -263,6 +289,7 @@ class HealthSyncResult {
     this.duplicatesSkipped = 0,
     this.syncCursor,
     this.errorMessage,
+    this.failureReason = HealthSyncFailureReason.none,
     required this.syncedAt,
   });
 
@@ -271,13 +298,17 @@ class HealthSyncResult {
     totalRead: 0,
     totalSynced: 0,
     duplicatesSkipped: 0,
+    failureReason: HealthSyncFailureReason.none,
     syncedAt: DateTime.now(),
   );
 
-  factory HealthSyncResult.failure(String message) => HealthSyncResult(
+  factory HealthSyncResult.failure(
+    String message, {
+    HealthSyncFailureReason reason = HealthSyncFailureReason.unknown,
+  }) => HealthSyncResult(
     success: false,
     errorMessage: message,
+    failureReason: reason,
     syncedAt: DateTime.now(),
   );
 }
-

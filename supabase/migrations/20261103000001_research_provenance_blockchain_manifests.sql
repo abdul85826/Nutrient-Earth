@@ -52,7 +52,7 @@ BEGIN
             ADD CONSTRAINT fk_provenance_conversation_user
             FOREIGN KEY (conversation_id, user_id)
             REFERENCES public.ai_conversations(id, user_id)
-            ON DELETE SET NULL;
+            ON DELETE SET NULL (conversation_id);
     END IF;
 END $$;
 
@@ -94,11 +94,30 @@ CREATE POLICY "Users can insert own provenance manifests"
     TO authenticated
     WITH CHECK ((select auth.uid()) = user_id);
 
-CREATE POLICY "Users can update own provenance manifests"
-    ON public.research_provenance_manifests FOR UPDATE
-    TO authenticated
-    USING ((select auth.uid()) = user_id)
-    WITH CHECK ((select auth.uid()) = user_id);
+-- Client UPDATE policy removed to prevent client tampering of verified anchor evidence.
+-- Verified anchor results are updated strictly through SECURITY DEFINER function or service_role.
+CREATE OR REPLACE FUNCTION public.record_provenance_anchor_result(
+    p_manifest_id UUID,
+    p_anchor_status TEXT,
+    p_chain_id TEXT,
+    p_tx_hash TEXT,
+    p_block_number BIGINT DEFAULT NULL,
+    p_contract_address TEXT DEFAULT NULL
+)
+RETURNS VOID AS $$
+BEGIN
+    UPDATE public.research_provenance_manifests
+    SET anchor_status = p_anchor_status,
+        chain_id = p_chain_id,
+        tx_hash = p_tx_hash,
+        block_number = p_block_number,
+        contract_or_anchor_address = COALESCE(p_contract_address, contract_or_anchor_address),
+        anchored_at = NOW(),
+        updated_at = NOW()
+    WHERE id = p_manifest_id
+      AND (auth.uid() = user_id OR auth.role() = 'service_role');
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE POLICY "Users can delete own provenance manifests"
     ON public.research_provenance_manifests FOR DELETE

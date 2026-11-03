@@ -8,9 +8,9 @@ import 'android_health_connect_adapter.dart';
 import 'apple_healthkit_adapter.dart';
 import 'unsupported_platform_adapter.dart';
 
-/// Principal Health Integration Service for Nutrient Earth.
-/// Automatically binds to Android Health Connect or Apple HealthKit
-/// strictly based on Flutter runtime platform APIs (not user auth).
+/// Central domain orchestration service for mobile health tracking.
+/// Detects host platform via Flutter APIs, requests permissions,
+/// normalizes metrics, deduplicates content, and syncs to Supabase.
 class HealthIntegrationService {
   final HealthPlatformAdapter _adapter;
   final HealthDeduplicationEngine _deduplicator;
@@ -90,19 +90,17 @@ class HealthIntegrationService {
 
     // 1. Verify platform support
     if (!await isSupported()) {
-      return HealthSyncResult(
-        success: false,
-        errorMessage: 'Platform "$activePlatformName" does not support native health tracking.',
-        syncedAt: now,
+      return HealthSyncResult.failure(
+        'Platform "$activePlatformName" does not support native health tracking.',
+        reason: HealthSyncFailureReason.unsupportedPlatform,
       );
     }
 
     // 2. Verify health store availability
     if (!await isHealthStoreAvailable()) {
-      return HealthSyncResult(
-        success: false,
-        errorMessage: 'Health platform store is not available or requires update on this device.',
-        syncedAt: now,
+      return HealthSyncResult.failure(
+        'Health platform store is not available or requires update on this device.',
+        reason: HealthSyncFailureReason.healthStoreUnavailable,
       );
     }
 
@@ -111,20 +109,45 @@ class HealthIntegrationService {
     if (!hasPerm) {
       final requested = await _adapter.requestPermissions(types);
       if (!requested) {
-        return HealthSyncResult(
-          success: false,
-          errorMessage: 'User denied required health permissions.',
-          syncedAt: now,
+        return HealthSyncResult.failure(
+          'User denied required health permissions.',
+          reason: HealthSyncFailureReason.permissionDenied,
         );
       }
     }
 
     // 4. Read raw records from the native platform
-    final rawRecords = await _adapter.readRecords(
-      types: types,
-      startTime: start,
-      endTime: end,
-    );
+    List<HealthRecord> rawRecords;
+    try {
+      rawRecords = await _adapter.readRecords(
+        types: types,
+        startTime: start,
+        endTime: end,
+      );
+    } on HealthAdapterException catch (e) {
+      await _updateSyncState(
+        status: 'error',
+        totalSynced: 0,
+        types: types,
+        errorMessage: e.message,
+      );
+      return HealthSyncResult.failure(
+        e.message,
+        reason: HealthSyncFailureReason.adapterReadError,
+      );
+    } catch (e) {
+      final msg = 'Failed to read records from health adapter: $e';
+      await _updateSyncState(
+        status: 'error',
+        totalSynced: 0,
+        types: types,
+        errorMessage: msg,
+      );
+      return HealthSyncResult.failure(
+        msg,
+        reason: HealthSyncFailureReason.adapterReadError,
+      );
+    }
 
     if (rawRecords.isEmpty) {
       await _updateSyncState(
@@ -141,9 +164,9 @@ class HealthIntegrationService {
       );
     }
 
-    // 5. Query existing external record IDs and fingerprints for deduplication
-    final existingExternalIds = await _fetchExistingExternalIds();
-    final existingFingerprints = await _fetchExistingFingerprints();
+    // 5. Query existing external record IDs and fingerprints for deduplication within the window
+    final existingExternalIds = await _fetchExistingExternalIds(start);
+    final existingFingerprints = await _fetchExistingFingerprints(start);
 
     // 6. Deduplicate incoming batch
     final uniqueRecords = _deduplicator.deduplicateBatch(
@@ -157,7 +180,21 @@ class HealthIntegrationService {
     // 7. Persist to Supabase if client is available
     int persistedCount = 0;
     if (_supabaseClient != null && uniqueRecords.isNotEmpty) {
-      persistedCount = await _persistRecordsToSupabase(uniqueRecords);
+      try {
+        persistedCount = await _persistRecordsToSupabase(uniqueRecords);
+      } catch (e) {
+        final errorMsg = 'Failed to persist health records to Supabase: $e';
+        await _updateSyncState(
+          status: 'error',
+          totalSynced: 0,
+          types: types,
+          errorMessage: errorMsg,
+        );
+        return HealthSyncResult.failure(
+          errorMsg,
+          reason: HealthSyncFailureReason.persistenceError,
+        );
+      }
     } else {
       persistedCount = uniqueRecords.length;
     }
@@ -179,25 +216,36 @@ class HealthIntegrationService {
   }
 
   /// Retrieve existing external record IDs to prevent re-inserting duplicates.
-  Future<Set<String>> _fetchExistingExternalIds() async {
+  Future<Set<String>> _fetchExistingExternalIds(DateTime start) async {
     if (_supabaseClient == null) return {};
     try {
       final user = _supabaseClient.auth.currentUser;
       if (user == null) return {};
 
-      final res = await _supabaseClient
-          .from('health_measurements')
-          .select('source_platform, external_record_id')
-          .eq('user_id', user.id)
-          .not('external_record_id', 'is', null);
-
       final ids = <String>{};
-      for (final row in res as List) {
-        final platform = row['source_platform'] as String?;
-        final extId = row['external_record_id'] as String?;
-        if (platform != null && extId != null) {
-          ids.add('$platform:$extId');
+      const pageSize = 1000;
+      int from = 0;
+      bool hasMore = true;
+
+      while (hasMore) {
+        final res = await _supabaseClient
+            .from('health_measurements')
+            .select('source_platform, external_record_id')
+            .eq('user_id', user.id)
+            .gte('recorded_at', start.toUtc().toIso8601String())
+            .not('external_record_id', 'is', null)
+            .range(from, from + pageSize - 1);
+
+        final list = res as List;
+        for (final row in list) {
+          final platform = row['source_platform'] as String?;
+          final extId = row['external_record_id'] as String?;
+          if (platform != null && extId != null) {
+            ids.add('$platform:$extId');
+          }
         }
+        hasMore = list.length == pageSize;
+        from += pageSize;
       }
       return ids;
     } catch (_) {
@@ -205,24 +253,38 @@ class HealthIntegrationService {
     }
   }
 
-  /// Retrieve existing fingerprints for temporal content deduplication.
-  Future<Set<String>> _fetchExistingFingerprints() async {
+  /// Retrieve existing fingerprints for temporal content deduplication within window.
+  Future<Set<String>> _fetchExistingFingerprints(DateTime start) async {
     if (_supabaseClient == null) return {};
     try {
       final user = _supabaseClient.auth.currentUser;
       if (user == null) return {};
 
-      final res = await _supabaseClient
-          .from('health_measurements')
-          .select('metadata')
-          .eq('user_id', user.id);
-
       final fingerprints = <String>{};
-      for (final row in res as List) {
-        final meta = row['metadata'] as Map<String, dynamic>?;
-        if (meta != null && meta['fingerprint'] != null) {
-          fingerprints.add(meta['fingerprint'] as String);
+      const pageSize = 1000;
+      int from = 0;
+      bool hasMore = true;
+
+      while (hasMore) {
+        final res = await _supabaseClient
+            .from('health_measurements')
+            .select('metadata')
+            .eq('user_id', user.id)
+            .gte('recorded_at', start.toUtc().toIso8601String())
+            .range(from, from + pageSize - 1);
+
+        final list = res as List;
+        for (final row in list) {
+          final meta = row['metadata'];
+          if (meta is Map<String, dynamic>) {
+            final fp = meta['fingerprint'] as String?;
+            if (fp != null && fp.isNotEmpty) {
+              fingerprints.add(fp);
+            }
+          }
         }
+        hasMore = list.length == pageSize;
+        from += pageSize;
       }
       return fingerprints;
     } catch (_) {
@@ -259,22 +321,27 @@ class HealthIntegrationService {
     }).toList();
 
     try {
-      // Upsert using the unique constraint (user_id, source_platform, external_record_id)
+      // Upsert using the non-partial unique index (user_id, source_platform, external_record_id)
       await _supabaseClient.from('health_measurements').upsert(
         rows,
         onConflict: 'user_id, source_platform, external_record_id',
       );
       return rows.length;
-    } catch (_) {
-      // Fallback: insert individually ignoring conflict errors
-      int saved = 0;
-      for (final row in rows) {
-        try {
-          await _supabaseClient.from('health_measurements').insert(row);
-          saved++;
-        } catch (_) {}
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        // Unique conflict: attempt row-by-row insert skipping exact duplicates
+        int saved = 0;
+        for (final row in rows) {
+          try {
+            await _supabaseClient.from('health_measurements').insert(row);
+            saved++;
+          } on PostgrestException catch (inner) {
+            if (inner.code != '23505') rethrow;
+          }
+        }
+        return saved;
       }
-      return saved;
+      rethrow;
     }
   }
 
@@ -307,19 +374,19 @@ class HealthIntegrationService {
       case HealthDataType.distance:
       case HealthDataType.activeCalories:
       case HealthDataType.workout:
-        return 'activity';
+        return 'Activity';
       case HealthDataType.heartRate:
       case HealthDataType.restingHeartRate:
       case HealthDataType.bloodOxygen:
       case HealthDataType.bodyTemperature:
-        return 'vitals';
+        return 'Cardiovascular & Vitals';
       case HealthDataType.sleep:
-        return 'sleep';
+        return 'Recovery & Sleep';
       case HealthDataType.weight:
       case HealthDataType.height:
-        return 'body';
+        return 'Body Composition';
       case HealthDataType.water:
-        return 'nutrition';
+        return 'Hydration';
     }
   }
 }

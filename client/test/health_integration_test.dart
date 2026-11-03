@@ -172,10 +172,23 @@ void main() {
   });
 
   group('3. Unit Normalization Engine', () {
-    test('Steps normalization clamps and rounds to integer counts', () {
+    test('Steps normalization clamps and rounds to integer counts, rejecting invalid numbers', () {
       expect(HealthUnitConverter.normalizeSteps(10234.7), 10235.0);
-      expect(HealthUnitConverter.normalizeSteps(-50.0), 0.0);
-      expect(HealthUnitConverter.normalizeSteps(double.nan), 0.0);
+      expect(HealthUnitConverter.normalizeSteps(-50.0), isNull);
+      expect(HealthUnitConverter.normalizeSteps(double.nan), isNull);
+      expect(HealthUnitConverter.normalizeSteps(double.infinity), isNull);
+    });
+
+    test('Heart rate and oxygen normalization rejects non-numeric and implausible values', () {
+      expect(HealthUnitConverter.normalizeHeartRate(72.4), 72.4);
+      expect(HealthUnitConverter.normalizeHeartRate(-10.0), isNull);
+      expect(HealthUnitConverter.normalizeHeartRate(350.0), isNull);
+      expect(HealthUnitConverter.normalizeHeartRate(double.nan), isNull);
+
+      expect(HealthUnitConverter.normalizeBloodOxygen(0.98), 98.0);
+      expect(HealthUnitConverter.normalizeBloodOxygen(-5.0), isNull);
+      expect(HealthUnitConverter.normalizeBloodOxygen(150.0), isNull);
+      expect(HealthUnitConverter.normalizeBloodOxygen(double.nan), isNull);
     });
 
     test('Distance normalization accurately converts miles, km, and feet to meters', () {
@@ -208,6 +221,38 @@ void main() {
   group('4. Deduplication Engine', () {
     const deduplicator = HealthDeduplicationEngine();
     final t1 = DateTime.utc(2026, 11, 3, 10, 0, 0);
+
+    test('Distinct sleep stages with same start time produce unique deterministic fingerprints', () {
+      final tStart = DateTime.utc(2026, 11, 3, 23, 0, 0);
+      final tEnd1 = DateTime.utc(2026, 11, 3, 23, 30, 0);
+      final tEnd2 = DateTime.utc(2026, 11, 4, 0, 15, 0);
+
+      final sleepStage1 = HealthRecord(
+        id: 'sleep-1',
+        type: HealthDataType.sleep,
+        value: 30.0,
+        unit: 'minutes',
+        recordedAt: tStart,
+        endRecordedAt: tEnd1,
+        source: HealthDataSourceType.wearable,
+        sourcePlatform: 'apple_healthkit',
+        metadata: const {'native_type': 'HKCategoryValueSleepAnalysisAsleepREM'},
+      );
+
+      final sleepStage2 = HealthRecord(
+        id: 'sleep-2',
+        type: HealthDataType.sleep,
+        value: 75.0,
+        unit: 'minutes',
+        recordedAt: tStart,
+        endRecordedAt: tEnd2,
+        source: HealthDataSourceType.wearable,
+        sourcePlatform: 'apple_healthkit',
+        metadata: const {'native_type': 'HKCategoryValueSleepAnalysisAsleepCore'},
+      );
+
+      expect(sleepStage1.deterministicFingerprint, isNot(equals(sleepStage2.deterministicFingerprint)));
+    });
 
     test('Eliminates duplicates by externalRecordId', () {
       final rec1 = HealthRecord(
@@ -394,7 +439,48 @@ void main() {
       expect(result.success, isFalse);
       expect(result.errorMessage, contains('does not support native health tracking'));
     });
+
+    test('Sync handles adapter read exceptions gracefully', () async {
+      final mockAdapter = MockHealthPlatformAdapter(
+        name: 'mock_provider',
+        permissionsGranted: true,
+      );
+      final throwingAdapter = _ThrowingReadAdapter(mockAdapter);
+      final service = HealthIntegrationService(adapter: throwingAdapter);
+      final result = await service.syncHealthData();
+
+      expect(result.success, isFalse);
+      expect(result.failureReason, equals(HealthSyncFailureReason.adapterReadError));
+      expect(result.errorMessage, contains('Health Connect read failed'));
+    });
   });
+}
+
+class _ThrowingReadAdapter implements HealthPlatformAdapter {
+  final HealthPlatformAdapter delegate;
+  _ThrowingReadAdapter(this.delegate);
+
+  @override
+  String get platformName => delegate.platformName;
+  @override
+  Future<bool> isPlatformSupported() => delegate.isPlatformSupported();
+  @override
+  Future<bool> isHealthStoreAvailable() => delegate.isHealthStoreAvailable();
+  @override
+  Future<bool> checkPermissions(List<HealthDataType> types) async => true;
+  @override
+  Future<bool> requestPermissions(List<HealthDataType> types) async => true;
+  @override
+  Future<List<HealthRecord>> readRecords({
+    required List<HealthDataType> types,
+    required DateTime startTime,
+    required DateTime endTime,
+    String? syncCursor,
+  }) async {
+    throw const HealthAdapterException('Health Connect read failed unexpectedly');
+  }
+  @override
+  Future<void> revokePermissions() => delegate.revokePermissions();
 }
 
 class _FailingPermissionAdapter implements HealthPlatformAdapter {

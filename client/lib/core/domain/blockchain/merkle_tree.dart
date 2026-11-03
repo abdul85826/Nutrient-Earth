@@ -7,6 +7,25 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+List<int> _safeHexToBytes(String str) {
+  final clean = str.replaceAll(' ', '').trim();
+  // Valid hex string with even length: decode raw bytes
+  final evenHexRegex = RegExp(r'^[0-9a-fA-F]+$');
+  if (clean.isNotEmpty && clean.length % 2 == 0 && evenHexRegex.hasMatch(clean)) {
+    final result = <int>[];
+    for (int i = 0; i < clean.length; i += 2) {
+      result.add(int.parse(clean.substring(i, i + 2), radix: 16));
+    }
+    return result;
+  }
+  // Fallback for non-hex or arbitrary strings: encode with UTF-8
+  return utf8.encode(clean);
+}
+
+String _bytesToHex(List<int> bytes) {
+  return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+}
+
 class MerkleAuditStep {
   final String hash;
   final bool isRight; // true if this sibling hash is to the right of the current node
@@ -42,30 +61,34 @@ class MerkleProof {
     required this.expectedRoot,
   });
 
+  /// Evaluates and computes the Merkle Root by sequentially folding the leafHash
+  /// through each step in the auditPath according to RFC-6962 binary rules.
+  String computeRoot() {
+    if (leafHash.isEmpty) return '';
+    if (auditPath.isEmpty) return leafHash.toLowerCase();
+
+    String currentHash = leafHash.toLowerCase();
+
+    try {
+      for (final step in auditPath) {
+        final sibling = step.hash.toLowerCase();
+        if (step.isRight) {
+          currentHash = MerkleTree.hashNode(currentHash, sibling);
+        } else {
+          currentHash = MerkleTree.hashNode(sibling, currentHash);
+        }
+      }
+      return currentHash.toLowerCase();
+    } catch (_) {
+      return '';
+    }
+  }
+
   /// Verifies that leafHash combined with auditPath matches expectedRoot.
   bool verify() {
     if (leafHash.isEmpty || expectedRoot.isEmpty) return false;
-
-    // If there is no audit path, a single leaf tree has root == leafHash
-    if (auditPath.isEmpty) {
-      return leafHash.toLowerCase() == expectedRoot.toLowerCase();
-    }
-
-    String currentHash = leafHash;
-
-    for (final step in auditPath) {
-      final String combined;
-      if (step.isRight) {
-        combined = '$currentHash${step.hash}';
-      } else {
-        combined = '${step.hash}$currentHash';
-      }
-
-      final bytes = utf8.encode(combined);
-      currentHash = sha256.convert(bytes).toString();
-    }
-
-    return currentHash.toLowerCase() == expectedRoot.toLowerCase();
+    final evaluated = computeRoot();
+    return evaluated.isNotEmpty && evaluated == expectedRoot.toLowerCase();
   }
 
   Map<String, dynamic> toJson() => {
@@ -90,82 +113,84 @@ class MerkleProof {
 
 class MerkleTree {
   final List<String> leaves;
-  final List<List<String>> levels;
   final String root;
 
   const MerkleTree._({
     required this.leaves,
-    required this.levels,
     required this.root,
   });
+
+  /// Hashes two interior nodes per RFC-6962 Section 2.1:
+  /// Interior node hash = SHA-256(0x01 || leftBytes || rightBytes)
+  static String hashNode(String leftHex, String rightHex) {
+    final leftBytes = _safeHexToBytes(leftHex);
+    final rightBytes = _safeHexToBytes(rightHex);
+
+    final payload = <int>[
+      0x01, // RFC-6962 internal node domain separation byte
+      ...leftBytes,
+      ...rightBytes,
+    ];
+
+    return _bytesToHex(sha256.convert(payload).bytes);
+  }
+
+  /// Returns the largest power of 2 less than [n], where k < n <= 2k.
+  static int largestPowerOfTwoLessThan(int n) {
+    if (n < 2) return 0;
+    int k = 1;
+    while ((k << 1) < n) {
+      k <<= 1;
+    }
+    return k;
+  }
+
+  /// Computes Merkle Tree Hash (MTH) for sublist [0:n] per RFC-6962:
+  /// MTH({}) = SHA-256()
+  /// MTH({d[0]}) = d[0] (since leaves are already SHA-256 digests)
+  /// MTH(D[n]) = H(0x01 || MTH(D[0:k]) || MTH(D[k:n]))
+  static String computeMth(List<String> leavesList) {
+    if (leavesList.isEmpty) {
+      return 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+    }
+    if (leavesList.length == 1) {
+      return leavesList.first;
+    }
+
+    final k = largestPowerOfTwoLessThan(leavesList.length);
+    final leftRoot = computeMth(leavesList.sublist(0, k));
+    final rightRoot = computeMth(leavesList.sublist(k));
+
+    return hashNode(leftRoot, rightRoot);
+  }
 
   /// Constructs a MerkleTree from an arbitrary list of SHA-256 leaf hashes.
   factory MerkleTree.compute(List<String> rawLeaves) {
     if (rawLeaves.isEmpty) {
-      const emptyHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'; // SHA-256 of empty string
+      const emptyHash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
       return const MerkleTree._(
         leaves: [],
-        levels: [[]],
         root: emptyHash,
       );
     }
 
     final sanitizedLeaves = rawLeaves.map((l) => l.trim().toLowerCase()).toList();
-    final levels = <List<String>>[List<String>.from(sanitizedLeaves)];
-
-    List<String> currentLevel = sanitizedLeaves;
-
-    while (currentLevel.length > 1) {
-      final nextLevel = <String>[];
-
-      for (int i = 0; i < currentLevel.length; i += 2) {
-        final left = currentLevel[i];
-        final right = (i + 1 < currentLevel.length) ? currentLevel[i + 1] : left; // Duplicate last if odd
-
-        final combined = '$left$right';
-        final parentHash = sha256.convert(utf8.encode(combined)).toString();
-        nextLevel.add(parentHash);
-      }
-
-      levels.add(nextLevel);
-      currentLevel = nextLevel;
-    }
+    final treeRoot = computeMth(sanitizedLeaves);
 
     return MerkleTree._(
       leaves: sanitizedLeaves,
-      levels: levels,
-      root: currentLevel.first,
+      root: treeRoot,
     );
   }
 
-  /// Generates a cryptographic inclusion proof for the leaf at [leafIndex].
+  /// Generates a cryptographic inclusion proof for the leaf at [leafIndex]
+  /// following RFC-6962 audit path rules.
   MerkleProof generateProof(int leafIndex) {
     if (leafIndex < 0 || leafIndex >= leaves.length) {
       throw RangeError('leafIndex $leafIndex out of bounds for tree with ${leaves.length} leaves');
     }
 
-    final auditPath = <MerkleAuditStep>[];
-    int currentIndex = leafIndex;
-
-    for (int levelIndex = 0; levelIndex < levels.length - 1; levelIndex++) {
-      final level = levels[levelIndex];
-      final isEven = (currentIndex % 2 == 0);
-      final int siblingIndex = isEven ? currentIndex + 1 : currentIndex - 1;
-
-      String siblingHash;
-      if (siblingIndex < level.length) {
-        siblingHash = level[siblingIndex];
-      } else {
-        siblingHash = level[currentIndex]; // Duplicated self for odd leaf
-      }
-
-      auditPath.add(MerkleAuditStep(
-        hash: siblingHash,
-        isRight: isEven, // Sibling is to the right if current node was even
-      ));
-
-      currentIndex = currentIndex ~/ 2;
-    }
+    final auditPath = _buildAuditPath(leafIndex, leaves);
 
     return MerkleProof(
       leafHash: leaves[leafIndex],
@@ -173,6 +198,39 @@ class MerkleTree {
       auditPath: auditPath,
       expectedRoot: root,
     );
+  }
+
+  static List<MerkleAuditStep> _buildAuditPath(int index, List<String> currentLeaves) {
+    if (currentLeaves.length <= 1) {
+      return const [];
+    }
+
+    final k = largestPowerOfTwoLessThan(currentLeaves.length);
+    final steps = <MerkleAuditStep>[];
+
+    if (index < k) {
+      // Leaf is in the left subtree
+      final leftLeaves = currentLeaves.sublist(0, k);
+      final rightLeaves = currentLeaves.sublist(k);
+      final rightSiblingMth = computeMth(rightLeaves);
+
+      // Recurse down left subtree
+      steps.addAll(_buildAuditPath(index, leftLeaves));
+      // Sibling is the right subtree root
+      steps.add(MerkleAuditStep(hash: rightSiblingMth, isRight: true));
+    } else {
+      // Leaf is in the right subtree
+      final leftLeaves = currentLeaves.sublist(0, k);
+      final rightLeaves = currentLeaves.sublist(k);
+      final leftSiblingMth = computeMth(leftLeaves);
+
+      // Recurse down right subtree with adjusted index
+      steps.addAll(_buildAuditPath(index - k, rightLeaves));
+      // Sibling is the left subtree root
+      steps.add(MerkleAuditStep(hash: leftSiblingMth, isRight: false));
+    }
+
+    return steps;
   }
 
   /// Validates an arbitrary Merkle proof independently.

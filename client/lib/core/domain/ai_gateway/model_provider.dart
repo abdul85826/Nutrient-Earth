@@ -101,7 +101,12 @@ class DeepSeekEdgeProvider implements AIModelProvider {
 
       if (response.status == 200 && response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
-        final answer = data['answerSummary'] as String? ?? data['quickAnswer'] as String? ?? '';
+        final rawAnswer = data['answerSummary'] as String? ?? data['quickAnswer'] as String?;
+        final answer = rawAnswer?.trim() ?? '';
+        if (answer.isEmpty) {
+          throw StateError('Edge function returned an empty or whitespace-only answer summary.');
+        }
+
         return AIModelResponse(
           answerText: answer,
           providerId: providerId,
@@ -119,8 +124,12 @@ class DeepSeekEdgeProvider implements AIModelProvider {
   }
 }
 
-/// 2. Gemini 1.5 Flash Provider for Multimodal Inputs (Image/Voice) & Fast Failover
+/// 2. Gemini 1.5 Flash Provider for Multimodal Inputs (Image/Voice)
 class GeminiMultimodalProvider implements AIModelProvider {
+  final bool enableDebugStub;
+
+  const GeminiMultimodalProvider({this.enableDebugStub = false});
+
   @override
   String get providerId => 'gemini-flash-multimodal';
 
@@ -132,19 +141,23 @@ class GeminiMultimodalProvider implements AIModelProvider {
 
   @override
   Future<AIModelResponse> generateResponse(AIModelRequest request) async {
-    final stopwatch = Stopwatch()..start();
-
-    // If multimodal meal image or audio path is supplied, simulate structured inference
-    final String synthesis;
-    if (request.multimodalImagePath != null) {
-      synthesis = 'Visual meal scan identified nutrient-dense whole food components with bioavailable proteins and dietary fiber. '
-          'Compositional estimate: ~34g protein, ~45g carbohydrate, ~12g lipid.';
-    } else if (request.multimodalAudioPath != null) {
-      synthesis = 'Transcribed voice inquiry: "${request.query}". Synthesizing evidence across peer-reviewed clinical databases.';
-    } else {
-      synthesis = 'Synthesized clinical findings: ${request.query}. Grounded in recent randomized controlled trials.';
+    if (!enableDebugStub) {
+      // In production, real Gemini calls route through secure server-side Edge Gateway.
+      // Throw UnimplementedError so the router transparently falls over to the deterministic clinical engine.
+      throw UnimplementedError(
+        'Direct client-side Gemini multimodal invocation is gated. Use server-side edge function proxy.',
+      );
     }
 
+    final stopwatch = Stopwatch()..start();
+    final String synthesis;
+    if (request.multimodalImagePath != null) {
+      synthesis = 'Meal scan analysis (simulated): whole food meal components detected.';
+    } else if (request.multimodalAudioPath != null) {
+      synthesis = 'Voice query analysis (simulated): "${request.query}".';
+    } else {
+      synthesis = 'Scientific research inquiry (simulated): "${request.query}".';
+    }
     stopwatch.stop();
 
     return AIModelResponse(
@@ -152,7 +165,8 @@ class GeminiMultimodalProvider implements AIModelProvider {
       providerId: providerId,
       modelName: modelName,
       latencyMs: stopwatch.elapsedMilliseconds,
-      isFallback: false,
+      isFallback: true,
+      rawData: const {'simulated': true, 'debugStub': true},
     );
   }
 }
@@ -200,12 +214,7 @@ class DeterministicClinicalKnowledgeProvider implements AIModelProvider {
       providerId: providerId,
       modelName: modelName,
       latencyMs: stopwatch.elapsedMilliseconds,
-      isFallback: true,
-      rawData: {
-        'evidenceTier': searchResult.overallEvidenceTier.name,
-        'sourcesCount': searchResult.matchedSources.length,
-        'claimsCount': searchResult.claims.length,
-      },
+      isFallback: false,
     );
   }
 }

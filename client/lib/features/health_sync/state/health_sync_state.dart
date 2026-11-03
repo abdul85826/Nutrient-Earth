@@ -74,10 +74,13 @@ class HealthSyncNotifier extends StateNotifier<HealthSyncStateModel> {
           totalRecordsSynced: state.totalRecordsSynced + result.totalSynced,
         );
       } else {
+        final status = switch (result.failureReason) {
+          HealthSyncFailureReason.permissionDenied => HealthSyncStatus.permissionDenied,
+          HealthSyncFailureReason.unsupportedPlatform => HealthSyncStatus.unsupported,
+          _ => HealthSyncStatus.error,
+        };
         state = state.copyWith(
-          status: result.errorMessage?.contains('denied') == true
-              ? HealthSyncStatus.permissionDenied
-              : HealthSyncStatus.error,
+          status: status,
           errorMessage: result.errorMessage,
         );
       }

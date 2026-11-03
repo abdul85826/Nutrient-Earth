@@ -284,6 +284,7 @@ class ResearchPipelineService {
     String? audioPath,
     bool containsPersonalHealthData = false,
     UserProfileContext? userProfile,
+    EvidenceIntegrityService? integrityService,
   }) async {
     final cleanQuery = QuerySanitizer.sanitize(query);
 
@@ -315,7 +316,9 @@ class ResearchPipelineService {
     }
 
     // Execute the full 10-stage deterministic research orchestration pipeline
-    final pipeline = ResearchOrchestrationPipeline();
+    final pipeline = ResearchOrchestrationPipeline(
+      integrityService: integrityService,
+    );
     final result = await pipeline.execute(
       query: cleanQuery,
       userProfile: userProfile,

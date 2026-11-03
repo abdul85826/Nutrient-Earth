@@ -6,16 +6,14 @@ import '../../domain/health/health_data_types.dart';
 import '../../domain/health/health_platform_adapter.dart';
 import '../../domain/health/health_unit_converter.dart';
 
-/// Apple HealthKit infrastructure adapter.
-/// Uses Apple HealthKit via package:health.
+/// iOS Apple HealthKit infrastructure adapter.
+/// Integrates with HealthKit via package:health.
 class AppleHealthKitAdapter implements HealthPlatformAdapter {
   final pkh.Health _health;
   final Uuid _uuid;
 
-  AppleHealthKitAdapter({
-    pkh.Health? health,
-    Uuid? uuid,
-  })  : _health = health ?? pkh.Health(),
+  AppleHealthKitAdapter({pkh.Health? health, Uuid? uuid})
+      : _health = health ?? pkh.Health(),
         _uuid = uuid ?? const Uuid();
 
   @override
@@ -30,7 +28,7 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
   Future<bool> isHealthStoreAvailable() async {
     if (!await isPlatformSupported()) return false;
     try {
-      await _health.configure();
+      // On iOS, HealthKit availability is guaranteed if running on real iOS device.
       return true;
     } catch (_) {
       return false;
@@ -44,10 +42,9 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
       await _health.configure();
       final pkhTypes = _mapDomainTypesToPlatform(types);
       if (pkhTypes.isEmpty) return true;
-      // Caveat: iOS HealthKit intentionally masks READ permission status for privacy.
-      // hasPermissions returns null or boolean.
       final hasPerm = await _health.hasPermissions(pkhTypes);
-      return hasPerm ?? true; // On iOS, treat null as potentially permitted to allow query
+      // Return false if null or false to trigger authorization flow
+      return hasPerm ?? false;
     } catch (_) {
       return false;
     }
@@ -60,8 +57,7 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
       await _health.configure();
       final pkhTypes = _mapDomainTypesToPlatform(types);
       if (pkhTypes.isEmpty) return true;
-      final granted = await _health.requestAuthorization(pkhTypes);
-      return granted;
+      return await _health.requestAuthorization(pkhTypes);
     } catch (_) {
       return false;
     }
@@ -92,8 +88,11 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
         if (domainType == null) continue;
 
         final rawValue = _extractValue(dp);
+        if (rawValue == null) continue;
+
         final rawUnit = dp.unitString;
         final normalizedVal = HealthUnitConverter.normalize(domainType, rawValue, rawUnit);
+        if (normalizedVal == null) continue;
 
         // Determine source attribution (Apple Watch vs iPhone vs manual)
         final source = _resolveSourceType(dp);
@@ -108,14 +107,14 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
             endRecordedAt: dp.dateTo,
             source: source,
             sourcePlatform: platformName,
-            deviceModel: dp.deviceModel ?? (dp.sourceName.isNotEmpty ? dp.sourceName : 'Apple Device'),
+            deviceModel: dp.sourceName.isNotEmpty ? dp.sourceName : null,
             externalRecordId: dp.uuid.isNotEmpty ? dp.uuid : null,
             metadata: {
+              'native_type': dp.type.name,
               'raw_unit': rawUnit,
               'raw_value': rawValue,
               'source_id': dp.sourceId,
               'source_name': dp.sourceName,
-              'device_model': dp.deviceModel,
               'recording_method': dp.recordingMethod.name,
               if (dp.workoutSummary != null)
                 'workout_summary': {
@@ -130,51 +129,47 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
       }
 
       return records;
-    } catch (_) {
-      return [];
+    } catch (e) {
+      if (e is HealthAdapterException) rethrow;
+      throw HealthAdapterException('Apple HealthKit read failed', e);
     }
   }
 
   @override
   Future<void> revokePermissions() async {
-    // HealthKit does not allow programmatic revocation from third-party apps;
-    // Users manage HealthKit permissions via iOS Settings -> Health -> Data Access.
+    // HealthKit does not support programmatic permission revocation from client apps.
+    // Permissions must be managed by the user in Settings > Health > Data Access & Devices.
   }
 
   HealthDataSourceType _resolveSourceType(pkh.HealthDataPoint dp) {
     if (dp.recordingMethod == pkh.RecordingMethod.manual) {
       return HealthDataSourceType.userEntered;
     }
-
-    final devModel = (dp.deviceModel ?? '').toLowerCase();
     final nameLower = dp.sourceName.toLowerCase();
-
-    final isWearable = devModel.contains('watch') ||
-        nameLower.contains('watch') ||
+    if (nameLower.contains('watch') ||
+        nameLower.contains('apple watch') ||
         nameLower.contains('garmin') ||
         nameLower.contains('oura') ||
-        nameLower.contains('whoop');
-
-    if (isWearable) {
+        nameLower.contains('whoop')) {
       return HealthDataSourceType.wearable;
     }
-
     return HealthDataSourceType.deviceMeasured;
   }
 
-  double _extractValue(pkh.HealthDataPoint dp) {
+  double? _extractValue(pkh.HealthDataPoint dp) {
     final v = dp.value;
     if (v is pkh.NumericHealthValue) {
-      return v.numericValue.toDouble();
+      final num = v.numericValue.toDouble();
+      return (num.isNaN || num.isInfinite) ? null : num;
     } else if (v is pkh.WorkoutHealthValue) {
       final duration = dp.dateTo.difference(dp.dateFrom).inMinutes;
       return duration > 0 ? duration.toDouble() : 1.0;
     } else if (dp.type == pkh.HealthDataType.SLEEP_ASLEEP ||
                dp.type == pkh.HealthDataType.SLEEP_IN_BED) {
       final duration = dp.dateTo.difference(dp.dateFrom).inMinutes;
-      return duration.toDouble();
+      return duration >= 0 ? duration.toDouble() : null;
     }
-    return 0.0;
+    return null;
   }
 
   List<pkh.HealthDataType> _mapDomainTypesToPlatform(List<HealthDataType> types) {
@@ -198,7 +193,6 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
           break;
         case HealthDataType.sleep:
           result.add(pkh.HealthDataType.SLEEP_ASLEEP);
-          result.add(pkh.HealthDataType.SLEEP_IN_BED);
           break;
         case HealthDataType.workout:
           result.add(pkh.HealthDataType.WORKOUT);
@@ -228,7 +222,6 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
       case pkh.HealthDataType.STEPS:
         return HealthDataType.steps;
       case pkh.HealthDataType.DISTANCE_WALKING_RUNNING:
-      case pkh.HealthDataType.DISTANCE_DELTA:
         return HealthDataType.distance;
       case pkh.HealthDataType.ACTIVE_ENERGY_BURNED:
         return HealthDataType.activeCalories;
@@ -238,9 +231,6 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
         return HealthDataType.restingHeartRate;
       case pkh.HealthDataType.SLEEP_ASLEEP:
       case pkh.HealthDataType.SLEEP_IN_BED:
-      case pkh.HealthDataType.SLEEP_DEEP:
-      case pkh.HealthDataType.SLEEP_REM:
-      case pkh.HealthDataType.SLEEP_LIGHT:
         return HealthDataType.sleep;
       case pkh.HealthDataType.WORKOUT:
         return HealthDataType.workout;
@@ -259,4 +249,3 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
     }
   }
 }
-

@@ -184,7 +184,10 @@ class ResearchOrchestrationPipeline {
 
     // Stage 10: Cryptographic Blockchain Provenance Anchoring (RFC-8785 Manifest + Merkle Proof)
     stages.add('BlockchainProvenanceAnchoring');
-    final dossier = await integrityService.generateAndAnchorManifest(answer: answer);
+    final dossier = await integrityService.generateAndAnchorManifest(
+      answer: answer,
+      containsPersonalHealthData: containsPersonalHealthData,
+    );
     final finalAnswer = answer.copyWith(provenanceDossier: dossier);
 
     stopwatch.stop();

@@ -30,7 +30,10 @@ class MerkleProofVerificationModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final proof = dossier.merkleProof;
-    final isMathematicallyValid = proof.verify();
+    final leafMatches = proof.leafHash.trim().toLowerCase() == dossier.manifestHash.trim().toLowerCase();
+    final computedRoot = proof.computeRoot();
+    final rootMatches = computedRoot.isNotEmpty && computedRoot == proof.expectedRoot.trim().toLowerCase();
+    final isMathematicallyValid = leafMatches && rootMatches && proof.verify();
 
     return Container(
       decoration: const BoxDecoration(
@@ -119,7 +122,7 @@ class MerkleProofVerificationModal extends StatelessWidget {
                           Text(
                             isMathematicallyValid
                                 ? 'Merkle Proof Path Verified Valid'
-                                : 'Merkle Proof Invalid',
+                                : (!leafMatches ? "Proof Leaf Mismatch" : "Merkle Proof Evaluation Failed"),
                             style: GoogleFonts.manrope(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
@@ -127,7 +130,7 @@ class MerkleProofVerificationModal extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            'Hash folding from leaf #${proof.leafIndex} evaluates strictly to Merkle Root.',
+                            !leafMatches ? "Proof leaf hash does not match inquiry manifest hash." : "Hash folding from leaf #${proof.leafIndex} evaluates strictly to Merkle Root.",
                             style: GoogleFonts.manrope(
                               fontSize: 11,
                               color: NETokens.textSecondary,
@@ -203,7 +206,7 @@ class MerkleProofVerificationModal extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              _buildCodeBlock(proof.expectedRoot),
+              _buildCodeBlock(computedRoot.isNotEmpty ? computedRoot : proof.expectedRoot),
 
               const SizedBox(height: 20),
 

@@ -136,17 +136,25 @@ class ExploreNotifier extends StateNotifier<ExploreState> {
         imagePath: imagePath,
         audioPath: audioPath,
         userProfile: userProfile,
+        integrityService: _integrityService,
       );
 
       // Step 3: Persistence to Supabase
       state = state.copyWith(currentStage: 'Finalizing cryptographic provenance commitment...');
       final convId = await _persistenceService.getOrCreateConversation(title: trimmed);
       if (convId != null) {
-        await _persistenceService.persistInquiryAndAnswer(
+        final success = await _persistenceService.persistInquiryAndAnswer(
           conversationId: convId,
           query: trimmed,
           answer: answer,
         );
+        if (success && answer.provenanceDossier != null) {
+          await _integrityService.persistDossierLinkage(
+            dossier: answer.provenanceDossier!,
+            conversationId: convId,
+            containsPersonalHealthData: imagePath != null || audioPath != null,
+          );
+        }
       }
 
       await loadRecentHistory();
