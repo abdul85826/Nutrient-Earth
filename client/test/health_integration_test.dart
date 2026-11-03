@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrient_earth_client/core/domain/health/health_data_types.dart';
 import 'package:nutrient_earth_client/core/domain/health/health_deduplication_engine.dart';
@@ -422,3 +421,4 @@ class _FailingPermissionAdapter implements HealthPlatformAdapter {
   @override
   Future<void> revokePermissions() => delegate.revokePermissions();
 }
+

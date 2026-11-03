@@ -122,3 +122,4 @@ final healthSyncStateProvider =
   final service = ref.watch(healthIntegrationServiceProvider);
   return HealthSyncNotifier(service);
 });
+

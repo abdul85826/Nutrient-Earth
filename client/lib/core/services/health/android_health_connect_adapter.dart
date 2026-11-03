@@ -260,3 +260,4 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
     }
   }
 }
+

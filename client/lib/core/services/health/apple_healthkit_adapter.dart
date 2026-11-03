@@ -259,3 +259,4 @@ class AppleHealthKitAdapter implements HealthPlatformAdapter {
     }
   }
 }
+

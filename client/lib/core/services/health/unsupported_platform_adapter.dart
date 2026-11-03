@@ -38,3 +38,4 @@ class UnsupportedPlatformAdapter implements HealthPlatformAdapter {
 
   String get reason => _reason;
 }
+

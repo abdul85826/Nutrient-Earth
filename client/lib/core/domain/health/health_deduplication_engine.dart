@@ -62,3 +62,4 @@ class HealthDeduplicationEngine {
     return dailyTotals;
   }
 }
+

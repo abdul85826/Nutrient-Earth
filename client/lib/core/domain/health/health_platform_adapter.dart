@@ -30,3 +30,4 @@ abstract class HealthPlatformAdapter {
   /// Revoke or reset granted health permissions.
   Future<void> revokePermissions();
 }
+

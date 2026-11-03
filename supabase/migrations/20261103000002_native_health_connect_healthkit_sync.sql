@@ -89,3 +89,4 @@ CREATE TRIGGER trg_health_sync_state_updated_at
     BEFORE UPDATE ON public.health_sync_state
     FOR EACH ROW
     EXECUTE FUNCTION public.set_health_sync_state_updated_at();
+
