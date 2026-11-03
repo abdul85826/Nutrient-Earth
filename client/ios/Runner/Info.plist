@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Nutrient Earth reads your health metrics (such as steps, heart rate, sleep, workouts, and calories) to provide personalized, evidence-driven nutrition and metabolic insights.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Nutrient Earth can record your health and nutrition measurements to sync with your health ecosystem.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Nutrient Earth accesses your device motion and pedometer data to track daily activity and exercise.</string>
 </dict>
 </plist>
