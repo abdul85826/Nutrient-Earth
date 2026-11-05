@@ -12,6 +12,8 @@ class TodayDrawer extends StatelessWidget {
   final VoidCallback? onPrivacyTap;
   final String? profileName;
   final String? profileGoal;
+  final bool isAuthenticated;
+  final VoidCallback? onSignOut;
 
   const TodayDrawer({
     super.key,
@@ -21,6 +23,8 @@ class TodayDrawer extends StatelessWidget {
     this.onPrivacyTap,
     this.profileName,
     this.profileGoal,
+    this.isAuthenticated = false,
+    this.onSignOut,
   });
 
   @override
@@ -303,6 +307,27 @@ class TodayDrawer extends StatelessWidget {
               ),
               trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: NETokens.textMuted),
             ),
+
+            if (isAuthenticated)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                child: ListTile(
+                  dense: true,
+                  onTap: () {
+                    Navigator.pop(context);
+                    onSignOut?.call();
+                  },
+                  leading: const Icon(Icons.logout_rounded, size: 18, color: NETokens.error),
+                  title: Text(
+                    'Sign Out',
+                    style: GoogleFonts.manrope(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: NETokens.error,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

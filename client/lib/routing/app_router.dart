@@ -4,8 +4,13 @@
 // deep-linking returnTo targets, and shared intelligence routes.
 // ==============================================================================
 
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/config/supabase_config.dart';
+import '../core/services/auth_service.dart';
 import '../features/explore/presentation/explore_screen.dart';
 import '../features/onboarding/presentation/screens/01_splash_screen.dart';
 import '../features/onboarding/presentation/screens/02_welcome_screen.dart';
@@ -28,8 +33,60 @@ import '../features/today/presentation/today_screen.dart';
 import '../features/today/presentation/widgets/input_processing_view.dart';
 import '../features/today/presentation/widgets/universal_reference_answer_card.dart';
 
+/// Listens to a Stream and notifies GoRouter to re-evaluate route guards
+class GoRouterRefreshStream extends ChangeNotifier {
+  StreamSubscription<dynamic>? _subscription;
+
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _subscription = stream.listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+}
+
+Listenable? _buildAuthRefreshListenable() {
+  final client = SupabaseConfig.client;
+  if (client != null && SupabaseConfig.isInitialized) {
+    return GoRouterRefreshStream(client.auth.onAuthStateChange);
+  }
+  return null;
+}
+
 final appRouter = GoRouter(
   initialLocation: '/today',
+  refreshListenable: _buildAuthRefreshListenable(),
+  redirect: (BuildContext context, GoRouterState state) {
+    final client = SupabaseConfig.client;
+    // When Supabase backend is not initialized (e.g. offline testing, mocking, or unit tests), allow direct navigation
+    if (client == null || !SupabaseConfig.isInitialized) {
+      return null;
+    }
+
+    final isAuthenticated = client.auth.currentUser != null;
+    final path = state.uri.path;
+
+    // Protected Route Rules:
+    // Personal health onboarding (/onboarding/*) requires an authenticated user
+    if (!isAuthenticated && path.startsWith('/onboarding')) {
+      final returnTarget = Uri.encodeComponent(state.uri.toString());
+      return '/auth?mode=signin&returnTo=$returnTarget';
+    }
+
+    // Authenticated users navigating to /auth or /welcome are automatically redirected forward
+    if (isAuthenticated && (path == '/auth' || path == '/welcome')) {
+      final returnTo = state.uri.queryParameters['returnTo'];
+      if (returnTo != null && returnTo.isNotEmpty) {
+        return returnTo;
+      }
+      return '/today';
+    }
+
+    return null;
+  },
   routes: [
     // Screen 01: Brand Splash Screen
     GoRoute(

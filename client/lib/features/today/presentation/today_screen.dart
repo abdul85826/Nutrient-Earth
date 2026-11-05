@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../../core/domain/input_gateway/input_classification_gateway.dart';
 import '../../../../core/domain/input_gateway/universal_input_descriptor.dart';
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/learn_repository.dart';
 import '../../../../core/services/profile_repository.dart';
 import '../state/today_state.dart';
@@ -625,6 +626,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
         },
         onProfileTap: _openProfile,
         onPrivacyTap: _openPrivacyDataControls,
+        isAuthenticated: ref.watch(isAuthenticatedProvider),
+        onSignOut: () async {
+          await ref.read(authServiceProvider).signOut();
+          if (mounted) {
+            context.go('/welcome');
+          }
+        },
       ),
       body: SafeArea(
         child: Center(

@@ -11,6 +11,7 @@ import '../config/supabase_config.dart';
 
 abstract class AuthService {
   User? get currentUser;
+  Session? get currentSession;
   bool get isAuthenticated;
   Future<AuthResponse> signUp({required String email, required String password});
   Future<AuthResponse> signIn({required String email, required String password});
@@ -24,6 +25,9 @@ class SupabaseAuthService implements AuthService {
 
   @override
   User? get currentUser => SupabaseConfig.client?.auth.currentUser;
+
+  @override
+  Session? get currentSession => SupabaseConfig.client?.auth.currentSession;
 
   @override
   bool get isAuthenticated => currentUser != null;
@@ -92,3 +96,19 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return const SupabaseAuthService();
 });
 
+/// Reactive stream of auth state changes (sign-in, sign-out, token refresh)
+final authStateStreamProvider = StreamProvider<AuthState>((ref) {
+  return ref.watch(authServiceProvider).authStateChanges;
+});
+
+/// Current authenticated Supabase user (reactive to auth changes)
+final currentUserProvider = Provider<User?>((ref) {
+  ref.watch(authStateStreamProvider);
+  return ref.watch(authServiceProvider).currentUser;
+});
+
+/// Boolean flag indicating active authenticated session
+final isAuthenticatedProvider = Provider<bool>((ref) {
+  final user = ref.watch(currentUserProvider);
+  return user != null;
+});
