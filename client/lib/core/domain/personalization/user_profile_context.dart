@@ -17,6 +17,14 @@ class UserProfileContext {
   final List<String> knownConditions;
   final List<String> activeSupplements;
   final List<String> allergies;
+  final double? heightCm;
+  final double? weightKg;
+  final String eatingRoutine;
+  final String sleepQuality;
+  final String knowledgeLevel;
+  final List<String> difficulties;
+  final Map<String, dynamic> dailyImpacts;
+  final bool onboardingCompleted;
 
   const UserProfileContext({
     required this.userId,
@@ -31,6 +39,14 @@ class UserProfileContext {
     this.knownConditions = const [],
     this.activeSupplements = const [],
     this.allergies = const [],
+    this.heightCm,
+    this.weightKg,
+    this.eatingRoutine = 'regular',
+    this.sleepQuality = 'good_consistent',
+    this.knowledgeLevel = 'basics',
+    this.difficulties = const [],
+    this.dailyImpacts = const {},
+    this.onboardingCompleted = false,
   });
 
   factory UserProfileContext.fromJson(Map<String, dynamic> json) {
@@ -55,6 +71,21 @@ class UserProfileContext {
               ?.map((s) => s.toString())
               .toList() ??
           const [],
+      allergies: (json['allergies'] as List<dynamic>?)
+              ?.map((a) => a.toString())
+              .toList() ??
+          const [],
+      heightCm: (json['height_cm'] as num?)?.toDouble() ?? (json['heightCm'] as num?)?.toDouble(),
+      weightKg: (json['weight_kg'] as num?)?.toDouble() ?? (json['weightKg'] as num?)?.toDouble(),
+      eatingRoutine: json['eating_routine'] as String? ?? json['eatingRoutine'] as String? ?? 'regular',
+      sleepQuality: json['sleep_quality'] as String? ?? json['sleepQuality'] as String? ?? 'good_consistent',
+      knowledgeLevel: json['knowledge_level'] as String? ?? json['knowledgeLevel'] as String? ?? 'basics',
+      difficulties: (json['difficulties'] as List<dynamic>?)
+              ?.map((d) => d.toString())
+              .toList() ??
+          const [],
+      dailyImpacts: json['daily_impacts'] as Map<String, dynamic>? ?? json['dailyImpacts'] as Map<String, dynamic>? ?? const {},
+      onboardingCompleted: json['onboarding_completed'] as bool? ?? json['onboardingCompleted'] as bool? ?? false,
     );
   }
 
@@ -70,6 +101,15 @@ class UserProfileContext {
         'willingness_to_change': willingnessToChange,
         'known_conditions': knownConditions,
         'active_supplements': activeSupplements,
+        'allergies': allergies,
+        'height_cm': heightCm,
+        'weight_kg': weightKg,
+        'eating_routine': eatingRoutine,
+        'sleep_quality': sleepQuality,
+        'knowledge_level': knowledgeLevel,
+        'difficulties': difficulties,
+        'daily_impacts': dailyImpacts,
+        'onboarding_completed': onboardingCompleted,
       };
 
   /// Returns a privacy-safe, anonymized context map stripped of direct PII (name, userId)
@@ -82,5 +122,10 @@ class UserProfileContext {
         'dietary_preference': dietaryPreference,
         'known_conditions': knownConditions,
         'active_supplements': activeSupplements,
+        'allergies': allergies,
+        'height_cm': heightCm,
+        'weight_kg': weightKg,
+        'eating_routine': eatingRoutine,
+        'sleep_quality': sleepQuality,
       };
 }

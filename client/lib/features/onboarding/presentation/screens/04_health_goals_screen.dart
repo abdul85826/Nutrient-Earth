@@ -94,7 +94,7 @@ class _HealthGoalsScreenState extends ConsumerState<HealthGoalsScreen> {
         title: Column(
           children: [
             Text(
-              'STEP 1 OF 5',
+              'STEP 1 OF 14',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

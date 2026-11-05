@@ -307,32 +307,12 @@ class ScientificEvidenceRepository {
       );
     }
 
-    // Default translational evidence synthesis
-    final defaultSources = [
-      const ScientificSource(
-        title: 'Translational Nutritional Science and Evidence-Based Interventions',
-        authorsOrJournal: 'Calder PC, et al. Nutritional Research Reviews',
-        year: '2025',
-        evidenceGrade: 'Peer-Reviewed Translational Evidence Synthesis',
-        studyDesign: StudyDesignGrade.expertConsensus,
-        url: 'https://pubmed.ncbi.nlm.nih.gov/',
-        verificationStatus: EvidenceVerificationStatus.peerReviewedArchive,
-        isHumanTrial: true,
-      ),
-    ];
-
-    return EvidenceSearchResult(
-      matchedSources: defaultSources,
-      claims: [
-        ScientificClaim(
-          claimText: 'Targeted lifestyle and evidence-aligned nutrition optimize cellular metabolic pathways.',
-          supportStatus: ClaimSupportStatus.supported,
-          physiologicalMechanism: 'Supports homeostatic endocrine regulation and mitochondrial redox efficiency.',
-          supportingSources: defaultSources,
-        ),
-      ],
-      overallEvidenceTier: EvidenceTier.moderate,
-      primaryMechanism: 'Nutrient-sensing pathways (mTOR, AMPK, and Sirtuins) responsive to dietary timing and micronutrient density.',
+    // Return clean insufficient evidence result when no specific corpus matches query
+    return const EvidenceSearchResult(
+      matchedSources: [],
+      claims: [],
+      overallEvidenceTier: EvidenceTier.insufficient,
+      primaryMechanism: 'No matching peer-reviewed evidence found in local verified archive for this query.',
     );
   }
 }

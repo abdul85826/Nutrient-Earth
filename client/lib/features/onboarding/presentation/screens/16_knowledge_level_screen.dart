@@ -71,7 +71,7 @@ class KnowledgeLevelScreen extends ConsumerWidget {
         title: Column(
           children: [
             Text(
-              'STEP 8 OF 9 • SOIL PROFILE',
+              'STEP 13 OF 14 • SOIL PROFILE',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

@@ -94,7 +94,7 @@ class _DailyImpactScreenState extends ConsumerState<DailyImpactScreen> {
         title: Column(
           children: [
             Text(
-              'STEP 3 OF 5',
+              'STEP 3 OF 14',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

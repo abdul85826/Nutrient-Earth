@@ -89,7 +89,7 @@ class _FoodChoicesScreenState extends ConsumerState<FoodChoicesScreen> {
         title: Column(
           children: [
             Text(
-              'STEP 4 OF 5',
+              'STEP 4 OF 14',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,
@@ -163,10 +163,13 @@ class _FoodChoicesScreenState extends ConsumerState<FoodChoicesScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'How do you usually eat?',
-                              style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                            Expanded(
+                              child: Text(
+                                'How do you usually eat?',
+                                style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               'SINGLE CHOICE',
                               style: GoogleFonts.jetBrainsMono(fontSize: 9.5, fontWeight: FontWeight.w600, color: NETokens.botanicalTeal),
@@ -306,10 +309,13 @@ class _FoodChoicesScreenState extends ConsumerState<FoodChoicesScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Do any foods cause discomfort?',
-                              style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                            Expanded(
+                              child: Text(
+                                'Do any foods cause discomfort?',
+                                style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               'MULTI-SELECT',
                               style: GoogleFonts.jetBrainsMono(fontSize: 9.5, fontWeight: FontWeight.w600, color: NETokens.botanicalTeal),

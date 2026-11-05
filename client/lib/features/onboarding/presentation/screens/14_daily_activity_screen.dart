@@ -81,7 +81,7 @@ class DailyActivityScreen extends ConsumerWidget {
         title: Column(
           children: [
             Text(
-              'STEP 6 OF 9 • SOIL PROFILE',
+              'STEP 11 OF 14 • SOIL PROFILE',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,
@@ -208,14 +208,17 @@ class DailyActivityScreen extends ConsumerWidget {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(
-                                                item['title']!,
-                                                style: GoogleFonts.manrope(
-                                                  fontSize: 15,
-                                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                                                  color: NETokens.primary,
+                                                Expanded(
+                                                  child: Text(
+                                                    item['title']!,
+                                                    style: GoogleFonts.manrope(
+                                                      fontSize: 15,
+                                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                                                      color: NETokens.primary,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                                const SizedBox(width: 8),
                                               Container(
                                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                                 decoration: BoxDecoration(

@@ -173,24 +173,30 @@ class HealthSyncCard extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final isNarrow = constraints.maxWidth < 360;
-              final stepsVal = syncState.todayMetrics[HealthDataType.steps] ?? syncState.latestMetrics[HealthDataType.steps];
-              final stepsCount = syncState.todayCounts[HealthDataType.steps] ?? syncState.categoryRecordCounts[HealthDataType.steps] ?? 0;
+              final stepsVal = syncState.todayMetrics[HealthDataType.steps];
+              final stepsCount = syncState.todayCounts[HealthDataType.steps] ?? 0;
               final stepsSource = syncState.metricSources[HealthDataType.steps] ?? 'Sensor';
+              final steps7d = syncState.latestMetrics[HealthDataType.steps];
+              final stepsSub = steps7d != null && steps7d > 0 ? '7d: ${_formatSteps(steps7d)}' : null;
 
-              final distVal = syncState.todayMetrics[HealthDataType.distance] ?? syncState.latestMetrics[HealthDataType.distance];
-              final distCount = syncState.todayCounts[HealthDataType.distance] ?? syncState.categoryRecordCounts[HealthDataType.distance] ?? 0;
+              final distVal = syncState.todayMetrics[HealthDataType.distance];
+              final distCount = syncState.todayCounts[HealthDataType.distance] ?? 0;
               final distSource = syncState.metricSources[HealthDataType.distance] ?? 'Sensor (Est)';
+              final dist7d = syncState.latestMetrics[HealthDataType.distance];
+              final distSub = dist7d != null && dist7d > 0 ? '7d: ${_formatDistance(dist7d)}' : null;
 
-              final calVal = syncState.todayMetrics[HealthDataType.activeCalories] ?? syncState.latestMetrics[HealthDataType.activeCalories];
-              final calCount = syncState.todayCounts[HealthDataType.activeCalories] ?? syncState.categoryRecordCounts[HealthDataType.activeCalories] ?? 0;
+              final calVal = syncState.todayMetrics[HealthDataType.activeCalories];
+              final calCount = syncState.todayCounts[HealthDataType.activeCalories] ?? 0;
               final calSource = syncState.metricSources[HealthDataType.activeCalories] ?? 'Energy Burn';
+              final cal7d = syncState.latestMetrics[HealthDataType.activeCalories];
+              final calSub = cal7d != null && cal7d > 0 ? '7d: ${_formatCalories(cal7d)}' : null;
 
-              final hrVal = syncState.todayMetrics[HealthDataType.heartRate] ?? syncState.latestMetrics[HealthDataType.heartRate];
-              final hrCount = syncState.todayCounts[HealthDataType.heartRate] ?? syncState.categoryRecordCounts[HealthDataType.heartRate] ?? 0;
+              final hrVal = syncState.todayMetrics[HealthDataType.heartRate];
+              final hrCount = syncState.todayCounts[HealthDataType.heartRate] ?? 0;
               final hrSource = hrCount > 0 ? (syncState.metricSources[HealthDataType.heartRate] ?? 'Vitals') : 'No monitor';
 
-              final sleepVal = syncState.todayMetrics[HealthDataType.sleep] ?? syncState.latestMetrics[HealthDataType.sleep];
-              final sleepCount = syncState.todayCounts[HealthDataType.sleep] ?? syncState.categoryRecordCounts[HealthDataType.sleep] ?? 0;
+              final sleepVal = syncState.todayMetrics[HealthDataType.sleep];
+              final sleepCount = syncState.todayCounts[HealthDataType.sleep] ?? 0;
               final sleepSource = sleepCount > 0 ? (syncState.metricSources[HealthDataType.sleep] ?? 'Sleep log') : 'No tracker';
 
               if (isNarrow) {
@@ -204,6 +210,7 @@ class HealthSyncCard extends ConsumerWidget {
                           valueText: _formatSteps(stepsVal),
                           recordCount: stepsCount,
                           source: stepsSource,
+                          cumulativeSubtitle: stepsSub,
                         ),
                         const SizedBox(width: NETokens.space8),
                         _buildNumericalMetricCard(
@@ -212,6 +219,7 @@ class HealthSyncCard extends ConsumerWidget {
                           valueText: _formatDistance(distVal),
                           recordCount: distCount,
                           source: distSource,
+                          cumulativeSubtitle: distSub,
                         ),
                       ],
                     ),
@@ -224,6 +232,7 @@ class HealthSyncCard extends ConsumerWidget {
                           valueText: _formatCalories(calVal),
                           recordCount: calCount,
                           source: calSource,
+                          cumulativeSubtitle: calSub,
                         ),
                         const SizedBox(width: NETokens.space8),
                         _buildNumericalMetricCard(
@@ -263,6 +272,7 @@ class HealthSyncCard extends ConsumerWidget {
                         valueText: _formatSteps(stepsVal),
                         recordCount: stepsCount,
                         source: stepsSource,
+                        cumulativeSubtitle: stepsSub,
                       ),
                       const SizedBox(width: NETokens.space8),
                       _buildNumericalMetricCard(
@@ -271,6 +281,7 @@ class HealthSyncCard extends ConsumerWidget {
                         valueText: _formatDistance(distVal),
                         recordCount: distCount,
                         source: distSource,
+                        cumulativeSubtitle: distSub,
                       ),
                     ],
                   ),
@@ -283,6 +294,7 @@ class HealthSyncCard extends ConsumerWidget {
                         valueText: _formatCalories(calVal),
                         recordCount: calCount,
                         source: calSource,
+                        cumulativeSubtitle: calSub,
                       ),
                       const SizedBox(width: NETokens.space8),
                       _buildNumericalMetricCard(
@@ -430,6 +442,7 @@ class HealthSyncCard extends ConsumerWidget {
     required String valueText,
     required int recordCount,
     required String source,
+    String? cumulativeSubtitle,
   }) {
     final hasData = recordCount > 0;
 
@@ -480,6 +493,19 @@ class HealthSyncCard extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+            if (cumulativeSubtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                cumulativeSubtitle,
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w500,
+                  color: NETokens.onSurfaceVariant,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -518,18 +544,18 @@ class HealthSyncCard extends ConsumerWidget {
   }
 
   String _formatSteps(double? value) {
-    if (value == null) return 'No records';
+    if (value == null) return '0';
     return NumberFormat('#,###').format(value.toInt());
   }
 
   String _formatDistance(double? value) {
-    if (value == null) return 'No records';
+    if (value == null || value == 0.0) return '0.00 km';
     final km = value / 1000.0;
     return '${km.toStringAsFixed(2)} km';
   }
 
   String _formatCalories(double? value) {
-    if (value == null) return 'No records';
+    if (value == null || value == 0.0) return '0 kcal';
     return '${value.toStringAsFixed(0)} kcal';
   }
 

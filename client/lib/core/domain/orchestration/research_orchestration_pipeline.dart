@@ -73,18 +73,7 @@ class DeterministicArchiveEvidenceAdapter implements EvidenceRetrievalAdapter {
       ];
     }
 
-    return const [
-      ScientificSource(
-        title: 'Translational Nutritional Science and Evidence-Based Interventions',
-        authorsOrJournal: 'Nutritional Research Reviews',
-        year: '2025',
-        evidenceGrade: 'Evidence Synthesis',
-        studyDesign: StudyDesignGrade.observational,
-        url: 'https://pubmed.ncbi.nlm.nih.gov/',
-        verificationStatus: EvidenceVerificationStatus.peerReviewedArchive,
-        isHumanTrial: true,
-      ),
-    ];
+    return const [];
   }
 }
 
@@ -450,33 +439,40 @@ class ResearchOrchestrationPipeline {
       );
     }
 
+    final hasDirectSources = sources.isNotEmpty;
+
     return StructuredResearchAnswer(
       contractVersion: '2026.1',
       query: query,
-      referenceId: 'REF-2026-GEN',
-      domainCategory: 'Translational Nutritional Science',
-      quickAnswer:
-          'Personalized lifestyle interventions combining circadian light exposure, dietary nutrient density, and structured recovery yield measurable physiological adaptation.',
-      detailedExplanation:
-          'Evidence-based research indicates that personalized lifestyle interventions combining circadian light exposure, dietary nutrient density, and structured recovery yield measurable improvements across metabolic and cognitive biomarkers.',
-      effectivenessAssessment: EffectivenessAssessment.moderatelySupported,
-      evidenceBadge: 'SYSTEMATIC REVIEW • PEER REVIEWED',
+      referenceId: 'REF-${DateTime.now().millisecondsSinceEpoch}',
+      domainCategory: hasDirectSources ? 'Nutritional Physiology' : 'General Health & Lifestyle',
+      quickAnswer: hasDirectSources
+          ? 'Personalized lifestyle interventions combining circadian light exposure, dietary nutrient density, and structured recovery yield measurable physiological adaptation.'
+          : 'No directly matching peer-reviewed trials were found in the local evidence archive for this specific query.',
+      detailedExplanation: hasDirectSources
+          ? 'Evidence-based research indicates that personalized lifestyle interventions combining circadian light exposure, dietary nutrient density, and structured recovery yield measurable improvements across metabolic and cognitive biomarkers.'
+          : 'Nutrient Earth requires verified peer-reviewed citations before issuing evidence-rated scientific claims. Please consult a qualified clinician or sports dietitian for personalized evaluation.',
+      effectivenessAssessment: hasDirectSources ? EffectivenessAssessment.moderatelySupported : EffectivenessAssessment.inconclusive,
+      evidenceBadge: hasDirectSources ? 'SYSTEMATIC REVIEW • PEER REVIEWED' : 'INSUFFICIENT LOCAL EVIDENCE',
       sources: sources,
       claims: claims,
-      healthBenefits: const [
-        HealthBenefit(
-          benefitSummary: 'Circadian Metabolic Synchronization',
-          physiologicalMechanism: 'Aligns nutrient delivery with diurnal insulin sensitivity rhythms.',
-          evidenceStrength: 'Observational & Interventional Cohorts',
-        ),
-      ],
+      healthBenefits: hasDirectSources
+          ? const [
+              HealthBenefit(
+                benefitSummary: 'Circadian Metabolic Synchronization',
+                physiologicalMechanism: 'Aligns nutrient delivery with diurnal insulin sensitivity rhythms.',
+                evidenceStrength: 'Observational & Interventional Cohorts',
+              ),
+            ]
+          : const [],
       practicalRecommendations: const [
         'Establish consistent diurnal timing for meals and hydration.',
-        'Incorporate diverse whole-food polyphenols daily.',
-        'Review progress after 21 days of continuous habit tracking.',
+        'Prioritize whole food nutrient density, adequate dietary protein, and restorative sleep.',
+        'Consult a certified nutritionist or medical professional for tailored guidance.',
       ],
-      studyLimitations:
-          'Observational correlations require longitudinal randomized controlled verification across distinct metabolic cohorts.',
+      studyLimitations: hasDirectSources
+          ? 'Observational correlations require longitudinal randomized controlled verification across distinct metabolic cohorts.'
+          : 'No verified citations matched this query in the local archive.',
       safetyInformation: safetyInfo,
       goalAlignment: goalAssessment,
       nutritionAnalysis: nutritionProfile,

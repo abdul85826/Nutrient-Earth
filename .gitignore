@@ -104,3 +104,6 @@ node_modules
 .gemini/
 supabase/.temp/
 supabase/.branches/
+*.apk
+*.patch
+.tmp/

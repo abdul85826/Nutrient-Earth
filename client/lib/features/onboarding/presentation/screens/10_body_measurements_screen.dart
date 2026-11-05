@@ -114,7 +114,7 @@ class _BodyMeasurementsScreenState extends ConsumerState<BodyMeasurementsScreen>
         title: Column(
           children: [
             Text(
-              'STEP 2 OF 9 • SOIL PROFILE',
+              'STEP 7 OF 14 • SOIL PROFILE',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

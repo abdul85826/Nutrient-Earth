@@ -37,7 +37,7 @@ class ReviewPhase1Screen extends ConsumerWidget {
         title: Column(
           children: [
             Text(
-              'STEP 5 OF 5 • REVIEW',
+              'STEP 5 OF 14 • REVIEW',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,
@@ -73,22 +73,25 @@ class ReviewPhase1Screen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: NETokens.surfaceContainer,
-                                borderRadius: BorderRadius.circular(NETokens.radiusFull),
-                              ),
-                              child: Text(
-                                'STAGE 08 • PROFILE VERIFICATION',
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: NETokens.darkEvergreen,
-                                  letterSpacing: 1.0,
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: NETokens.surfaceContainer,
+                                  borderRadius: BorderRadius.circular(NETokens.radiusFull),
+                                ),
+                                child: Text(
+                                  'STAGE 08 • PROFILE VERIFICATION',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: NETokens.darkEvergreen,
+                                    letterSpacing: 1.0,
+                                  ),
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               'Phase 1 · 100%',
                               style: GoogleFonts.jetBrainsMono(
@@ -309,10 +312,14 @@ class ReviewPhase1Screen extends ConsumerWidget {
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            'Continue to Personal Details',
-                            style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700),
+                          Flexible(
+                            child: Text(
+                              'Continue to Personal Details',
+                              style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           const Icon(Icons.arrow_forward_rounded, size: 18),
@@ -350,16 +357,21 @@ class ReviewPhase1Screen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(icon, size: 18, color: NETokens.botanicalTeal),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(icon, size: 18, color: NETokens.botanicalTeal),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.manrope(fontSize: 15, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               InkWell(
                 onTap: onEdit,
                 borderRadius: BorderRadius.circular(12),

@@ -76,7 +76,7 @@ class EatingRoutineScreen extends ConsumerWidget {
         title: Column(
           children: [
             Text(
-              'STEP 5 OF 9 • SOIL PROFILE',
+              'STEP 10 OF 14 • SOIL PROFILE',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

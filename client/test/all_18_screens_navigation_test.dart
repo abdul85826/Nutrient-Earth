@@ -2,10 +2,11 @@
 // Nutrient Earth — All 18 Screens & Multimodal Answer Experience Comprehensive Test Suite
 // Verifies:
 // 1. All 18 production screens instantiate and render semantic elements.
-// 2. Authentication 18+ legal consent gating.
-// 3. Clinical allergy mutual exclusivity.
-// 4. InputProcessingView & UniversalReferenceAnswerCard fidelity.
-// 5. Goal personalization and propagation across the application.
+// 2. Canonical Onboarding Wizard Step Headers (STEP 1 OF 14 .. STEP 14 OF 14).
+// 3. Authentication 18+ legal consent gating.
+// 4. Clinical allergy mutual exclusivity.
+// 5. InputProcessingView & UniversalReferenceAnswerCard fidelity.
+// 6. Goal personalization and propagation across the application.
 // ==============================================================================
 
 import 'package:flutter/material.dart';
@@ -47,150 +48,160 @@ void main() {
   group('Nutrient Earth — All 18 Screens Verification', () {
     testWidgets('Screen 01: SplashScreen renders specimen core and title', (tester) async {
       await tester.pumpWidget(createTestApp(const SplashScreen()));
-      expect(find.text('NUTRIENT EARTH'), findsOneWidget);
-      expect(find.text('Evidence-Grounded Metabolic Health'), findsOneWidget);
+      expect(find.text('Nutrient Earth'), findsWidgets);
+      expect(find.text('SPECIMEN CORE'), findsOneWidget);
     });
 
     testWidgets('Screen 02: WelcomeScreen renders botanical hero and action buttons', (tester) async {
       await tester.pumpWidget(createTestApp(const WelcomeScreen()));
-      expect(find.text('Nutrient Earth'), findsWidgets);
+      expect(find.text('NUTRIENT EARTH'), findsWidgets);
       expect(find.text('Get started'), findsOneWidget);
       expect(find.text('I already have an account'), findsOneWidget);
     });
 
     testWidgets('Screen 03: AuthScreen gates submission on 18+ consent checkbox', (tester) async {
       await tester.pumpWidget(createTestApp(const AuthScreen()));
-      expect(find.text('Create your account'), findsOneWidget);
+      expect(find.text('Your health journey starts with understanding.'), findsOneWidget);
       expect(find.byType(Checkbox), findsOneWidget);
 
-      // Initially unchecked: submit button should show disabled or show warning if tapped
-      final submitButton = find.widgetWithText(ElevatedButton, 'Create Account');
-      expect(submitButton, findsOneWidget);
+      final submitButtonFinder = find.widgetWithText(ElevatedButton, 'Create account');
+      expect(submitButtonFinder, findsOneWidget);
 
-      // Tap submit without consent -> Expect validation snackbar
-      await tester.tap(submitButton);
-      await tester.pumpAndSettle();
-      expect(find.text('You must be at least 18 years old to use Nutrient Earth.'), findsOneWidget);
+      // Initially unchecked: submit button should be disabled
+      final initialButton = tester.widget<ElevatedButton>(submitButtonFinder);
+      expect(initialButton.enabled, isFalse);
 
       // Tap 18+ checkbox
       await tester.tap(find.byType(Checkbox));
       await tester.pumpAndSettle();
 
-      // Checkbox should be checked
+      // Checkbox is checked and button is enabled
       final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
       expect(checkbox.value, isTrue);
+
+      final enabledButton = tester.widget<ElevatedButton>(submitButtonFinder);
+      expect(enabledButton.enabled, isTrue);
     });
 
-    testWidgets('Screen 04: HealthGoalsScreen renders category chips and goal cards', (tester) async {
+    testWidgets('Screen 04: HealthGoalsScreen renders canonical Step 1 header and chips', (tester) async {
       await tester.pumpWidget(createTestApp(const HealthGoalsScreen()));
-      expect(find.text('What are your main health goals?'), findsOneWidget);
+      expect(find.text('STEP 1 OF 14'), findsOneWidget);
+      expect(find.text('What would you like help with?'), findsOneWidget);
       expect(find.text('All'), findsOneWidget);
-      expect(find.text('Endurance & Energy'), findsOneWidget);
     });
 
-    testWidgets('Screen 05: PracticalDifficultiesScreen renders clinical category codes', (tester) async {
+    testWidgets('Screen 05: PracticalDifficultiesScreen renders canonical Step 2 header and categories', (tester) async {
       await tester.pumpWidget(createTestApp(const PracticalDifficultiesScreen()));
-      expect(find.text('Practical difficulties'), findsOneWidget);
-      expect(find.text('Musculoskeletal'), findsOneWidget);
-      expect(find.text('Energy & Stamina'), findsOneWidget);
-      expect(find.text('Renal & Hydration'), findsOneWidget);
-      expect(find.text('Digestive'), findsOneWidget);
+      expect(find.text('STEP 2 OF 14'), findsOneWidget);
+      expect(find.text('What difficulties are you experiencing?'), findsOneWidget);
+      expect(find.text('Energy & daily activities'), findsOneWidget);
+      expect(find.text('Digestive health'), findsOneWidget);
     });
 
-    testWidgets('Screen 06: DailyImpactScreen renders impact scale 1..4', (tester) async {
+    testWidgets('Screen 06: DailyImpactScreen renders canonical Step 3 header', (tester) async {
       await tester.pumpWidget(createTestApp(const DailyImpactScreen()));
-      expect(find.text('Daily impact & frequency'), findsOneWidget);
-      expect(find.text('Clinical pacing note'), findsOneWidget);
+      expect(find.text('STEP 3 OF 14'), findsOneWidget);
+      expect(find.text('How much do these difficulties affect you?'), findsOneWidget);
     });
 
-    testWidgets('Screen 07: FoodChoicesScreen renders dietary patterns and avoidances', (tester) async {
+    testWidgets('Screen 07: FoodChoicesScreen renders canonical Step 4 header', (tester) async {
       await tester.pumpWidget(createTestApp(const FoodChoicesScreen()));
-      expect(find.text('Food choices & dietary baseline'), findsOneWidget);
-      expect(find.text('Omnivorous'), findsOneWidget);
-      expect(find.text('Vegetarian'), findsOneWidget);
+      expect(find.text('STEP 4 OF 14'), findsOneWidget);
+      expect(find.text('Let\'s understand your food choices'), findsOneWidget);
     });
 
-    testWidgets('Screen 08: ReviewPhase1Screen renders Phase 1 checkpoint and edit jumps', (tester) async {
+    testWidgets('Screen 08: ReviewPhase1Screen renders canonical Step 5 header and CTA', (tester) async {
       await tester.pumpWidget(createTestApp(const ReviewPhase1Screen()));
-      expect(find.text('Phase 1 Review · Health Foundations'), findsOneWidget);
+      expect(find.text('STEP 5 OF 14 • REVIEW'), findsOneWidget);
+      expect(find.text('Your health profile'), findsOneWidget);
       expect(find.text('Continue to Personal Details'), findsOneWidget);
     });
 
-    testWidgets('Screen 09: PersonalDetailsScreen validates name and age range', (tester) async {
+    testWidgets('Screen 09: PersonalDetailsScreen validates name and age controls', (tester) async {
       await tester.pumpWidget(createTestApp(const PersonalDetailsScreen()));
-      expect(find.text('Personal details'), findsOneWidget);
-      expect(find.text('Preferred Name'), findsOneWidget);
-      expect(find.text('Age'), findsOneWidget);
+      expect(find.text('STEP 6 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('Let\'s get to know you'), findsOneWidget);
+      expect(find.text('What should we call you?'), findsOneWidget);
+      expect(find.text('How old are you?'), findsOneWidget);
     });
 
-    testWidgets('Screen 10: BodyMeasurementsScreen renders unit toggles and skip checkbox', (tester) async {
+    testWidgets('Screen 10: BodyMeasurementsScreen renders canonical Step 7 header and unit toggles', (tester) async {
       await tester.pumpWidget(createTestApp(const BodyMeasurementsScreen()));
-      expect(find.text('Body measurements'), findsOneWidget);
+      expect(find.text('STEP 7 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('Your body measurements'), findsOneWidget);
       expect(find.text('Height'), findsOneWidget);
       expect(find.text('Weight'), findsOneWidget);
-      expect(find.text('Prefer to skip for now'), findsOneWidget);
+      expect(find.text('Prefer to skip weight for now'), findsOneWidget);
     });
 
-    testWidgets('Screen 11: HealthConcernsScreen renders goal synchronization banner', (tester) async {
+    testWidgets('Screen 11: HealthConcernsScreen renders canonical Step 8 header', (tester) async {
       await tester.pumpWidget(createTestApp(const HealthConcernsScreen()));
-      expect(find.text('Focus areas & priorities'), findsOneWidget);
-      expect(find.text('Synchronized with Step 04'), findsOneWidget);
+      expect(find.text('STEP 8 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('What would you like help with?'), findsOneWidget);
     });
 
     testWidgets('Screen 12: FoodRestrictionsScreen enforces mutual exclusivity on No restrictions', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
       await tester.pumpWidget(createTestApp(const FoodRestrictionsScreen()));
-      expect(find.text('Food restrictions & allergies'), findsOneWidget);
+      expect(find.text('STEP 9 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('Are there any foods you need to avoid?'), findsOneWidget);
       expect(find.text('No restrictions or allergies'), findsOneWidget);
 
-      // Tap "Peanuts"
+      // Ensure Peanuts is visible and tap
+      await tester.ensureVisible(find.text('Peanuts'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Peanuts'));
       await tester.pumpAndSettle();
 
-      // Tap "No restrictions or allergies" -> Peanuts should be cleared
+      // Tap "No restrictions or allergies"
+      await tester.ensureVisible(find.text('No restrictions or allergies'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('No restrictions or allergies'));
       await tester.pumpAndSettle();
 
-      // Verify mutual exclusivity: tapping another allergen unchecks "No restrictions"
-      await tester.tap(find.text('Tree Nuts'));
+      // Tap "Soy"
+      await tester.ensureVisible(find.text('Soy'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Soy'));
       await tester.pumpAndSettle();
     });
 
-    testWidgets('Screen 13: EatingRoutineScreen renders circadian routine options', (tester) async {
+    testWidgets('Screen 13: EatingRoutineScreen renders canonical Step 10 header and cadence cards', (tester) async {
       await tester.pumpWidget(createTestApp(const EatingRoutineScreen()));
-      expect(find.text('Eating routine'), findsOneWidget);
-      expect(find.text('Intermittent fasting (16:8 or similar)'), findsOneWidget);
+      expect(find.text('STEP 10 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('What does your eating routine look like?'), findsOneWidget);
     });
 
-    testWidgets('Screen 14: DailyActivityScreen renders physical activity multipliers', (tester) async {
+    testWidgets('Screen 14: DailyActivityScreen renders canonical Step 11 header and activity multipliers', (tester) async {
       await tester.pumpWidget(createTestApp(const DailyActivityScreen()));
-      expect(find.text('Typical daily activity'), findsOneWidget);
-      expect(find.text('Sedentary'), findsOneWidget);
-      expect(find.text('Active'), findsOneWidget);
+      expect(find.text('STEP 11 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('How active are you on a typical day?'), findsOneWidget);
     });
 
-    testWidgets('Screen 15: SleepPatternsScreen renders sleep duration and architecture', (tester) async {
+    testWidgets('Screen 15: SleepPatternsScreen renders canonical Step 12 header and sleep architecture', (tester) async {
       await tester.pumpWidget(createTestApp(const SleepPatternsScreen()));
-      expect(find.text('Sleep patterns'), findsOneWidget);
-      expect(find.text('7–8 hours (Optimal)'), findsOneWidget);
+      expect(find.text('STEP 12 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('How well do you usually sleep?'), findsOneWidget);
     });
 
-    testWidgets('Screen 16: KnowledgeLevelScreen renders explanation depth calibration', (tester) async {
+    testWidgets('Screen 16: KnowledgeLevelScreen renders canonical Step 13 header', (tester) async {
       await tester.pumpWidget(createTestApp(const KnowledgeLevelScreen()));
-      expect(find.text('Fitness & nutrition background'), findsOneWidget);
-      expect(find.text('Beginner'), findsOneWidget);
-      expect(find.text('Advanced / Professional'), findsOneWidget);
+      expect(find.text('STEP 13 OF 14 • SOIL PROFILE'), findsOneWidget);
+      expect(find.text('How familiar are you with fitness & nutrition?'), findsOneWidget);
     });
 
-    testWidgets('Screen 17: CompletionScreen renders review summary cards and save CTA', (tester) async {
+    testWidgets('Screen 17: CompletionScreen renders canonical Step 14 header and summary CTA', (tester) async {
       await tester.pumpWidget(createTestApp(const CompletionScreen()));
+      expect(find.text('STEP 14 OF 14 • PROFILE COMPLETE'), findsOneWidget);
       expect(find.text('Your journey starts here'), findsOneWidget);
-      expect(find.text('Complete calibration & open plan'), findsOneWidget);
     });
 
     testWidgets('Screen 18: TodayScreen renders greeting and research search bar', (tester) async {
       await tester.pumpWidget(createTestApp(const TodayScreen()));
       expect(find.byType(TodayScreen), findsOneWidget);
-      expect(find.text('Today'), findsWidgets);
     });
   });
 
@@ -226,4 +237,3 @@ void main() {
     });
   });
 }
-

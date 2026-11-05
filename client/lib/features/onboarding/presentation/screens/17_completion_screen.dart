@@ -66,7 +66,7 @@ class CompletionScreen extends ConsumerWidget {
         title: Column(
           children: [
             Text(
-              'STEP 9 OF 9 • PROFILE COMPLETE',
+              'STEP 14 OF 14 • PROFILE COMPLETE',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

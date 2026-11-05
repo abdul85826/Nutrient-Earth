@@ -8,6 +8,7 @@ import '../domain/blockchain/evidence_integrity_service.dart';
 import '../domain/evidence/scientific_evidence_contract.dart';
 import '../domain/input_gateway/universal_input_descriptor.dart';
 import '../domain/nutrition/nutrition_models.dart';
+import '../domain/orchestration/chatbot_intent_router.dart';
 import '../domain/orchestration/research_orchestration_pipeline.dart';
 import '../domain/personalization/goal_alignment_evaluator.dart';
 import '../domain/personalization/goal_match_calculation_service.dart';
@@ -691,6 +692,17 @@ class ResearchPipelineService {
       case UserInputType.text:
       default:
         final cleanQuery = QuerySanitizer.sanitize(descriptor.rawPayload);
+
+        final intent = ChatbotIntentRouter.classifyIntent(cleanQuery, inputType: descriptor.inputType);
+        final nonResearchAnswer = ChatbotIntentRouter.handleNonResearchIntent(
+          intent: intent,
+          rawQuery: cleanQuery,
+          userProfile: userProfile,
+        );
+        if (nonResearchAnswer != null) {
+          return nonResearchAnswer;
+        }
+
         final isPersonal = SensitiveDataRoutingGuard.containsPersonalHealthSignals(cleanQuery);
 
         final pipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
@@ -746,6 +758,16 @@ class ResearchPipelineService {
     EvidenceIntegrityService? integrityService,
   }) async {
     final cleanQuery = QuerySanitizer.sanitize(query);
+
+    final intent = ChatbotIntentRouter.classifyIntent(cleanQuery);
+    final nonResearchAnswer = ChatbotIntentRouter.handleNonResearchIntent(
+      intent: intent,
+      rawQuery: cleanQuery,
+      userProfile: userProfile,
+    );
+    if (nonResearchAnswer != null) {
+      return ResearchAnswer.fromUniversalAnswer(nonResearchAnswer);
+    }
 
     // Strict Data Privacy Guardrail: Multimodal inputs (meal / lab photos / audio recordings)
     // or personal health signals must NEVER be routed to unauthenticated public endpoints.

@@ -71,7 +71,7 @@ class SleepPatternsScreen extends ConsumerWidget {
         title: Column(
           children: [
             Text(
-              'STEP 7 OF 9 • SOIL PROFILE',
+              'STEP 12 OF 14 • SOIL PROFILE',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,

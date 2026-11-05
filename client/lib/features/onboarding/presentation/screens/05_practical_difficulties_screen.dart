@@ -105,7 +105,7 @@ class _PracticalDifficultiesScreenState extends ConsumerState<PracticalDifficult
         title: Column(
           children: [
             Text(
-              'STEP 2 OF 5',
+              'STEP 2 OF 14',
               style: GoogleFonts.jetBrainsMono(
                 fontSize: 10.5,
                 fontWeight: FontWeight.w700,
@@ -332,10 +332,13 @@ class _PracticalDifficultiesScreenState extends ConsumerState<PracticalDifficult
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    'Anything else you\'d like to tell us?',
-                                    style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                                  Expanded(
+                                    child: Text(
+                                      'Anything else you\'d like to tell us?',
+                                      style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w700, color: NETokens.darkEvergreen),
+                                    ),
                                   ),
+                                  const SizedBox(width: 8),
                                   Text('Optional', style: GoogleFonts.jetBrainsMono(fontSize: 10, color: NETokens.textMuted)),
                                 ],
                               ),

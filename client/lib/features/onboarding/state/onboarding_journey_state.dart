@@ -48,26 +48,26 @@ class OnboardingJourneyState {
   final String? saveError;
 
   const OnboardingJourneyState({
-    this.healthGoals = const {'Energy & Vitality Optimization', 'Digestive & Gut Sensitivity'},
-    this.difficulties = const {'MSK-02', 'NRG-04'},
+    this.healthGoals = const {},
+    this.difficulties = const {},
     this.difficultiesNote = '',
-    this.dailyImpacts = const {'MSK-02': 3, 'NRG-04': 4},
+    this.dailyImpacts = const {},
     this.impactFluctuates = false,
-    this.dietaryPattern = 'vegetarian',
+    this.dietaryPattern = 'omnivore',
     this.customDietaryPattern = '',
-    this.foodIntolerances = const {'Lactose intolerance'},
-    this.foodsToAvoid = const {'Added sugars & Syrups', 'Highly refined seed oils'},
+    this.foodIntolerances = const {},
+    this.foodsToAvoid = const {},
     this.phase1Reviewed = false,
-    this.firstName = 'Explorer',
-    this.age = 28,
-    this.heightCm = 175.0,
-    this.weightKg = 70.0,
+    this.firstName = '',
+    this.age = 25,
+    this.heightCm = 170.0,
+    this.weightKg = 65.0,
     this.heightUnit = 'ft',
     this.weightUnit = 'lb',
     this.weightSkipped = false,
-    this.prioritizedConcerns = const {'Energy & Vitality Optimization'},
+    this.prioritizedConcerns = const {},
     this.strictlyNoRestrictions = false,
-    this.allergens = const {'Peanuts'},
+    this.allergens = const {},
     this.customAllergen = '',
     this.eatingRoutine = 'regular',
     this.activityLevel = 'moderate',
@@ -306,9 +306,11 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     try {
       final userId = auth.currentUser?.id ?? 'usr_${DateTime.now().millisecondsSinceEpoch}';
       final name = state.firstName.trim().isNotEmpty ? state.firstName.trim() : 'Explorer';
-      final primaryGoalsList = state.prioritizedConcerns.isNotEmpty
-          ? state.prioritizedConcerns.toList()
-          : (state.healthGoals.isNotEmpty ? state.healthGoals.toList() : ['Endurance & Energy']);
+      final primaryGoalsList = state.healthGoals.isNotEmpty
+          ? state.healthGoals.toList()
+          : (state.prioritizedConcerns.isNotEmpty
+              ? state.prioritizedConcerns.toList()
+              : ['Energy & Vitality Optimization']);
 
       final knownConditionsList = <String>[
         ...state.difficulties.map((d) => 'Difficulty: $d'),
@@ -331,6 +333,14 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
         knownConditions: knownConditionsList,
         activeSupplements: const [],
         allergies: state.allergens.toList(),
+        heightCm: state.heightCm,
+        weightKg: state.weightSkipped ? null : state.weightKg,
+        eatingRoutine: state.eatingRoutine,
+        sleepQuality: state.sleepQuality,
+        knowledgeLevel: state.knowledgeLevel,
+        difficulties: state.difficulties.toList(),
+        dailyImpacts: state.dailyImpacts,
+        onboardingCompleted: true,
       );
 
       // Save profile to Supabase
