@@ -149,6 +149,51 @@ class HealthIntegrationService {
       );
     }
 
+    // 5. Aggregate category metrics and record counts
+    final categoryMetrics = <HealthDataType, double>{};
+    final categoryCounts = <HealthDataType, int>{};
+    final freshnessMap = <HealthDataType, DataFreshnessStatus>{};
+
+    for (final type in types) {
+      final recordsForType = rawRecords.where((r) => r.type == type).toList();
+      if (recordsForType.isEmpty) {
+        freshnessMap[type] = DataFreshnessStatus.unavailable;
+      } else {
+        DateTime? latest;
+        for (final r in recordsForType) {
+          if (latest == null || r.recordedAt.isAfter(latest)) {
+            latest = r.recordedAt;
+          }
+        }
+        freshnessMap[type] = DataFreshnessStatus.compute(latest);
+      }
+    }
+
+    for (final r in rawRecords) {
+      categoryCounts[r.type] = (categoryCounts[r.type] ?? 0) + 1;
+      switch (r.type) {
+        case HealthDataType.steps:
+        case HealthDataType.distance:
+        case HealthDataType.activeCalories:
+        case HealthDataType.sleep:
+        case HealthDataType.workout:
+        case HealthDataType.water:
+          categoryMetrics[r.type] = (categoryMetrics[r.type] ?? 0.0) + r.value;
+          break;
+        case HealthDataType.heartRate:
+        case HealthDataType.restingHeartRate:
+        case HealthDataType.weight:
+        case HealthDataType.height:
+        case HealthDataType.bloodOxygen:
+        case HealthDataType.bodyTemperature:
+          // Keep the latest recorded measurement
+          categoryMetrics[r.type] = r.value;
+          break;
+      }
+    }
+
+    final isAuthenticated = _supabaseClient?.auth.currentUser != null;
+
     if (rawRecords.isEmpty) {
       await _updateSyncState(
         status: 'synced',
@@ -161,14 +206,18 @@ class HealthIntegrationService {
         totalSynced: 0,
         duplicatesSkipped: 0,
         syncedAt: now,
+        categoryMetrics: categoryMetrics,
+        categoryCounts: categoryCounts,
+        freshnessMap: freshnessMap,
+        isAuthenticated: isAuthenticated,
       );
     }
 
-    // 5. Query existing external record IDs and fingerprints for deduplication within the window
+    // 6. Query existing external record IDs and fingerprints for deduplication within the window
     final existingExternalIds = await _fetchExistingExternalIds(start);
     final existingFingerprints = await _fetchExistingFingerprints(start);
 
-    // 6. Deduplicate incoming batch
+    // 7. Deduplicate incoming batch
     final uniqueRecords = _deduplicator.deduplicateBatch(
       incoming: rawRecords,
       existingExternalIds: existingExternalIds,
@@ -177,7 +226,7 @@ class HealthIntegrationService {
 
     final duplicatesCount = rawRecords.length - uniqueRecords.length;
 
-    // 7. Persist to Supabase if client is available
+    // 8. Persist to Supabase if client is available
     int persistedCount = 0;
     if (_supabaseClient != null && uniqueRecords.isNotEmpty) {
       try {
@@ -199,7 +248,7 @@ class HealthIntegrationService {
       persistedCount = uniqueRecords.length;
     }
 
-    // 8. Update sync state cursor
+    // 9. Update sync state cursor
     await _updateSyncState(
       status: 'synced',
       totalSynced: persistedCount,
@@ -212,6 +261,10 @@ class HealthIntegrationService {
       totalSynced: persistedCount,
       duplicatesSkipped: duplicatesCount,
       syncedAt: now,
+      categoryMetrics: categoryMetrics,
+      categoryCounts: categoryCounts,
+      freshnessMap: freshnessMap,
+      isAuthenticated: isAuthenticated,
     );
   }
 

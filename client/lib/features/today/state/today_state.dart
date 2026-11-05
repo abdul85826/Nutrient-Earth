@@ -1,9 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/design_system/tokens/ne_tokens.dart';
+import '../../../core/domain/answer_contract/universal_intelligence_answer.dart';
+import '../../../core/domain/input_gateway/input_classification_gateway.dart';
+import '../../../core/domain/input_gateway/universal_input_descriptor.dart';
 import '../../../core/domain/personalization/user_profile_context.dart';
 import '../../../core/services/diurnal_service.dart';
 import '../../../core/services/profile_repository.dart';
+import '../../../core/services/task_repository.dart';
 import '../../../core/services/telemetry_service.dart';
 import '../../../core/services/research_pipeline_service.dart';
 
@@ -45,8 +49,10 @@ class TodayState {
   final List<DailyPlanTask> tasks;
   final bool isResearchLoading;
   final ResearchAnswer? activeAnswer;
+  final UniversalIntelligenceAnswer? universalAnswer;
   final String? researchError;
   final bool feedbackSubmitted;
+  final UserProfileContext? userProfile;
 
   const TodayState({
     required this.diurnal,
@@ -54,13 +60,18 @@ class TodayState {
     required this.tasks,
     this.isResearchLoading = false,
     this.activeAnswer,
+    this.universalAnswer,
     this.researchError,
     this.feedbackSubmitted = false,
+    this.userProfile,
   });
 
   int get completedTaskCount => tasks.where((t) => t.isCompleted).length;
   int get totalTaskCount => tasks.length;
-  String get counterLabel => '$completedTaskCount of $totalTaskCount completed';
+  String get counterLabel {
+    if (tasks.isEmpty) return '0 OF 0 COMPLETED';
+    return '$completedTaskCount OF $totalTaskCount COMPLETED';
+  }
 
   TodayState copyWith({
     DiurnalContext? diurnal,
@@ -68,8 +79,10 @@ class TodayState {
     List<DailyPlanTask>? tasks,
     bool? isResearchLoading,
     ResearchAnswer? activeAnswer,
+    UniversalIntelligenceAnswer? universalAnswer,
     String? researchError,
     bool? feedbackSubmitted,
+    UserProfileContext? userProfile,
   }) {
     return TodayState(
       diurnal: diurnal ?? this.diurnal,
@@ -77,77 +90,77 @@ class TodayState {
       tasks: tasks ?? this.tasks,
       isResearchLoading: isResearchLoading ?? this.isResearchLoading,
       activeAnswer: activeAnswer ?? this.activeAnswer,
+      universalAnswer: universalAnswer ?? this.universalAnswer,
       researchError: researchError,
       feedbackSubmitted: feedbackSubmitted ?? this.feedbackSubmitted,
+      userProfile: userProfile ?? this.userProfile,
     );
   }
 }
 
 class TodayNotifier extends StateNotifier<TodayState> {
   final ProfileRepository _profileRepository;
+  final TaskRepository _taskRepository;
 
-  TodayNotifier({ProfileRepository? profileRepository})
-      : _profileRepository = profileRepository ?? SupabaseProfileRepository(),
+  TodayNotifier({
+    ProfileRepository? profileRepository,
+    TaskRepository? taskRepository,
+  })  : _profileRepository = profileRepository ?? const SupabaseProfileRepository(),
+        _taskRepository = taskRepository ?? const SupabaseTaskRepository(),
         super(
           TodayState(
-            diurnal: DiurnalService.getContext(preferredName: 'Sarah'),
+            diurnal: DiurnalService.getContext(),
             telemetry: TelemetryData(
-              formattedTime: '1:15 PM',
+              formattedTime: '',
               solarCondition: 'Radiant',
-              aqi: 42,
-              aqiLabel: 'Good AQI',
-              aqiColor: NETokens.aqiGreen,
-              temperatureCelsius: 26.0,
-              weatherCondition: 'Partly cloudy',
-              streakDays: 3,
-              streakLabel: 'Keep going',
+              aqi: 0,
+              aqiLabel: 'Awaiting sync',
+              aqiColor: NETokens.onSurfaceVariant,
+              temperatureCelsius: 0.0,
+              weatherCondition: 'Ready to connect',
+              streakDays: 0,
+              streakLabel: 'Fresh start',
               observationTime: DateTime.now(),
             ),
-            tasks: const [
-              DailyPlanTask(
-                id: 'task-1',
-                title: 'Morning hydration + mineral electrolyte water',
-                note: 'Replenished fluid deficit upon waking',
-                timeString: '7:30 AM',
-                isCompleted: true,
-              ),
-              DailyPlanTask(
-                id: 'task-2',
-                title: '30-min brisk outdoor run in morning sunlight',
-                note: 'Circadian entrainment + cardiovascular base',
-                timeString: '8:45 AM',
-                isCompleted: true,
-              ),
-              DailyPlanTask(
-                id: 'task-3',
-                title: 'Post-run nutrient recovery meal',
-                note: 'Balanced 30g protein + complex carbohydrates',
-                timeString: '11:30 AM',
-                isCompleted: true,
-              ),
-              DailyPlanTask(
-                id: 'task-4',
-                title: 'Afternoon hydration check (500ml water or herbal tea)',
-                note: 'Sustains cognitive alertness through mid-day dip · 2:00 PM',
-                timeString: '2:00 PM',
-                isCompleted: false,
-                isUpNext: true,
-              ),
-              DailyPlanTask(
-                id: 'task-5',
-                title: 'Balanced fiber-rich dinner + magnesium-rich greens',
-                note: 'Supports overnight recovery and restorative sleep',
-                timeString: '7:00 PM',
-                isCompleted: false,
-              ),
-            ],
+            tasks: const [],
           ),
         ) {
-    refreshTelemetry();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    await loadUserProfile();
+    await refreshTelemetry();
+    await loadDailyTasks();
+  }
+
+  Future<void> loadDailyTasks() async {
+    try {
+      final tasks = await _taskRepository.getDailyTasks();
+      state = state.copyWith(tasks: tasks);
+    } catch (_) {
+      state = state.copyWith(tasks: const []);
+    }
+  }
+
+  Future<void> loadUserProfile() async {
+    try {
+      final profile = await _profileRepository.getCurrentUserProfile();
+      if (profile != null) {
+        final diurnal = DiurnalService.getContext(preferredName: profile.displayName);
+        state = state.copyWith(
+          userProfile: profile,
+          diurnal: diurnal,
+        );
+      }
+    } catch (_) {
+      // Graceful fallback to guest state
+    }
   }
 
   Future<void> refreshTelemetry() async {
-    final diurnal = DiurnalService.getContext(preferredName: 'Sarah');
+    final name = state.userProfile?.displayName;
+    final diurnal = DiurnalService.getContext(preferredName: name);
     final telemetry = await TelemetryService.getTelemetry(
       solarConditionOverride: diurnal.solarCondition,
     );
@@ -157,29 +170,35 @@ class TodayNotifier extends StateNotifier<TodayState> {
     );
   }
 
-  void toggleTask(int index) {
+  Future<void> toggleTask(int index) async {
     if (index < 0 || index >= state.tasks.length) return;
     final updatedList = List<DailyPlanTask>.from(state.tasks);
     final task = updatedList[index];
-    updatedList[index] = task.copyWith(isCompleted: !task.isCompleted);
+    final newStatus = !task.isCompleted;
+    updatedList[index] = task.copyWith(isCompleted: newStatus);
     state = state.copyWith(tasks: updatedList);
+
+    if (task.id.isNotEmpty) {
+      await _taskRepository.toggleTaskCompletion(task.id, newStatus);
+    }
   }
 
-  Future<void> submitResearch(
-    String query, {
-    String? imagePath,
+  Future<void> addTask(DailyPlanTask task) async {
+    final created = await _taskRepository.createTask(task);
+    final newTask = created ?? task;
+    state = state.copyWith(tasks: [...state.tasks, newTask]);
+  }
+
+  Future<void> submitUniversalInquiry(
+    UniversalInputDescriptor descriptor, {
     UserProfileContext? userProfile,
   }) async {
-    if (query.trim().isEmpty) return;
-
     state = state.copyWith(
       isResearchLoading: true,
       researchError: null,
     );
 
     try {
-      // Resolve authentic user profile: explicit caller profile, or fetch from ProfileRepository.
-      // If user is unauthenticated or has not configured a profile, remains null (zero mock hallucination).
       UserProfileContext? profile = userProfile;
       if (profile == null) {
         try {
@@ -189,14 +208,16 @@ class TodayNotifier extends StateNotifier<TodayState> {
         }
       }
 
-      final answer = await ResearchPipelineService.processInquiry(
-        query: query,
-        imagePath: imagePath,
+      final universal = await ResearchPipelineService.processUniversalInquiry(
+        descriptor: descriptor,
         userProfile: profile,
       );
+      final legacyAnswer = ResearchAnswer.fromUniversalAnswer(universal);
+
       state = state.copyWith(
         isResearchLoading: false,
-        activeAnswer: answer,
+        activeAnswer: legacyAnswer,
+        universalAnswer: universal,
         researchError: null,
       );
     } catch (e) {
@@ -207,8 +228,23 @@ class TodayNotifier extends StateNotifier<TodayState> {
     }
   }
 
+  Future<void> submitResearch(
+    String query, {
+    String? imagePath,
+    UserProfileContext? userProfile,
+  }) async {
+    if (query.trim().isEmpty) return;
+
+    final descriptor = InputClassificationGateway.classifyRawInput(
+      rawInput: query,
+      sourceType: InputSourceType.userText,
+    );
+
+    await submitUniversalInquiry(descriptor, userProfile: userProfile);
+  }
+
   void clearActiveAnswer() {
-    state = state.copyWith(activeAnswer: null);
+    state = state.copyWith(activeAnswer: null, universalAnswer: null);
   }
 
   void submitFeedback(String text) {
@@ -223,5 +259,6 @@ class TodayNotifier extends StateNotifier<TodayState> {
 
 final todayStateProvider = StateNotifierProvider<TodayNotifier, TodayState>((ref) {
   final profileRepo = ref.watch(profileRepositoryProvider);
-  return TodayNotifier(profileRepository: profileRepo);
+  final taskRepo = ref.watch(taskRepositoryProvider);
+  return TodayNotifier(profileRepository: profileRepo, taskRepository: taskRepo);
 });

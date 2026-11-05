@@ -9,38 +9,54 @@ class HealthSyncStateModel {
   final HealthSyncStatus status;
   final DateTime? lastSyncedAt;
   final int totalRecordsSynced;
+  final int totalRecordsRead;
   final String activePlatformName;
   final String? errorMessage;
   final Map<HealthDataType, double> latestMetrics;
+  final Map<HealthDataType, int> categoryRecordCounts;
+  final Map<HealthDataType, DataFreshnessStatus> freshnessMap;
   final bool isSupported;
+  final bool isAuthenticated;
 
   const HealthSyncStateModel({
     this.status = HealthSyncStatus.idle,
     this.lastSyncedAt,
     this.totalRecordsSynced = 0,
+    this.totalRecordsRead = 0,
     required this.activePlatformName,
     this.errorMessage,
     this.latestMetrics = const {},
+    this.categoryRecordCounts = const {},
+    this.freshnessMap = const {},
     this.isSupported = false,
+    this.isAuthenticated = false,
   });
 
   HealthSyncStateModel copyWith({
     HealthSyncStatus? status,
     DateTime? lastSyncedAt,
     int? totalRecordsSynced,
+    int? totalRecordsRead,
     String? activePlatformName,
     String? errorMessage,
     Map<HealthDataType, double>? latestMetrics,
+    Map<HealthDataType, int>? categoryRecordCounts,
+    Map<HealthDataType, DataFreshnessStatus>? freshnessMap,
     bool? isSupported,
+    bool? isAuthenticated,
   }) {
     return HealthSyncStateModel(
       status: status ?? this.status,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       totalRecordsSynced: totalRecordsSynced ?? this.totalRecordsSynced,
+      totalRecordsRead: totalRecordsRead ?? this.totalRecordsRead,
       activePlatformName: activePlatformName ?? this.activePlatformName,
       errorMessage: errorMessage ?? this.errorMessage,
       latestMetrics: latestMetrics ?? this.latestMetrics,
+      categoryRecordCounts: categoryRecordCounts ?? this.categoryRecordCounts,
+      freshnessMap: freshnessMap ?? this.freshnessMap,
       isSupported: isSupported ?? this.isSupported,
+      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
     );
   }
 }
@@ -72,6 +88,11 @@ class HealthSyncNotifier extends StateNotifier<HealthSyncStateModel> {
           status: HealthSyncStatus.synced,
           lastSyncedAt: result.syncedAt,
           totalRecordsSynced: state.totalRecordsSynced + result.totalSynced,
+          totalRecordsRead: result.totalRead,
+          latestMetrics: result.categoryMetrics,
+          categoryRecordCounts: result.categoryCounts,
+          freshnessMap: result.freshnessMap,
+          isAuthenticated: result.isAuthenticated,
         );
       } else {
         final status = switch (result.failureReason) {
@@ -125,4 +146,3 @@ final healthSyncStateProvider =
   final service = ref.watch(healthIntegrationServiceProvider);
   return HealthSyncNotifier(service);
 });
-

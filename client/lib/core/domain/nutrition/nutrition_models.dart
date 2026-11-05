@@ -68,6 +68,14 @@ class MacronutrientProfile {
     return net < 0.0 ? 0.0 : net;
   }
 
+  /// Total calculated calories from standard 4-4-9 Atwater factors.
+  double get calories => (proteinGrams * 4.0) + (totalCarbsGrams * 4.0) + (totalFatGrams * 9.0);
+
+  /// Convenient aliases
+  double get carbohydratesGrams => totalCarbsGrams;
+  double get fiberGrams => dietaryFiberGrams;
+  double get fatGrams => totalFatGrams;
+
   factory MacronutrientProfile.fromJson(Map<String, dynamic> json) {
     return MacronutrientProfile(
       proteinGrams: (json['proteinGrams'] as num?)?.toDouble() ?? 0.0,

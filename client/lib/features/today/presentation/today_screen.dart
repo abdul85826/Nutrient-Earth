@@ -1,10 +1,16 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
+import '../../../../core/domain/input_gateway/input_classification_gateway.dart';
+import '../../../../core/domain/input_gateway/universal_input_descriptor.dart';
 import '../../../../core/services/learn_repository.dart';
 import '../../../../core/services/profile_repository.dart';
-import '../../../../core/services/research_pipeline_service.dart';
 import '../state/today_state.dart';
 import 'widgets/header_bar.dart';
 import 'widgets/dynamic_greeting_card.dart';
@@ -14,9 +20,10 @@ import 'widgets/daily_plan_section.dart';
 import 'widgets/learn_today_section.dart';
 import 'widgets/feedback_banner.dart';
 import 'widgets/today_drawer.dart';
-import 'widgets/research_result_modal.dart';
 import 'widgets/learn_detail_modal.dart';
 import 'widgets/privacy_data_modal.dart';
+import 'widgets/input_processing_view.dart';
+import 'widgets/universal_reference_answer_card.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
@@ -63,16 +70,36 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile: Guest • Sign in to configure goals & personalization'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      context.push('/onboarding');
     }
   }
 
+  void _openMultimodalAnswerExperience({String query = 'Can I use this herbal shampoo? Is t good for hair fall?'}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => InputProcessingView(
+          query: query,
+          onCompleted: () {
+            Navigator.of(ctx).pushReplacement(
+              MaterialPageRoute(
+                builder: (cardCtx) => UniversalReferenceAnswerCard(
+                  onBack: () => Navigator.of(cardCtx).pop(),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   void _handleResearchSubmit(String query) async {
+    final lower = query.toLowerCase();
+    if (lower.contains('shampoo') || lower.contains('hair fall')) {
+      _openMultimodalAnswerExperience(query: query);
+      return;
+    }
+
     final currentState = ref.read(todayStateProvider);
     if (currentState.isResearchLoading) return; // Prevent duplicate submissions
 
@@ -82,7 +109,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
     if (!mounted) return;
     final updatedState = ref.read(todayStateProvider);
     if (updatedState.activeAnswer != null) {
-      ResearchResultModal.show(context, updatedState.activeAnswer!);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (ctx) => UniversalReferenceAnswerCard.fromResearchAnswer(
+            answer: updatedState.activeAnswer!,
+            onBack: () => Navigator.of(ctx).pop(),
+          ),
+        ),
+      );
     } else if (updatedState.researchError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -94,75 +128,297 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
   }
 
   void _handleCameraTap() {
-    _showAttachmentDialog(
-      title: 'Scan Meal or Food Label',
-      icon: Icons.camera_alt_rounded,
-      message: 'Take a photo or choose an image from gallery to analyze nutrition with research evidence.',
-      actionText: 'Select Image & Analyze',
-      onConfirm: () {
-        _handleResearchSubmit('Analyze nutritional composition of this meal');
-      },
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: NETokens.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: NETokens.borderDefault,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Multimodal Input & Visual Scanner',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, color: NETokens.primary),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Capture meal photos, upload gallery images, verify PDF documents, or scan product barcodes.',
+                style: TextStyle(fontSize: 12.5, color: NETokens.textSecondary),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_rounded, color: Color(0xFF2E7D32)),
+                title: const Text('Live Device Camera (Take Photo)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                subtitle: const Text('Open physical camera, snap label or food for instant analysis', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handleLiveCameraCapture();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded, color: NETokens.forest),
+                title: const Text('Choose from Photo Gallery', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                subtitle: const Text('Select an existing photo of a meal, supplement, or product', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handleGalleryPick();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf_rounded, color: NETokens.darkEvergreen),
+                title: const Text('Upload Scientific PDF Document', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                subtitle: const Text('Extracts key clinical findings and links citations', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handlePdfDocumentUpload();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.auto_awesome, color: NETokens.emerald),
+                title: const Text('Multimodal Visual Evidence Experience', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                subtitle: const Text('Inspect blurry input, AI enhancement & reference answer card', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _openMultimodalAnswerExperience();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.qr_code_scanner_rounded, color: NETokens.botanicalTeal),
+                title: const Text('Scan Product Barcode (UPC / EAN)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                subtitle: const Text('Identifies certified ingredients & checks goal alignment', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showBarcodeInputDialog();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  void _handleVoiceTap() {
-    _showAttachmentDialog(
-      title: 'Voice Research Input',
-      icon: Icons.mic_rounded,
-      message: 'Tap start to record your scientific inquiry. Speech-to-text will transcribe and verify evidence.',
-      actionText: 'Start Recording',
-      onConfirm: () {
-        _handleResearchSubmit('How does dietary magnesium glycinate compare for sleep quality?');
-      },
-    );
+  Future<void> _handleLiveCameraCapture() async {
+    try {
+      final picker = ImagePicker();
+      final photo = await picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (photo == null || !mounted) return;
+
+      final bytes = await photo.readAsBytes();
+      final result = const InputClassificationGateway().processFile(
+        filePath: photo.path,
+        fileBytes: bytes,
+        source: InputSourceType.cameraCapture,
+        userPrompt: 'Analyze photo captured by device camera',
+      );
+
+      if (result.isValid && result.validatedDescriptor != null) {
+        _handleDescriptorSubmit(result.validatedDescriptor!);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.errorMessage ?? 'Invalid image captured.'),
+            backgroundColor: NETokens.error,
+          ),
+        );
+      }
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Camera error: ${e.message ?? 'Permission denied.'}'),
+          backgroundColor: NETokens.error,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to capture photo: $e'),
+          backgroundColor: NETokens.error,
+        ),
+      );
+    }
   }
 
-  void _handleUrlTap() {
-    _showAttachmentDialog(
-      title: 'Analyze Scientific Publication',
-      icon: Icons.link_rounded,
-      message: 'Enter or paste a PubMed URL, DOI identifier, or scientific article link to extract and verify nutritional claims.',
-      actionText: 'Analyze Publication',
-      onConfirm: () {
-        const urlToAnalyze = 'https://pubmed.ncbi.nlm.nih.gov/11794633/';
-        if (!ResearchPipelineService.validateScientificUrl(urlToAnalyze)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Security error: Only HTTPS links to verified scientific repositories are permitted.'),
-              backgroundColor: NETokens.error,
-            ),
-          );
-          return;
-        }
-        _handleResearchSubmit('Analyze nutritional findings from PubMed PMID 11794633');
-      },
-    );
+  Future<void> _handleGalleryPick() async {
+    try {
+      final picker = ImagePicker();
+      final photo = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+      if (photo == null || !mounted) return;
+
+      final bytes = await photo.readAsBytes();
+      final result = const InputClassificationGateway().processFile(
+        filePath: photo.path,
+        fileBytes: bytes,
+        source: InputSourceType.galleryUpload,
+        userPrompt: 'Analyze meal or product image from gallery',
+      );
+
+      if (result.isValid && result.validatedDescriptor != null) {
+        _handleDescriptorSubmit(result.validatedDescriptor!);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.errorMessage ?? 'Invalid image selected.'),
+            backgroundColor: NETokens.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to select image: $e'),
+          backgroundColor: NETokens.error,
+        ),
+      );
+    }
   }
 
-  void _openPrivacyDataControls() {
-    PrivacyDataModal.show(context);
+  Future<void> _handlePdfDocumentUpload() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty || !mounted) return;
+
+      final file = result.files.first;
+      final bytes = file.bytes ?? (file.path != null ? await File(file.path!).readAsBytes() : null);
+      if (bytes == null) {
+        throw Exception('Could not read document contents.');
+      }
+
+      final validation = const InputClassificationGateway().processFile(
+        filePath: file.name,
+        fileBytes: bytes,
+        source: InputSourceType.filePicker,
+        userPrompt: 'Extract and analyze clinical evidence from ${file.name}',
+      );
+
+      if (validation.isValid && validation.validatedDescriptor != null) {
+        _handleDescriptorSubmit(validation.validatedDescriptor!);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(validation.errorMessage ?? 'Invalid document selected.'),
+            backgroundColor: NETokens.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to upload document: $e'),
+          backgroundColor: NETokens.error,
+        ),
+      );
+    }
   }
 
-  void _showAttachmentDialog({
-    required String title,
-    required IconData icon,
-    required String message,
-    required String actionText,
-    required VoidCallback onConfirm,
-  }) {
+  Future<void> _handleAudioUpload() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+        withData: true,
+      );
+      if (result == null || result.files.isEmpty || !mounted) return;
+
+      final file = result.files.first;
+      final bytes = file.bytes ?? (file.path != null ? await File(file.path!).readAsBytes() : null);
+      if (bytes == null) {
+        throw Exception('Could not read audio file.');
+      }
+
+      final validation = const InputClassificationGateway().processFile(
+        filePath: file.name,
+        fileBytes: bytes,
+        source: InputSourceType.audioFile,
+        userPrompt: 'Audio dictation: Spoken nutritional inquiry',
+      );
+
+      if (validation.isValid && validation.validatedDescriptor != null) {
+        _handleDescriptorSubmit(validation.validatedDescriptor!);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(validation.errorMessage ?? 'Invalid audio file.'),
+            backgroundColor: NETokens.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load audio: $e'),
+          backgroundColor: NETokens.error,
+        ),
+      );
+    }
+  }
+
+  void _showBarcodeInputDialog() {
+    final controller = TextEditingController(text: '012345678905');
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: NETokens.background,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusLg)),
-        icon: Icon(icon, color: NETokens.emerald, size: 32),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-        ),
-        content: Text(
-          message,
-          style: const TextStyle(fontSize: 13.5, color: NETokens.textSecondary, height: 1.4),
+        title: const Text('Enter Product Barcode', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter a 12-digit UPC-A or 13-digit EAN barcode to retrieve verified ingredients and calculate goal synergy.',
+              style: TextStyle(fontSize: 12.5, color: NETokens.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: 'e.g. 012345678905',
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: NETokens.borderDefault),
+                ),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -170,21 +426,208 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
             child: const Text('Cancel', style: TextStyle(color: NETokens.textMuted)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: NETokens.deepGreen,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusFull)),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: NETokens.darkEvergreen, foregroundColor: Colors.white),
             onPressed: () {
+              final barcode = controller.text.trim();
               Navigator.pop(context);
-              onConfirm();
+              if (barcode.isNotEmpty) {
+                final descriptor = InputClassificationGateway.classifyRawInput(
+                  rawInput: barcode,
+                  sourceType: InputSourceType.barcodeScanner,
+                );
+                _handleDescriptorSubmit(descriptor);
+              }
             },
-            child: Text(actionText),
+            child: const Text('Lookup & Verify'),
           ),
         ],
       ),
     );
   }
+
+  void _handleVoiceTap() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: NETokens.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: NETokens.borderDefault,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Voice & Audio Inquiry',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, color: NETokens.primary),
+              ),
+              const SizedBox(height: 6),
+              const Text(
+                'Speak or upload audio recordings for transcription and evidence synthesis.',
+                style: TextStyle(fontSize: 12.5, color: NETokens.textSecondary),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.mic_rounded, color: Color(0xFF2E7D32)),
+                title: const Text('Spoken Question / Voice Inquiry', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                subtitle: const Text('Transcribes and checks clinical trials for your query', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handleResearchSubmit('How does dietary magnesium glycinate compare for sleep quality?');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.audio_file_rounded, color: NETokens.emerald),
+                title: const Text('Upload Audio File (MP3, WAV, M4A, OGG)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                subtitle: const Text('Select a voice memo or audio file from device storage', style: TextStyle(fontSize: 11)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handleAudioUpload();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleUrlTap() {
+    final controller = TextEditingController(text: 'https://pubmed.ncbi.nlm.nih.gov/11794633/');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: NETokens.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: NETokens.borderDefault,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Analyze URL with Scientific Evidence',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, color: NETokens.primary),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Paste a PubMed publication link, DOI identifier, YouTube video, or Instagram link to verify claims.',
+                  style: TextStyle(fontSize: 12.5, color: NETokens.textSecondary),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    hintText: 'https://...',
+                    filled: true,
+                    fillColor: Colors.white,
+                    prefixIcon: const Icon(Icons.link_rounded, color: NETokens.emerald, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: NETokens.borderDefault),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: NETokens.darkEvergreen,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusFull)),
+                    ),
+                    onPressed: () {
+                      final url = controller.text.trim();
+                      final validation = InputClassificationGateway.validateUrl(url);
+                      if (!validation.isValid) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(validation.errorMessage ?? 'Invalid URL'),
+                            backgroundColor: NETokens.error,
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.pop(context);
+                      final descriptor = InputClassificationGateway.classifyRawInput(
+                        rawInput: url,
+                        sourceType: InputSourceType.clipboardUrl,
+                      );
+                      _handleDescriptorSubmit(descriptor);
+                    },
+                    child: const Text('Verify & Analyze URL', style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleDescriptorSubmit(UniversalInputDescriptor descriptor) async {
+    final notifier = ref.read(todayStateProvider.notifier);
+    await notifier.submitUniversalInquiry(descriptor);
+
+    if (!mounted) return;
+    final updatedState = ref.read(todayStateProvider);
+    if (updatedState.activeAnswer != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (ctx) => UniversalReferenceAnswerCard.fromResearchAnswer(
+            answer: updatedState.activeAnswer!,
+            onBack: () => Navigator.of(ctx).pop(),
+          ),
+        ),
+      );
+    } else if (updatedState.researchError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Research error: ${updatedState.researchError}'),
+          backgroundColor: NETokens.error,
+        ),
+      );
+    }
+  }
+
+  void _openPrivacyDataControls() {
+    PrivacyDataModal.show(context);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +638,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
       key: _scaffoldKey,
       backgroundColor: NETokens.background,
       drawer: TodayDrawer(
+        profileName: state.userProfile?.displayName,
+        profileGoal: state.userProfile?.primaryGoals.isNotEmpty == true
+            ? state.userProfile!.primaryGoals.first
+            : null,
         onNewChat: () {
           ref.read(todayStateProvider.notifier).clearActiveAnswer();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -229,6 +676,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
                   // 2. Dynamic Greeting Card with Diurnal Botanical Illustration
                   DynamicGreetingCard(
                     diurnal: state.diurnal,
+                    activeGoal: state.userProfile?.primaryGoals.isNotEmpty == true
+                        ? state.userProfile!.primaryGoals.first
+                        : null,
                   ),
                   const SizedBox(height: 14),
 
@@ -253,10 +703,18 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
                   DailyPlanSection(
                     tasks: state.tasks,
                     counterLabel: state.counterLabel,
+                    goalLabel: state.userProfile?.primaryGoals.isNotEmpty == true
+                        ? state.userProfile!.primaryGoals.first
+                        : null,
                     onToggleTask: notifier.toggleTask,
-                    onWhyRoutineTap: () {
-                      _handleResearchSubmit('Why does this routine fit my endurance recovery goals?');
-                    },
+                    onWhyRoutineTap: state.tasks.isEmpty
+                        ? null
+                        : () {
+                            final goal = (state.userProfile?.primaryGoals.isNotEmpty == true)
+                                ? state.userProfile!.primaryGoals.first
+                                : 'current wellness';
+                            _handleResearchSubmit('Why does this routine fit my $goal goals?');
+                          },
                   ),
                   const SizedBox(height: 20),
 

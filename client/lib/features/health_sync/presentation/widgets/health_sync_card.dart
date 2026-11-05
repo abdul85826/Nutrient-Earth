@@ -8,7 +8,7 @@ import '../../state/health_sync_state.dart';
 
 /// Production-ready biometric synchronization card.
 /// Automatically renders platform-specific status for Android Health Connect
-/// or Apple HealthKit.
+/// or Apple HealthKit, with real-time numeric measurements and record counts.
 class HealthSyncCard extends ConsumerWidget {
   const HealthSyncCard({super.key});
 
@@ -123,27 +123,177 @@ class HealthSyncCard extends ConsumerWidget {
             ),
           ],
 
-          // Core Data Categories Indicators
-          Row(
-            children: [
-              _buildMetricChip(
-                icon: Icons.directions_walk_rounded,
-                label: 'Steps',
-                source: 'Hardware sensor',
-              ),
-              const SizedBox(width: NETokens.space8),
-              _buildMetricChip(
-                icon: Icons.favorite_border_rounded,
-                label: 'Heart Rate',
-                source: 'Sensor / Wearable',
-              ),
-              const SizedBox(width: NETokens.space8),
-              _buildMetricChip(
-                icon: Icons.bedtime_outlined,
-                label: 'Sleep',
-                source: 'Ecosystem session',
-              ),
-            ],
+          // Synchronized Record Counts Summary Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: NETokens.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(NETokens.radiusSm),
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.dataset_outlined, size: 14, color: NETokens.botanicalTeal),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${syncState.totalRecordsRead} records retrieved',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: NETokens.deepestForest,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      syncState.isAuthenticated ? Icons.cloud_done_rounded : Icons.phone_android_rounded,
+                      size: 14,
+                      color: syncState.isAuthenticated ? const Color(0xFF166534) : NETokens.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      syncState.isAuthenticated
+                          ? '${syncState.totalRecordsSynced} in cloud'
+                          : 'Local device cache',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: syncState.isAuthenticated ? const Color(0xFF166534) : NETokens.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: NETokens.space12),
+
+          // Primary Health Measurements Grid
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 360;
+              if (isNarrow) {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        _buildNumericalMetricCard(
+                          icon: Icons.directions_walk_rounded,
+                          label: 'Steps',
+                          valueText: _formatSteps(syncState.latestMetrics[HealthDataType.steps]),
+                          recordCount: syncState.categoryRecordCounts[HealthDataType.steps] ?? 0,
+                          source: 'Sensor',
+                        ),
+                        const SizedBox(width: NETokens.space8),
+                        _buildNumericalMetricCard(
+                          icon: Icons.straighten_rounded,
+                          label: 'Distance',
+                          valueText: _formatDistance(syncState.latestMetrics[HealthDataType.distance]),
+                          recordCount: syncState.categoryRecordCounts[HealthDataType.distance] ?? 0,
+                          source: 'GPS',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: NETokens.space8),
+                    Row(
+                      children: [
+                        _buildNumericalMetricCard(
+                          icon: Icons.local_fire_department_rounded,
+                          label: 'Active Cal',
+                          valueText: _formatCalories(syncState.latestMetrics[HealthDataType.activeCalories]),
+                          recordCount: syncState.categoryRecordCounts[HealthDataType.activeCalories] ?? 0,
+                          source: 'Energy',
+                        ),
+                        const SizedBox(width: NETokens.space8),
+                        _buildNumericalMetricCard(
+                          icon: Icons.favorite_border_rounded,
+                          label: 'Heart Rate',
+                          valueText: _formatHeartRate(syncState.latestMetrics[HealthDataType.heartRate]),
+                          recordCount: syncState.categoryRecordCounts[HealthDataType.heartRate] ?? 0,
+                          source: 'Vitals',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: NETokens.space8),
+                    Row(
+                      children: [
+                        _buildNumericalMetricCard(
+                          icon: Icons.bedtime_outlined,
+                          label: 'Sleep',
+                          valueText: _formatSleep(syncState.latestMetrics[HealthDataType.sleep]),
+                          recordCount: syncState.categoryRecordCounts[HealthDataType.sleep] ?? 0,
+                          source: 'Sleep log',
+                        ),
+                        const SizedBox(width: NETokens.space8),
+                        const Expanded(child: SizedBox.shrink()),
+                      ],
+                    ),
+                  ],
+                );
+              }
+
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      _buildNumericalMetricCard(
+                        icon: Icons.directions_walk_rounded,
+                        label: 'Steps',
+                        valueText: _formatSteps(syncState.latestMetrics[HealthDataType.steps]),
+                        recordCount: syncState.categoryRecordCounts[HealthDataType.steps] ?? 0,
+                        source: 'Sensor',
+                      ),
+                      const SizedBox(width: NETokens.space8),
+                      _buildNumericalMetricCard(
+                        icon: Icons.straighten_rounded,
+                        label: 'Distance',
+                        valueText: _formatDistance(syncState.latestMetrics[HealthDataType.distance]),
+                        recordCount: syncState.categoryRecordCounts[HealthDataType.distance] ?? 0,
+                        source: 'GPS',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: NETokens.space8),
+                  Row(
+                    children: [
+                      _buildNumericalMetricCard(
+                        icon: Icons.local_fire_department_rounded,
+                        label: 'Active Cal',
+                        valueText: _formatCalories(syncState.latestMetrics[HealthDataType.activeCalories]),
+                        recordCount: syncState.categoryRecordCounts[HealthDataType.activeCalories] ?? 0,
+                        source: 'Energy',
+                      ),
+                      const SizedBox(width: NETokens.space8),
+                      _buildNumericalMetricCard(
+                        icon: Icons.favorite_border_rounded,
+                        label: 'Heart Rate',
+                        valueText: _formatHeartRate(syncState.latestMetrics[HealthDataType.heartRate]),
+                        recordCount: syncState.categoryRecordCounts[HealthDataType.heartRate] ?? 0,
+                        source: 'Vitals',
+                      ),
+                      const SizedBox(width: NETokens.space8),
+                      _buildNumericalMetricCard(
+                        icon: Icons.bedtime_outlined,
+                        label: 'Sleep',
+                        valueText: _formatSleep(syncState.latestMetrics[HealthDataType.sleep]),
+                        recordCount: syncState.categoryRecordCounts[HealthDataType.sleep] ?? 0,
+                        source: 'Sleep log',
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: NETokens.space16),
@@ -178,7 +328,7 @@ class HealthSyncCard extends ConsumerWidget {
                   : Text(
                       isDenied
                           ? 'Grant Health Permissions'
-                          : (syncState.totalRecordsSynced > 0 ? 'Sync Latest Health Data' : 'Connect & Sync Health'),
+                          : (syncState.totalRecordsRead > 0 ? 'Sync Latest Health Data' : 'Connect & Sync Health'),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -208,7 +358,7 @@ class HealthSyncCard extends ConsumerWidget {
       case HealthSyncStatus.synced:
         bg = const Color(0xFFDCFCE7);
         fg = const Color(0xFF166534);
-        label = 'Connected';
+        label = state.isAuthenticated ? 'Cloud Synced' : 'Connected';
         icon = Icons.check_circle_outline_rounded;
         break;
       case HealthSyncStatus.permissionDenied:
@@ -263,48 +413,127 @@ class HealthSyncCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricChip({
+  Widget _buildNumericalMetricCard({
     required IconData icon,
     required String label,
+    required String valueText,
+    required int recordCount,
     required String source,
   }) {
+    final hasData = recordCount > 0;
+
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
-          color: NETokens.surfaceContainerLow,
+          color: hasData ? NETokens.surfaceContainerLow : const Color(0xFFFAFAFA),
           borderRadius: BorderRadius.circular(NETokens.radiusSm),
-          border: Border.all(color: NETokens.borderSubtle),
+          border: Border.all(
+            color: hasData ? NETokens.borderSubtle : const Color(0xFFEEEEEE),
+          ),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 16, color: NETokens.botanicalTeal),
-            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 14,
+                  color: hasData ? NETokens.botanicalTeal : NETokens.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: hasData ? NETokens.deepestForest : NETokens.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
             Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: NETokens.deepestForest,
+              valueText,
+              style: TextStyle(
+                fontFamily: 'Fraunces',
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: hasData ? NETokens.deepestForest : const Color(0xFF9E9E9E),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 2),
-            Text(
-              source,
-              style: const TextStyle(
-                fontSize: 9,
-                color: NETokens.onSurfaceVariant,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Text(
+                    hasData ? '$recordCount rec' : 'No records',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: hasData ? const Color(0xFF166534) : const Color(0xFF9E9E9E),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    source,
+                    style: const TextStyle(
+                      fontSize: 8,
+                      color: NETokens.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatSteps(double? value) {
+    if (value == null || value == 0.0) return 'No data';
+    return NumberFormat('#,###').format(value.toInt());
+  }
+
+  String _formatDistance(double? value) {
+    if (value == null || value == 0.0) return 'No data';
+    final km = value / 1000.0;
+    return '${km.toStringAsFixed(2)} km';
+  }
+
+  String _formatCalories(double? value) {
+    if (value == null || value == 0.0) return 'No data';
+    return '${value.toStringAsFixed(0)} kcal';
+  }
+
+  String _formatHeartRate(double? value) {
+    if (value == null || value == 0.0) return 'No data';
+    return '${value.toStringAsFixed(0)} bpm';
+  }
+
+  String _formatSleep(double? value) {
+    if (value == null || value == 0.0) return 'No data';
+    final totalMinutes = value.toInt();
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    if (hours == 0) return '${minutes}m';
+    return '${hours}h ${minutes}m';
   }
 
   String _formatPlatformTitle(String platformName) {

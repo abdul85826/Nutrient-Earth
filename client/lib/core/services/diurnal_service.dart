@@ -39,9 +39,8 @@ class DiurnalService {
     final datePattern = DateFormat('EEEE, d MMM yyyy');
     final formattedDate = datePattern.format(now).toUpperCase();
 
-    final name = (preferredName != null && preferredName.trim().isNotEmpty)
-        ? preferredName.trim()
-        : 'Sarah';
+    final hasName = preferredName != null && preferredName.trim().isNotEmpty;
+    final name = hasName ? preferredName.trim() : null;
 
     DiurnalPeriod period;
     String greeting;
@@ -49,19 +48,19 @@ class DiurnalService {
 
     if (hour >= 5 && hour < 12) {
       period = DiurnalPeriod.morning;
-      greeting = 'Good morning,\n$name.';
+      greeting = name != null ? 'Good morning,\n$name.' : 'Good morning.';
       solarCondition = 'Radiant';
     } else if (hour >= 12 && hour < 17) {
       period = DiurnalPeriod.afternoon;
-      greeting = 'Good afternoon,\n$name.';
+      greeting = name != null ? 'Good afternoon,\n$name.' : 'Good afternoon.';
       solarCondition = 'Golden hour';
     } else if (hour >= 17 && hour < 22) {
       period = DiurnalPeriod.evening;
-      greeting = 'Good evening,\n$name.';
+      greeting = name != null ? 'Good evening,\n$name.' : 'Good evening.';
       solarCondition = 'Dusk';
     } else {
       period = DiurnalPeriod.night;
-      greeting = 'Rest well,\n$name.';
+      greeting = name != null ? 'Rest well,\n$name.' : 'Rest well.';
       solarCondition = 'Nocturnal';
     }
 

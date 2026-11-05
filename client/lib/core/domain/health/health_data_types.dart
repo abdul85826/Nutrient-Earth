@@ -167,6 +167,40 @@ enum HealthSyncStatus {
   }
 }
 
+/// Data freshness status for time-aware health measurements.
+/// Strictly enforces the rule: Never turn unavailable data into a guessed value.
+enum DataFreshnessStatus {
+  live, // Validated measurement received within the last <= 15 minutes
+  recentlySynced, // Validated measurement received within the last <= 24 hours
+  historical, // Validated measurement older than 24 hours
+  stale, // Expected periodic metric not updated for > 48 hours
+  unavailable; // No reliable record exists
+
+  String get displayName {
+    switch (this) {
+      case DataFreshnessStatus.live:
+        return 'Live';
+      case DataFreshnessStatus.recentlySynced:
+        return 'Recently Synced';
+      case DataFreshnessStatus.historical:
+        return 'Historical';
+      case DataFreshnessStatus.stale:
+        return 'Stale';
+      case DataFreshnessStatus.unavailable:
+        return 'Unavailable';
+    }
+  }
+
+  static DataFreshnessStatus compute(DateTime? recordedAt) {
+    if (recordedAt == null) return DataFreshnessStatus.unavailable;
+    final age = DateTime.now().difference(recordedAt);
+    if (age.inMinutes <= 15) return DataFreshnessStatus.live;
+    if (age.inHours <= 24) return DataFreshnessStatus.recentlySynced;
+    if (age.inHours <= 48) return DataFreshnessStatus.historical;
+    return DataFreshnessStatus.stale;
+  }
+}
+
 /// An immutable, normalized health record.
 class HealthRecord {
   final String id;
@@ -281,6 +315,10 @@ class HealthSyncResult {
   final String? errorMessage;
   final HealthSyncFailureReason failureReason;
   final DateTime syncedAt;
+  final Map<HealthDataType, double> categoryMetrics;
+  final Map<HealthDataType, int> categoryCounts;
+  final Map<HealthDataType, DataFreshnessStatus> freshnessMap;
+  final bool isAuthenticated;
 
   const HealthSyncResult({
     required this.success,
@@ -291,6 +329,10 @@ class HealthSyncResult {
     this.errorMessage,
     this.failureReason = HealthSyncFailureReason.none,
     required this.syncedAt,
+    this.categoryMetrics = const {},
+    this.categoryCounts = const {},
+    this.freshnessMap = const {},
+    this.isAuthenticated = false,
   });
 
   factory HealthSyncResult.empty() => HealthSyncResult(
@@ -300,6 +342,10 @@ class HealthSyncResult {
     duplicatesSkipped: 0,
     failureReason: HealthSyncFailureReason.none,
     syncedAt: DateTime.now(),
+    categoryMetrics: const {},
+    categoryCounts: const {},
+    freshnessMap: const {},
+    isAuthenticated: false,
   );
 
   factory HealthSyncResult.failure(
@@ -310,5 +356,9 @@ class HealthSyncResult {
     errorMessage: message,
     failureReason: reason,
     syncedAt: DateTime.now(),
+    categoryMetrics: const {},
+    categoryCounts: const {},
+    freshnessMap: const {},
+    isAuthenticated: false,
   );
 }

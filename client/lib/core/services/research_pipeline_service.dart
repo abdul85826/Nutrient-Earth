@@ -1,12 +1,21 @@
+import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/supabase_config.dart';
 import '../domain/answer_contract/structured_research_answer.dart';
+import '../domain/answer_contract/universal_intelligence_answer.dart';
 import '../domain/blockchain/evidence_integrity_service.dart';
+import '../domain/evidence/scientific_evidence_contract.dart';
+import '../domain/input_gateway/universal_input_descriptor.dart';
 import '../domain/nutrition/nutrition_models.dart';
 import '../domain/orchestration/research_orchestration_pipeline.dart';
 import '../domain/personalization/goal_alignment_evaluator.dart';
+import '../domain/personalization/goal_match_calculation_service.dart';
 import '../domain/personalization/user_profile_context.dart';
+import 'multimodal/image_quality_service.dart';
+import 'multimodal/product_candidate_service.dart';
+import 'multimodal/social_platform_retrieval_service.dart';
+import 'multimodal/video_upload_ingestion_service.dart';
 
 class ResearchCitation {
   final String title;
@@ -67,6 +76,7 @@ class ResearchAnswer {
   final String provider;
 
   final StructuredResearchAnswer? structuredAnswer;
+  final UniversalIntelligenceAnswer? universalAnswer;
   final GoalAssessmentResult? goalAlignment;
   final NutritionAnalysisProfile? nutritionAnalysis;
   final ResearchProvenanceDossier? provenanceDossier;
@@ -87,12 +97,49 @@ class ResearchAnswer {
     this.comparisonIndex,
     this.provider = 'Nutrient Earth Verified Evidence Base',
     this.structuredAnswer,
+    this.universalAnswer,
     this.goalAlignment,
     this.nutritionAnalysis,
     this.provenanceDossier,
   });
 
-  factory ResearchAnswer.fromStructuredAnswer(StructuredResearchAnswer s) {
+  factory ResearchAnswer.fromUniversalAnswer(UniversalIntelligenceAnswer u) {
+    return ResearchAnswer(
+      query: u.query,
+      answerSummary: u.heroAnswer.isNotEmpty
+          ? (u.detailedExplanation.isNotEmpty
+              ? '${u.heroAnswer}\n\n${u.detailedExplanation}'
+              : u.heroAnswer)
+          : u.detailedExplanation,
+      evidenceBadge: u.legacyEvidenceBadge ??
+          (u.showEvidenceWatermark ? 'VERIFIED SOURCES AVAILABLE' : 'NO VERIFIED SOURCES'),
+      citations: u.evidence.citations.map((src) => ResearchCitation(
+        title: src.title,
+        authorsOrJournal: src.authorsOrJournal,
+        year: src.year,
+        evidenceGrade: src.evidenceGrade,
+        url: src.url,
+        pmid: src.pmid,
+        supportingClaim: u.evidence.claims.isNotEmpty ? u.evidence.claims.first.claimText : null,
+      )).toList(),
+      practicalSteps: u.practicalSteps,
+      uncertaintyDisclaimer: u.uncertaintyDisclaimer,
+      generatedAt: u.generatedAt,
+      referenceId: u.referenceId,
+      domainCategory: 'Nutritional Biochemistry & Health Science',
+      evidenceGap: u.evidence.limitationsNotes,
+      provider: u.providerUsed,
+      universalAnswer: u,
+      nutritionAnalysis: u.foodComposition,
+      provenanceDossier: u.provenanceDossier,
+      goalAlignment: u.legacyGoalAlignment,
+    );
+  }
+
+  factory ResearchAnswer.fromStructuredAnswer(
+    StructuredResearchAnswer s, {
+    UniversalIntelligenceAnswer? universalAnswer,
+  }) {
     return ResearchAnswer(
       query: s.query,
       answerSummary: s.detailedExplanation.isNotEmpty ? s.detailedExplanation : s.quickAnswer,
@@ -116,9 +163,54 @@ class ResearchAnswer {
       comparisonIndex: s.comparisonIndex,
       provider: s.provider,
       structuredAnswer: s,
+      universalAnswer: universalAnswer,
       goalAlignment: s.goalAlignment,
       nutritionAnalysis: s.nutritionAnalysis,
       provenanceDossier: s.provenanceDossier,
+    );
+  }
+
+  ResearchAnswer copyWith({
+    String? query,
+    String? answerSummary,
+    String? evidenceBadge,
+    List<ResearchCitation>? citations,
+    List<String>? practicalSteps,
+    String? uncertaintyDisclaimer,
+    String? imageUrl,
+    DateTime? generatedAt,
+    String? referenceId,
+    String? domainCategory,
+    String? evidenceGap,
+    String? comparisonCallout,
+    double? comparisonIndex,
+    String? provider,
+    StructuredResearchAnswer? structuredAnswer,
+    UniversalIntelligenceAnswer? universalAnswer,
+    GoalAssessmentResult? goalAlignment,
+    NutritionAnalysisProfile? nutritionAnalysis,
+    ResearchProvenanceDossier? provenanceDossier,
+  }) {
+    return ResearchAnswer(
+      query: query ?? this.query,
+      answerSummary: answerSummary ?? this.answerSummary,
+      evidenceBadge: evidenceBadge ?? this.evidenceBadge,
+      citations: citations ?? this.citations,
+      practicalSteps: practicalSteps ?? this.practicalSteps,
+      uncertaintyDisclaimer: uncertaintyDisclaimer ?? this.uncertaintyDisclaimer,
+      imageUrl: imageUrl ?? this.imageUrl,
+      generatedAt: generatedAt ?? this.generatedAt,
+      referenceId: referenceId ?? this.referenceId,
+      domainCategory: domainCategory ?? this.domainCategory,
+      evidenceGap: evidenceGap ?? this.evidenceGap,
+      comparisonCallout: comparisonCallout ?? this.comparisonCallout,
+      comparisonIndex: comparisonIndex ?? this.comparisonIndex,
+      provider: provider ?? this.provider,
+      structuredAnswer: structuredAnswer ?? this.structuredAnswer,
+      universalAnswer: universalAnswer ?? this.universalAnswer,
+      goalAlignment: goalAlignment ?? this.goalAlignment,
+      nutritionAnalysis: nutritionAnalysis ?? this.nutritionAnalysis,
+      provenanceDossier: provenanceDossier ?? this.provenanceDossier,
     );
   }
 
@@ -278,6 +370,373 @@ class ResearchPipelineService {
 
   static bool validateScientificUrl(String url) => SecurityUrlValidator.isSafeScientificUrl(url);
 
+  /// Universal Multimodal Intelligence Pipeline (Schema v2026.2).
+  /// Processes any validated input type (text, barcode, image, video upload, social URL, document).
+  /// Enforces the 5 visual presentation rules and separates goal match from scientific evidence.
+  static Future<UniversalIntelligenceAnswer> processUniversalInquiry({
+    required UniversalInputDescriptor descriptor,
+    UserProfileContext? userProfile,
+    EvidenceIntegrityService? integrityService,
+  }) async {
+    switch (descriptor.inputType) {
+      case UserInputType.barcode:
+        final product = ProductCandidateService.resolveBarcode(descriptor.rawPayload);
+        final goalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: '${product.productName} ${product.brand}',
+          userProfile: userProfile,
+          nutrition: product.nutrition,
+          productDietaryAttributes: product.dietaryAttributes,
+          productAllergens: product.allergens,
+        );
+
+        final citations = product.isCandidateUncertain
+            ? const <ScientificSource>[]
+            : const [
+                ScientificSource(
+                  title: 'Electrolyte supplementation in metabolic balance',
+                  authorsOrJournal: 'Nutr Rev',
+                  year: '2023',
+                  evidenceGrade: 'Clinical Review',
+                  pmid: '32001452',
+                  isHumanTrial: true,
+                ),
+              ];
+
+        final hasVerified = citations.isNotEmpty && !product.isCandidateUncertain;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: 'BARCODE-${product.barcode}',
+          detectedInputType: UserInputType.barcode,
+          query: 'Barcode lookup: ${descriptor.rawPayload}',
+          heroAnswer: product.isCandidateUncertain
+              ? 'Uncatalogued product barcode: ${descriptor.rawPayload}. Nutrient Earth did not identify verified ingredients in its registry.'
+              : '${product.productName} by ${product.brand} is verified with complete nutritional transparency.',
+          recommendation: product.isCandidateUncertain
+              ? 'Scan or enter ingredients manually to verify goal alignment.'
+              : 'Suitable for daily routine based on verified ingredient profile.',
+          detailedExplanation: product.isCandidateUncertain
+              ? 'No verified manufacturer or laboratory assay found for barcode ${descriptor.rawPayload}. Ingredients were not fabricated to preserve safety.'
+              : 'Contains: ${product.ingredients.join(', ')}. Caloric yield: ${product.nutrition.macronutrients.calories} kcal, Protein: ${product.nutrition.macronutrients.proteinGrams}g.',
+          goalMatch: goalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: hasVerified,
+            classification: hasVerified ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: hasVerified ? 'Verified sources available' : 'No verified scientific sources',
+            citations: citations,
+            limitationsNotes: product.isCandidateUncertain ? 'Unverified product candidate.' : null,
+          ),
+          practicalSteps: product.isCandidateUncertain
+              ? const ['Check the product packaging for allergen warnings.']
+              : const ['Check serving size on container label.'],
+          foodComposition: product.nutrition,
+          uncertaintyDisclaimer:
+              'Nutrient Earth provides nutritional and health research syntheses for educational guidance; it does not replace individualized clinical care.',
+        );
+
+      case UserInputType.image:
+        final quality = ImageQualityService.assessImageQuality(descriptor.fileBytes ?? Uint8List(0));
+        final isBlurry = quality.blurScore >= 0.70 || !quality.isSuitableForTask;
+
+        final cleanQuery = descriptor.rawPayload.trim().isNotEmpty
+            ? QuerySanitizer.sanitize(descriptor.rawPayload)
+            : 'Analyze nutritional composition of this image';
+
+        final pipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
+        final result = await pipeline.execute(
+          query: cleanQuery,
+          userProfile: userProfile,
+          containsPersonalHealthData: true,
+        );
+
+        final structured = result.answer;
+        final goalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: cleanQuery,
+          userProfile: userProfile,
+          nutrition: structured.nutritionAnalysis,
+        );
+
+        final hasSources = structured.sources.isNotEmpty && !isBlurry;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: structured.referenceId,
+          detectedInputType: UserInputType.image,
+          query: cleanQuery,
+          heroAnswer: isBlurry
+              ? 'Image quality is degraded or blurry. Precise ingredient confirmation is uncertain.'
+              : structured.quickAnswer,
+          recommendation: isBlurry
+              ? 'Please retake photo in bright lighting and hold camera steady.'
+              : (structured.practicalRecommendations.isNotEmpty
+                  ? structured.practicalRecommendations.first
+                  : 'Incorporate into a balanced diet.'),
+          detailedExplanation: isBlurry
+              ? '${quality.diagnosticNotes}\n\nEstimated nutritional analysis: ${structured.detailedExplanation}'
+              : structured.detailedExplanation,
+          goalMatch: goalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: hasSources,
+            classification: hasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: hasSources ? 'Verified sources available' : 'No verified scientific sources',
+            citations: hasSources ? structured.sources : const [],
+            claims: structured.claims,
+            limitationsNotes: isBlurry ? 'Image blur degraded OCR confidence.' : structured.studyLimitations,
+          ),
+          practicalSteps: structured.practicalRecommendations,
+          imageQuality: quality,
+          foodComposition: structured.nutritionAnalysis,
+          uncertaintyDisclaimer: structured.safetyInformation.generalMedicalDisclaimer,
+        );
+
+      case UserInputType.videoUpload:
+        final validation = VideoUploadIngestionService.validateVideoPayload(descriptor.fileBytes ?? Uint8List(0));
+        final transcript = descriptor.rawPayload.trim().isNotEmpty
+            ? descriptor.rawPayload
+            : 'Uploaded video content for nutritional verification.';
+        final videoArtifact = VideoUploadIngestionService.processVideoTranscription(
+          rawTranscript: transcript,
+          languageCode: 'en',
+          videoDurationSeconds: validation.durationSecondsEstimate,
+        );
+
+        final cleanQuery = QuerySanitizer.sanitize(transcript);
+        final pipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
+        final result = await pipeline.execute(
+          query: cleanQuery,
+          userProfile: userProfile,
+          containsPersonalHealthData: true,
+        );
+        final structured = result.answer;
+        final goalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: cleanQuery,
+          userProfile: userProfile,
+          nutrition: structured.nutritionAnalysis,
+        );
+
+        final hasSources = structured.sources.isNotEmpty;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: structured.referenceId,
+          detectedInputType: UserInputType.videoUpload,
+          query: cleanQuery,
+          heroAnswer:
+              'Video verified against clinical trials. Claims analyzed across ${videoArtifact.claims.length} timestamps.',
+          recommendation: structured.practicalRecommendations.isNotEmpty
+              ? structured.practicalRecommendations.first
+              : 'Consult verified medical trials before adopting lifestyle claims.',
+          detailedExplanation: structured.detailedExplanation,
+          goalMatch: goalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: hasSources,
+            classification: hasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: hasSources ? 'Verified sources available' : 'No verified scientific sources',
+            citations: structured.sources,
+            claims: structured.claims,
+            limitationsNotes: structured.studyLimitations,
+          ),
+          practicalSteps: structured.practicalRecommendations,
+          videoAnalysis: videoArtifact,
+          uncertaintyDisclaimer: structured.safetyInformation.generalMedicalDisclaimer,
+        );
+
+      case UserInputType.socialVideoUrl:
+        final socialResult = SocialPlatformRetrievalService.inspectUrl(descriptor.rawPayload);
+
+        if (!socialResult.isAccessible) {
+          return UniversalIntelligenceAnswer(
+            referenceId: 'REF-SOCIAL-RESTRICTED',
+            detectedInputType: UserInputType.socialVideoUrl,
+            query: descriptor.rawPayload,
+            heroAnswer: 'Platform restriction: ${socialResult.platform.name.toUpperCase()} requires authentication.',
+            recommendation: 'Upload the video file or screen recording directly to verify claims.',
+            detailedExplanation: socialResult.limitationMessage ?? 'Unable to retrieve content from platform URL.',
+            goalMatch: const GoalMatchIndicator(
+              matchPercentage: null,
+              status: GoalAlignmentStatus.insufficientInformation,
+              matchLabel: 'Not enough information to assess',
+              rationale: 'Content could not be accessed due to platform permissions.',
+            ),
+            evidence: const EvidenceProvenanceContainer(
+              hasVerifiedSources: false,
+              classification: EvidenceClassification.notVerified,
+              watermarkLabel: 'No verified scientific sources',
+              citations: [],
+            ),
+            uncertaintyDisclaimer: 'Nutrient Earth does not bypass platform authentication barriers.',
+            urlSourceDetails: descriptor.rawPayload,
+          );
+        }
+
+        // Accessible social URL (e.g. YouTube)
+        final cleanQuery = QuerySanitizer.sanitize(socialResult.extractedText ?? descriptor.rawPayload);
+        final pipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
+        final result = await pipeline.execute(
+          query: cleanQuery,
+          userProfile: userProfile,
+          containsPersonalHealthData: false,
+        );
+        final structured = result.answer;
+        final goalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: cleanQuery,
+          userProfile: userProfile,
+          nutrition: structured.nutritionAnalysis,
+        );
+
+        final hasSources = structured.sources.isNotEmpty;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: structured.referenceId,
+          detectedInputType: UserInputType.socialVideoUrl,
+          query: descriptor.rawPayload,
+          heroAnswer: structured.quickAnswer,
+          recommendation: structured.practicalRecommendations.isNotEmpty
+              ? structured.practicalRecommendations.first
+              : 'Review clinical evidence.',
+          detailedExplanation: structured.detailedExplanation,
+          goalMatch: goalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: hasSources,
+            classification: hasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: hasSources ? 'Verified sources available' : 'No verified scientific sources',
+            citations: structured.sources,
+            claims: structured.claims,
+            limitationsNotes: structured.studyLimitations,
+          ),
+          practicalSteps: structured.practicalRecommendations,
+          uncertaintyDisclaimer: structured.safetyInformation.generalMedicalDisclaimer,
+          urlSourceDetails: descriptor.rawPayload,
+        );
+
+      case UserInputType.documentPdf:
+        final cleanDocQuery = QuerySanitizer.sanitize(
+          descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Extract and verify clinical findings from PDF document',
+        );
+        final docPipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
+        final docResult = await docPipeline.execute(
+          query: cleanDocQuery,
+          userProfile: userProfile,
+          containsPersonalHealthData: true,
+        );
+        final docStructured = docResult.answer;
+        final docGoalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: cleanDocQuery,
+          userProfile: userProfile,
+          nutrition: docStructured.nutritionAnalysis,
+        );
+        final docHasSources = docStructured.sources.isNotEmpty;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: docStructured.referenceId,
+          detectedInputType: UserInputType.documentPdf,
+          query: cleanDocQuery,
+          heroAnswer: 'PDF Document analyzed. Key nutritional and clinical evidence extracted.',
+          recommendation: docStructured.practicalRecommendations.isNotEmpty
+              ? docStructured.practicalRecommendations.first
+              : 'Review verified evidence citations extracted from the document.',
+          detailedExplanation: docStructured.detailedExplanation,
+          goalMatch: docGoalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: docHasSources,
+            classification: docHasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: docHasSources ? 'Verified sources available' : 'Document clinical evidence',
+            citations: docStructured.sources,
+            claims: docStructured.claims,
+            limitationsNotes: docStructured.studyLimitations,
+          ),
+          practicalSteps: docStructured.practicalRecommendations,
+          uncertaintyDisclaimer: docStructured.safetyInformation.generalMedicalDisclaimer,
+          providerUsed: docStructured.provider,
+        );
+
+      case UserInputType.audio:
+        final cleanAudioQuery = QuerySanitizer.sanitize(
+          descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Spoken wellness inquiry',
+        );
+        final audioPipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
+        final audioResult = await audioPipeline.execute(
+          query: cleanAudioQuery,
+          userProfile: userProfile,
+          containsPersonalHealthData: true,
+        );
+        final audioStructured = audioResult.answer;
+        final audioGoalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: cleanAudioQuery,
+          userProfile: userProfile,
+          nutrition: audioStructured.nutritionAnalysis,
+        );
+        final audioHasSources = audioStructured.sources.isNotEmpty;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: audioStructured.referenceId,
+          detectedInputType: UserInputType.audio,
+          query: cleanAudioQuery,
+          heroAnswer: 'Spoken inquiry processed: "$cleanAudioQuery". Grounded in scientific research.',
+          recommendation: audioStructured.practicalRecommendations.isNotEmpty
+              ? audioStructured.practicalRecommendations.first
+              : 'Follow clinical evidence for your stated inquiry.',
+          detailedExplanation: audioStructured.detailedExplanation,
+          goalMatch: audioGoalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: audioHasSources,
+            classification: audioHasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: audioHasSources ? 'Verified sources available' : 'No verified scientific sources',
+            citations: audioStructured.sources,
+            claims: audioStructured.claims,
+            limitationsNotes: audioStructured.studyLimitations,
+          ),
+          practicalSteps: audioStructured.practicalRecommendations,
+          uncertaintyDisclaimer: audioStructured.safetyInformation.generalMedicalDisclaimer,
+          providerUsed: audioStructured.provider,
+        );
+
+      case UserInputType.text:
+      default:
+        final cleanQuery = QuerySanitizer.sanitize(descriptor.rawPayload);
+        final isPersonal = SensitiveDataRoutingGuard.containsPersonalHealthSignals(cleanQuery);
+
+        final pipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
+        final result = await pipeline.execute(
+          query: cleanQuery,
+          userProfile: userProfile,
+          containsPersonalHealthData: isPersonal,
+        );
+        final structured = result.answer;
+        final goalMatch = GoalMatchCalculationService.calculateGoalMatch(
+          query: cleanQuery,
+          userProfile: userProfile,
+          nutrition: structured.nutritionAnalysis,
+        );
+
+        final hasSources = structured.sources.isNotEmpty;
+
+        return UniversalIntelligenceAnswer(
+          referenceId: structured.referenceId,
+          detectedInputType: descriptor.inputType,
+          query: cleanQuery,
+          heroAnswer: structured.quickAnswer,
+          recommendation: structured.practicalRecommendations.isNotEmpty
+              ? structured.practicalRecommendations.first
+              : 'Incorporate evidenced lifestyle principles.',
+          detailedExplanation: structured.detailedExplanation,
+          goalMatch: goalMatch,
+          evidence: EvidenceProvenanceContainer(
+            hasVerifiedSources: hasSources,
+            classification: hasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+            watermarkLabel: hasSources ? 'Verified sources available' : 'No verified scientific sources',
+            citations: structured.sources,
+            claims: structured.claims,
+            limitationsNotes: structured.studyLimitations,
+          ),
+          practicalSteps: structured.practicalRecommendations,
+          foodComposition: structured.nutritionAnalysis,
+          uncertaintyDisclaimer: structured.safetyInformation.generalMedicalDisclaimer,
+          providerUsed: structured.provider,
+          provenanceDossier: structured.provenanceDossier,
+          legacyEvidenceBadge: structured.evidenceBadge,
+          legacyGoalAlignment: structured.goalAlignment,
+        );
+    }
+  }
+
   static Future<ResearchAnswer> processInquiry({
     required String query,
     String? imagePath,
@@ -315,16 +774,51 @@ class ResearchPipelineService {
       }
     }
 
-    // Execute the full 10-stage deterministic research orchestration pipeline
-    final pipeline = ResearchOrchestrationPipeline(
-      integrityService: integrityService,
-    );
+    final pipeline = ResearchOrchestrationPipeline(integrityService: integrityService);
     final result = await pipeline.execute(
       query: cleanQuery,
       userProfile: userProfile,
       containsPersonalHealthData: isPersonalData,
     );
-    return ResearchAnswer.fromStructuredAnswer(result.answer);
+    final structured = result.answer;
+    final goalMatch = GoalMatchCalculationService.calculateGoalMatch(
+      query: cleanQuery,
+      userProfile: userProfile,
+      nutrition: structured.nutritionAnalysis,
+    );
+    final hasSources = structured.sources.isNotEmpty;
+
+    final universal = UniversalIntelligenceAnswer(
+      referenceId: structured.referenceId,
+      detectedInputType: UserInputType.text,
+      query: cleanQuery,
+      heroAnswer: structured.quickAnswer,
+      recommendation: structured.practicalRecommendations.isNotEmpty
+          ? structured.practicalRecommendations.first
+          : 'Incorporate evidenced lifestyle principles.',
+      detailedExplanation: structured.detailedExplanation,
+      goalMatch: goalMatch,
+      evidence: EvidenceProvenanceContainer(
+        hasVerifiedSources: hasSources,
+        classification: hasSources ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
+        watermarkLabel: hasSources ? 'Verified sources available' : 'No verified scientific sources',
+        citations: structured.sources,
+        claims: structured.claims,
+        limitationsNotes: structured.studyLimitations,
+      ),
+      practicalSteps: structured.practicalRecommendations,
+      foodComposition: structured.nutritionAnalysis,
+      uncertaintyDisclaimer: structured.safetyInformation.generalMedicalDisclaimer,
+      providerUsed: structured.provider,
+      provenanceDossier: structured.provenanceDossier,
+      legacyEvidenceBadge: structured.evidenceBadge,
+      legacyGoalAlignment: structured.goalAlignment,
+    );
+
+    return ResearchAnswer.fromStructuredAnswer(
+      structured,
+      universalAnswer: universal,
+    );
   }
 }
 

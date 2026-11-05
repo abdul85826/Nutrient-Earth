@@ -6,17 +6,23 @@ import '../../../../core/services/diurnal_service.dart';
 
 class DynamicGreetingCard extends StatelessWidget {
   final DiurnalContext diurnal;
+  final String? activeGoal;
 
   const DynamicGreetingCard({
     super.key,
     required this.diurnal,
+    this.activeGoal,
   });
 
   @override
   Widget build(BuildContext context) {
+    final goalSubtext = activeGoal != null && activeGoal!.isNotEmpty
+        ? "Personalized guidance calibrated for your $activeGoal focus."
+        : "Let's find evidence-based answers for a healthier you.";
+
     return Semantics(
       container: true,
-      label: '${diurnal.formattedDate}, ${diurnal.greeting.replaceAll('\n', ' ')}. Let\'s find evidence-based answers for a healthier you.',
+      label: '${diurnal.formattedDate}, ${diurnal.greeting.replaceAll('\n', ' ')}. $goalSubtext',
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(NETokens.radiusXl),
@@ -64,14 +70,40 @@ class DynamicGreetingCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Let's find evidence-based answers for a healthier you.",
+                    goalSubtext,
                     style: GoogleFonts.manrope(
-                      fontSize: 13.5,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: NETokens.textSecondary,
                       height: 1.3,
                     ),
                   ),
+                  if (activeGoal != null && activeGoal!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: NETokens.paleMint.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(NETokens.radiusFull),
+                        border: Border.all(color: const Color(0xFFC0E5CB)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.track_changes_rounded, size: 12, color: NETokens.deepestForest),
+                          const SizedBox(width: 4),
+                          Text(
+                            activeGoal!.toUpperCase(),
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              color: NETokens.deepestForest,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

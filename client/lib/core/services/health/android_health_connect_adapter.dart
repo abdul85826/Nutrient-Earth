@@ -72,66 +72,91 @@ class AndroidHealthConnectAdapter implements HealthPlatformAdapter {
     if (!await isPlatformSupported()) return [];
     try {
       await _health.configure();
-      final pkhTypes = _mapDomainTypesToPlatform(types);
-      if (pkhTypes.isEmpty) return [];
-
-      final dataPoints = await _health.getHealthDataFromTypes(
-        types: pkhTypes,
-        startTime: startTime,
-        endTime: endTime,
-      );
-
+      debugPrint('[HealthConnect] Starting record retrieval for ${types.length} types. Query range: ${startTime.toIso8601String()} to ${endTime.toIso8601String()}');
       final records = <HealthRecord>[];
-      for (final dp in dataPoints) {
-        final domainType = _mapPlatformTypeToDomain(dp.type);
-        if (domainType == null) continue;
 
-        final rawValue = _extractValue(dp);
-        if (rawValue == null) continue;
+      for (final domainType in types) {
+        final pkhType = _mapSingleDomainTypeToPlatform(domainType);
+        if (pkhType == null) {
+          debugPrint('[HealthConnect] Skipping unmapped domain type: ${domainType.name}');
+          continue;
+        }
 
-        final rawUnit = dp.unitString;
-        final normalizedVal = HealthUnitConverter.normalize(domainType, rawValue, rawUnit);
-        if (normalizedVal == null) continue;
+        try {
+          debugPrint('[HealthConnect] Executing query for: ${domainType.name} (native: ${pkhType.name})');
+          final dataPoints = await _health.getHealthDataFromTypes(
+            types: [pkhType],
+            startTime: startTime,
+            endTime: endTime,
+          );
+          debugPrint('[HealthConnect] Query succeeded for ${domainType.name}. Returned ${dataPoints.length} data points.');
 
-        // Determine source attribution
-        final source = _resolveSourceType(dp);
+          int typeValidCount = 0;
+          for (final dp in dataPoints) {
+            final mappedType = _mapPlatformTypeToDomain(dp.type) ?? domainType;
+            final rawValue = _extractValue(dp);
+            if (rawValue == null) {
+              debugPrint('[HealthConnect] Discarded ${mappedType.name} point: raw value is null or invalid');
+              continue;
+            }
 
-        records.add(
-          HealthRecord(
-            id: _uuid.v4(),
-            type: domainType,
-            value: normalizedVal,
-            unit: domainType.standardUnit,
-            recordedAt: dp.dateFrom,
-            endRecordedAt: dp.dateTo,
-            source: source,
-            sourcePlatform: platformName,
-            deviceModel: dp.sourceName.isNotEmpty ? dp.sourceName : null,
-            externalRecordId: dp.uuid.isNotEmpty ? dp.uuid : null,
-            metadata: {
-              'native_type': dp.type.name,
-              'raw_unit': rawUnit,
-              'raw_value': rawValue,
-              'source_id': dp.sourceId,
-              'source_name': dp.sourceName,
-              'recording_method': dp.recordingMethod.name,
-              if (dp.workoutSummary != null)
-                'workout_summary': {
-                  'activity_type': dp.workoutSummary!.workoutType,
-                  'total_distance': dp.workoutSummary!.totalDistance,
-                  'total_energy': dp.workoutSummary!.totalEnergyBurned,
-                  'total_steps': dp.workoutSummary!.totalSteps,
+            final rawUnit = dp.unitString;
+            final normalizedVal = HealthUnitConverter.normalize(mappedType, rawValue, rawUnit);
+            if (normalizedVal == null) {
+              debugPrint('[HealthConnect] Discarded ${mappedType.name} point: failed unit conversion ($rawValue $rawUnit)');
+              continue;
+            }
+
+            final source = _resolveSourceType(dp);
+            records.add(
+              HealthRecord(
+                id: _uuid.v4(),
+                type: mappedType,
+                value: normalizedVal,
+                unit: mappedType.standardUnit,
+                recordedAt: dp.dateFrom,
+                endRecordedAt: dp.dateTo,
+                source: source,
+                sourcePlatform: platformName,
+                deviceModel: dp.sourceName.isNotEmpty ? dp.sourceName : null,
+                externalRecordId: dp.uuid.isNotEmpty ? dp.uuid : null,
+                metadata: {
+                  'native_type': dp.type.name,
+                  'raw_unit': rawUnit,
+                  'raw_value': rawValue,
+                  'source_id': dp.sourceId,
+                  'source_name': dp.sourceName,
+                  'recording_method': dp.recordingMethod.name,
+                  if (dp.workoutSummary != null)
+                    'workout_summary': {
+                      'activity_type': dp.workoutSummary!.workoutType,
+                      'total_distance': dp.workoutSummary!.totalDistance,
+                      'total_energy': dp.workoutSummary!.totalEnergyBurned,
+                      'total_steps': dp.workoutSummary!.totalSteps,
+                    },
                 },
-            },
-          ),
-        );
+              ),
+            );
+            typeValidCount++;
+          }
+          debugPrint('[HealthConnect] ${domainType.name}: $typeValidCount records converted successfully.');
+        } catch (catError) {
+          debugPrint('[HealthConnect] Query for category ${domainType.name} failed: $catError');
+        }
       }
 
+      debugPrint('[HealthConnect] Retrieval complete. Total records gathered: ${records.length}');
       return records;
     } catch (e) {
+      debugPrint('[HealthConnect] Top-level readRecords failed: $e');
       if (e is HealthAdapterException) rethrow;
       throw HealthAdapterException('Health Connect read failed', e);
     }
+  }
+
+  pkh.HealthDataType? _mapSingleDomainTypeToPlatform(HealthDataType type) {
+    final list = _mapDomainTypesToPlatform([type]);
+    return list.isNotEmpty ? list.first : null;
   }
 
   @override

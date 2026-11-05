@@ -1,4 +1,7 @@
 {
   "coderabbit.respectGitIgnore": true,
-  "coderabbit.autoReviewMode": "prompt"
+  "coderabbit.autoReviewMode": "Disabled",
+  "coderabbit.completionNotifications": false,
+  "coderabbit.reviewCompletionSound": false,
+  "coderabbit.autoStartTask": false
 }

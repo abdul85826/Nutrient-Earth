@@ -111,13 +111,39 @@ void main() {
   });
 
   group('Daily Plan Interactive Checklist Tests', () {
-    testWidgets('DailyPlanSection renders 5 tasks with initial 3 completed and allows toggling', (tester) async {
+    testWidgets('Fresh account state: zero fabricated tasks and honest empty state', (tester) async {
+      await tester.pumpWidget(
+        createTestHost(
+          child: Scaffold(
+            body: DailyPlanSection(
+              counterLabel: '0 OF 0 COMPLETED',
+              tasks: const [],
+              onToggleTask: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Your daily plan'), findsOneWidget);
+      expect(find.text('0 OF 0 COMPLETED'), findsOneWidget);
+      expect(find.text('No Active Plan Scheduled'), findsOneWidget);
+      expect(
+        find.text('Set your primary nutrition and health goals in your profile, or ask research to personalize daily actions.'),
+        findsOneWidget,
+      );
+      // Confirms zero tasks rendered
+      expect(find.byType(Checkbox), findsNothing);
+    });
+
+    testWidgets('Existing account state: authentic saved tasks are preserved and toggleable', (tester) async {
       int toggledIndex = -1;
       await tester.pumpWidget(
         createTestHost(
           child: Scaffold(
             body: DailyPlanSection(
               counterLabel: '3 of 5 completed',
+              goalLabel: 'Endurance Recovery',
               tasks: const [
                 DailyPlanTask(
                   id: 't-1',
@@ -264,31 +290,22 @@ void main() {
       expect(find.text("Let's find evidence-based answers for a healthier you."), findsOneWidget);
 
       // Section 2: Metrics Strip
-      expect(find.text('42'), findsOneWidget);
-      expect(find.text('Good AQI'), findsOneWidget);
-      expect(find.text('3 days'), findsOneWidget);
+      expect(find.text('Awaiting sync'), findsOneWidget);
+      expect(find.text('0 days'), findsOneWidget);
 
       // Section 3: Research Section
       expect(find.text('Get answers. Know the evidence. Make better choices.'), findsOneWidget);
       expect(find.text('Is my diet right for my goal?'), findsOneWidget);
 
-      // Section 4: Daily Plan
+      // Section 4: Daily Plan — Honest Fresh State
       expect(find.text('Your daily plan'), findsOneWidget);
-      expect(find.text('3 of 5 completed'), findsOneWidget);
+      expect(find.text('No Active Plan Scheduled'), findsOneWidget);
 
       // Section 5: Learn Section
       expect(find.text('Learn for today'), findsOneWidget);
 
       // Section 6: Feedback Footer
       expect(find.text('Share your feedback'), findsOneWidget);
-
-      // Toggle Daily Plan Task 4 (Afternoon hydration check)
-      final taskFinder = find.text('Afternoon hydration check (500ml water or herbal tea)');
-      await tester.ensureVisible(taskFinder);
-      await tester.pumpAndSettle();
-      await tester.tap(taskFinder);
-      await tester.pumpAndSettle();
-      expect(find.text('4 of 5 completed'), findsOneWidget);
 
       // Open Navigation Drawer
       final menuFinder = find.byIcon(Icons.menu_rounded);
@@ -299,7 +316,8 @@ void main() {
       expect(find.text('New Research Inquiry'), findsOneWidget);
       expect(find.text('RECENT INQUIRIES'), findsOneWidget);
       expect(find.text('Privacy & Data Controls'), findsOneWidget);
-      expect(find.text('Sarah Jenkins'), findsOneWidget);
+      expect(find.text('Guest User'), findsOneWidget);
+      expect(find.text('Sign in to sync & set goals'), findsOneWidget);
     });
   });
 

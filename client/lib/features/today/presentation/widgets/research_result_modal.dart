@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../core/domain/answer_contract/universal_intelligence_answer.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../../core/services/research_persistence_service.dart';
@@ -160,49 +161,27 @@ class ResearchResultModal extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // 1. ANSWER SECTION
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // Visual Presentation Hierarchy: Secondary Goal Match & Evidence Watermark
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.help_outline_rounded, size: 15, color: NETokens.primary),
-                            const SizedBox(width: 6),
-                            Text(
-                              'ANSWER',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: NETokens.primary,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: NETokens.paleMint,
-                            borderRadius: BorderRadius.circular(NETokens.radiusFull),
-                            border: Border.all(color: const Color(0xFFC0E5CB)),
-                          ),
-                          child: Text(
-                            answer.evidenceBadge,
-                            style: GoogleFonts.jetBrainsMono(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: NETokens.deepestForest,
-                            ),
-                          ),
-                        ),
+                        // Rule 2: Goal match indicator is a small secondary element
+                        _buildGoalMatchPill(context, answer),
+
+                        // Rule 3 & 4: Evidence represented by subtle watermark, ONLY when verified sources exist
+                        if (answer.universalAnswer?.showEvidenceWatermark == true || answer.citations.isNotEmpty)
+                          _buildEvidenceWatermark(context, answer),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
 
-                    // Synthesized Answer Card
+                    // Rule 1: The Answer is the Hero
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(NETokens.radiusLg),
@@ -212,15 +191,94 @@ class ResearchResultModal extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: NETokens.emerald,
+                                  borderRadius: BorderRadius.circular(1.5),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'ANSWER',
+                                style: GoogleFonts.jetBrainsMono(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: NETokens.emerald,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Hero Answer
                           Text(
-                            answer.answerSummary,
-                            style: GoogleFonts.manrope(
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w500,
+                            answer.universalAnswer?.heroAnswer.isNotEmpty == true
+                                ? answer.universalAnswer!.heroAnswer
+                                : (answer.answerSummary.split('\n\n').first),
+                            style: GoogleFonts.newsreader(
+                              fontSize: 18.5,
+                              fontWeight: FontWeight.w700,
                               color: NETokens.primary,
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // My Recommendation
+                          if (answer.universalAnswer?.recommendation.isNotEmpty == true) ...[
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: NETokens.paleMint.withOpacity(0.4),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFFC0E5CB)),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.thumb_up_alt_outlined, size: 15, color: NETokens.deepestForest),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        style: GoogleFonts.manrope(
+                                          fontSize: 12.5,
+                                          color: NETokens.deepestForest,
+                                          height: 1.4,
+                                        ),
+                                        children: [
+                                          const TextSpan(
+                                            text: 'My recommendation: ',
+                                            style: TextStyle(fontWeight: FontWeight.w700),
+                                          ),
+                                          TextSpan(text: answer.universalAnswer!.recommendation),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+
+                          // Detailed Explanation
+                          Text(
+                            answer.universalAnswer?.detailedExplanation.isNotEmpty == true
+                                ? answer.universalAnswer!.detailedExplanation
+                                : answer.answerSummary,
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: NETokens.textSecondary,
                               height: 1.5,
                             ),
                           ),
+                          _buildMultimodalArtifacts(context, answer.universalAnswer),
                           if (answer.comparisonCallout != null) ...[
                             const SizedBox(height: 14),
                             Container(
@@ -782,6 +840,406 @@ class ResearchResultModal extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+  Widget _buildGoalMatchPill(BuildContext context, ResearchAnswer answer) {
+    final goalMatch = answer.universalAnswer?.goalMatch;
+    if (goalMatch != null && goalMatch.hasSufficientContext) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: NETokens.surface,
+          borderRadius: BorderRadius.circular(NETokens.radiusFull),
+          border: Border.all(color: const Color(0xFFC0E5CB)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle_rounded, size: 12, color: NETokens.emerald),
+            const SizedBox(width: 5),
+            Text(
+              goalMatch.matchLabel,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: NETokens.deepestForest,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (answer.goalAlignment != null && answer.goalAlignment!.matchedGoals.isNotEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: NETokens.surface,
+          borderRadius: BorderRadius.circular(NETokens.radiusFull),
+          border: Border.all(color: NETokens.borderSubtle),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.track_changes_rounded, size: 12, color: NETokens.botanicalTeal),
+            const SizedBox(width: 5),
+            Text(
+              'Goal aligned: ${answer.goalAlignment!.matchedGoals.first}',
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: NETokens.primary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: NETokens.surfaceDim,
+        borderRadius: BorderRadius.circular(NETokens.radiusFull),
+      ),
+      child: Text(
+        'Goal match: add goals to profile',
+        style: GoogleFonts.manrope(
+          fontSize: 9.5,
+          fontWeight: FontWeight.w600,
+          color: NETokens.textMuted,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEvidenceWatermark(BuildContext context, ResearchAnswer answer) {
+    final label = (answer.evidenceBadge.isNotEmpty && !answer.evidenceBadge.contains('NO VERIFIED'))
+        ? answer.evidenceBadge
+        : (answer.universalAnswer?.evidence.watermarkLabel ?? 'Verified sources available');
+    return InkWell(
+      borderRadius: BorderRadius.circular(NETokens.radiusFull),
+      onTap: () => _showInspectableEvidenceModal(context, answer),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: NETokens.paleMint,
+          borderRadius: BorderRadius.circular(NETokens.radiusFull),
+          border: Border.all(color: const Color(0xFFC0E5CB)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.verified_outlined, size: 13, color: NETokens.emerald),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: GoogleFonts.jetBrainsMono(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w700,
+                color: NETokens.deepestForest,
+              ),
+            ),
+            const SizedBox(width: 2),
+            const Icon(Icons.chevron_right_rounded, size: 12, color: NETokens.emerald),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMultimodalArtifacts(BuildContext context, UniversalIntelligenceAnswer? u) {
+    if (u == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (u.imageQuality != null) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: u.imageQuality!.isSuitableForTask ? NETokens.surface : const Color(0xFFFFF7ED),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: u.imageQuality!.isSuitableForTask ? NETokens.borderSubtle : const Color(0xFFFED7AA),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  u.imageQuality!.isSuitableForTask ? Icons.camera_alt_outlined : Icons.warning_amber_rounded,
+                  size: 16,
+                  color: u.imageQuality!.isSuitableForTask ? NETokens.botanicalTeal : const Color(0xFFEA580C),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'IMAGE QUALITY ASSESSMENT',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: u.imageQuality!.isSuitableForTask ? NETokens.textSecondary : const Color(0xFF9A3412),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        u.imageQuality!.diagnosticNotes,
+                        style: GoogleFonts.manrope(
+                          fontSize: 11,
+                          color: NETokens.primary,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        if (u.videoAnalysis != null && u.videoAnalysis!.claims.isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Text(
+            'TIMESTAMPED VIDEO CLAIMS',
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: NETokens.primary,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          for (final claim in u.videoAnalysis!.claims)
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: NETokens.surface,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: NETokens.borderSubtle),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Timestamp: ${claim.timestamp}',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          color: NETokens.botanicalTeal,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: claim.scientificStatus == 'supported'
+                              ? NETokens.paleMint
+                              : (claim.scientificStatus == 'contradicted' ? const Color(0xFFFFEBE8) : NETokens.surfaceDim),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          claim.scientificStatus.toUpperCase(),
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 8.5,
+                            fontWeight: FontWeight.w700,
+                            color: claim.scientificStatus == 'supported'
+                                ? NETokens.deepestForest
+                                : (claim.scientificStatus == 'contradicted' ? const Color(0xFFD32F2F) : NETokens.textMuted),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '"${claim.speakerStatement}"',
+                    style: GoogleFonts.manrope(
+                      fontSize: 11.5,
+                      fontStyle: FontStyle.italic,
+                      color: NETokens.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Scientific finding: ${claim.scientificFinding}',
+                    style: GoogleFonts.manrope(
+                      fontSize: 11,
+                      color: NETokens.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+        if (u.foodComposition != null) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: NETokens.surface,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: NETokens.borderSubtle),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildMacroMetric('Calories', '${u.foodComposition!.macronutrients.calories} kcal'),
+                _buildMacroMetric('Protein', '${u.foodComposition!.macronutrients.proteinGrams.toStringAsFixed(1)}g'),
+                _buildMacroMetric('Carbs', '${u.foodComposition!.macronutrients.carbohydratesGrams.toStringAsFixed(1)}g'),
+                _buildMacroMetric('Fat', '${u.foodComposition!.macronutrients.fatGrams.toStringAsFixed(1)}g'),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildMacroMetric(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w800,
+            color: NETokens.primary,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.manrope(
+            fontSize: 9.5,
+            color: NETokens.textMuted,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showInspectableEvidenceModal(BuildContext context, ResearchAnswer answer) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: NETokens.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(20),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'INSPECTABLE EVIDENCE DOSSIER',
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: NETokens.primary,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(color: NETokens.borderSeparator),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: answer.citations.length,
+                  itemBuilder: (context, idx) {
+                    final c = answer.citations[idx];
+                    return Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: NETokens.borderDefault),
+                      ),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  c.evidenceGrade,
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: NETokens.emerald,
+                                  ),
+                                ),
+                                if (c.pmid != null)
+                                  Text(
+                                    'PMID: ${c.pmid}',
+                                    style: GoogleFonts.jetBrainsMono(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: NETokens.botanicalTeal,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              c.title,
+                              style: GoogleFonts.manrope(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: NETokens.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${c.authorsOrJournal} (${c.year})',
+                              style: GoogleFonts.manrope(
+                                fontSize: 11,
+                                color: NETokens.textSecondary,
+                              ),
+                            ),
+                            if (c.supportingClaim != null) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                'Claim: "${c.supportingClaim}"',
+                                style: GoogleFonts.manrope(
+                                  fontSize: 11,
+                                  fontStyle: FontStyle.italic,
+                                  color: NETokens.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

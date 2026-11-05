@@ -1,11 +1,29 @@
 // ==============================================================================
-// Types for Nutrient Earth Research Synthesizer & DeepSeek Adapter
+// Types for Nutrient Earth Multi-Provider AI Gateway & Synthesizer
 // ==============================================================================
+
+export type UserInputType =
+  | 'text'
+  | 'image'
+  | 'videoUpload'
+  | 'socialVideoUrl'
+  | 'webUrl'
+  | 'documentPdf'
+  | 'productQuery'
+  | 'barcode'
+  | 'healthData';
 
 export type TaskType = 
   | 'general_scientific_inquiry'
   | 'personalized_clinical_guidance'
-  | 'biometric_trend_analysis';
+  | 'biometric_trend_analysis'
+  | 'food_image_analysis'
+  | 'document_processing'
+  | 'video_understanding'
+  | 'social_url_retrieval'
+  | 'intent_classification';
+
+export type AIProviderId = 'groq' | 'gemini' | 'openrouter' | 'deepseek' | 'deterministic';
 
 export interface AnonymizedUserProfileContext {
   age?: number;
@@ -17,13 +35,22 @@ export interface AnonymizedUserProfileContext {
   active_supplements?: string[];
 }
 
+export interface MultimodalImagePayload {
+  base64Data: string;
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
+  sizeBytes?: number;
+}
+
 export interface SynthesizerRequest {
   query: string;
   taskType?: TaskType;
   containsPersonalHealthData?: boolean;
   preferredDomain?: string;
+  preferredProvider?: AIProviderId;
+  preferredModel?: string;
   referenceId?: string;
   userContext?: AnonymizedUserProfileContext;
+  image?: MultimodalImagePayload;
 }
 
 export interface ResearchCitationPayload {
@@ -62,6 +89,63 @@ export interface SafetyInformationPayload {
   generalMedicalDisclaimer: string;
 }
 
+export interface FoodNutrientItem {
+  name: string;
+  amount: number;
+  unit: string;
+}
+
+export interface FoodAnalysisPayload {
+  identifiedFood: string;
+  confidenceScore: number; // 0.0 to 1.0
+  estimatedPortionGrams?: number;
+  portionConfidence: 'high' | 'medium' | 'low';
+  calories: number;
+  proteinGrams: number;
+  carbohydrateGrams: number;
+  fatGrams: number;
+  fiberGrams: number;
+  micronutrients: FoodNutrientItem[];
+  uncertaintyNotes: string;
+  healthObservations: string[];
+}
+
+export interface GoalMatchIndicatorPayload {
+  matchPercentage?: number;
+  status: 'aligned' | 'partiallyAligned' | 'misaligned' | 'insufficientInformation';
+  matchLabel: string;
+  rationale: string;
+  positiveFactors: string[];
+  riskFactors: string[];
+  missingContextNotes?: string;
+}
+
+export interface EvidenceProvenancePayload {
+  hasVerifiedSources: boolean;
+  classification: 'wellSupported' | 'limitedEvidence' | 'mixedEvidence' | 'notVerified';
+  watermarkLabel: string;
+  citations: ResearchCitationPayload[];
+  claims: ScientificClaimPayload[];
+  limitationsNotes?: string;
+}
+
+export interface UniversalIntelligenceAnswerPayload {
+  contractVersion: '2026.2';
+  referenceId: string;
+  detectedInputType: UserInputType;
+  query: string;
+  heroAnswer: string;
+  recommendation: string;
+  detailedExplanation: string;
+  goalMatch: GoalMatchIndicatorPayload;
+  evidence: EvidenceProvenancePayload;
+  practicalSteps: string[];
+  foodAnalysis?: FoodAnalysisPayload;
+  uncertaintyDisclaimer: string;
+  providerUsed: string;
+  generatedAt: string;
+}
+
 export interface ResearchAnswerPayload {
   contractVersion?: string;
   query: string;
@@ -80,48 +164,13 @@ export interface ResearchAnswerPayload {
   claims?: ScientificClaimPayload[];
   goalAlignment?: GoalAssessmentResultPayload;
   safetyInformation?: SafetyInformationPayload;
+  foodAnalysis?: FoodAnalysisPayload;
   practicalSteps: string[];
   uncertaintyDisclaimer: string;
   provider: string;
+  modelUsed?: string;
+  latencyMs?: number;
   generatedAt: string;
-}
-
-export interface DeepSeekChatMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
-
-export interface DeepSeekChatCompletionRequest {
-  model: string;
-  messages: DeepSeekChatMessage[];
-  temperature?: number;
-  max_tokens?: number;
-  response_format?: { type: 'json_object' };
-}
-
-export interface DeepSeekChatCompletionResponse {
-  id?: string;
-  object?: string;
-  created?: number;
-  model?: string;
-  choices?: Array<{
-    index: number;
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-  error?: {
-    message?: string;
-    type?: string;
-    code?: string;
-  };
 }
 
 export type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
@@ -141,4 +190,15 @@ export interface AdapterOperationalMetrics {
   circuitState: CircuitState;
   lastFailureTime?: number;
   lastLatencyMs?: number;
+}
+
+export interface ModelCapabilityDescriptor {
+  id: string;
+  providerId: AIProviderId;
+  displayName: string;
+  supportsMultimodal: boolean;
+  supportsStructuredOutput: boolean;
+  maxContextTokens: number;
+  taskSuitability: TaskType[];
+  isAvailable: boolean;
 }

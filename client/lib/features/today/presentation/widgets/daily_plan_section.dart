@@ -9,6 +9,7 @@ class DailyPlanSection extends StatelessWidget {
   final String counterLabel;
   final ValueChanged<int> onToggleTask;
   final VoidCallback? onWhyRoutineTap;
+  final String? goalLabel;
 
   const DailyPlanSection({
     super.key,
@@ -16,6 +17,7 @@ class DailyPlanSection extends StatelessWidget {
     required this.counterLabel,
     required this.onToggleTask,
     this.onWhyRoutineTap,
+    this.goalLabel,
   });
 
   @override
@@ -76,59 +78,105 @@ class DailyPlanSection extends StatelessWidget {
           const SizedBox(height: 12),
           const Divider(color: Color(0xFFECEFEA), height: 1),
 
-          // Task List
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: tasks.length,
-            separatorBuilder: (context, index) => const Divider(
-              color: Color(0xFFF1EBE0),
-              height: 1,
+          if (tasks.isEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 8.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: NETokens.surfaceContainerLow,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.track_changes_rounded,
+                        size: 24,
+                        color: NETokens.botanicalTeal,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'No Active Plan Scheduled',
+                      style: GoogleFonts.newsreader(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: NETokens.deepestForest,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Set your primary nutrition and health goals in your profile, or ask research to personalize daily actions.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.manrope(
+                        fontSize: 12,
+                        color: NETokens.textSecondary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return _buildTaskRow(task, index);
-            },
-          ),
-          const SizedBox(height: 10),
-          const Divider(color: Color(0xFFF1EBE0), height: 1),
-          const SizedBox(height: 10),
+          ] else ...[
+            // Task List
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: tasks.length,
+              separatorBuilder: (context, index) => const Divider(
+                color: Color(0xFFF1EBE0),
+                height: 1,
+              ),
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return _buildTaskRow(task, index);
+              },
+            ),
+            const SizedBox(height: 10),
+            const Divider(color: Color(0xFFF1EBE0), height: 1),
+            const SizedBox(height: 10),
 
-          // Footer
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runSpacing: 6,
-            children: [
-              InkWell(
-                onTap: onWhyRoutineTap,
-                child: Text.rich(
-                  TextSpan(
-                    text: 'Why this routine fits your goals ',
+            // Footer
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: 6,
+              children: [
+                if (onWhyRoutineTap != null)
+                  InkWell(
+                    onTap: onWhyRoutineTap,
+                    child: Text.rich(
+                      TextSpan(
+                        text: 'Why this routine fits your goals ',
+                        style: GoogleFonts.manrope(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: NETokens.emerald,
+                        ),
+                        children: const [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Icon(Icons.arrow_forward_rounded, size: 14, color: NETokens.emerald),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (goalLabel != null && goalLabel!.trim().isNotEmpty)
+                  Text(
+                    'Goal: ${goalLabel!.trim()}',
                     style: GoogleFonts.manrope(
                       fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: NETokens.emerald,
+                      fontWeight: FontWeight.w500,
+                      color: NETokens.textMuted,
                     ),
-                    children: const [
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.middle,
-                        child: Icon(Icons.arrow_forward_rounded, size: 14, color: NETokens.emerald),
-                      ),
-                    ],
                   ),
-                ),
-              ),
-              Text(
-                'Goal: Endurance Recovery',
-                style: GoogleFonts.manrope(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: NETokens.textMuted,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );

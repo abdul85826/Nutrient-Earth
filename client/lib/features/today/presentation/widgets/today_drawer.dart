@@ -10,6 +10,8 @@ class TodayDrawer extends StatelessWidget {
   final ValueChanged<String> onSelectHistory;
   final VoidCallback onProfileTap;
   final VoidCallback? onPrivacyTap;
+  final String? profileName;
+  final String? profileGoal;
 
   const TodayDrawer({
     super.key,
@@ -17,6 +19,8 @@ class TodayDrawer extends StatelessWidget {
     required this.onSelectHistory,
     required this.onProfileTap,
     this.onPrivacyTap,
+    this.profileName,
+    this.profileGoal,
   });
 
   @override
@@ -276,7 +280,9 @@ class TodayDrawer extends StatelessWidget {
                 child: Icon(Icons.person_rounded, size: 18, color: NETokens.primary),
               ),
               title: Text(
-                'Sarah Jenkins',
+                (profileName != null && profileName!.trim().isNotEmpty)
+                    ? profileName!.trim()
+                    : 'Guest User',
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -284,7 +290,11 @@ class TodayDrawer extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                'Active Goal: Endurance Recovery',
+                (profileName != null && profileName!.trim().isNotEmpty)
+                    ? ((profileGoal != null && profileGoal!.trim().isNotEmpty)
+                        ? 'Active Goal: ${profileGoal!.trim()}'
+                        : 'Profile Configured')
+                    : 'Sign in to sync & set goals',
                 style: GoogleFonts.manrope(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,

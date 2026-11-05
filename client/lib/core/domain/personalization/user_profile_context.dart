@@ -16,6 +16,7 @@ class UserProfileContext {
   final String willingnessToChange;
   final List<String> knownConditions;
   final List<String> activeSupplements;
+  final List<String> allergies;
 
   const UserProfileContext({
     required this.userId,
@@ -29,6 +30,7 @@ class UserProfileContext {
     required this.willingnessToChange,
     this.knownConditions = const [],
     this.activeSupplements = const [],
+    this.allergies = const [],
   });
 
   factory UserProfileContext.fromJson(Map<String, dynamic> json) {

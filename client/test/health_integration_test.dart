@@ -414,6 +414,10 @@ void main() {
       expect(result.totalRead, 2);
       expect(result.totalSynced, 2);
       expect(result.duplicatesSkipped, 0);
+      expect(result.categoryMetrics[HealthDataType.steps], 5000.0);
+      expect(result.categoryMetrics[HealthDataType.heartRate], 72.0);
+      expect(result.categoryCounts[HealthDataType.steps], 1);
+      expect(result.categoryCounts[HealthDataType.heartRate], 1);
     });
 
     test('Sync handles permission rejection gracefully', () async {
