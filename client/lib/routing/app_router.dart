@@ -29,7 +29,7 @@ import '../features/today/presentation/widgets/input_processing_view.dart';
 import '../features/today/presentation/widgets/universal_reference_answer_card.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/processing-view',
+  initialLocation: '/today',
   routes: [
     // Screen 01: Brand Splash Screen
     GoRoute(
@@ -169,7 +169,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/processing-view',
       builder: (context, state) => InputProcessingView(
-        query: state.uri.queryParameters['q'] ?? 'Can I use this herbal shampoo? Is t good for hair fall?',
+        query: state.uri.queryParameters['q'] ?? 'Synthesizing evidence-based analysis...',
         onCompleted: () => context.go('/answer-experience'),
       ),
     ),

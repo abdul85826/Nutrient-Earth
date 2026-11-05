@@ -64,7 +64,10 @@ class SupabaseAuthService implements AuthService {
     if (client == null) {
       throw const AuthException('Authentication backend is offline or uninitialized.');
     }
-    return client.auth.signInWithOAuth(OAuthProvider.google);
+    return client.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: 'com.nutrientearth.nutrient_earth_client://login-callback',
+    );
   }
 
   @override

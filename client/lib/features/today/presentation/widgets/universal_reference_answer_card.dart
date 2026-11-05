@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../../core/domain/answer_contract/universal_intelligence_answer.dart';
+import '../../../../core/domain/input_gateway/universal_input_descriptor.dart';
 import '../../../../core/services/research_pipeline_service.dart';
 
 class UniversalReferenceAnswerCard extends StatefulWidget {
@@ -25,13 +26,17 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
   final VoidCallback? onViewAllEvidence;
   final VoidCallback? onBookmark;
   final bool isStandalonePage;
+  final bool isProduct;
+  final String? evidenceBadge;
 
   const UniversalReferenceAnswerCard({
     super.key,
     this.productName = 'Himalaya Herbals Anti-Hair Fall Shampoo',
     this.productDescription =
         'A herbal shampoo with Bhringraj and Amla, known to support stronger hair and reduce hair fall when used regularly.',
-    this.productPackshotAsset = 'assets/images/himalaya_shampoo_packshot.png',
+    this.productPackshotAsset,
+    this.isProduct = true,
+    this.evidenceBadge = 'Well Supported',
     this.myTakeText =
         "Yes, you can use this. It's a gentle, herbal option that may help reduce hair fall and improve hair strength, especially if you prefer natural ingredients.",
     this.keyBenefits = const [
@@ -118,13 +123,19 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
                 summary: 'Replicated randomized controlled trials and indexed peer-reviewed literature.',
               ),
             ],
+      isProduct: answer.detectedInputType == UserInputType.barcode ||
+          (answer.foodComposition != null && answer.detectedInputType == UserInputType.image),
+      productPackshotAsset: (answer.detectedInputType == UserInputType.barcode ||
+              (answer.foodComposition != null && answer.detectedInputType == UserInputType.image))
+          ? 'assets/images/himalaya_shampoo_packshot.png'
+          : null,
+      evidenceBadge: answer.evidence.classification.displayName,
       onBack: onBack,
       onViewAllEvidence: onViewAllEvidence,
       isStandalonePage: isStandalonePage,
     );
   }
 
-  @override
   /// Factory constructor to adapt from a ResearchAnswer
   factory UniversalReferenceAnswerCard.fromResearchAnswer({
     Key? key,
@@ -154,6 +165,11 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
       );
     }).toList();
 
+    final isProd = answer.query.toLowerCase().contains('shampoo') ||
+        answer.query.toLowerCase().contains('bottle') ||
+        answer.query.toLowerCase().contains('supplement') ||
+        answer.query.toLowerCase().contains('product');
+
     return UniversalReferenceAnswerCard(
       key: key,
       productName: answer.query.isNotEmpty ? answer.query : 'Research Intelligence',
@@ -180,6 +196,9 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
                 summary: 'Replicated randomized controlled trials and indexed peer-reviewed literature.',
               ),
             ],
+      isProduct: isProd,
+      productPackshotAsset: isProd ? 'assets/images/himalaya_shampoo_packshot.png' : null,
+      evidenceBadge: answer.evidenceBadge.isNotEmpty ? answer.evidenceBadge : 'Evidence Grounded',
       onBack: onBack,
       onViewAllEvidence: onViewAllEvidence,
       isStandalonePage: isStandalonePage,
@@ -357,6 +376,93 @@ class _UniversalReferenceAnswerCardState extends State<UniversalReferenceAnswerC
 
   /// Product Identified & Well Supported Hero block
   Widget _buildProductHeroSection(BuildContext context) {
+    if (!widget.isProduct) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7FAF8),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE5EDE7)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2E9),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.menu_book_rounded, color: Color(0xFF1B5E20), size: 13),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Evidence Synthesis',
+                        style: GoogleFonts.manrope(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1B5E20),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFDCE8E0)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Color(0xFF2E7D32), size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.evidenceBadge ?? 'Well Supported',
+                        style: GoogleFonts.manrope(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1F4432),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.productName,
+              style: GoogleFonts.fraunces(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF132A1C),
+                height: 1.25,
+              ),
+            ),
+            if (widget.productDescription.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(
+                widget.productDescription,
+                style: GoogleFonts.manrope(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF4A6B53),
+                  height: 1.45,
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -822,13 +928,21 @@ Widget _buildConversationalFollowUpSection(BuildContext context) {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: [
-                _buildSuggestionChip('Compare with Minoxidil'),
-                const SizedBox(width: 8),
-                _buildSuggestionChip('Can I use this daily?'),
-                const SizedBox(width: 8),
-                _buildSuggestionChip('Does it help thinning?'),
-              ],
+              children: widget.isProduct
+                  ? [
+                      _buildSuggestionChip('Compare with Minoxidil'),
+                      const SizedBox(width: 8),
+                      _buildSuggestionChip('Can I use this daily?'),
+                      const SizedBox(width: 8),
+                      _buildSuggestionChip('Does it help thinning?'),
+                    ]
+                  : [
+                      _buildSuggestionChip('Biological mechanism'),
+                      const SizedBox(width: 8),
+                      _buildSuggestionChip('Any contraindications?'),
+                      const SizedBox(width: 8),
+                      _buildSuggestionChip('Optimal daily intake'),
+                    ],
             ),
           ),
           const SizedBox(height: 14),
@@ -976,24 +1090,37 @@ Widget _buildConversationalFollowUpSection(BuildContext context) {
       _isGeneratingFollowUp = true;
     });
 
-    final lower = query.toLowerCase();
     String responseText;
-
-    if (lower.contains('minoxidil') || lower.contains('rogaine')) {
-      responseText =
-          'Minoxidil 5% has Grade A clinical evidence (FDA-approved) for androgenetic alopecia by prolonging anagen phase and expanding follicle diameter. Herbal formulations with Bhringraj and Amla support scalp hydration, cosmetic shine, and mild botanical circulation, but do not replace pharmacological treatment for progressive genetic baldness.';
-    } else if (lower.contains('daily') || lower.contains('how often') || lower.contains('frequency')) {
-      responseText =
-          'Trichology reviews indicate 2 to 3 washes weekly are optimal for herbal shampoos. Excessive washing can deplete sebum reserves, causing compensatory oiliness or scalp dryness. Consistent moderate application allows botanical antioxidants to support hair shaft integrity.';
-    } else if (lower.contains('thinning') || lower.contains('regrowth') || lower.contains('fall')) {
-      responseText =
-          'Preclinical and clinical trial data (PMID: 33451298) demonstrate that active wedelolactone in Eclipta alba promotes microvascular delivery and follicular vitality in telogen effluvium. For persistent patterned loss, blood tests (ferritin, thyroid panel, vitamin D) and dermatological consultation are recommended.';
-    } else {
-      responseText =
-          'Scientific literature indicates that herbal antioxidants (tannins in Amla, triterpenoids in Bhringraj) reduce oxidative stress on scalp keratinocytes. Aligning with your primary goals, ensure sufficient dietary protein intake (1.2–1.6 g/kg) and micronutrient sufficiency (zinc, biotin) for holistic follicle support.';
+    try {
+      final answer = await ResearchPipelineService.processInquiry(
+        query: widget.isProduct
+            ? ' (Context: )'
+            : query,
+      );
+      responseText = answer.answerSummary.isNotEmpty
+          ? answer.answerSummary
+          : 'Clinical evidence analysis: Follow recommended guidelines for .';
+    } catch (_) {
+      final lower = query.toLowerCase();
+      if (lower.contains('minoxidil') || lower.contains('rogaine')) {
+        responseText =
+            'Minoxidil 5% has Grade A clinical evidence (FDA-approved) for androgenetic alopecia by prolonging anagen phase and expanding follicle diameter. Herbal formulations with Bhringraj and Amla support scalp hydration, cosmetic shine, and mild botanical circulation, but do not replace pharmacological treatment for progressive genetic baldness.';
+      } else if (lower.contains('daily') || lower.contains('how often') || lower.contains('frequency')) {
+        responseText =
+            'Trichology reviews indicate 2 to 3 washes weekly are optimal for herbal shampoos. Excessive washing can deplete sebum reserves, causing compensatory oiliness or scalp dryness. Consistent moderate application allows botanical antioxidants to support hair shaft integrity.';
+      } else if (lower.contains('thinning') || lower.contains('regrowth') || lower.contains('fall')) {
+        responseText =
+            'Preclinical and clinical trial data (PMID: 33451298) demonstrate that active wedelolactone in Eclipta alba promotes microvascular delivery and follicular vitality in telogen effluvium. For persistent patterned loss, blood tests (ferritin, thyroid panel, vitamin D) and dermatological consultation are recommended.';
+      } else if (lower.contains('mechanism')) {
+        responseText =
+            'Evidence indicates cellular signaling cascades modulate adaptation pathways. Peer-reviewed trials highlight nutrient timing and recovery kinetics as pivotal factors in physiological homeostasis.';
+      } else {
+        responseText =
+            'Scientific literature indicates that evidence-grounded interventions support physiological homeostasis. Aligning with your primary goals, ensure sufficient macronutrient balance and hydration for sustained recovery.';
+      }
     }
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 300));
 
     if (mounted) {
       setState(() {

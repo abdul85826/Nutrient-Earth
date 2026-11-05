@@ -318,6 +318,9 @@ class HealthSyncResult {
   final Map<HealthDataType, double> categoryMetrics;
   final Map<HealthDataType, int> categoryCounts;
   final Map<HealthDataType, DataFreshnessStatus> freshnessMap;
+  final Map<HealthDataType, double> todayMetrics;
+  final Map<HealthDataType, int> todayCounts;
+  final Map<HealthDataType, String> metricSources;
   final bool isAuthenticated;
 
   const HealthSyncResult({
@@ -332,6 +335,9 @@ class HealthSyncResult {
     this.categoryMetrics = const {},
     this.categoryCounts = const {},
     this.freshnessMap = const {},
+    this.todayMetrics = const {},
+    this.todayCounts = const {},
+    this.metricSources = const {},
     this.isAuthenticated = false,
   });
 
@@ -345,6 +351,9 @@ class HealthSyncResult {
     categoryMetrics: const {},
     categoryCounts: const {},
     freshnessMap: const {},
+    todayMetrics: const {},
+    todayCounts: const {},
+    metricSources: const {},
     isAuthenticated: false,
   );
 

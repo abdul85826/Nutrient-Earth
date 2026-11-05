@@ -185,8 +185,8 @@ class _ResearchSearchBarState extends State<ResearchSearchBar> {
           child: Row(
             children: [
               _buildSuggestedChip(
-                'Herbal shampoo for hair fall',
-                onTap: () => _setSuggestion('Can I use this herbal shampoo? Is t good for hair fall?'),
+                'Protein timing for recovery',
+                onTap: () => _setSuggestion('What is the optimal protein threshold for muscle recovery?'),
               ),
               const SizedBox(width: 8),
               _buildSuggestedChip(

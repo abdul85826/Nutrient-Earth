@@ -242,33 +242,6 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 4),
-
-                  TextButton(
-                    onPressed: () => context.push('/processing-view'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: NETokens.forest,
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.auto_awesome, size: 16, color: Color(0xFF2E7D32)),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Preview Multimodal Evidence AI →',
-                            style: GoogleFonts.manrope(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF2E7D32),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),

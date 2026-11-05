@@ -130,47 +130,38 @@ class HealthSyncCard extends ConsumerWidget {
               color: NETokens.surfaceContainerLow,
               borderRadius: BorderRadius.circular(NETokens.radiusSm),
             ),
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 4,
+            child: Row(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.dataset_outlined, size: 14, color: NETokens.botanicalTeal),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${syncState.totalRecordsRead} records retrieved',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: NETokens.deepestForest,
-                      ),
+                const Icon(Icons.dataset_outlined, size: 14, color: NETokens.botanicalTeal),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '${syncState.totalRecordsRead} records (7-day window)',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: NETokens.deepestForest,
                     ),
-                  ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      syncState.isAuthenticated ? Icons.cloud_done_rounded : Icons.phone_android_rounded,
-                      size: 14,
-                      color: syncState.isAuthenticated ? const Color(0xFF166534) : NETokens.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      syncState.isAuthenticated
-                          ? '${syncState.totalRecordsSynced} in cloud'
-                          : 'Local device cache',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: syncState.isAuthenticated ? const Color(0xFF166534) : NETokens.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 8),
+                Icon(
+                  syncState.isAuthenticated ? Icons.cloud_done_rounded : Icons.phone_android_rounded,
+                  size: 14,
+                  color: syncState.isAuthenticated ? const Color(0xFF166534) : NETokens.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  syncState.isAuthenticated
+                      ? '${syncState.totalRecordsSynced} cloud'
+                      : 'Local cache',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: syncState.isAuthenticated ? const Color(0xFF166534) : NETokens.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -182,6 +173,26 @@ class HealthSyncCard extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final isNarrow = constraints.maxWidth < 360;
+              final stepsVal = syncState.todayMetrics[HealthDataType.steps] ?? syncState.latestMetrics[HealthDataType.steps];
+              final stepsCount = syncState.todayCounts[HealthDataType.steps] ?? syncState.categoryRecordCounts[HealthDataType.steps] ?? 0;
+              final stepsSource = syncState.metricSources[HealthDataType.steps] ?? 'Sensor';
+
+              final distVal = syncState.todayMetrics[HealthDataType.distance] ?? syncState.latestMetrics[HealthDataType.distance];
+              final distCount = syncState.todayCounts[HealthDataType.distance] ?? syncState.categoryRecordCounts[HealthDataType.distance] ?? 0;
+              final distSource = syncState.metricSources[HealthDataType.distance] ?? 'Sensor (Est)';
+
+              final calVal = syncState.todayMetrics[HealthDataType.activeCalories] ?? syncState.latestMetrics[HealthDataType.activeCalories];
+              final calCount = syncState.todayCounts[HealthDataType.activeCalories] ?? syncState.categoryRecordCounts[HealthDataType.activeCalories] ?? 0;
+              final calSource = syncState.metricSources[HealthDataType.activeCalories] ?? 'Energy Burn';
+
+              final hrVal = syncState.todayMetrics[HealthDataType.heartRate] ?? syncState.latestMetrics[HealthDataType.heartRate];
+              final hrCount = syncState.todayCounts[HealthDataType.heartRate] ?? syncState.categoryRecordCounts[HealthDataType.heartRate] ?? 0;
+              final hrSource = hrCount > 0 ? (syncState.metricSources[HealthDataType.heartRate] ?? 'Vitals') : 'No monitor';
+
+              final sleepVal = syncState.todayMetrics[HealthDataType.sleep] ?? syncState.latestMetrics[HealthDataType.sleep];
+              final sleepCount = syncState.todayCounts[HealthDataType.sleep] ?? syncState.categoryRecordCounts[HealthDataType.sleep] ?? 0;
+              final sleepSource = sleepCount > 0 ? (syncState.metricSources[HealthDataType.sleep] ?? 'Sleep log') : 'No tracker';
+
               if (isNarrow) {
                 return Column(
                   children: [
@@ -190,17 +201,17 @@ class HealthSyncCard extends ConsumerWidget {
                         _buildNumericalMetricCard(
                           icon: Icons.directions_walk_rounded,
                           label: 'Steps',
-                          valueText: _formatSteps(syncState.latestMetrics[HealthDataType.steps]),
-                          recordCount: syncState.categoryRecordCounts[HealthDataType.steps] ?? 0,
-                          source: 'Sensor',
+                          valueText: _formatSteps(stepsVal),
+                          recordCount: stepsCount,
+                          source: stepsSource,
                         ),
                         const SizedBox(width: NETokens.space8),
                         _buildNumericalMetricCard(
                           icon: Icons.straighten_rounded,
                           label: 'Distance',
-                          valueText: _formatDistance(syncState.latestMetrics[HealthDataType.distance]),
-                          recordCount: syncState.categoryRecordCounts[HealthDataType.distance] ?? 0,
-                          source: 'GPS',
+                          valueText: _formatDistance(distVal),
+                          recordCount: distCount,
+                          source: distSource,
                         ),
                       ],
                     ),
@@ -210,17 +221,17 @@ class HealthSyncCard extends ConsumerWidget {
                         _buildNumericalMetricCard(
                           icon: Icons.local_fire_department_rounded,
                           label: 'Active Cal',
-                          valueText: _formatCalories(syncState.latestMetrics[HealthDataType.activeCalories]),
-                          recordCount: syncState.categoryRecordCounts[HealthDataType.activeCalories] ?? 0,
-                          source: 'Energy',
+                          valueText: _formatCalories(calVal),
+                          recordCount: calCount,
+                          source: calSource,
                         ),
                         const SizedBox(width: NETokens.space8),
                         _buildNumericalMetricCard(
                           icon: Icons.favorite_border_rounded,
                           label: 'Heart Rate',
-                          valueText: _formatHeartRate(syncState.latestMetrics[HealthDataType.heartRate]),
-                          recordCount: syncState.categoryRecordCounts[HealthDataType.heartRate] ?? 0,
-                          source: 'Vitals',
+                          valueText: _formatHeartRate(hrVal),
+                          recordCount: hrCount,
+                          source: hrSource,
                         ),
                       ],
                     ),
@@ -230,9 +241,9 @@ class HealthSyncCard extends ConsumerWidget {
                         _buildNumericalMetricCard(
                           icon: Icons.bedtime_outlined,
                           label: 'Sleep',
-                          valueText: _formatSleep(syncState.latestMetrics[HealthDataType.sleep]),
-                          recordCount: syncState.categoryRecordCounts[HealthDataType.sleep] ?? 0,
-                          source: 'Sleep log',
+                          valueText: _formatSleep(sleepVal),
+                          recordCount: sleepCount,
+                          source: sleepSource,
                         ),
                         const SizedBox(width: NETokens.space8),
                         const Expanded(child: SizedBox.shrink()),
@@ -249,17 +260,17 @@ class HealthSyncCard extends ConsumerWidget {
                       _buildNumericalMetricCard(
                         icon: Icons.directions_walk_rounded,
                         label: 'Steps',
-                        valueText: _formatSteps(syncState.latestMetrics[HealthDataType.steps]),
-                        recordCount: syncState.categoryRecordCounts[HealthDataType.steps] ?? 0,
-                        source: 'Sensor',
+                        valueText: _formatSteps(stepsVal),
+                        recordCount: stepsCount,
+                        source: stepsSource,
                       ),
                       const SizedBox(width: NETokens.space8),
                       _buildNumericalMetricCard(
                         icon: Icons.straighten_rounded,
                         label: 'Distance',
-                        valueText: _formatDistance(syncState.latestMetrics[HealthDataType.distance]),
-                        recordCount: syncState.categoryRecordCounts[HealthDataType.distance] ?? 0,
-                        source: 'GPS',
+                        valueText: _formatDistance(distVal),
+                        recordCount: distCount,
+                        source: distSource,
                       ),
                     ],
                   ),
@@ -269,25 +280,25 @@ class HealthSyncCard extends ConsumerWidget {
                       _buildNumericalMetricCard(
                         icon: Icons.local_fire_department_rounded,
                         label: 'Active Cal',
-                        valueText: _formatCalories(syncState.latestMetrics[HealthDataType.activeCalories]),
-                        recordCount: syncState.categoryRecordCounts[HealthDataType.activeCalories] ?? 0,
-                        source: 'Energy',
+                        valueText: _formatCalories(calVal),
+                        recordCount: calCount,
+                        source: calSource,
                       ),
                       const SizedBox(width: NETokens.space8),
                       _buildNumericalMetricCard(
                         icon: Icons.favorite_border_rounded,
                         label: 'Heart Rate',
-                        valueText: _formatHeartRate(syncState.latestMetrics[HealthDataType.heartRate]),
-                        recordCount: syncState.categoryRecordCounts[HealthDataType.heartRate] ?? 0,
-                        source: 'Vitals',
+                        valueText: _formatHeartRate(hrVal),
+                        recordCount: hrCount,
+                        source: hrSource,
                       ),
                       const SizedBox(width: NETokens.space8),
                       _buildNumericalMetricCard(
                         icon: Icons.bedtime_outlined,
                         label: 'Sleep',
-                        valueText: _formatSleep(syncState.latestMetrics[HealthDataType.sleep]),
-                        recordCount: syncState.categoryRecordCounts[HealthDataType.sleep] ?? 0,
-                        source: 'Sleep log',
+                        valueText: _formatSleep(sleepVal),
+                        recordCount: sleepCount,
+                        source: sleepSource,
                       ),
                     ],
                   ),
@@ -507,28 +518,28 @@ class HealthSyncCard extends ConsumerWidget {
   }
 
   String _formatSteps(double? value) {
-    if (value == null || value == 0.0) return 'No data';
+    if (value == null) return 'No records';
     return NumberFormat('#,###').format(value.toInt());
   }
 
   String _formatDistance(double? value) {
-    if (value == null || value == 0.0) return 'No data';
+    if (value == null) return 'No records';
     final km = value / 1000.0;
     return '${km.toStringAsFixed(2)} km';
   }
 
   String _formatCalories(double? value) {
-    if (value == null || value == 0.0) return 'No data';
+    if (value == null) return 'No records';
     return '${value.toStringAsFixed(0)} kcal';
   }
 
   String _formatHeartRate(double? value) {
-    if (value == null || value == 0.0) return 'No data';
+    if (value == null || value == 0.0) return 'No monitor';
     return '${value.toStringAsFixed(0)} bpm';
   }
 
   String _formatSleep(double? value) {
-    if (value == null || value == 0.0) return 'No data';
+    if (value == null || value == 0.0) return 'No log';
     final totalMinutes = value.toInt();
     final hours = totalMinutes ~/ 60;
     final minutes = totalMinutes % 60;

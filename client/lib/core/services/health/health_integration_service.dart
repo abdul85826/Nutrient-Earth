@@ -169,8 +169,39 @@ class HealthIntegrationService {
       }
     }
 
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final todayMetrics = <HealthDataType, double>{};
+    final todayCounts = <HealthDataType, int>{};
+    final metricSources = <HealthDataType, String>{};
+
     for (final r in rawRecords) {
       categoryCounts[r.type] = (categoryCounts[r.type] ?? 0) + 1;
+
+      // Extract authentic provenance source
+      final rawSourceName = (r.metadata['source_name'] as String?) ??
+          (r.metadata['source_id'] as String?) ??
+          r.deviceModel ??
+          r.sourcePlatform;
+      String friendlySource = 'Sensor';
+      final lower = rawSourceName.toLowerCase();
+      if (lower.contains('fit') && !lower.contains('fitness')) {
+        friendlySource = 'Google Fit';
+      } else if (lower.contains('fitness') || lower.contains('mi fitness')) {
+        friendlySource = 'Mi Fitness';
+      } else if (lower.contains('samsung') || lower.contains('shealth')) {
+        friendlySource = 'Samsung Health';
+      } else if (lower.contains('health connect') || lower.contains('healthdata')) {
+        friendlySource = 'Health Connect';
+      } else if (r.source == HealthDataSourceType.userEntered) {
+        friendlySource = 'User Log';
+      } else if (r.source == HealthDataSourceType.wearable) {
+        friendlySource = 'Wearable Sensor';
+      } else if (rawSourceName.isNotEmpty) {
+        friendlySource = rawSourceName.split('.').last;
+      }
+      metricSources[r.type] = friendlySource;
+
+      // 7-day cumulative window metric
       switch (r.type) {
         case HealthDataType.steps:
         case HealthDataType.distance:
@@ -189,6 +220,29 @@ class HealthIntegrationService {
           // Keep the latest recorded measurement
           categoryMetrics[r.type] = r.value;
           break;
+      }
+
+      // STRICT TODAY PARTITION: only records from midnight today onwards
+      if (!r.recordedAt.isBefore(todayStart)) {
+        todayCounts[r.type] = (todayCounts[r.type] ?? 0) + 1;
+        switch (r.type) {
+          case HealthDataType.steps:
+          case HealthDataType.distance:
+          case HealthDataType.activeCalories:
+          case HealthDataType.sleep:
+          case HealthDataType.workout:
+          case HealthDataType.water:
+            todayMetrics[r.type] = (todayMetrics[r.type] ?? 0.0) + r.value;
+            break;
+          case HealthDataType.heartRate:
+          case HealthDataType.restingHeartRate:
+          case HealthDataType.weight:
+          case HealthDataType.height:
+          case HealthDataType.bloodOxygen:
+          case HealthDataType.bodyTemperature:
+            todayMetrics[r.type] = r.value;
+            break;
+        }
       }
     }
 
@@ -209,6 +263,9 @@ class HealthIntegrationService {
         categoryMetrics: categoryMetrics,
         categoryCounts: categoryCounts,
         freshnessMap: freshnessMap,
+        todayMetrics: todayMetrics,
+        todayCounts: todayCounts,
+        metricSources: metricSources,
         isAuthenticated: isAuthenticated,
       );
     }
@@ -264,6 +321,9 @@ class HealthIntegrationService {
       categoryMetrics: categoryMetrics,
       categoryCounts: categoryCounts,
       freshnessMap: freshnessMap,
+      todayMetrics: todayMetrics,
+      todayCounts: todayCounts,
+      metricSources: metricSources,
       isAuthenticated: isAuthenticated,
     );
   }

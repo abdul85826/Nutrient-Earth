@@ -15,6 +15,9 @@ class HealthSyncStateModel {
   final Map<HealthDataType, double> latestMetrics;
   final Map<HealthDataType, int> categoryRecordCounts;
   final Map<HealthDataType, DataFreshnessStatus> freshnessMap;
+  final Map<HealthDataType, double> todayMetrics;
+  final Map<HealthDataType, int> todayCounts;
+  final Map<HealthDataType, String> metricSources;
   final bool isSupported;
   final bool isAuthenticated;
 
@@ -28,6 +31,9 @@ class HealthSyncStateModel {
     this.latestMetrics = const {},
     this.categoryRecordCounts = const {},
     this.freshnessMap = const {},
+    this.todayMetrics = const {},
+    this.todayCounts = const {},
+    this.metricSources = const {},
     this.isSupported = false,
     this.isAuthenticated = false,
   });
@@ -42,6 +48,9 @@ class HealthSyncStateModel {
     Map<HealthDataType, double>? latestMetrics,
     Map<HealthDataType, int>? categoryRecordCounts,
     Map<HealthDataType, DataFreshnessStatus>? freshnessMap,
+    Map<HealthDataType, double>? todayMetrics,
+    Map<HealthDataType, int>? todayCounts,
+    Map<HealthDataType, String>? metricSources,
     bool? isSupported,
     bool? isAuthenticated,
   }) {
@@ -55,6 +64,9 @@ class HealthSyncStateModel {
       latestMetrics: latestMetrics ?? this.latestMetrics,
       categoryRecordCounts: categoryRecordCounts ?? this.categoryRecordCounts,
       freshnessMap: freshnessMap ?? this.freshnessMap,
+      todayMetrics: todayMetrics ?? this.todayMetrics,
+      todayCounts: todayCounts ?? this.todayCounts,
+      metricSources: metricSources ?? this.metricSources,
       isSupported: isSupported ?? this.isSupported,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
     );
@@ -92,6 +104,9 @@ class HealthSyncNotifier extends StateNotifier<HealthSyncStateModel> {
           latestMetrics: result.categoryMetrics,
           categoryRecordCounts: result.categoryCounts,
           freshnessMap: result.freshnessMap,
+          todayMetrics: result.todayMetrics,
+          todayCounts: result.todayCounts,
+          metricSources: result.metricSources,
           isAuthenticated: result.isAuthenticated,
         );
       } else {

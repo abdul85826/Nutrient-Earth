@@ -88,7 +88,7 @@ void main() {
       await tester.pumpWidget(createTestHost(child: const WelcomeScreen()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Nutrient Earth'), findsWidgets);
+      expect(find.text('NUTRIENT EARTH'), findsOneWidget);
       expect(find.text('Get started'), findsOneWidget);
       expect(find.text('I already have an account'), findsOneWidget);
     });
@@ -97,14 +97,12 @@ void main() {
       await tester.pumpWidget(createTestHost(child: const AuthScreen()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Create your account'), findsOneWidget);
-      final submitBtn = find.widgetWithText(ElevatedButton, 'Create Account');
+      expect(find.text('NUTRIENT EARTH TRUST PROTOCOL'), findsOneWidget);
+      final submitBtn = find.widgetWithText(ElevatedButton, 'Create account');
       expect(submitBtn, findsOneWidget);
 
-      // Attempt submit without 18+ consent -> Warning displayed
-      await tester.tap(submitBtn);
-      await tester.pumpAndSettle();
-      expect(find.text('You must be at least 18 years old to use Nutrient Earth.'), findsOneWidget);
+      // Button is disabled prior to 18+ consent
+      expect(tester.widget<ElevatedButton>(submitBtn).onPressed, isNull);
 
       // Check 18+ consent checkbox
       await tester.tap(find.byType(Checkbox));
@@ -112,25 +110,27 @@ void main() {
 
       final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
       expect(checkbox.value, isTrue);
+      // Button is now enabled
+      expect(tester.widget<ElevatedButton>(submitBtn).onPressed, isNotNull);
     });
 
     testWidgets('Screen 04 Health Goals: Displays category chips and allows goal selection', (tester) async {
       await tester.pumpWidget(createTestHost(child: const HealthGoalsScreen()));
       await tester.pumpAndSettle();
 
-      expect(find.text('What are your main health goals?'), findsOneWidget);
+      expect(find.text('What would you like help with?'), findsOneWidget);
       expect(find.text('All'), findsOneWidget);
-      expect(find.text('Endurance & Energy'), findsOneWidget);
-      expect(find.text('Sleep Quality'), findsOneWidget);
+      expect(find.text('Energy & Vitality'), findsWidgets);
+      expect(find.text('Brain & Sleep'), findsWidgets);
     });
 
     testWidgets('Screen 09 Personal Details: Validates preferred name and age bounds (18..120)', (tester) async {
       await tester.pumpWidget(createTestHost(child: const PersonalDetailsScreen()));
       await tester.pumpAndSettle();
 
-      expect(find.text('Personal details'), findsOneWidget);
-      expect(find.text('Preferred Name'), findsOneWidget);
-      expect(find.text('Age'), findsOneWidget);
+      expect(find.text("Let's get to know you"), findsOneWidget);
+      expect(find.text('What should we call you?'), findsOneWidget);
+      expect(find.text('How old are you?'), findsOneWidget);
     });
 
     testWidgets('Screen 17 Completion: Displays calibration review summary and zero fabricated tasks', (tester) async {

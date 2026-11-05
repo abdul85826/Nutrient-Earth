@@ -22,7 +22,6 @@ import 'widgets/feedback_banner.dart';
 import 'widgets/today_drawer.dart';
 import 'widgets/learn_detail_modal.dart';
 import 'widgets/privacy_data_modal.dart';
-import 'widgets/input_processing_view.dart';
 import 'widgets/universal_reference_answer_card.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
@@ -74,37 +73,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
     }
   }
 
-  void _openMultimodalAnswerExperience({String query = 'Can I use this herbal shampoo? Is t good for hair fall?'}) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (ctx) => InputProcessingView(
-          query: query,
-          onCompleted: () {
-            Navigator.of(ctx).pushReplacement(
-              MaterialPageRoute(
-                builder: (cardCtx) => UniversalReferenceAnswerCard(
-                  onBack: () => Navigator.of(cardCtx).pop(),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
 
   void _handleResearchSubmit(String query) async {
-    final lower = query.toLowerCase();
-    if (lower.contains('shampoo') || lower.contains('hair fall')) {
-      _openMultimodalAnswerExperience(query: query);
-      return;
-    }
+    final clean = query.trim();
+    if (clean.isEmpty) return;
 
     final currentState = ref.read(todayStateProvider);
     if (currentState.isResearchLoading) return; // Prevent duplicate submissions
 
     final notifier = ref.read(todayStateProvider.notifier);
-    await notifier.submitResearch(query);
+    await notifier.submitResearch(clean);
 
     if (!mounted) return;
     final updatedState = ref.read(todayStateProvider);
@@ -188,15 +166,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
                 onTap: () {
                   Navigator.pop(context);
                   _handlePdfDocumentUpload();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.auto_awesome, color: NETokens.emerald),
-                title: const Text('Multimodal Visual Evidence Experience', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
-                subtitle: const Text('Inspect blurry input, AI enhancement & reference answer card', style: TextStyle(fontSize: 11)),
-                onTap: () {
-                  Navigator.pop(context);
-                  _openMultimodalAnswerExperience();
                 },
               ),
               ListTile(
