@@ -14,7 +14,14 @@ import 'package:nutrient_earth_client/features/explore/presentation/explore_scre
 import 'package:nutrient_earth_client/features/explore/presentation/widgets/blockchain_provenance_card.dart';
 import 'package:nutrient_earth_client/features/explore/presentation/widgets/citation_card.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    dotenv.testLoad(fileInput: 'SUPABASE_URL=https://placeholder.supabase.co\nSUPABASE_ANON_KEY=placeholder-anon-key\n');
+  });
   Widget createTestWidget({String? initialQuery}) {
     return ProviderScope(
       overrides: [

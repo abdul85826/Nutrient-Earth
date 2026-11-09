@@ -24,16 +24,17 @@ void main() async {
   runApp(const ProviderScope(child: NutrientEarthApp()));
 }
 
-class NutrientEarthApp extends StatelessWidget {
+class NutrientEarthApp extends ConsumerWidget {
   const NutrientEarthApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       title: 'Nutrient Earth',
       debugShowCheckedModeBanner: false,
       theme: NETheme.lightTheme,
-      routerConfig: appRouter,
+      routerConfig: router,
     );
   }
 }

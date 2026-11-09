@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app_config.dart';
@@ -6,10 +7,20 @@ class SupabaseConfig {
   SupabaseConfig._();
 
   static bool _initialized = false;
-  static bool get isInitialized => _initialized;
+
+  static bool get isInitialized {
+    if (_initialized) return true;
+    try {
+      Supabase.instance.client;
+      _initialized = true;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   static Future<void> initialize() async {
-    if (_initialized) return;
+    if (isInitialized) return;
 
     final url = AppConfig.supabaseUrl;
     final anonKey = AppConfig.supabaseAnonKey;
@@ -31,16 +42,22 @@ class SupabaseConfig {
         authOptions: const FlutterAuthClientOptions(
           authFlowType: AuthFlowType.pkce,
         ),
-      ).timeout(const Duration(seconds: 4));
+      );
       _initialized = true;
-    } catch (_) {
-      // If network / local emulator is unavailable or timed out, graceful fallback
-      _initialized = false;
+    } catch (e) {
+      // If already initialized (e.g. from hot reload or duplicate bootstrap), retain valid client state
+      try {
+        Supabase.instance.client;
+        _initialized = true;
+      } catch (_) {
+        debugPrint('[SupabaseConfig] Failed to initialize Supabase: $e');
+        _initialized = false;
+      }
     }
   }
 
   static SupabaseClient? get client {
-    if (_initialized) {
+    if (isInitialized) {
       try {
         return Supabase.instance.client;
       } catch (_) {

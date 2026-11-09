@@ -5,6 +5,7 @@
 // STRICT SCIENTIFIC RULE: Zero hallucinated citations or fabricated statistics.
 // ==============================================================================
 
+import 'hybrid_retrieval_reranker.dart';
 import 'scientific_evidence_contract.dart';
 import '../blockchain/provenance_manifest.dart';
 
@@ -33,7 +34,7 @@ class ScientificEvidenceRepository {
     // 1. Magnesium Chelates vs Inorganic Oxides (Bioavailability)
     ScientificSource(
       title: 'Bioavailability of US commercially available magnesium preparations',
-      authorsOrJournal: 'Firoz M, Draper M. Magnesium Research',
+      authorsOrJournal: 'Firoz M, Graber M. Magnesium Research',
       year: '2001',
       evidenceGrade: 'Clinical Pharmacokinetics (Double-blind crossover, N=12)',
       studyDesign: StudyDesignGrade.randomizedControlledTrial,
@@ -62,9 +63,9 @@ class ScientificEvidenceRepository {
       year: '2016',
       evidenceGrade: 'In Vitro & Animal Pharmacokinetics',
       studyDesign: StudyDesignGrade.inVitroPharmacokinetics,
-      pmid: '29630514',
+      pmid: null,
       doi: '10.1096/fasebj.30.1_supplement.1053.1',
-      url: 'https://pubmed.ncbi.nlm.nih.gov/29630514/',
+      url: 'https://doi.org/10.1096/fasebj.30.1_supplement.1053.1',
       verificationStatus: EvidenceVerificationStatus.liveVerified,
       sampleSize: 24,
       isHumanTrial: false,
@@ -313,6 +314,49 @@ class ScientificEvidenceRepository {
       claims: [],
       overallEvidenceTier: EvidenceTier.insufficient,
       primaryMechanism: 'No matching peer-reviewed evidence found in local verified archive for this query.',
+    );
+  }
+
+  static List<ScientificSource> get curatedCorpus => List.unmodifiable(_curatedCorpus);
+
+  /// Two-Stage Hybrid Search:
+  /// Stage 1: Reciprocal Rank Fusion over semantic & lexical keyword candidates.
+  /// Stage 2: Cross-Encoder claim-negation and stance-evaluation reranker.
+  static EvidenceSearchResult searchEvidenceWithReranking(String query) {
+    final baseResult = searchEvidence(query);
+    if (baseResult.matchedSources.isEmpty) {
+      return baseResult;
+    }
+
+    const reranker = HybridRetrievalReranker();
+    final lexical = baseResult.matchedSources;
+    final semantic = _curatedCorpus.where((s) {
+      final text = '${s.title} ${s.evidenceGrade}'.toLowerCase();
+      final queryWords = query.toLowerCase().split(RegExp(r'\s+'));
+      return queryWords.any((w) => w.length > 3 && text.contains(w));
+    }).toList();
+
+    final rrfCandidates = reranker.reciprocalRankFusion(
+      semanticRanked: semantic.isNotEmpty ? semantic : lexical,
+      lexicalRanked: lexical,
+      maxCandidates: 20,
+    );
+
+    final reranked = reranker.crossEncodeAndRerank(
+      query: query,
+      candidates: rrfCandidates,
+    );
+
+    final finalSources = reranked.map((c) => c.item).toList();
+    final hasContradiction = reranked.any((c) => c.stance == ClaimSupportStatus.contradicted);
+
+    return EvidenceSearchResult(
+      matchedSources: finalSources,
+      claims: baseResult.claims,
+      overallEvidenceTier: hasContradiction ? EvidenceTier.conflicting : baseResult.overallEvidenceTier,
+      primaryMechanism: baseResult.primaryMechanism,
+      contradictoryFinding: baseResult.contradictoryFinding,
+      studyLimitations: baseResult.studyLimitations,
     );
   }
 }

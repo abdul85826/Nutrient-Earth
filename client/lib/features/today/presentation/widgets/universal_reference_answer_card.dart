@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../../core/domain/answer_contract/universal_intelligence_answer.dart';
@@ -31,44 +32,15 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
 
   const UniversalReferenceAnswerCard({
     super.key,
-    this.productName = 'Himalaya Herbals Anti-Hair Fall Shampoo',
-    this.productDescription =
-        'A herbal shampoo with Bhringraj and Amla, known to support stronger hair and reduce hair fall when used regularly.',
+    this.productName = 'Nutritional & Scientific Intelligence',
+    this.productDescription = 'Evidence-backed analysis synthesized from peer-reviewed literature and nutritional databases.',
     this.productPackshotAsset,
-    this.isProduct = true,
-    this.evidenceBadge = 'Well Supported',
-    this.myTakeText =
-        "Yes, you can use this. It's a gentle, herbal option that may help reduce hair fall and improve hair strength, especially if you prefer natural ingredients.",
-    this.keyBenefits = const [
-      'Helps reduce hair fall',
-      'Nourishes the scalp',
-      'Supports stronger hair',
-    ],
-    this.keepInMindNotes = const [
-      'Results are gradual',
-      'May not work for hormonal or medical hair loss',
-      'Do a patch test if you have a sensitive scalp',
-    ],
-    this.evidenceSources = const [
-      ReferenceCitationItem(
-        title: 'Bhringraj for hair growth: A clinical review',
-        journalAndYear: 'Journal of Ethnopharmacology • 2021',
-        tag: 'Research',
-        pmid: 'PMID: 33451298',
-        doi: '10.1016/j.jep.2021.113840',
-        summary:
-            'Systematic review confirming Eclipta alba extract promotes hair follicle proliferation in anagen phase and exhibits mild 5α-reductase inhibitory properties in topical formulations.',
-      ),
-      ReferenceCitationItem(
-        title: 'Amla and hair health: Evidence and benefits',
-        journalAndYear: 'International Journal of Trichology • 2020',
-        tag: 'Research',
-        pmid: 'PMID: 32884210',
-        doi: '10.4103/ijt.ijt_44_20',
-        summary:
-            'Clinical and biochemical analysis showing Phyllanthus emblica (Amla) provides potent antioxidant protection for follicular keratinocytes and strengthens scalp barrier integrity.',
-      ),
-    ],
+    this.isProduct = false,
+    this.evidenceBadge,
+    this.myTakeText = 'Synthesized clinical and dietary intelligence.',
+    this.keyBenefits = const [],
+    this.keepInMindNotes = const [],
+    this.evidenceSources = const [],
     this.onBack,
     this.onViewAllEvidence,
     this.onBookmark,
@@ -87,12 +59,17 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
       return ReferenceCitationItem(
         title: c.title,
         journalAndYear: '${c.authorsOrJournal} • ${c.year}',
-        tag: 'Research',
-        pmid: c.pmid,
+        tag: c.studyDesign.name.isNotEmpty ? c.studyDesign.name : 'Research',
+        pmid: c.pmid != null ? 'PMID: ${c.pmid}' : null,
         doi: c.doi,
-        summary: c.studyDesign.name.isNotEmpty ? c.studyDesign.name : 'Peer-reviewed scientific publication verified in medical databases.',
+        summary: c.studyDesign.name.isNotEmpty
+            ? c.studyDesign.name
+            : 'Verified scientific publication metadata.',
       );
     }).toList();
+
+    final isProd = answer.responseType == UniversalResponseType.productAnalysis ||
+        answer.detectedInputType == UserInputType.barcode;
 
     return UniversalReferenceAnswerCard(
       key: key,
@@ -103,33 +80,25 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
       myTakeText: answer.recommendation.isNotEmpty
           ? answer.recommendation
           : 'Consider how this product aligns with your active goals.',
-      keyBenefits: answer.practicalSteps.isNotEmpty
-          ? answer.practicalSteps
-          : const ['Supports daily wellness', 'Contains verified natural ingredients'],
+      keyBenefits: answer.practicalSteps,
       keepInMindNotes: answer.goalMatch.riskFactors.isNotEmpty
           ? answer.goalMatch.riskFactors
-          : const [
-              'Results are gradual',
-              'Observe individual tolerance during first usage',
-            ],
-      evidenceSources: citations.isNotEmpty
-          ? citations
-          : const [
-              ReferenceCitationItem(
-                title: 'Evidence Review & Biological Verification',
-                journalAndYear: 'Nutrient Earth Evidence Base • 2026',
-                tag: 'Research',
-                pmid: 'PMID: 33451298',
-                summary: 'Replicated randomized controlled trials and indexed peer-reviewed literature.',
-              ),
-            ],
-      isProduct: answer.detectedInputType == UserInputType.barcode ||
-          (answer.foodComposition != null && answer.detectedInputType == UserInputType.image),
-      productPackshotAsset: (answer.detectedInputType == UserInputType.barcode ||
-              (answer.foodComposition != null && answer.detectedInputType == UserInputType.image))
-          ? 'assets/images/himalaya_shampoo_packshot.png'
-          : null,
-      evidenceBadge: answer.evidence.classification.displayName,
+          : (isProd
+              ? const [
+                  'Cosmetic products do not replace prescription clinical treatments',
+                  'Perform a 24-hour patch test prior to full application',
+                  'Rinse thoroughly to prevent scalp surfactant residue',
+                ]
+              : const [
+                  'Results are gradual and context-dependent',
+                  'Observe individual tolerance during first usage',
+                ]),
+      evidenceSources: citations,
+      isProduct: isProd,
+      productPackshotAsset: null,
+      evidenceBadge: answer.evidence.hasVerifiedSources
+          ? answer.evidence.classification.displayName
+          : (isProd ? 'Cosmetic Audit' : null),
       onBack: onBack,
       onViewAllEvidence: onViewAllEvidence,
       isStandalonePage: isStandalonePage,
@@ -184,21 +153,13 @@ class UniversalReferenceAnswerCard extends StatefulWidget {
           : const ['Evidence-backed analysis', 'Indexed literature sources verified'],
       keepInMindNotes: answer.evidenceGap != null && answer.evidenceGap!.isNotEmpty
           ? [answer.evidenceGap!, if (answer.uncertaintyDisclaimer.isNotEmpty) answer.uncertaintyDisclaimer]
-          : (answer.uncertaintyDisclaimer.isNotEmpty ? [answer.uncertaintyDisclaimer] : const ['Consult primary medical literature for clinical advice']),
-      evidenceSources: citations.isNotEmpty
-          ? citations
-          : const [
-              ReferenceCitationItem(
-                title: 'Evidence Review & Biological Verification',
-                journalAndYear: 'Nutrient Earth Evidence Base • 2026',
-                tag: 'Research',
-                pmid: 'PMID: 33451298',
-                summary: 'Replicated randomized controlled trials and indexed peer-reviewed literature.',
-              ),
-            ],
+          : (answer.uncertaintyDisclaimer.isNotEmpty
+              ? [answer.uncertaintyDisclaimer]
+              : const ['Consult primary medical literature for clinical advice']),
+      evidenceSources: citations,
       isProduct: isProd,
-      productPackshotAsset: isProd ? 'assets/images/himalaya_shampoo_packshot.png' : null,
-      evidenceBadge: answer.evidenceBadge.isNotEmpty ? answer.evidenceBadge : 'Evidence Grounded',
+      productPackshotAsset: null,
+      evidenceBadge: answer.evidenceBadge.isNotEmpty ? answer.evidenceBadge : null,
       onBack: onBack,
       onViewAllEvidence: onViewAllEvidence,
       isStandalonePage: isStandalonePage,
@@ -1259,12 +1220,43 @@ class _EvidenceDetailsModal extends StatelessWidget {
                             ),
                             if (s.pmid != null) ...[
                               const SizedBox(width: 8),
-                              Text(
-                                s.pmid!,
-                                style: GoogleFonts.jetBrainsMono(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF4B5563),
+                              InkWell(
+                                onTap: () async {
+                                  final cleanPmid = s.pmid!.replaceAll(RegExp(r'[^0-9]'), '');
+                                  final uri = Uri.parse('https://pubmed.ncbi.nlm.nih.gov/$cleanPmid/');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  }
+                                },
+                                child: Text(
+                                  '${s.pmid!} ↗',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF1B5E20),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            if (s.doi != null) ...[
+                              const SizedBox(width: 8),
+                              InkWell(
+                                onTap: () async {
+                                  final cleanDoi = s.doi!.replaceAll('https://doi.org/', '').trim();
+                                  final uri = Uri.parse('https://doi.org/$cleanDoi');
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  }
+                                },
+                                child: Text(
+                                  'DOI ↗',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF1B5E20),
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                               ),
                             ],

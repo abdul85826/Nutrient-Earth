@@ -1,0 +1,11 @@
+{
+  "name": "nutrient-earth",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nutrient Earth Production Web Application",
+  "scripts": {
+    "build": "bash scripts/vercel-build.sh",
+    "prepare-output": "node scripts/prepare-vercel-output.js"
+  }
+}
+

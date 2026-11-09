@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nutrient_earth_client/core/design_system/components/stitch_screen_host.dart';
 import 'package:nutrient_earth_client/core/services/auth_service.dart';
 import 'package:nutrient_earth_client/core/services/profile_repository.dart';
 import 'package:nutrient_earth_client/core/services/task_repository.dart';
@@ -25,13 +26,16 @@ class MockTestAuthService implements AuthService {
   User? get currentUser => _user;
 
   @override
+  Session? get currentSession => _user == null ? null : Session(accessToken: 'mock_token', tokenType: 'bearer', user: _user!);
+
+  @override
   bool get isAuthenticated => _user != null;
 
   @override
   Stream<AuthState> get authStateChanges => const Stream.empty();
 
   @override
-  Future<AuthResponse> signUp({required String email, required String password}) async {
+  Future<AuthResponse> signUp({required String email, required String password, Map<String, dynamic>? data}) async {
     _user = User(
       id: 'usr_mock_test_123',
       appMetadata: {},
@@ -56,12 +60,27 @@ class MockTestAuthService implements AuthService {
   }
 
   @override
+  Future<void> resetPasswordForEmail({required String email, String? redirectTo}) async {}
+
+  @override
+  Future<UserResponse> updatePassword({required String newPassword}) async {
+    return UserResponse.fromJson({'user': _user?.toJson() ?? {}});
+  }
+
+  @override
   Future<void> signOut() async {
     _user = null;
   }
 
   @override
-  Future<bool> signInWithGoogle() async => true;
+  Future<void> signInWithOtp({required String email, String? redirectTo}) async {}
+
+  @override
+  Future<bool> signInWithGoogle({String? redirectTo}) async => true;
+
+  @override
+  Future<AuthSessionUrlResponse> exchangeCodeForSession(String code) async =>
+      AuthSessionUrlResponse(session: Session(accessToken: 'mock_token', tokenType: 'bearer', user: _user ?? const User(id: 'mock_usr', appMetadata: {}, userMetadata: {}, aud: 'auth', createdAt: '')), redirectType: 'web');
 }
 
 Widget createTestHost({
@@ -84,66 +103,54 @@ Widget createTestHost({
 
 void main() {
   group('Authentic Stitch Onboarding Flow Tests', () {
-    testWidgets('Screen 02 Welcome: Displays botanical evidence value proposition and dual CTAs', (tester) async {
+    testWidgets('Screen 02 Welcome: Hosts canonical Screen 02 Stitch implementation', (tester) async {
       await tester.pumpWidget(createTestHost(child: const WelcomeScreen()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.text('NUTRIENT EARTH'), findsOneWidget);
-      expect(find.text('Get started'), findsOneWidget);
-      expect(find.text('I already have an account'), findsOneWidget);
+      expect(find.byType(WelcomeScreen), findsOneWidget);
+      final hostFinder = find.byWidgetPredicate((w) => w is StitchScreenHostWidget && w.screenIndex == 2);
+      expect(hostFinder, findsOneWidget);
     });
 
-    testWidgets('Screen 03 Auth: Gates submission strictly on 18+ legal consent checkbox', (tester) async {
-      await tester.pumpWidget(createTestHost(child: const AuthScreen()));
-      await tester.pumpAndSettle();
+    testWidgets('Screen 03 Auth: Hosts canonical Screen 03 Stitch implementation and supports returnTo', (tester) async {
+      await tester.pumpWidget(createTestHost(child: const AuthScreen(returnTo: '/today')));
+      await tester.pump();
 
-      expect(find.text('NUTRIENT EARTH TRUST PROTOCOL'), findsOneWidget);
-      final submitBtn = find.widgetWithText(ElevatedButton, 'Create account');
-      expect(submitBtn, findsOneWidget);
-
-      // Button is disabled prior to 18+ consent
-      expect(tester.widget<ElevatedButton>(submitBtn).onPressed, isNull);
-
-      // Check 18+ consent checkbox
-      await tester.tap(find.byType(Checkbox));
-      await tester.pumpAndSettle();
-
-      final checkbox = tester.widget<Checkbox>(find.byType(Checkbox));
-      expect(checkbox.value, isTrue);
-      // Button is now enabled
-      expect(tester.widget<ElevatedButton>(submitBtn).onPressed, isNotNull);
+      expect(find.byType(AuthScreen), findsOneWidget);
+      final hostFinder = find.byWidgetPredicate((w) => w is StitchScreenHostWidget && w.screenIndex == 3 && w.returnTo == '/today');
+      expect(hostFinder, findsOneWidget);
     });
 
-    testWidgets('Screen 04 Health Goals: Displays category chips and allows goal selection', (tester) async {
+    testWidgets('Screen 04 Health Goals: Hosts canonical Screen 04 Stitch implementation', (tester) async {
       await tester.pumpWidget(createTestHost(child: const HealthGoalsScreen()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.text('What would you like help with?'), findsOneWidget);
-      expect(find.text('All'), findsOneWidget);
-      expect(find.text('Energy & Vitality'), findsWidgets);
-      expect(find.text('Brain & Sleep'), findsWidgets);
+      expect(find.byType(HealthGoalsScreen), findsOneWidget);
+      final hostFinder = find.byWidgetPredicate((w) => w is StitchScreenHostWidget && w.screenIndex == 4);
+      expect(hostFinder, findsOneWidget);
     });
 
-    testWidgets('Screen 09 Personal Details: Validates preferred name and age bounds (18..120)', (tester) async {
+    testWidgets('Screen 09 Personal Details: Hosts canonical Screen 09 Stitch implementation', (tester) async {
       await tester.pumpWidget(createTestHost(child: const PersonalDetailsScreen()));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.text("Let's get to know you"), findsOneWidget);
-      expect(find.text('What should we call you?'), findsOneWidget);
-      expect(find.text('How old are you?'), findsOneWidget);
+      expect(find.byType(PersonalDetailsScreen), findsOneWidget);
+      final hostFinder = find.byWidgetPredicate((w) => w is StitchScreenHostWidget && w.screenIndex == 9);
+      expect(hostFinder, findsOneWidget);
     });
 
-    testWidgets('Screen 17 Completion: Displays calibration review summary and zero fabricated tasks', (tester) async {
+    testWidgets('Screen 17 Completion: Hosts canonical Screen 17 Stitch implementation', (tester) async {
       final mockTaskRepo = InMemoryTaskRepository();
 
       await tester.pumpWidget(createTestHost(
         child: const CompletionScreen(),
         taskRepo: mockTaskRepo,
       ));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      expect(find.text('Your Journey Starts Here'), findsOneWidget);
-      expect(find.text('Explore Your Daily Plan'), findsOneWidget);
+      expect(find.byType(CompletionScreen), findsOneWidget);
+      final hostFinder = find.byWidgetPredicate((w) => w is StitchScreenHostWidget && w.screenIndex == 17);
+      expect(hostFinder, findsOneWidget);
 
       // Verify task repository initially has 0 tasks
       final tasks = await mockTaskRepo.getDailyTasks();

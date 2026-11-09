@@ -55,7 +55,8 @@ enum InputSourceType {
   barcodeScanner,
   sensorSync,
   microphone,
-  audioFile;
+  audioFile,
+  nativeShareSheet;
 }
 
 /// Validation outcomes for the security gateway.
@@ -138,6 +139,40 @@ class UniversalInputDescriptor {
 
   /// Whether this input is a URL requiring network fetching.
   bool get isRemoteUrl => type == UserInputType.socialVideoUrl || type == UserInputType.webUrl;
+
+  UniversalInputDescriptor copyWith({
+    String? id,
+    UserInputType? type,
+    InputSourceType? source,
+    String? rawContent,
+    String? sanitizedContent,
+    String? filePath,
+    Uint8List? fileBytes,
+    String? mimeType,
+    int? fileSizeBytes,
+    String? targetUrl,
+    String? socialPlatform,
+    String? barcodeValue,
+    Map<String, dynamic>? metadata,
+    DateTime? createdAt,
+  }) {
+    return UniversalInputDescriptor(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      source: source ?? this.source,
+      rawContent: rawContent ?? this.rawContent,
+      sanitizedContent: sanitizedContent ?? this.sanitizedContent,
+      filePath: filePath ?? this.filePath,
+      fileBytes: fileBytes ?? this.fileBytes,
+      mimeType: mimeType ?? this.mimeType,
+      fileSizeBytes: fileSizeBytes ?? this.fileSizeBytes,
+      targetUrl: targetUrl ?? this.targetUrl,
+      socialPlatform: socialPlatform ?? this.socialPlatform,
+      barcodeValue: barcodeValue ?? this.barcodeValue,
+      metadata: metadata ?? this.metadata,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,

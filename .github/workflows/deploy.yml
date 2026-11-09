@@ -1,0 +1,117 @@
+name: Nutrient Earth — Production Web CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-build-and-deploy:
+    name: Verify, Build & Deploy Flutter Web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Flutter SDK (Pinned 3.47.1)
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Verify Environment
+        run: |
+          flutter --version
+          dart --version
+          node --version
+
+      - name: Resolve Dependencies (Canonical client/ root)
+        working-directory: client
+        run: flutter pub get
+
+      - name: Run Static Analysis
+        working-directory: client
+        run: flutter analyze
+
+      - name: Run Existing Tests
+        working-directory: client
+        run: |
+          flutter test test/core/services/email_auth_flow_test.dart
+          flutter test test/oauth_callback_and_session_restoration_test.dart
+          flutter test test/core/services/auth_destination_resolver_test.dart
+
+      - name: Compile Flutter Web Release
+        working-directory: client
+        run: flutter build web --release
+
+      - name: Validate Flutter Web Release Files
+        run: |
+          test -f client/build/web/index.html || { echo "ERROR: client/build/web/index.html missing"; exit 1; }
+          test -f client/build/web/main.dart.js || { echo "ERROR: client/build/web/main.dart.js missing"; exit 1; }
+          echo "Verified client/build/web artifacts."
+
+      - name: Prepare Root Build Output Mirror
+        run: |
+          mkdir -p build
+          rm -rf build/web
+          cp -r client/build/web build/web
+          test -f build/web/index.html || exit 1
+          echo "Mirrored client/build/web to build/web ($(find build/web -type f | wc -l) files)."
+
+      - name: Generate Vercel Build Output API v3 Tree (.vercel/output)
+        run: node scripts/prepare-vercel-output.js
+
+      - name: Validate Vercel Prebuilt Output Structure
+        run: |
+          test -f .vercel/output/config.json || { echo "ERROR: .vercel/output/config.json missing"; exit 1; }
+          test -f .vercel/output/static/index.html || { echo "ERROR: .vercel/output/static/index.html missing"; exit 1; }
+          test -f .vercel/output/static/main.dart.js || { echo "ERROR: .vercel/output/static/main.dart.js missing"; exit 1; }
+          echo "SUCCESS: .vercel/output conforms to Build Output API v3."
+
+      - name: Archive Production Web Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nutrient-earth-web-release
+          path: build/web
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Deploy Prebuilt Artifact to Vercel (Production)
+        if: github.ref == 'refs/heads/main'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::warning::Vercel credentials (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID) not detected in GitHub Secrets. Prebuilt artifact prepared and archived, skipping Vercel CLI upload."
+            exit 0
+          fi
+          echo "=== Configuring Vercel Project Link ==="
+          mkdir -p .vercel
+          cat << EOF > .vercel/project.json
+          {
+            "orgId": "$VERCEL_ORG_ID",
+            "projectId": "$VERCEL_PROJECT_ID"
+          }
+          EOF
+          echo "=== Deploying .vercel/output to Production ==="
+          npx --yes vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"

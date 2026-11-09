@@ -72,5 +72,19 @@
 	<string>Nutrient Earth can record your health and nutrition measurements to sync with your health ecosystem.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Nutrient Earth accesses your device motion and pedometer data to track daily activity and exercise.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Nutrient Earth requires microphone access to record spoken nutritional questions and voice dictation.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.nutrientearth.nutrient_earth_client</string>
+				<string>io.supabase.nutrientearth</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

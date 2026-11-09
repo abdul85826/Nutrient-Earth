@@ -168,58 +168,62 @@ class PrivacyDataModal extends StatelessWidget {
                 // 3. User Sovereignty & Data Portability
                 _buildSectionHeader('YOUR SOVEREIGN CONTROLS'),
                 const SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    color: NETokens.surface,
-                    borderRadius: BorderRadius.circular(NETokens.radiusMd),
-                    border: Border.all(color: NETokens.borderDefault),
-                  ),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.download_rounded, color: NETokens.primary),
-                        title: Text(
-                          'Export Health & Research Data',
-                          style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w600),
+                Material(
+                  color: NETokens.surface,
+                  borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                      border: Border.all(color: NETokens.borderDefault),
+                    ),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.download_rounded, color: NETokens.primary),
+                          title: Text(
+                            'Export Health & Research Data',
+                            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'Download full inquiry history, saved goals, and logs in JSON/CSV format',
+                            style: GoogleFonts.manrope(fontSize: 11, color: NETokens.textMuted),
+                          ),
+                          trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Compiling data export package. A download link will be prepared.'),
+                                backgroundColor: NETokens.botanicalTeal,
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          },
                         ),
-                        subtitle: Text(
-                          'Download full inquiry history, saved goals, and logs in JSON/CSV format',
-                          style: GoogleFonts.manrope(fontSize: 11, color: NETokens.textMuted),
+                        const Divider(height: 1, color: NETokens.borderSubtle),
+                        ListTile(
+                          leading: const Icon(Icons.history_toggle_off_rounded, color: NETokens.textSecondary),
+                          title: Text(
+                            'Clear Local Inquiries Cache',
+                            style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(
+                            'Purge cached search suggestions and offline query drafts',
+                            style: GoogleFonts.manrope(fontSize: 11, color: NETokens.textMuted),
+                          ),
+                          trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Local research cache successfully purged.'),
+                                backgroundColor: NETokens.forest,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
                         ),
-                        trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Compiling data export package. A download link will be prepared.'),
-                              backgroundColor: NETokens.botanicalTeal,
-                              duration: Duration(seconds: 3),
-                            ),
-                          );
-                        },
-                      ),
-                      const Divider(height: 1, color: NETokens.borderSubtle),
-                      ListTile(
-                        leading: const Icon(Icons.history_toggle_off_rounded, color: NETokens.textSecondary),
-                        title: Text(
-                          'Clear Local Inquiries Cache',
-                          style: GoogleFonts.manrope(fontSize: 13.5, fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          'Purge cached search suggestions and offline query drafts',
-                          style: GoogleFonts.manrope(fontSize: 11, color: NETokens.textMuted),
-                        ),
-                        trailing: const Icon(Icons.chevron_right_rounded, size: 20),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Local research cache successfully purged.'),
-                              backgroundColor: NETokens.forest,
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -272,30 +276,34 @@ class PrivacyDataModal extends StatelessWidget {
                 // 5. Destructive Account Actions
                 _buildSectionHeader('DANGER ZONE'),
                 const SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    color: NETokens.surface,
-                    borderRadius: BorderRadius.circular(NETokens.radiusMd),
-                    border: Border.all(color: NETokens.error.withValues(alpha: 0.3)),
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.delete_forever_rounded, color: NETokens.error),
-                    title: Text(
-                      'Delete Account & All Associated Records',
-                      style: GoogleFonts.manrope(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w700,
-                        color: NETokens.error,
+                Material(
+                  color: NETokens.surface,
+                  borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                      border: Border.all(color: NETokens.error.withValues(alpha: 0.3)),
+                    ),
+                    child: ListTile(
+                      leading: const Icon(Icons.delete_forever_rounded, color: NETokens.error),
+                      title: Text(
+                        'Delete Account & All Associated Records',
+                        style: GoogleFonts.manrope(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                          color: NETokens.error,
+                        ),
                       ),
+                      subtitle: Text(
+                        'Permanently delete your profile, telemetry, and research history',
+                        style: GoogleFonts.manrope(fontSize: 11, color: NETokens.textMuted),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded, size: 20, color: NETokens.error),
+                      onTap: () {
+                        _showDeleteConfirmationDialog(context);
+                      },
                     ),
-                    subtitle: Text(
-                      'Permanently delete your profile, telemetry, and research history',
-                      style: GoogleFonts.manrope(fontSize: 11, color: NETokens.textMuted),
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded, size: 20, color: NETokens.error),
-                    onTap: () {
-                      _showDeleteConfirmationDialog(context);
-                    },
                   ),
                 ),
                 const SizedBox(height: 24),

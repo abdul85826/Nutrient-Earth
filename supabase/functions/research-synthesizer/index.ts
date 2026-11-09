@@ -12,16 +12,30 @@ import { CentralModelRegistry } from './model_registry.ts';
 import { ServerHealthPrivacyGuard } from './health_privacy_guard.ts';
 import { SynthesizerRequest, ResearchAnswerPayload } from './types.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+function buildCorsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || '';
+  const allowedOrigins = [
+    'https://app.nutrientearth.com',
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'http://127.0.0.1:3000',
+  ];
+
+  const effectiveOrigin = allowedOrigins.includes(origin) ? origin : 'https://app.nutrientearth.com';
+  return {
+    'Access-Control-Allow-Origin': effectiveOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+}
 
 // Singleton adapter instances maintaining warm circuit breaker & connection pool
 const groqAdapter = new GroqProviderAdapter();
 const geminiAdapter = new GeminiProviderAdapter();
 
 serve(async (req: Request) => {
+  const corsHeaders = buildCorsHeaders(req);
+
   // 1. Handle CORS Preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });

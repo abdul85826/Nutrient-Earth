@@ -12,6 +12,7 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   errors:
     deprecated_member_use: ignore
+    file_names: ignore
   exclude:
     - build/**
     - android/**
@@ -20,6 +21,8 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    - client/**
+    - canonical_stitch_extracted/**
 
 linter:
   # The lint rules applied to this project can be customized in the

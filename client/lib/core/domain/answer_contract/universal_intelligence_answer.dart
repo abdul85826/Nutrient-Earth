@@ -45,6 +45,51 @@ enum EvidenceClassification {
   }
 }
 
+/// Explicit architectural response types adapting UI and processing to intent.
+enum UniversalResponseType {
+  conversation,
+  nutritionKnowledge,
+  nutritionCalculation,
+  researchSynthesis,
+  productAnalysis,
+  personalHealthInsight,
+  clarification,
+  safetyResponse,
+  error;
+
+  String get displayName {
+    switch (this) {
+      case UniversalResponseType.conversation:
+        return 'Conversation';
+      case UniversalResponseType.nutritionKnowledge:
+        return 'Nutrition Knowledge';
+      case UniversalResponseType.nutritionCalculation:
+        return 'Nutrition Calculation';
+      case UniversalResponseType.researchSynthesis:
+        return 'Research Synthesis';
+      case UniversalResponseType.productAnalysis:
+        return 'Product Analysis';
+      case UniversalResponseType.personalHealthInsight:
+        return 'Health Insight';
+      case UniversalResponseType.clarification:
+        return 'Clarification';
+      case UniversalResponseType.safetyResponse:
+        return 'Safety Notice';
+      case UniversalResponseType.error:
+        return 'Notice';
+    }
+  }
+
+  static UniversalResponseType fromString(String? raw) {
+    if (raw == null) return UniversalResponseType.researchSynthesis;
+    final lower = raw.toLowerCase().trim();
+    for (final t in UniversalResponseType.values) {
+      if (t.name.toLowerCase() == lower) return t;
+    }
+    return UniversalResponseType.researchSynthesis;
+  }
+}
+
 /// Image quality diagnostic assessment for visual inquiries.
 class ImageQualityAssessment {
   final double blurScore; // 0.0 (crisp) to 1.0 (severely blurry)
@@ -280,6 +325,7 @@ class UniversalIntelligenceAnswer {
   final String contractVersion; // '2026.2'
   final String referenceId;
   final UserInputType detectedInputType;
+  final UniversalResponseType responseType;
   final String query;
   final String heroAnswer; // Rule 1: The answer is the hero
   final String recommendation; // Personalized guidance
@@ -287,6 +333,7 @@ class UniversalIntelligenceAnswer {
   final GoalMatchIndicator goalMatch; // Rule 2: Small secondary element
   final EvidenceProvenanceContainer evidence; // Rules 3, 4, 5: Evidence watermark & inspection
   final List<String> practicalSteps;
+  final List<String> clarificationOptions;
   final ImageQualityAssessment? imageQuality;
   final VideoUnderstandingArtifact? videoAnalysis;
   final NutritionAnalysisProfile? foodComposition;
@@ -302,6 +349,7 @@ class UniversalIntelligenceAnswer {
     this.contractVersion = '2026.2',
     required this.referenceId,
     required this.detectedInputType,
+    this.responseType = UniversalResponseType.researchSynthesis,
     required this.query,
     required this.heroAnswer,
     required this.recommendation,
@@ -309,12 +357,13 @@ class UniversalIntelligenceAnswer {
     required this.goalMatch,
     required this.evidence,
     this.practicalSteps = const [],
+    this.clarificationOptions = const [],
     this.imageQuality,
     this.videoAnalysis,
     this.foodComposition,
     this.urlSourceDetails,
     required this.uncertaintyDisclaimer,
-    this.providerUsed = 'Nutrient Earth Multimodal Engine',
+    this.providerUsed = 'Nutrient Earth Verified Evidence Base',
     this.provenanceDossier,
     this.legacyEvidenceBadge,
     this.legacyGoalAlignment,
@@ -367,6 +416,7 @@ class UniversalIntelligenceAnswer {
       contractVersion: json['contractVersion'] as String? ?? '2026.2',
       referenceId: json['referenceId'] as String? ?? 'REF-2026-NE01',
       detectedInputType: detectedType,
+      responseType: UniversalResponseType.fromString(json['responseType'] as String?),
       query: json['query'] as String? ?? '',
       heroAnswer: hero,
       recommendation: rec,
@@ -374,6 +424,7 @@ class UniversalIntelligenceAnswer {
       goalMatch: goalMatch,
       evidence: evidenceContainer,
       practicalSteps: (json['practicalSteps'] as List<dynamic>?)?.map((p) => p.toString()).toList() ?? const [],
+      clarificationOptions: (json['clarificationOptions'] as List<dynamic>?)?.map((o) => o.toString()).toList() ?? const [],
       imageQuality: json['imageQuality'] != null
           ? ImageQualityAssessment.fromJson(json['imageQuality'] as Map<String, dynamic>)
           : null,
@@ -386,7 +437,7 @@ class UniversalIntelligenceAnswer {
       urlSourceDetails: json['urlSourceDetails'] as String?,
       uncertaintyDisclaimer: json['uncertaintyDisclaimer'] as String? ??
           'Nutrient Earth provides nutritional and health research syntheses for educational guidance; it does not replace individualized clinical care.',
-      providerUsed: json['providerUsed'] as String? ?? 'Nutrient Earth Multimodal Engine',
+      providerUsed: json['providerUsed'] as String? ?? 'Nutrient Earth Verified Evidence Base',
       provenanceDossier: json['provenanceDossier'] != null
           ? ResearchProvenanceDossier.fromJson(json['provenanceDossier'] as Map<String, dynamic>)
           : null,
@@ -404,6 +455,7 @@ class UniversalIntelligenceAnswer {
         'contractVersion': contractVersion,
         'referenceId': referenceId,
         'detectedInputType': detectedInputType.name,
+        'responseType': responseType.name,
         'query': query,
         'heroAnswer': heroAnswer,
         'recommendation': recommendation,
@@ -411,6 +463,7 @@ class UniversalIntelligenceAnswer {
         'goalMatch': goalMatch.toJson(),
         'evidence': evidence.toJson(),
         'practicalSteps': practicalSteps,
+        'clarificationOptions': clarificationOptions,
         'imageQuality': imageQuality?.toJson(),
         'videoAnalysis': videoAnalysis?.toJson(),
         'foodComposition': foodComposition?.toJson(),

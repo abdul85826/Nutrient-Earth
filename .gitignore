@@ -107,3 +107,18 @@ supabase/.branches/
 *.apk
 *.patch
 .tmp/
+checkpoint-*.zip
+canonical_stitch_extracted/
+# Root junctions / local Windows proxies (canonical lives under client/)
+/lib
+/test
+/web
+/assets
+/pubspec.yaml
+/pubspec.lock
+/analysis_options.yaml
+/.dart_tool/
+/.flutter-plugins-dependencies
+.vercel/
+run-web.bat
+run-web.ps1

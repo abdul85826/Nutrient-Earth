@@ -74,7 +74,36 @@ void main() {
 
       await tester.pumpWidget(
         createTestHost(
-          child: const UniversalReferenceAnswerCard(),
+          child: const UniversalReferenceAnswerCard(
+            isProduct: true,
+            productName: 'Himalaya Herbals Anti-Hair Fall Shampoo',
+            productDescription: 'A herbal shampoo with Bhringraj and Amla designed for daily hair care.',
+            myTakeText: "Yes, you can use this. It's a gentle, herbal option for general daily scalp maintenance.",
+            keyBenefits: [
+              'Helps reduce hair fall',
+              'Nourishes the scalp',
+              'Supports stronger hair',
+            ],
+            keepInMindNotes: [
+              'Results are gradual',
+              'May not work for hormonal or medical hair loss',
+              'Do a patch test if you have a sensitive scalp',
+            ],
+            evidenceSources: [
+              ReferenceCitationItem(
+                title: 'Bhringraj for hair growth: A clinical review',
+                journalAndYear: 'Journal of Ethnopharmacology • 2021',
+                tag: 'Research',
+                pmid: '33451298',
+              ),
+              ReferenceCitationItem(
+                title: 'Amla and hair health: Evidence and benefits',
+                journalAndYear: 'International Journal of Trichology • 2020',
+                tag: 'Research',
+                pmid: '32884210',
+              ),
+            ],
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -126,8 +155,8 @@ void main() {
 
       expect(find.text('Scientific Evidence Dossier'), findsOneWidget);
       expect(find.textContaining('Indexed biomedical literature'), findsOneWidget);
-      expect(find.text('PMID: 33451298'), findsOneWidget);
-      expect(find.text('PMID: 32884210'), findsOneWidget);
+      expect(find.textContaining('33451298'), findsOneWidget);
+      expect(find.textContaining('32884210'), findsOneWidget);
 
       // Close modal
       await tester.tap(find.byIcon(Icons.close_rounded));

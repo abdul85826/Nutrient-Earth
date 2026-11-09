@@ -4,12 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../health_sync/presentation/widgets/health_sync_modal.dart';
+import '../../../memory/presentation/personal_health_memory_modal.dart';
 
 class TodayDrawer extends StatelessWidget {
   final VoidCallback onNewChat;
   final ValueChanged<String> onSelectHistory;
   final VoidCallback onProfileTap;
   final VoidCallback? onPrivacyTap;
+  final VoidCallback? onHealthMemoryTap;
+  final VoidCallback? onDoctorSummaryTap;
   final String? profileName;
   final String? profileGoal;
   final bool isAuthenticated;
@@ -21,6 +24,8 @@ class TodayDrawer extends StatelessWidget {
     required this.onSelectHistory,
     required this.onProfileTap,
     this.onPrivacyTap,
+    this.onHealthMemoryTap,
+    this.onDoctorSummaryTap,
     this.profileName,
     this.profileGoal,
     this.isAuthenticated = false,
@@ -202,6 +207,87 @@ class TodayDrawer extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Personal Health Memory (Confirmation Gate) Action Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  if (onHealthMemoryTap != null) {
+                    onHealthMemoryTap!();
+                  } else {
+                    PersonalHealthMemoryModal.show(context);
+                  }
+                },
+                borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 11.0),
+                  decoration: BoxDecoration(
+                    color: NETokens.surface,
+                    borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                    border: Border.all(color: NETokens.borderDefault),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.psychology_outlined, size: 18, color: NETokens.darkEvergreen),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Personal Health Memory',
+                          style: GoogleFonts.manrope(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
+                            color: NETokens.primary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: NETokens.textMuted),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Doctor Consultation Summary Action Button
+            if (onDoctorSummaryTap != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    onDoctorSummaryTap!();
+                  },
+                  borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 11.0),
+                    decoration: BoxDecoration(
+                      color: NETokens.surface,
+                      borderRadius: BorderRadius.circular(NETokens.radiusMd),
+                      border: Border.all(color: NETokens.borderDefault),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.medical_services_outlined, size: 18, color: NETokens.botanicalTeal),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Doctor Consultation Brief',
+                            style: GoogleFonts.manrope(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                              color: NETokens.primary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: NETokens.textMuted),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
 
             // Conversation History List
             Padding(

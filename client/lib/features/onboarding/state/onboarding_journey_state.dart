@@ -185,10 +185,10 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(impactFluctuates: val);
   }
 
-  void setDietaryPattern(String pattern, {String? custom}) {
+  void setDietaryPattern(String pattern, {String? custom, String? customPattern}) {
     state = state.copyWith(
       dietaryPattern: pattern,
-      customDietaryPattern: custom ?? state.customDietaryPattern,
+      customDietaryPattern: customPattern ?? custom ?? state.customDietaryPattern,
     );
   }
 
@@ -220,6 +220,26 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(firstName: name, age: age);
   }
 
+  void setFirstName(String name) {
+    state = state.copyWith(firstName: name);
+  }
+
+  void setAge(int age) {
+    state = state.copyWith(age: age);
+  }
+
+  void setHeightCm(double? height, {String? unit}) {
+    state = state.copyWith(heightCm: height, heightUnit: unit ?? state.heightUnit);
+  }
+
+  void setWeightKg(double? weight, {String? unit}) {
+    state = state.copyWith(weightKg: weight, weightUnit: unit ?? state.weightUnit);
+  }
+
+  void setWeightSkipped(bool skipped) {
+    state = state.copyWith(weightSkipped: skipped);
+  }
+
   void setBodyMeasurements({
     double? heightCm,
     double? weightKg,
@@ -234,6 +254,10 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
       weightUnit: weightUnit ?? state.weightUnit,
       weightSkipped: weightSkipped ?? state.weightSkipped,
     );
+  }
+
+  void setPrioritizedConcerns(Set<String> concerns) {
+    state = state.copyWith(prioritizedConcerns: concerns);
   }
 
   void togglePrioritizedConcern(String concern) {
@@ -292,6 +316,18 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
 
   void setKnowledgeLevel(String level) {
     state = state.copyWith(knowledgeLevel: level);
+  }
+
+  Future<bool> completeOnboarding({
+    AuthService? auth,
+    ProfileRepository? profileRepo,
+    TaskRepository? taskRepo,
+  }) async {
+    if (auth != null && profileRepo != null && taskRepo != null) {
+      return saveAndComplete(auth: auth, profileRepo: profileRepo, taskRepo: taskRepo);
+    }
+    state = state.copyWith(phase1Reviewed: true);
+    return true;
   }
 
   /// Finalizes onboarding, saves authentic user profile to Supabase public.profiles,

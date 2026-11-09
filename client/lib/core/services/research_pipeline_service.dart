@@ -104,6 +104,14 @@ class ResearchAnswer {
     this.provenanceDossier,
   });
 
+  /// Explicit provenance flags distinguishing remote AI synthesis from local offline archive
+  bool get isRemoteLiveSynthesis =>
+      provider.toLowerCase().contains('groq') ||
+      provider.toLowerCase().contains('gemini') ||
+      provider.toLowerCase().contains('deepseek');
+
+  bool get isDeterministicLocalArchive => !isRemoteLiveSynthesis;
+
   factory ResearchAnswer.fromUniversalAnswer(UniversalIntelligenceAnswer u) {
     return ResearchAnswer(
       query: u.query,
@@ -378,6 +386,7 @@ class ResearchPipelineService {
     required UniversalInputDescriptor descriptor,
     UserProfileContext? userProfile,
     EvidenceIntegrityService? integrityService,
+    String? activeContextTopic,
   }) async {
     switch (descriptor.inputType) {
       case UserInputType.barcode:
@@ -693,11 +702,16 @@ class ResearchPipelineService {
       default:
         final cleanQuery = QuerySanitizer.sanitize(descriptor.rawPayload);
 
-        final intent = ChatbotIntentRouter.classifyIntent(cleanQuery, inputType: descriptor.inputType);
+        final intent = ChatbotIntentRouter.classifyIntent(
+          cleanQuery,
+          inputType: descriptor.inputType,
+          activeContextTopic: activeContextTopic,
+        );
         final nonResearchAnswer = ChatbotIntentRouter.handleNonResearchIntent(
           intent: intent,
           rawQuery: cleanQuery,
           userProfile: userProfile,
+          activeContextTopic: activeContextTopic,
         );
         if (nonResearchAnswer != null) {
           return nonResearchAnswer;
@@ -776,9 +790,12 @@ class ResearchPipelineService {
         audioPath != null ||
         SensitiveDataRoutingGuard.containsPersonalHealthSignals(cleanQuery);
 
-    if (!isPersonalData && SupabaseConfig.client != null) {
+    final client = SupabaseConfig.client;
+    final hasActiveSession = client?.auth.currentSession != null;
+
+    if (!isPersonalData && client != null && hasActiveSession) {
       try {
-        final response = await SupabaseConfig.client!.functions.invoke(
+        final response = await client.functions.invoke(
           'research-synthesizer',
           body: {
             'query': cleanQuery,
@@ -789,7 +806,22 @@ class ResearchPipelineService {
         );
 
         if (response.status == 200 && response.data is Map<String, dynamic>) {
-          return ResearchAnswer.fromJson(response.data as Map<String, dynamic>);
+          final answer = ResearchAnswer.fromJson(response.data as Map<String, dynamic>);
+          // Strict Citation Validation: ensure returned citations are valid and uncorrupted
+          final validCitations = answer.citations.where((c) {
+            if (c.pmid != null && c.pmid!.trim().isNotEmpty) {
+              final parsed = int.tryParse(c.pmid!.trim());
+              return parsed != null && parsed > 0;
+            }
+            if (c.url != null && c.url!.contains('doi.org/10.')) {
+              return true;
+            }
+            return false;
+          }).toList();
+
+          if (validCitations.isNotEmpty) {
+            return answer;
+          }
         }
       } catch (_) {
         // Operational logging only: Silently fall through to verified clinical knowledge base

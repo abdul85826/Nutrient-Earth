@@ -61,7 +61,7 @@ void main() {
 
     testWidgets('Screen 03: AuthScreen gates submission on 18+ consent checkbox', (tester) async {
       await tester.pumpWidget(createTestApp(const AuthScreen()));
-      expect(find.text('Your health journey starts with understanding.'), findsOneWidget);
+      expect(find.text('NUTRIENT EARTH TRUST PROTOCOL'), findsOneWidget);
       expect(find.byType(Checkbox), findsOneWidget);
 
       final submitButtonFinder = find.widgetWithText(ElevatedButton, 'Create account');
@@ -221,7 +221,26 @@ void main() {
     });
 
     testWidgets('UniversalReferenceAnswerCard renders product hero, take, benefits, and evidence', (tester) async {
-      await tester.pumpWidget(createTestApp(const UniversalReferenceAnswerCard()));
+      await tester.pumpWidget(createTestApp(const UniversalReferenceAnswerCard(
+        isProduct: true,
+        productName: 'Himalaya Herbals Anti-Hair Fall Shampoo',
+        productDescription: 'A herbal shampoo with Bhringraj and Amla for hair care.',
+        myTakeText: 'A gentle herbal option for scalp nourishment.',
+        keyBenefits: ['Helps reduce hair fall'],
+        keepInMindNotes: ['Results are gradual'],
+        evidenceSources: [
+          ReferenceCitationItem(
+            title: 'Bhringraj for hair growth: A clinical review',
+            journalAndYear: 'Journal of Ethnopharmacology • 2021',
+            tag: 'Research',
+          ),
+          ReferenceCitationItem(
+            title: 'Amla and hair health: Evidence and benefits',
+            journalAndYear: 'International Journal of Trichology • 2020',
+            tag: 'Research',
+          ),
+        ],
+      )));
 
       expect(find.text('Product Identified'), findsOneWidget);
       expect(find.text('Well\nSupported'), findsOneWidget);

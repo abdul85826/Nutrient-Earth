@@ -5,20 +5,60 @@
 // 2. Protected route gating: Unauthenticated requests to /onboarding/* redirect to /auth.
 // 3. ReturnTo preservation for post-authentication deep linking.
 // 4. Authenticated sessions bypass login and redirect forward.
+// 5. Password recovery and password update methods.
 // ==============================================================================
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nutrient_earth_client/core/domain/personalization/user_profile_context.dart';
 import 'package:nutrient_earth_client/core/services/auth_service.dart';
+import 'package:nutrient_earth_client/core/services/profile_repository.dart';
 import 'package:nutrient_earth_client/routing/app_router.dart';
+
+class MockTestProfileRepo implements ProfileRepository {
+  final bool onboardingCompleted;
+  MockTestProfileRepo({this.onboardingCompleted = true});
+
+  @override
+  UserProfileContext? getCachedProfileSync(String? userId) {
+    if (userId == null) return null;
+    return UserProfileContext(
+      userId: userId,
+      displayName: 'Test User',
+      age: 30,
+      biologicalSex: 'female',
+      primaryGoals: const ['longevity'],
+      activityLevel: 'moderate',
+      dietaryPreference: 'omnivore',
+      budgetConstraint: 'moderate',
+      willingnessToChange: 'high',
+      onboardingCompleted: onboardingCompleted,
+    );
+  }
+
+  @override
+  Future<UserProfileContext?> getCurrentUserProfile({String? explicitUserId}) async => getCachedProfileSync('mock');
+  @override
+  Future<bool> saveUserProfile(UserProfileContext profile) async => true;
+  Future<bool> markOnboardingCompleted(String userId) async => true;
+  Future<bool> clearProfile() async => true;
+  @override
+  Future<bool> clearCacheForUser(String userId) async => true;
+}
 
 class MockControlledAuthService implements AuthService {
   User? _user;
   Session? _session;
+  final StreamController<AuthState> _authController = StreamController<AuthState>.broadcast();
+  bool resetPasswordCalled = false;
+  String? lastResetEmail;
+  bool updatePasswordCalled = false;
+  String? lastUpdatedPassword;
 
   void setAuthenticatedUser(String email, {String id = 'usr_mock_123'}) {
     _user = User(
@@ -34,11 +74,17 @@ class MockControlledAuthService implements AuthService {
       tokenType: 'bearer',
       user: _user!,
     );
+    _authController.add(AuthState(AuthChangeEvent.signedIn, _session));
   }
 
   void clearSession() {
     _user = null;
     _session = null;
+    _authController.add(const AuthState(AuthChangeEvent.signedOut, null));
+  }
+
+  void dispose() {
+    _authController.close();
   }
 
   @override
@@ -51,35 +97,92 @@ class MockControlledAuthService implements AuthService {
   bool get isAuthenticated => _user != null;
 
   @override
-  Stream<AuthState> get authStateChanges => const Stream.empty();
+  Stream<AuthState> get authStateChanges => _authController.stream;
 
   @override
-  Future<AuthResponse> signUp({required String email, required String password}) async {
+  Future<AuthResponse> signUp({
+    required String email,
+    required String password,
+    Map<String, dynamic>? data,
+  }) async {
     setAuthenticatedUser(email);
     return AuthResponse(session: _session, user: _user);
   }
 
   @override
-  Future<AuthResponse> signIn({required String email, required String password}) async {
+  Future<AuthResponse> signIn({
+    required String email,
+    required String password,
+  }) async {
     setAuthenticatedUser(email);
     return AuthResponse(session: _session, user: _user);
   }
 
   @override
-  Future<bool> signInWithGoogle() async => true;
+  Future<void> signInWithOtp({required String email, String? redirectTo}) async {}
+
+  @override
+  Future<bool> signInWithGoogle({String? redirectTo}) async {
+    setAuthenticatedUser('google_user@example.com');
+    return true;
+  }
+
+  @override
+  Future<AuthSessionUrlResponse> exchangeCodeForSession(String code) async {
+    setAuthenticatedUser('oauth_exchanged@example.com');
+    return AuthSessionUrlResponse(session: _session!, redirectType: 'web');
+  }
 
   @override
   Future<void> signOut() async {
     clearSession();
   }
+
+  @override
+  Future<void> resetPasswordForEmail({required String email, String? redirectTo}) async {
+    resetPasswordCalled = true;
+    lastResetEmail = email;
+  }
+
+  @override
+  Future<UserResponse> updatePassword({required String newPassword}) async {
+    updatePasswordCalled = true;
+    lastUpdatedPassword = newPassword;
+    return UserResponse.fromJson({
+      'user': _user?.toJson() ?? {},
+    });
+  }
+}
+
+class MockBuildContext extends Fake implements BuildContext {}
+
+GoRouterState _createState(GoRouter router, String location) {
+  final uri = Uri.parse(location);
+  return GoRouterState(
+    router.configuration,
+    uri: uri,
+    matchedLocation: uri.path,
+    fullPath: uri.path,
+    pathParameters: const {},
+    pageKey: const ValueKey('test_key'),
+  );
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late MockControlledAuthService mockAuth;
+
+  setUp(() {
+    mockAuth = MockControlledAuthService();
+  });
+
+  tearDown(() {
+    mockAuth.dispose();
+  });
+
   group('Supabase Auth & Reactive State Providers', () {
     test('Unauthenticated state returns null user and false for isAuthenticated', () {
-      final mockAuth = MockControlledAuthService();
       final container = ProviderContainer(
         overrides: [
           authServiceProvider.overrideWithValue(mockAuth),
@@ -92,7 +195,6 @@ void main() {
     });
 
     test('Authenticated state reactively reflects current user and returns true for isAuthenticated', () {
-      final mockAuth = MockControlledAuthService();
       mockAuth.setAuthenticatedUser('alex.researcher@example.com');
 
       final container = ProviderContainer(
@@ -104,6 +206,35 @@ void main() {
 
       expect(container.read(isAuthenticatedProvider), isTrue);
       expect(container.read(currentUserProvider)?.email, equals('alex.researcher@example.com'));
+    });
+
+    test('Sign out updates reactive providers immediately', () async {
+      mockAuth.setAuthenticatedUser('alex.researcher@example.com');
+
+      final container = ProviderContainer(
+        overrides: [
+          authServiceProvider.overrideWithValue(mockAuth),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(container.read(isAuthenticatedProvider), isTrue);
+
+      mockAuth.clearSession();
+      // Allow microtask stream event to propagate through Riverpod
+      await Future<void>.delayed(Duration.zero);
+      expect(container.read(isAuthenticatedProvider), isFalse);
+      expect(container.read(currentUserProvider), isNull);
+    });
+
+    test('Password reset and update password methods record parameters properly', () async {
+      await mockAuth.resetPasswordForEmail(email: 'reset@example.com');
+      expect(mockAuth.resetPasswordCalled, isTrue);
+      expect(mockAuth.lastResetEmail, equals('reset@example.com'));
+
+      await mockAuth.updatePassword(newPassword: 'newSecurePassword123');
+      expect(mockAuth.updatePasswordCalled, isTrue);
+      expect(mockAuth.lastUpdatedPassword, equals('newSecurePassword123'));
     });
   });
 
@@ -117,6 +248,100 @@ void main() {
     test('Default appRouter is configured with initial location and route definitions', () {
       expect(appRouter, isA<GoRouter>());
       expect(appRouter.routeInformationProvider.value.uri.path, isNotEmpty);
+    });
+
+    test('Unauthenticated user navigating to protected onboarding route is redirected to /auth with returnTo', () {
+      final router = createAppRouter(authService: mockAuth);
+      final state = _createState(router, '/onboarding/health-goals');
+
+      final redirect = appRouterRedirect(
+        MockBuildContext(),
+        state,
+        authService: mockAuth,
+      );
+
+      // Must redirect to /auth with encoded returnTo
+      expect(redirect, contains('/auth?mode=signin&returnTo='));
+      expect(redirect, contains(Uri.encodeComponent('/onboarding/health-goals')));
+    });
+
+    test('Unauthenticated user navigating to public routes (welcome, splash) is not blocked', () {
+      final router = createAppRouter(authService: mockAuth);
+
+      final stateWelcome = _createState(router, '/welcome');
+      final redirectWelcome = appRouterRedirect(
+        MockBuildContext(),
+        stateWelcome,
+        authService: mockAuth,
+      );
+      expect(redirectWelcome, isNull);
+
+      final stateSplash = _createState(router, '/splash');
+      final redirectSplash = appRouterRedirect(
+        MockBuildContext(),
+        stateSplash,
+        authService: mockAuth,
+      );
+      expect(redirectSplash, isNull);
+    });
+
+    test('Unauthenticated user navigating to /today is redirected to /auth', () {
+      final router = createAppRouter(authService: mockAuth);
+      final stateToday = _createState(router, '/today');
+      final redirectToday = appRouterRedirect(
+        MockBuildContext(),
+        stateToday,
+        authService: mockAuth,
+      );
+      expect(redirectToday, equals('/auth?mode=signin&returnTo=%2Ftoday'));
+    });
+
+    test('Authenticated user navigating to /auth is redirected forward to /today when onboarding complete', () {
+      mockAuth.setAuthenticatedUser('member@example.com');
+      final router = createAppRouter(authService: mockAuth);
+      final state = _createState(router, '/auth');
+
+      final redirect = appRouterRedirect(
+        MockBuildContext(),
+        state,
+        authService: mockAuth,
+        profileRepository: MockTestProfileRepo(onboardingCompleted: true),
+      );
+
+      expect(redirect, equals('/today'));
+    });
+
+    test('Authenticated user navigating to /auth with returnTo is redirected forward to returnTo', () {
+      mockAuth.setAuthenticatedUser('member@example.com');
+      final router = createAppRouter(authService: mockAuth);
+      final state = _createState(
+        router,
+        '/auth?mode=signin&returnTo=%2Fonboarding%2Fdifficulties',
+      );
+
+      final redirect = appRouterRedirect(
+        MockBuildContext(),
+        state,
+        authService: mockAuth,
+        profileRepository: MockTestProfileRepo(onboardingCompleted: true),
+      );
+
+      expect(redirect, equals('/onboarding/difficulties'));
+    });
+
+    test('Authenticated user navigating to /welcome is redirected to /today when onboarding complete', () {
+      mockAuth.setAuthenticatedUser('member@example.com');
+      final router = createAppRouter(authService: mockAuth);
+      final state = _createState(router, '/welcome');
+
+      final redirect = appRouterRedirect(
+        MockBuildContext(),
+        state,
+        authService: mockAuth,
+        profileRepository: MockTestProfileRepo(onboardingCompleted: true),
+      );
+
+      expect(redirect, equals('/today'));
     });
   });
 }
