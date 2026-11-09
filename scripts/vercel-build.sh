@@ -36,6 +36,11 @@ flutter config --no-analytics
 flutter pub get
 flutter build web --release
 
+# Ensure assets/config.json exists directly under assets/ for direct HTTP requests
+if [ -f "build/web/assets/assets/config.json" ] && [ ! -f "build/web/assets/config.json" ]; then
+  cp "build/web/assets/assets/config.json" "build/web/assets/config.json"
+fi
+
 # Ensure output is mirrored to both root build/web and client/build/web
 if [ "$PWD" != "$REPO_ROOT" ]; then
   mkdir -p "$REPO_ROOT/build"

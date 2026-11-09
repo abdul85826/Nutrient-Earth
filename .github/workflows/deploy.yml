@@ -8,17 +8,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-  workflow_call:
-    secrets:
-      VERCEL_TOKEN:
-        description: 'Vercel Personal Access Token'
-        required: false
-      VERCEL_ORG_ID:
-        description: 'Vercel Organization ID'
-        required: false
-      VERCEL_PROJECT_ID:
-        description: 'Vercel Project ID'
-        required: false
 
 concurrency:
   group: production-deployment
@@ -71,13 +60,30 @@ jobs:
 
       - name: Compile Flutter Web Release
         working-directory: client
-        run: flutter build web --release
-
-      - name: Validate Flutter Web Release Files
         run: |
-          test -f client/build/web/index.html || { echo "ERROR: client/build/web/index.html missing"; exit 1; }
-          test -f client/build/web/main.dart.js || { echo "ERROR: client/build/web/main.dart.js missing"; exit 1; }
-          echo "Verified client/build/web artifacts."
+          flutter build web --release
+          if [ -f "build/web/assets/assets/config.json" ] && [ ! -f "build/web/assets/config.json" ]; then
+            cp "build/web/assets/assets/config.json" "build/web/assets/config.json"
+          fi
+
+      - name: Validate Flutter Web Production Assets
+        working-directory: client
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f build/web/index.html
+          test -f build/web/main.dart.js
+          test -f build/web/assets/config.json
+          test -f build/web/icons/Icon-192.png
+          test -f build/web/icons/Icon-512.png
+
+          if find build/web -type f -name ".env" | grep -q .; then
+            echo "ERROR: Private environment file found in Web output."
+            exit 1
+          fi
+
+          echo "Flutter Web production assets validated."
 
       - name: Prepare Root Build Output Mirror
         run: |

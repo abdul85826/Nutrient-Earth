@@ -3,5 +3,8 @@
   "coderabbit.autoReviewMode": "Disabled",
   "coderabbit.completionNotifications": false,
   "coderabbit.reviewCompletionSound": false,
-  "coderabbit.autoStartTask": false
+  "coderabbit.autoStartTask": false,
+  "files.associations": {
+    "deploy.yml": "yaml"
+  }
 }

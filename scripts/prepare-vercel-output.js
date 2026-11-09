@@ -27,6 +27,13 @@ if (!fs.existsSync(indexHtml) || !fs.existsSync(mainDartJs)) {
   process.exit(1);
 }
 
+// Ensure assets/config.json exists directly under assets/
+const nestedConfig = path.join(clientBuildWeb, 'assets', 'assets', 'config.json');
+const directConfig = path.join(clientBuildWeb, 'assets', 'config.json');
+if (fs.existsSync(nestedConfig) && !fs.existsSync(directConfig)) {
+  fs.copyFileSync(nestedConfig, directConfig);
+}
+
 // 2. Ensure .vercel/output/static directory exists and is clean
 if (fs.existsSync(vercelOutputDir)) {
   fs.rmSync(vercelOutputDir, { recursive: true, force: true });
@@ -51,12 +58,25 @@ function copyFolderSync(from, to) {
 console.log('Copying Flutter web assets into .vercel/output/static...');
 copyFolderSync(clientBuildWeb, vercelStaticDir);
 
+const staticNestedConfig = path.join(vercelStaticDir, 'assets', 'assets', 'config.json');
+const staticDirectConfig = path.join(vercelStaticDir, 'assets', 'config.json');
+if (fs.existsSync(staticNestedConfig) && !fs.existsSync(staticDirectConfig)) {
+  fs.copyFileSync(staticNestedConfig, staticDirectConfig);
+}
+
 // 4. Generate .vercel/output/config.json with routing and security headers
 const config = {
   version: 3,
   routes: [
     {
       src: '^/assets/(.*)$',
+      headers: {
+        'cache-control': 'public, max-age=31536000, immutable'
+      },
+      continue: true
+    },
+    {
+      src: '^/icons/(.*)$',
       headers: {
         'cache-control': 'public, max-age=31536000, immutable'
       },

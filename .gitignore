@@ -68,7 +68,6 @@ client/ios/Flutter/app.flx
 client/ios/Flutter/app.zip
 client/ios/Flutter/flutter_assets/
 client/ios/ServiceDefinitions.json
-client/web/icons/
 
 # Dart Generated Files
 *.g.dart

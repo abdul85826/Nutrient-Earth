@@ -8,29 +8,50 @@ class AppConfig {
 
   static Map<String, dynamic> _configMap = {};
 
+  @visibleForTesting
+  static void setConfigForTesting(Map<String, dynamic> config) {
+    _configMap = config;
+  }
+
+  @visibleForTesting
+  static void resetForTesting() {
+    _configMap = {};
+  }
+
   static const int defaultDevWebPort = 3000;
   static const String defaultDevOrigin = 'http://localhost:$defaultDevWebPort';
   static const String defaultProdOrigin = 'https://nutrient-earth.vercel.app';
   static const String nativeDeepLinkRedirect = 'com.nutrientearth.nutrient_earth_client://login-callback';
 
-  static Future<void> initialize() async {
-    // 1. Attempt loading local .env for native platforms
-    try {
-      await dotenv.load(fileName: '.env');
-    } catch (_) {
-      dotenv.testLoad(fileInput: '');
+  static Future<void> initialize({bool? isWebOverride}) async {
+    final isWeb = isWebOverride ?? kIsWeb;
+    if (!isWeb) {
+      try {
+        await dotenv.load(fileName: '.env');
+      } catch (_) {
+        if (!dotenv.isInitialized) {
+          dotenv.testLoad(fileInput: '');
+        }
+      }
     }
 
-    // 2. Fall back to publishable web client configuration (zero secrets)
-    if (supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
+    if (isWeb || supabaseUrl.isEmpty || supabaseAnonKey.isEmpty) {
       try {
         final jsonString = await rootBundle.loadString('assets/config.json');
         final decoded = json.decode(jsonString);
-        if (decoded is Map<String, dynamic>) {
-          _configMap = decoded;
+
+        if (decoded is! Map<String, dynamic>) {
+          throw const FormatException(
+            'Application configuration must be a JSON object.',
+          );
         }
-      } catch (_) {
-        // Safe fallback if asset is absent
+
+        _configMap = decoded;
+      } catch (error) {
+        _configMap = {};
+        debugPrint(
+          '[AppConfig] Configuration loading failed: $error',
+        );
       }
     }
   }

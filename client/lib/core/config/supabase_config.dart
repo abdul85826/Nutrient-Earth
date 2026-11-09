@@ -25,12 +25,21 @@ class SupabaseConfig {
     final url = AppConfig.supabaseUrl;
     final anonKey = AppConfig.supabaseAnonKey;
 
-    if (url.isEmpty ||
+    final isMissingOrPlaceholder = url.isEmpty ||
         anonKey.isEmpty ||
         anonKey == 'your-anon-key-here' ||
         anonKey == 'mock-anon-key' ||
         anonKey == 'placeholder-anon-key' ||
-        url.contains('placeholder.supabase.co')) {
+        url.contains('placeholder.supabase.co');
+
+    if (AppConfig.isProduction && isMissingOrPlaceholder) {
+      throw StateError(
+        '[SupabaseConfig] Production configuration invalid or missing: '
+        'Valid SUPABASE_URL and SUPABASE_ANON_KEY are required in production mode.',
+      );
+    }
+
+    if (isMissingOrPlaceholder) {
       // In development/test mode without valid cloud key, operate safely in mock mode
       return;
     }
@@ -52,6 +61,9 @@ class SupabaseConfig {
       } catch (_) {
         debugPrint('[SupabaseConfig] Failed to initialize Supabase: $e');
         _initialized = false;
+        if (AppConfig.isProduction) {
+          rethrow;
+        }
       }
     }
   }
