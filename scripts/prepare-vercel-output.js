@@ -125,3 +125,4 @@ console.log(`  - config.json: Valid Build Output API v3 specification.`);
 console.log(`  - static/: ${totalFiles} static files prepared.`);
 console.log(`  - index.html: ${fs.existsSync(path.join(vercelStaticDir, 'index.html'))}`);
 console.log(`  - main.dart.js: ${fs.existsSync(path.join(vercelStaticDir, 'main.dart.js'))}`);
+

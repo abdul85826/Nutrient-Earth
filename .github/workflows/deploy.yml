@@ -8,6 +8,17 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_call:
+    secrets:
+      VERCEL_TOKEN:
+        description: 'Vercel Personal Access Token'
+        required: false
+      VERCEL_ORG_ID:
+        description: 'Vercel Organization ID'
+        required: false
+      VERCEL_PROJECT_ID:
+        description: 'Vercel Project ID'
+        required: false
 
 concurrency:
   group: production-deployment
