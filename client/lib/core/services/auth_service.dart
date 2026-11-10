@@ -29,6 +29,18 @@ abstract class AuthService {
   Future<void> signInWithOtp({
     required String email,
     String? redirectTo,
+    String? captchaToken,
+  });
+  Future<AuthResponse> verifyOtp({
+    required String email,
+    required String token,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  });
+  Future<void> resendOtp({
+    required String email,
+    OtpType type = OtpType.email,
+    String? captchaToken,
   });
   Future<bool> signInWithGoogle({String? redirectTo});
   Future<AuthSessionUrlResponse> exchangeCodeForSession(String code);
@@ -88,6 +100,7 @@ class SupabaseAuthService implements AuthService {
   Future<void> signInWithOtp({
     required String email,
     String? redirectTo,
+    String? captchaToken,
   }) async {
     final client = SupabaseConfig.client;
     if (client == null) {
@@ -97,7 +110,51 @@ class SupabaseAuthService implements AuthService {
     await client.auth.signInWithOtp(
       email: email.trim().toLowerCase(),
       emailRedirectTo: target,
+      captchaToken: captchaToken,
     );
+  }
+
+  @override
+  Future<AuthResponse> verifyOtp({
+    required String email,
+    required String token,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {
+    final client = SupabaseConfig.client;
+    if (client == null) {
+      throw const AuthException('Authentication backend is offline or uninitialized.');
+    }
+    return client.auth.verifyOTP(
+      email: email.trim().toLowerCase(),
+      token: token.trim(),
+      type: type,
+      captchaToken: captchaToken,
+    );
+  }
+
+  @override
+  Future<void> resendOtp({
+    required String email,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {
+    final client = SupabaseConfig.client;
+    if (client == null) {
+      throw const AuthException('Authentication backend is offline or uninitialized.');
+    }
+    if (type == OtpType.signup || type == OtpType.emailChange) {
+      await client.auth.resend(
+        email: email.trim().toLowerCase(),
+        type: type,
+        captchaToken: captchaToken,
+      );
+    } else {
+      await client.auth.signInWithOtp(
+        email: email.trim().toLowerCase(),
+        captchaToken: captchaToken,
+      );
+    }
   }
 
   @override

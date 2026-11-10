@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../config/app_config.dart';
 import '../../../features/onboarding/state/onboarding_journey_state.dart';
 import '../../../features/today/state/today_state.dart';
 import '../../services/auth_destination_resolver.dart';
@@ -45,6 +46,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
     super.initState();
     _platformView = getPlatformStitchView();
   }
+
+  @visibleForTesting
+  Future<void> handleStitchMessageForTesting(Map<String, dynamic> msg) => _handleStitchMessage(msg);
 
   Future<void> _handleStitchMessage(Map<String, dynamic> msg) async {
     final type = msg['type'] as String? ?? '';
@@ -174,18 +178,77 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
 
       case 'EMAIL_SIGN_IN':
         final email = msg['email'] as String?;
-        if (email == null || email.trim().isEmpty) break;
-        if (_isAuthenticating) break;
+        final captchaToken = msg['captchaToken'] as String?;
+
+        // 1. Validate email structure
+        if (email == null || email.trim().isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please enter a valid email address.'),
+                backgroundColor: Color(0xFFBA1A1A),
+              ),
+            );
+          }
+          break;
+        }
+
+        final cleanEmail = email.trim().toLowerCase();
+        final emailRegex = RegExp(r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$');
+        if (!emailRegex.hasMatch(cleanEmail) || cleanEmail.length > 254) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please enter a valid email format (e.g. name@example.com).'),
+                backgroundColor: Color(0xFFBA1A1A),
+              ),
+            );
+          }
+          break;
+        }
+
+        // 2. Validate CAPTCHA Token
+        if (captchaToken != null && captchaToken.length > 4096) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Security verification token invalid. Please refresh the page.'),
+                backgroundColor: Color(0xFFBA1A1A),
+              ),
+            );
+          }
+          break;
+        }
+
+        if (kIsWeb && (captchaToken == null || captchaToken.trim().isEmpty)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Security verification required. Please complete the verification challenge.'),
+                backgroundColor: Color(0xFFBA1A1A),
+              ),
+            );
+          }
+          break;
+        }
+
+        // 3. Duplicate request guard
+        if (_isAuthenticating) {
+          debugPrint('[StitchScreenHost] Authentication already in progress. Ignoring duplicate request.');
+          break;
+        }
 
         setState(() {
           _isAuthenticating = true;
-          _authLoadingMessage = 'Sending secure sign-in link...';
+          _authLoadingMessage = 'Sending secure verification code...';
         });
 
         try {
-          final cleanEmail = email.trim().toLowerCase();
           final authService = ref.read(authServiceProvider);
-          await authService.signInWithOtp(email: cleanEmail);
+          await authService.signInWithOtp(
+            email: cleanEmail,
+            captchaToken: captchaToken,
+          );
           if (mounted) {
             setState(() {
               _isAuthenticating = false;
@@ -200,13 +263,17 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
             setState(() {
               _isAuthenticating = false;
             });
+            final msg = ae.message.toLowerCase();
+            final displayError = msg.contains('captcha')
+                ? 'Verification check expired or invalid. Please retry the security challenge.'
+                : ae.message;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
                   children: [
                     const Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(ae.message)),
+                    Expanded(child: Text(displayError)),
                   ],
                 ),
                 backgroundColor: const Color(0xFFBA1A1A),
@@ -367,7 +434,14 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
   @override
   Widget build(BuildContext context) {
     final idxStr = widget.screenIndex.toString().padLeft(2, '0');
-    final url = 'stitch/screen_$idxStr/';
+    final String url;
+    if (widget.screenIndex == 3) {
+      final siteKey = AppConfig.turnstileSiteKey;
+      final query = siteKey.isNotEmpty ? '?sitekey=${Uri.encodeComponent(siteKey)}' : '';
+      url = 'stitch/screen_03/$query';
+    } else {
+      url = 'stitch/screen_$idxStr/';
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F4),

@@ -2,6 +2,8 @@
   "SUPABASE_URL": "https://cccwussgyxsfggjownem.supabase.co",
   "SUPABASE_ANON_KEY": "sb_publishable_T3R8GUGWu_0jJLuGtKqnbA_-ZxqtAbj",
   "API_BASE_URL": "https://cccwussgyxsfggjownem.supabase.co/functions/v1",
-  "USE_EMULATOR": false
+  "USE_EMULATOR": false,
+  "TURNSTILE_SITE_KEY": "0x4AAAAAAF7pSMBIkjdSvcBE",
+  "PRODUCTION_ORIGIN": "https://www.nutrientearth.win"
 }
 

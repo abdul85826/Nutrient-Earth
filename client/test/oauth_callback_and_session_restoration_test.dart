@@ -66,7 +66,25 @@ class MockOAuthAuthService implements AuthService {
   Stream<AuthState> get authStateChanges => _controller.stream;
 
   @override
-  Future<void> signInWithOtp({required String email, String? redirectTo}) async {}
+  Future<void> signInWithOtp({required String email, String? redirectTo, String? captchaToken}) async {}
+
+  @override
+  Future<AuthResponse> verifyOtp({
+    required String email,
+    required String token,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {
+    setAuthenticatedUser(email);
+    return AuthResponse(session: _session, user: _user);
+  }
+
+  @override
+  Future<void> resendOtp({
+    required String email,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {}
 
   @override
   Future<bool> signInWithGoogle({String? redirectTo}) async {
@@ -140,7 +158,7 @@ void main() {
     test('AppConfig provides non-empty development origin and port', () {
       expect(AppConfig.defaultDevWebPort, equals(3000));
       expect(AppConfig.defaultDevOrigin, equals('http://localhost:3000'));
-      expect(AppConfig.defaultProdOrigin, equals('https://nutrient-earth.vercel.app'));
+      expect(AppConfig.defaultProdOrigin, equals('https://www.nutrientearth.win'));
       expect(AppConfig.authCallbackUrl.isNotEmpty, isTrue);
     });
 

@@ -17,7 +17,7 @@ import '../features/explore/presentation/explore_screen.dart';
 import '../features/onboarding/presentation/screens/01_splash_screen.dart';
 import '../features/onboarding/presentation/screens/02_welcome_screen.dart';
 import '../features/onboarding/presentation/screens/03_auth_screen.dart';
-import '../features/onboarding/presentation/screens/check_email_screen.dart';
+import '../features/onboarding/presentation/screens/email_otp_verification_screen.dart';
 import '../features/onboarding/presentation/screens/auth_callback_screen.dart';
 import '../features/onboarding/presentation/screens/04_health_goals_screen.dart';
 import '../features/onboarding/presentation/screens/05_practical_difficulties_screen.dart';
@@ -177,10 +177,10 @@ GoRouter createAppRouter({
         ),
       ),
 
-      // Check Your Email Confirmation Screen (Passwordless OTP / Magic Link)
+      // Screen C: Email OTP Verification Screen (Passwordless 6-Digit Verification)
       GoRoute(
         path: '/auth/verify-email',
-        builder: (context, state) => CheckEmailScreen(
+        builder: (context, state) => EmailOtpVerificationScreen(
           email: state.uri.queryParameters['email'] ?? '',
           returnTo: state.uri.queryParameters['returnTo'],
         ),

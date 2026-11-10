@@ -59,13 +59,46 @@ class MockEmailAuthService implements AuthService {
   Stream<AuthState> get authStateChanges => _controller.stream;
 
   @override
-  Future<void> signInWithOtp({required String email, String? redirectTo}) async {
+  Future<void> signInWithOtp({required String email, String? redirectTo, String? captchaToken}) async {
     signInWithOtpCalled = true;
     lastOtpEmail = email;
     lastOtpRedirect = redirectTo;
     if (shouldThrowOnOtp) {
       throw AuthException(otpErrorMessage ?? 'For security purposes, you can only request this after 45 seconds.');
     }
+  }
+
+  @override
+  Future<AuthResponse> verifyOtp({
+    required String email,
+    required String token,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {
+    final user = User(
+      id: 'usr_email_verified_123',
+      appMetadata: {},
+      userMetadata: {},
+      aud: 'authenticated',
+      createdAt: DateTime.now().toIso8601String(),
+      email: email,
+    );
+    final session = Session(
+      accessToken: 'jwt_mock_token',
+      tokenType: 'bearer',
+      user: user,
+    );
+    emitSignedIn(user, session);
+    return AuthResponse(session: session, user: user);
+  }
+
+  @override
+  Future<void> resendOtp({
+    required String email,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {
+    await signInWithOtp(email: email, captchaToken: captchaToken);
   }
 
   @override

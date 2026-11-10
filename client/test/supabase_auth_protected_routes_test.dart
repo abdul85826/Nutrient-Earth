@@ -119,7 +119,25 @@ class MockControlledAuthService implements AuthService {
   }
 
   @override
-  Future<void> signInWithOtp({required String email, String? redirectTo}) async {}
+  Future<void> signInWithOtp({required String email, String? redirectTo, String? captchaToken}) async {}
+
+  @override
+  Future<AuthResponse> verifyOtp({
+    required String email,
+    required String token,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {
+    setAuthenticatedUser(email);
+    return AuthResponse(session: _session, user: _user);
+  }
+
+  @override
+  Future<void> resendOtp({
+    required String email,
+    OtpType type = OtpType.email,
+    String? captchaToken,
+  }) async {}
 
   @override
   Future<bool> signInWithGoogle({String? redirectTo}) async {

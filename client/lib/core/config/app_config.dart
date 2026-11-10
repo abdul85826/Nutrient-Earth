@@ -20,7 +20,9 @@ class AppConfig {
 
   static const int defaultDevWebPort = 3000;
   static const String defaultDevOrigin = 'http://localhost:$defaultDevWebPort';
-  static const String defaultProdOrigin = 'https://nutrient-earth.vercel.app';
+  static const String defaultProdOrigin = 'https://www.nutrientearth.win';
+  static const String apexProdOrigin = 'https://nutrientearth.win';
+  static const String legacyProdOrigin = 'https://nutrient-earth.vercel.app';
   static const String nativeDeepLinkRedirect = 'com.nutrientearth.nutrient_earth_client://login-callback';
 
   static Future<void> initialize({bool? isWebOverride}) async {
@@ -200,6 +202,22 @@ class AppConfig {
     }
 
     final fromConfig = _configMap['GOOGLE_IOS_CLIENT_ID']?.toString();
+    if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
+
+    return '';
+  }
+
+  /// Cloudflare Turnstile public site key (safe for client use)
+  static String get turnstileSiteKey {
+    const fromEnv = String.fromEnvironment('TURNSTILE_SITE_KEY');
+    if (fromEnv.isNotEmpty) return fromEnv;
+
+    if (dotenv.isInitialized) {
+      final val = dotenv.env['TURNSTILE_SITE_KEY'];
+      if (val != null && val.isNotEmpty) return val;
+    }
+
+    final fromConfig = _configMap['TURNSTILE_SITE_KEY']?.toString();
     if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
 
     return '';
