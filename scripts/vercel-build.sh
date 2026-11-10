@@ -49,7 +49,7 @@ if [ "$PWD" != "$REPO_ROOT" ]; then
 fi
 
 echo "=== Verifying build output ==="
-if [ -f "$REPO_ROOT/build/web/index.html" ] && [ -f "$REPO_ROOT/build/web/main.dart.js" ]; then
+if [ -f "$REPO_ROOT/build/web/index.html" ] && [ -f "$REPO_ROOT/build/web/main.dart.js" ] && [ -f "$REPO_ROOT/build/web/stitch/screen_01/index.html" ]; then
   TOTAL_FILES=$(find "$REPO_ROOT/build/web" -type f | wc -l)
   echo "SUCCESS: build/web generated successfully with $TOTAL_FILES files."
 else

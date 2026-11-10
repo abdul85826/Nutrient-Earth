@@ -367,7 +367,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
   @override
   Widget build(BuildContext context) {
     final idxStr = widget.screenIndex.toString().padLeft(2, '0');
-    final url = 'stitch/screen_$idxStr/index.html';
+    final url = 'stitch/screen_$idxStr/';
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F4),
