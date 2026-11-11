@@ -136,10 +136,83 @@ class OnboardingJourneyState {
       saveError: saveError,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'healthGoals': healthGoals.toList(),
+      'difficulties': difficulties.toList(),
+      'difficultiesNote': difficultiesNote,
+      'dailyImpacts': dailyImpacts,
+      'impactFluctuates': impactFluctuates,
+      'dietaryPattern': dietaryPattern,
+      'customDietaryPattern': customDietaryPattern,
+      'foodIntolerances': foodIntolerances.toList(),
+      'foodsToAvoid': foodsToAvoid.toList(),
+      'phase1Reviewed': phase1Reviewed,
+      'firstName': firstName,
+      'age': age,
+      'heightCm': heightCm,
+      'weightKg': weightKg,
+      'heightUnit': heightUnit,
+      'weightUnit': weightUnit,
+      'weightSkipped': weightSkipped,
+      'prioritizedConcerns': prioritizedConcerns.toList(),
+      'strictlyNoRestrictions': strictlyNoRestrictions,
+      'allergens': allergens.toList(),
+      'customAllergen': customAllergen,
+      'eatingRoutine': eatingRoutine,
+      'activityLevel': activityLevel,
+      'sleepQuality': sleepQuality,
+      'knowledgeLevel': knowledgeLevel,
+    };
+  }
+
+  factory OnboardingJourneyState.fromJson(Map<String, dynamic> json) {
+    return OnboardingJourneyState(
+      healthGoals: (json['healthGoals'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      difficulties: (json['difficulties'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      difficultiesNote: json['difficultiesNote'] as String? ?? '',
+      dailyImpacts: (json['dailyImpacts'] as Map?)?.map((k, v) => MapEntry(k.toString(), (v as num).toInt())) ?? const {},
+      impactFluctuates: json['impactFluctuates'] as bool? ?? false,
+      dietaryPattern: json['dietaryPattern'] as String? ?? 'omnivore',
+      customDietaryPattern: json['customDietaryPattern'] as String? ?? '',
+      foodIntolerances: (json['foodIntolerances'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      foodsToAvoid: (json['foodsToAvoid'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      phase1Reviewed: json['phase1Reviewed'] as bool? ?? false,
+      firstName: json['firstName'] as String? ?? '',
+      age: (json['age'] as num?)?.toInt() ?? 25,
+      heightCm: (json['heightCm'] as num?)?.toDouble() ?? 170.0,
+      weightKg: (json['weightKg'] as num?)?.toDouble() ?? 65.0,
+      heightUnit: json['heightUnit'] as String? ?? 'ft',
+      weightUnit: json['weightUnit'] as String? ?? 'lb',
+      weightSkipped: json['weightSkipped'] as bool? ?? false,
+      prioritizedConcerns: (json['prioritizedConcerns'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      strictlyNoRestrictions: json['strictlyNoRestrictions'] as bool? ?? false,
+      allergens: (json['allergens'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      customAllergen: json['customAllergen'] as String? ?? '',
+      eatingRoutine: json['eatingRoutine'] as String? ?? 'regular',
+      activityLevel: json['activityLevel'] as String? ?? 'moderate',
+      sleepQuality: json['sleepQuality'] as String? ?? 'good_consistent',
+      knowledgeLevel: json['knowledgeLevel'] as String? ?? 'basics',
+      isSaving: false,
+      saveError: null,
+    );
+  }
 }
 
 class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
-  OnboardingJourneyNotifier() : super(const OnboardingJourneyState());
+  OnboardingJourneyNotifier([OnboardingJourneyState? initialState])
+      : super(initialState ?? const OnboardingJourneyState());
+
+  OnboardingJourneyState get currentState => state;
+
+  void setHealthGoals(Set<String> goals) {
+    final concerns = Set<String>.from(state.prioritizedConcerns);
+    for (final g in goals) {
+      concerns.add(g);
+    }
+    state = state.copyWith(healthGoals: goals, prioritizedConcerns: concerns);
+  }
 
   void toggleHealthGoal(String goal) {
     final updated = Set<String>.from(state.healthGoals);
@@ -156,6 +229,18 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
       concerns.remove(goal);
     }
     state = state.copyWith(healthGoals: updated, prioritizedConcerns: concerns);
+  }
+
+  void setDifficulties(Set<String> diffs) {
+    final impacts = Map<String, int>.from(state.dailyImpacts);
+    for (final d in diffs) {
+      if (!impacts.containsKey(d)) {
+        impacts[d] = 2;
+      }
+    }
+    // Remove impacts for deselected difficulties
+    impacts.removeWhere((k, _) => !diffs.contains(k));
+    state = state.copyWith(difficulties: diffs, dailyImpacts: impacts);
   }
 
   void toggleDifficulty(String code) {
@@ -175,6 +260,10 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(difficultiesNote: note);
   }
 
+  void setDailyImpacts(Map<String, int> impacts) {
+    state = state.copyWith(dailyImpacts: impacts);
+  }
+
   void setDailyImpact(String code, int rating) {
     final impacts = Map<String, int>.from(state.dailyImpacts);
     impacts[code] = rating;
@@ -190,6 +279,26 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
       dietaryPattern: pattern,
       customDietaryPattern: customPattern ?? custom ?? state.customDietaryPattern,
     );
+  }
+
+  void setFoodIntolerances(Set<String> intolerances) {
+    state = state.copyWith(foodIntolerances: intolerances);
+  }
+
+  void setFoodsToAvoid(Set<String> foods) {
+    state = state.copyWith(foodsToAvoid: foods);
+  }
+
+  void setAllergens(Set<String> allergens) {
+    state = state.copyWith(allergens: allergens, strictlyNoRestrictions: false);
+  }
+
+  void hydrate(OnboardingJourneyState newState) {
+    state = newState;
+  }
+
+  void reset() {
+    state = const OnboardingJourneyState();
   }
 
   void toggleFoodIntolerance(String intolerance) {

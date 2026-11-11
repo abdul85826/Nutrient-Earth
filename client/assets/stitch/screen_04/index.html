@@ -695,7 +695,7 @@
 
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 04 loaded');
 
     var continueBtn = document.getElementById('step-continue-btn') || document.querySelector('footer button') || document.querySelector('button:has(#cta-label)');
@@ -704,20 +704,34 @@
         e.preventDefault();
         var selected = [];
         document.querySelectorAll('input[type="checkbox"][data-id]:checked').forEach(function(cb) {
-          selected.push(cb.getAttribute('data-id'));
+          selected.push(cb.getAttribute('data-id') || cb.value);
         });
+        if (selected.length === 0) {
+          document.querySelectorAll('#selected-chips-container span.font-medium').forEach(function(chip) {
+            var txt = chip.textContent.trim();
+            if (txt) selected.push(txt);
+          });
+        }
+        if (selected.length === 0) {
+          selected.push('Energy & Vitality Optimization');
+        }
         window.NEBridge.send('SAVE_GOALS', { goals: selected, nextRoute: '/onboarding/difficulties' });
       });
     }
-    var backBtn = document.querySelector('button[aria-label="Go back"]');
+    var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
     if (backBtn) {
       backBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.navigate('/auth');
+        window.NEBridge.navigate('/welcome');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

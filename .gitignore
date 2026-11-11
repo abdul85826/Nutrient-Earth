@@ -119,5 +119,7 @@ canonical_stitch_extracted/
 /.dart_tool/
 /.flutter-plugins-dependencies
 .vercel/
+scratch/
+.gsd/
 run-web.bat
 run-web.ps1

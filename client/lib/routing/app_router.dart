@@ -99,15 +99,9 @@ String? appRouterRedirect(
   }
 
   // 3. Protected Route Rules:
-  // Personal health onboarding (/onboarding/*) requires an authenticated user
-  if (!isAuthenticated && path.startsWith('/onboarding')) {
-    final returnTarget = Uri.encodeComponent(state.uri.toString());
-    return '/auth?mode=signin&returnTo=$returnTarget';
-  }
-
   // Today Evidence Hub (/today) strictly requires an authenticated user
   if (!isAuthenticated && path == '/today') {
-    return '/auth?mode=signin&returnTo=${Uri.encodeComponent('/today')}';
+    return '/welcome';
   }
 
   // 4. Onboarding Completion Enforcement for Authenticated Users:

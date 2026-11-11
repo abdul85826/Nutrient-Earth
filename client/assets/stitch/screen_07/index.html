@@ -105,14 +105,36 @@
 
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 07 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_07', { nextRoute: '/onboarding/review-phase1' });
+        var selectedDiet = document.querySelector('input[name="diet_pattern"]:checked');
+        var pattern = selectedDiet ? selectedDiet.value : 'omnivore';
+        if (pattern === 'none') pattern = 'omnivore';
+        var customInput = document.querySelector('#diet-other-container input') || document.querySelector('input[placeholder*="Mediterranean"]');
+        var customDiet = customInput ? customInput.value.trim() : '';
+
+        var intolerances = [];
+        document.querySelectorAll('.allergen-chip[data-selected="true"]').forEach(function(chip) {
+          intolerances.push(chip.textContent.trim().replace(/^check\s*/, '').replace(/^add\s*/, ''));
+        });
+
+        var foodsToAvoid = [];
+        document.querySelectorAll('.avoid-chip[data-active="true"]').forEach(function(chip) {
+          foodsToAvoid.push(chip.textContent.trim().replace(/^check\s*/, '').replace(/^close\s*/, ''));
+        });
+
+        window.NEBridge.send('SAVE_FOOD_CHOICES', {
+          dietaryPattern: pattern,
+          customDietaryPattern: customDiet,
+          foodIntolerances: intolerances,
+          foodsToAvoid: foodsToAvoid,
+          nextRoute: '/onboarding/review-phase1'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -122,8 +144,13 @@
         window.NEBridge.navigate('/onboarding/daily-impact');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

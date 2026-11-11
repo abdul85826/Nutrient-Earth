@@ -231,14 +231,43 @@
 
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 10 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_10', { nextRoute: '/onboarding/health-concerns' });
+        var isCm = document.getElementById('btn-height-cm') && document.getElementById('btn-height-cm').getAttribute('aria-selected') === 'true';
+        var heightUnit = isCm ? 'cm' : 'ft';
+        var heightCm = 175.0;
+        if (isCm) {
+          var cmVal = parseFloat(document.querySelector('#height-cm-input input')?.value);
+          if (!isNaN(cmVal) && cmVal > 50) heightCm = cmVal;
+        } else {
+          var ftInputs = document.querySelectorAll('#height-ft-inputs input');
+          var ft = parseFloat(ftInputs[0]?.value) || 5;
+          var inch = parseFloat(ftInputs[1]?.value) || 9;
+          heightCm = Math.round(((ft * 12) + inch) * 2.54 * 10) / 10;
+        }
+
+        var isKg = document.getElementById('btn-weight-kg') && document.getElementById('btn-weight-kg').getAttribute('aria-selected') === 'true';
+        var weightUnit = isKg ? 'kg' : 'lb';
+        var weightSkipped = document.querySelector('input[type="checkbox"]')?.checked || false;
+        var weightVal = parseFloat(document.getElementById('weight-value')?.value);
+        var weightKg = null;
+        if (!weightSkipped && !isNaN(weightVal) && weightVal > 20) {
+          weightKg = isKg ? weightVal : Math.round(weightVal * 0.45359237 * 10) / 10;
+        }
+
+        window.NEBridge.send('SAVE_MEASUREMENTS', {
+          heightCm: heightCm,
+          weightKg: weightKg,
+          heightUnit: heightUnit,
+          weightUnit: weightUnit,
+          weightSkipped: weightSkipped,
+          nextRoute: '/onboarding/health-concerns'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -248,8 +277,13 @@
         window.NEBridge.navigate('/onboarding/personal-details');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

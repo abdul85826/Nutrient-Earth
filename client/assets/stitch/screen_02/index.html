@@ -142,14 +142,14 @@
 
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 02 loaded');
 
-    var getStarted = document.getElementById('getStartedBtn') || document.querySelector('button.bg-\\[#0B2B26\\]');
+    var getStarted = document.getElementById('getStartedBtn') || document.querySelector('button.bg-\\[#0B2B26\\]') || document.querySelector('button.bg-[#0B2B26]');
     if (getStarted) {
       getStarted.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.navigate('/auth');
+        window.NEBridge.navigate('/onboarding/health-goals');
       });
     }
     var loginBtn = document.getElementById('loginGhostBtn') || document.querySelector('button.mt-2');
@@ -159,8 +159,13 @@
         window.NEBridge.navigate('/auth?mode=signin');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

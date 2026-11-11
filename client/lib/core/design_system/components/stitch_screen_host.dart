@@ -11,11 +11,13 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../config/app_config.dart';
+import '../../../features/onboarding/data/onboarding_storage_service.dart';
 import '../../../features/onboarding/state/onboarding_journey_state.dart';
 import '../../../features/today/state/today_state.dart';
 import '../../services/auth_destination_resolver.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_repository.dart';
+import '../../services/profile_sync_service.dart';
 import '../../services/task_repository.dart';
 import 'stitch_view_interface.dart';
 import 'stitch_view_selector.dart';
@@ -64,7 +66,25 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       case 'NAVIGATE':
         final route = msg['route'] as String?;
         if (route != null && mounted) {
-          context.go(route);
+          if (widget.screenIndex == 1 && route == '/welcome') {
+            final authService = ref.read(authServiceProvider);
+            if (authService.isAuthenticated) {
+              final user = authService.currentUser;
+              if (user != null) {
+                final dest = await AuthDestinationResolver.resolveDestination(
+                  profileRepository: ref.read(profileRepositoryProvider),
+                  userId: user.id,
+                );
+                if (mounted) {
+                  context.go(dest);
+                  break;
+                }
+              }
+            }
+          }
+          if (mounted) {
+            context.go(route);
+          }
         }
         break;
 
@@ -117,6 +137,12 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               setState(() {
                 _authLoadingMessage = 'Opening your personal plan...';
               });
+
+              // Synchronize staged onboarding answers if present
+              await ref.read(profileSyncServiceProvider).synchronizeStagedOnboarding(
+                user: user,
+                notifier: notifier,
+              );
 
               final destination = await AuthDestinationResolver.resolveDestination(
                 profileRepository: profileRepo,
@@ -312,10 +338,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       case 'SAVE_GOALS':
         final rawGoals = msg['goals'];
         if (rawGoals is List) {
-          for (final g in rawGoals) {
-            notifier.toggleHealthGoal(g.toString());
-          }
+          notifier.setHealthGoals(rawGoals.map((e) => e.toString()).toSet());
         }
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/difficulties';
         if (mounted) context.go(next);
         break;
@@ -323,90 +348,182 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       case 'SAVE_DIFFICULTIES':
         final rawDiffs = msg['difficulties'];
         if (rawDiffs is List) {
-          for (final d in rawDiffs) {
-            notifier.toggleDifficulty(d.toString());
-          }
+          notifier.setDifficulties(rawDiffs.map((e) => e.toString()).toSet());
         }
         final note = msg['note'] as String?;
         if (note != null && note.isNotEmpty) {
           notifier.setDifficultiesNote(note);
         }
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/daily-impact';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_DAILY_IMPACTS':
+      case 'SAVE_STEP_06':
+        final rawImpacts = msg['impacts'];
+        if (rawImpacts is Map) {
+          final parsed = <String, int>{};
+          rawImpacts.forEach((k, v) {
+            if (v is num) {
+              parsed[k.toString()] = v.toInt();
+            } else if (v is String) {
+              parsed[k.toString()] = int.tryParse(v) ?? 2;
+            }
+          });
+          notifier.setDailyImpacts(parsed);
+        }
+        if (msg.containsKey('impactFluctuates')) {
+          notifier.setImpactFluctuates(msg['impactFluctuates'] == true);
+        }
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/food-choices';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_FOOD_CHOICES':
+      case 'SAVE_STEP_07':
+        final pattern = msg['dietaryPattern'] ?? msg['pattern'];
+        if (pattern is String && pattern.isNotEmpty) {
+          notifier.setDietaryPattern(pattern, custom: msg['customDietaryPattern'] as String?);
+        }
+        final rawIntolerances = msg['foodIntolerances'] ?? msg['intolerances'];
+        if (rawIntolerances is List) {
+          notifier.setFoodIntolerances(rawIntolerances.map((e) => e.toString()).toSet());
+        }
+        final rawAvoid = msg['foodsToAvoid'] ?? msg['avoid'];
+        if (rawAvoid is List) {
+          notifier.setFoodsToAvoid(rawAvoid.map((e) => e.toString()).toSet());
+        }
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/review-phase1';
         if (mounted) context.go(next);
         break;
 
+      case 'CONFIRM_PHASE1':
+      case 'SAVE_STEP_08':
+        notifier.setPhase1Reviewed(true);
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        final next = msg['nextRoute'] as String? ?? '/onboarding/personal-details';
+        if (mounted) context.go(next);
+        break;
+
       case 'SAVE_PERSONAL_DETAILS':
+      case 'SAVE_STEP_09':
         final name = msg['name'] as String? ?? '';
-        final age = msg['age'] as int? ?? 25;
+        final age = (msg['age'] as num?)?.toInt() ?? 25;
         notifier.setPersonalDetails(name: name, age: age);
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/body-measurements';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_MEASUREMENTS':
+      case 'SAVE_STEP_10':
+        final heightCm = (msg['heightCm'] as num?)?.toDouble();
+        final weightKg = (msg['weightKg'] as num?)?.toDouble();
+        final heightUnit = msg['heightUnit'] as String?;
+        final weightUnit = msg['weightUnit'] as String?;
+        final weightSkipped = msg['weightSkipped'] == true;
+        notifier.setBodyMeasurements(
+          heightCm: heightCm,
+          weightKg: weightKg,
+          heightUnit: heightUnit,
+          weightUnit: weightUnit,
+          weightSkipped: weightSkipped,
+        );
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/health-concerns';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_CONCERNS':
+      case 'SAVE_STEP_11':
+        final rawConcerns = msg['concerns'] ?? msg['prioritizedConcerns'];
+        if (rawConcerns is List) {
+          notifier.setPrioritizedConcerns(rawConcerns.map((e) => e.toString()).toSet());
+        }
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/food-restrictions';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_RESTRICTIONS':
+      case 'SAVE_STEP_12':
+        final strictlyNoRestrictions = msg['strictlyNoRestrictions'] == true;
+        if (strictlyNoRestrictions) {
+          notifier.setStrictlyNoRestrictions(true);
+        } else {
+          final rawAllergens = msg['allergens'];
+          if (rawAllergens is List) {
+            notifier.setAllergens(rawAllergens.map((e) => e.toString()).toSet());
+          }
+          final customAllergen = msg['customAllergen'] as String? ?? msg['custom'] as String?;
+          if (customAllergen != null && customAllergen.isNotEmpty) {
+            notifier.setCustomAllergen(customAllergen);
+          }
+        }
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/eating-routine';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_EATING_ROUTINE':
+      case 'SAVE_STEP_13':
         final routine = msg['routine'] as String?;
         if (routine != null) notifier.setEatingRoutine(routine);
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/daily-activity';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_ACTIVITY_LEVEL':
+      case 'SAVE_STEP_14':
         final level = msg['level'] as String?;
         if (level != null) notifier.setActivityLevel(level);
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/sleep-patterns';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_SLEEP_QUALITY':
+      case 'SAVE_STEP_15':
         final quality = msg['quality'] as String?;
         if (quality != null) notifier.setSleepQuality(quality);
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/knowledge-level';
         if (mounted) context.go(next);
         break;
 
       case 'SAVE_KNOWLEDGE_LEVEL':
+      case 'SAVE_STEP_16':
         final level = msg['level'] as String?;
         if (level != null) notifier.setKnowledgeLevel(level);
+        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
         final next = msg['nextRoute'] as String? ?? '/onboarding/completion';
         if (mounted) context.go(next);
         break;
 
       case 'COMPLETE_ONBOARDING':
-        try {
-          await notifier.completeOnboarding(
-            auth: ref.read(authServiceProvider),
-            profileRepo: ref.read(profileRepositoryProvider),
-            taskRepo: ref.read(taskRepositoryProvider),
-          );
-        } catch (e) {
-          debugPrint('Onboarding completion persistence note: $e');
+        final authService = ref.read(authServiceProvider);
+        if (!authService.isAuthenticated) {
+          // Unauthenticated user finished onboarding questions -> proceed to Screen 03 (Auth Trust Protocol)
+          await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+          if (mounted) context.go('/auth?mode=signup');
+        } else {
+          // Authenticated user completing onboarding
+          try {
+            await notifier.completeOnboarding(
+              auth: authService,
+              profileRepo: ref.read(profileRepositoryProvider),
+              taskRepo: ref.read(taskRepositoryProvider),
+            );
+            await ref.read(onboardingStorageServiceProvider).clearStagedOnboarding();
+          } catch (e) {
+            debugPrint('Onboarding completion persistence note: $e');
+          }
+          if (mounted) context.go('/today');
         }
-        if (mounted) context.go('/today');
         break;
 
       case 'CHAT_PROMPT':

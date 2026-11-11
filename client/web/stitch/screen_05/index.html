@@ -98,7 +98,7 @@
 
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 05 loaded');
 
     var submitBtn = document.getElementById('submit-btn') || document.querySelector('footer button');
@@ -106,11 +106,16 @@
       submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
         var selected = [];
-        document.querySelectorAll('input[type="checkbox"]:checked').forEach(function(cb) {
+        document.querySelectorAll('input[type="checkbox"].symptom-checkbox:checked, input[type="checkbox"]:checked').forEach(function(cb) {
           selected.push(cb.value || cb.id);
         });
-        var note = document.querySelector('textarea') ? document.querySelector('textarea').value : '';
-        window.NEBridge.send('SAVE_DIFFICULTIES', { difficulties: selected, note: note, nextRoute: '/onboarding/daily-impact' });
+        var textarea = document.getElementById('custom-symptoms') || document.querySelector('textarea');
+        var note = textarea ? textarea.value.trim() : '';
+        window.NEBridge.send('SAVE_DIFFICULTIES', {
+          difficulties: selected,
+          note: note,
+          nextRoute: '/onboarding/daily-impact'
+        });
       });
     }
     var editLink = document.querySelector('button:has-text("Edit selections")') || document.querySelector('.font-label.text-xs');
@@ -120,15 +125,20 @@
         window.NEBridge.navigate('/onboarding/health-goals');
       });
     }
-    var backBtn = document.querySelector('button[aria-label="Go back"]');
+    var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
     if (backBtn) {
       backBtn.addEventListener('click', function(e) {
         e.preventDefault();
         window.NEBridge.navigate('/onboarding/health-goals');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

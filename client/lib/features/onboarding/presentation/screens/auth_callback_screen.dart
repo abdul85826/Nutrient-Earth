@@ -19,6 +19,8 @@ import '../../../../core/domain/personalization/user_profile_context.dart';
 import '../../../../core/services/auth_destination_resolver.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/profile_repository.dart';
+import '../../../../core/services/profile_sync_service.dart';
+import '../../state/onboarding_journey_state.dart';
 
 class AuthCallbackScreen extends ConsumerStatefulWidget {
   final Map<String, String>? queryParams;
@@ -203,6 +205,12 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
 
         await profileRepo.saveUserProfile(baseline);
       }
+
+      // Synchronize staged onboarding answers if present
+      await ref.read(profileSyncServiceProvider).synchronizeStagedOnboarding(
+        user: user,
+        notifier: ref.read(onboardingJourneyProvider.notifier),
+      );
 
       final destination = await AuthDestinationResolver.resolveDestination(
         profileRepository: profileRepo,

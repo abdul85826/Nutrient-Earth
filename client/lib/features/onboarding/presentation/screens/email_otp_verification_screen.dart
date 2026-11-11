@@ -26,6 +26,8 @@ import '../../../../core/design_system/tokens/ne_tokens.dart';
 import '../../../../core/services/auth_destination_resolver.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/profile_repository.dart';
+import '../../../../core/services/profile_sync_service.dart';
+import '../../state/onboarding_journey_state.dart';
 
 class EmailOtpVerificationScreen extends ConsumerStatefulWidget {
   final String email;
@@ -232,6 +234,12 @@ class _EmailOtpVerificationScreenState extends ConsumerState<EmailOtpVerificatio
       setState(() {
         _successMessage = 'Email verified. Opening your health journey...';
       });
+
+      // Synchronize staged onboarding answers if present
+      await ref.read(profileSyncServiceProvider).synchronizeStagedOnboarding(
+        user: user,
+        notifier: ref.read(onboardingJourneyProvider.notifier),
+      );
 
       // Canonical 3-tier destination resolution
       final destination = await AuthDestinationResolver.resolveDestination(

@@ -279,14 +279,33 @@
 </script></main>
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 12 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_12', { nextRoute: '/onboarding/eating-routine' });
+        var noRestrictionsCard = document.getElementById('card-none');
+        var strictlyNo = noRestrictionsCard ? noRestrictionsCard.classList.contains('bg-secondary-container/40') : false;
+        var allergens = [];
+        if (!strictlyNo) {
+          document.querySelectorAll('.restriction-card:not(#card-none)').forEach(function(card) {
+            if (card.classList.contains('bg-secondary-container/40')) {
+              var title = card.querySelector('h2, span.font-headline, .font-semibold');
+              if (title) allergens.push(title.textContent.trim());
+            }
+          });
+        }
+        var customInput = document.querySelector('input[type="text"]') || document.querySelector('input[placeholder*="allergen"]');
+        var customAllergen = (!strictlyNo && customInput) ? customInput.value.trim() : '';
+
+        window.NEBridge.send('SAVE_RESTRICTIONS', {
+          allergens: allergens,
+          strictlyNoRestrictions: strictlyNo,
+          customAllergen: customAllergen,
+          nextRoute: '/onboarding/eating-routine'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -296,8 +315,13 @@
         window.NEBridge.navigate('/onboarding/health-concerns');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

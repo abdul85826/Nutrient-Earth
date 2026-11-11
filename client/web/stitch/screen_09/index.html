@@ -247,14 +247,23 @@
 
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 09 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_09', { nextRoute: '/onboarding/body-measurements' });
+        var nameEl = document.getElementById('fullNameInput') || document.querySelector('input[type="text"]');
+        var ageEl = document.getElementById('ageInput') || document.querySelector('input[type="number"]');
+        var name = nameEl ? nameEl.value.trim() : '';
+        var age = ageEl ? parseInt(ageEl.value, 10) : 28;
+        if (isNaN(age) || age < 16) age = 28;
+        window.NEBridge.send('SAVE_PERSONAL_DETAILS', {
+          name: name,
+          age: age,
+          nextRoute: '/onboarding/body-measurements'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -264,8 +273,13 @@
         window.NEBridge.navigate('/onboarding/review-phase1');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

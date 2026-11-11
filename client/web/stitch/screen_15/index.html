@@ -185,14 +185,29 @@
 </div></main>
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 15 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_15', { nextRoute: '/onboarding/knowledge-level' });
+        var radio = document.querySelector('input[name="sleep_quality"]:checked');
+        var quality = radio ? radio.value : 'good_consistent';
+        window.NEBridge.send('SAVE_SLEEP_QUALITY', {
+          quality: quality,
+          nextRoute: '/onboarding/knowledge-level'
+        });
+      });
+    }
+    var skipBtn = document.getElementById('btn-skip') || document.querySelector('button[aria-label="Skip"]');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.NEBridge.send('SAVE_SLEEP_QUALITY', {
+          quality: 'good_consistent',
+          nextRoute: '/onboarding/knowledge-level'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -202,8 +217,13 @@
         window.NEBridge.navigate('/onboarding/daily-activity');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

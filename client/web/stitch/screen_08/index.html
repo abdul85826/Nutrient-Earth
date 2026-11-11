@@ -92,14 +92,14 @@
 </script></main>
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 08 loaded');
 
-    var cta = document.querySelector('footer button') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#051F20]');
+    var cta = document.getElementById('completeBtn') || document.querySelector('footer button') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#051F20]');
     if (cta) {
       cta.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.navigate('/onboarding/personal-details');
+        window.NEBridge.send('CONFIRM_PHASE1', { nextRoute: '/onboarding/personal-details' });
       });
     }
     document.querySelectorAll('button[aria-label^="Edit"]').forEach(function(btn) {
@@ -113,15 +113,20 @@
         else window.NEBridge.navigate('/onboarding/health-goals');
       });
     });
-    var backBtn = document.querySelector('button[aria-label="Go back"]');
+    var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
     if (backBtn) {
       backBtn.addEventListener('click', function(e) {
         e.preventDefault();
         window.NEBridge.navigate('/onboarding/food-choices');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

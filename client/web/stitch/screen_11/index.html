@@ -258,14 +258,25 @@
 </script></main>
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 11 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_11', { nextRoute: '/onboarding/food-restrictions' });
+        var concerns = [];
+        document.querySelectorAll('button[data-state="active"]').forEach(function(btn) {
+          var titleEl = btn.querySelector('span.font-headline');
+          if (titleEl) concerns.push(titleEl.textContent.trim());
+        });
+        if (concerns.length === 0) {
+          concerns.push('Energy & Vitality Optimization');
+        }
+        window.NEBridge.send('SAVE_CONCERNS', {
+          concerns: concerns,
+          nextRoute: '/onboarding/food-restrictions'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -275,8 +286,13 @@
         window.NEBridge.navigate('/onboarding/body-measurements');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

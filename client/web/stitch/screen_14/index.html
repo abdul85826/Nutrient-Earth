@@ -203,14 +203,26 @@
 </script></main>
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 14 loaded');
 
     var contBtn = document.getElementById('continueBtn') || document.getElementById('continue-button') || document.getElementById('btn-continue') || document.getElementById('continue-btn') || document.querySelector('footer button') || document.querySelector('button.bg-primary-container') || document.querySelector('button.bg-forest-900') || document.querySelector('button.bg-[#0B2B26]');
     if (contBtn) {
       contBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.send('SAVE_STEP_14', { nextRoute: '/onboarding/sleep-patterns' });
+        var activeCard = document.querySelector('.activity-card[aria-checked="true"]');
+        var level = 'moderate';
+        if (activeCard) {
+          var title = activeCard.querySelector('.font-headline')?.textContent.toLowerCase() || '';
+          if (title.indexOf('mostly sitting') !== -1) level = 'sedentary';
+          else if (title.indexOf('lightly') !== -1) level = 'light';
+          else if (title.indexOf('moderately') !== -1) level = 'moderate';
+          else if (title.indexOf('very active') !== -1) level = 'active';
+        }
+        window.NEBridge.send('SAVE_ACTIVITY_LEVEL', {
+          level: level,
+          nextRoute: '/onboarding/sleep-patterns'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');
@@ -220,8 +232,13 @@
         window.NEBridge.navigate('/onboarding/eating-routine');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 

@@ -197,7 +197,7 @@
 </script></main>
 <script id="ne-screen-wiring">
 (function() {
-  document.addEventListener('DOMContentLoaded', function() {
+  function initScreen() {
     console.log('[Stitch] Screen 17 loaded');
 
     var getStarted = document.getElementById('getStartedBtn') || document.querySelector('button:has-text("Let\'s get started")') || document.querySelector('footer button');
@@ -210,7 +210,16 @@
     document.querySelectorAll('button[aria-label^="Edit"]').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.navigate('/onboarding/personal-details?returnTo=completion');
+        var label = btn.getAttribute('aria-label') || '';
+        if (label.indexOf('Physical') !== -1 || label.indexOf('Profile') !== -1) {
+          window.NEBridge.navigate('/onboarding/personal-details');
+        } else if (label.indexOf('Focus') !== -1 || label.indexOf('Concerns') !== -1) {
+          window.NEBridge.navigate('/onboarding/health-concerns');
+        } else if (label.indexOf('Allergy') !== -1 || label.indexOf('Restrictions') !== -1) {
+          window.NEBridge.navigate('/onboarding/food-restrictions');
+        } else {
+          window.NEBridge.navigate('/onboarding/health-goals');
+        }
       });
     });
     var backBtn = document.querySelector('button[aria-label="Go Back"]') || document.querySelector('button[aria-label="Go back"]');
@@ -220,8 +229,13 @@
         window.NEBridge.navigate('/onboarding/knowledge-level');
       });
     }
+  }
 
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScreen);
+  } else {
+    initScreen();
+  }
 })();
 </script>
 
