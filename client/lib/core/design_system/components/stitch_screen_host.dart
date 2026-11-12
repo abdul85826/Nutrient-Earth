@@ -117,6 +117,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       if (journey.healthGoals.isNotEmpty) params['goals'] = journey.healthGoals.join(',');
       if (journey.difficulties.isNotEmpty) params['difficulties'] = journey.difficulties.join(',');
       if (journey.dietaryPattern.isNotEmpty) params['pattern'] = journey.dietaryPattern;
+      if (journey.foodIntolerances.isNotEmpty) params['intolerances'] = journey.foodIntolerances.join(',');
+      if (journey.foodsToAvoid.isNotEmpty) params['avoid'] = journey.foodsToAvoid.join(',');
+      if (journey.dailyImpacts.isNotEmpty) params['impacts'] = jsonEncode(journey.dailyImpacts);
     } else if (widget.screenIndex == 9) {
       if (journey.firstName.isNotEmpty) params['name'] = journey.firstName;
       if (journey.age > 0) params['age'] = journey.age.toString();
@@ -142,6 +145,25 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       if (journey.sleepQuality.isNotEmpty) params['quality'] = journey.sleepQuality;
     } else if (widget.screenIndex == 16) {
       if (journey.knowledgeLevel.isNotEmpty) params['level'] = journey.knowledgeLevel;
+    } else if (widget.screenIndex == 17) {
+      if (journey.healthGoals.isNotEmpty) params['goals'] = journey.healthGoals.join(',');
+      if (journey.difficulties.isNotEmpty) params['difficulties'] = journey.difficulties.join(',');
+      if (journey.dailyImpacts.isNotEmpty) params['impacts'] = jsonEncode(journey.dailyImpacts);
+      if (journey.dietaryPattern.isNotEmpty) params['pattern'] = journey.dietaryPattern;
+      if (journey.foodIntolerances.isNotEmpty) params['intolerances'] = journey.foodIntolerances.join(',');
+      if (journey.foodsToAvoid.isNotEmpty) params['avoid'] = journey.foodsToAvoid.join(',');
+      if (journey.firstName.isNotEmpty) params['name'] = journey.firstName;
+      if (journey.age > 0) params['age'] = journey.age.toString();
+      if (journey.heightCm != null) params['heightCm'] = journey.heightCm.toString();
+      if (journey.weightKg != null) params['weightKg'] = journey.weightKg.toString();
+      if (journey.prioritizedConcerns.isNotEmpty) params['concerns'] = journey.prioritizedConcerns.join(',');
+      if (journey.strictlyNoRestrictions) params['strictlyNoRestrictions'] = 'true';
+      if (journey.allergens.isNotEmpty) params['allergens'] = journey.allergens.join(',');
+      if (journey.customAllergen.isNotEmpty) params['customAllergen'] = journey.customAllergen;
+      if (journey.eatingRoutine.isNotEmpty) params['routine'] = journey.eatingRoutine;
+      if (journey.activityLevel.isNotEmpty) params['activity'] = journey.activityLevel;
+      if (journey.sleepQuality.isNotEmpty) params['sleep'] = journey.sleepQuality;
+      if (journey.knowledgeLevel.isNotEmpty) params['knowledge'] = journey.knowledgeLevel;
     }
 
     final query = params.isNotEmpty ? '?${Uri(queryParameters: params).query}' : '';

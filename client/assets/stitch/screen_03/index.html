@@ -91,7 +91,7 @@
 <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
 </button>
 <div class="flex items-center gap-2.5 pr-2">
-<img alt="Nutrient Earth Logo" class="h-10 w-10 object-contain rounded-full shadow-sm ring-1 ring-border-hairline" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyFDKyMtdOSgsS0Es1NOVdTA8QxuhiJBWLLD1yCaQnlj5uG3pnUQatUZ4cNptXq-3iext_XvPKx9VEFVl5_n4GPWw5zlNu8eweMbSZYCw-M5hDtmlh_BcXOuw5ytqz1xT3b7IHul3N-W_BaN0tFb2glabhO_jdA8QYl-L4cy1xOYOeELm2dTjQluq8AO2W3GWXkRPtJzAz1FVREuE1ozh76h7_rHD6_u0Z0KwfHSV_kSA1OdpC0-o3">
+<img src="/assets/images/logo.png" alt="Nutrient Earth" class="h-8 w-8 object-contain rounded-full shadow-sm" onerror="this.onerror=null; this.src='/icons/Icon-192.png';"/>
 <span class="font-headline font-bold text-[16px] tracking-tight text-forest-dark uppercase">Nutrient Earth</span>
 </div>
 <!-- Spacer to balance header centering -->
@@ -421,6 +421,9 @@
       var paramKey = urlParams.get('sitekey');
       if (paramKey && paramKey.trim().length > 0) return paramKey.trim();
     } catch (_) {}
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return '1x00000000000000000000AA';
+    }
     return window.NE_TURNSTILE_SITE_KEY || '0x4AAAAAAF7pSMBIkjdSvcBE';
   }
 

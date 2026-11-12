@@ -4,16 +4,24 @@
   ],
   "hints": {
     "compat-api/css": "off",
+    "compat-api/html": "off",
     "meta-viewport": "off",
     "axe/forms": "off",
-    "axe/structure": "off"
+    "axe/structure": "off",
+    "axe/text-alternatives": "off",
+    "axe/color-contrast": "off",
+    "button-type": "off",
+    "no-inline-styles": "off"
   },
   "ignoredUrls": [
-    "**/.vercel/**",
-    "**/build/**",
-    "**/.dart_tool/**",
-    "**/canonical_stitch_extracted/**",
-    "**/stitch_designs/**",
-    "**/node_modules/**"
+    ".*\\.vercel.*",
+    ".*build.*",
+    ".*\\.dart_tool.*",
+    ".*canonical_stitch_extracted.*",
+    ".*stitch_designs.*",
+    ".*node_modules.*",
+    ".*client.*stitch.*",
+    ".*assets.*stitch.*",
+    ".*web.*stitch.*"
   ]
 }

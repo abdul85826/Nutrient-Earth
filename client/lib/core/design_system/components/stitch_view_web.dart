@@ -8,8 +8,6 @@ import 'stitch_view_interface.dart';
 StitchViewPlatform getStitchViewPlatform() => _StitchViewWeb();
 
 class _StitchViewWeb implements StitchViewPlatform {
-  static final Set<String> _registeredTypes = {};
-
   @override
   Widget buildView({
     required int screenIndex,
@@ -41,30 +39,39 @@ class _StitchWebWidget extends StatefulWidget {
 
 class _StitchWebWidgetState extends State<_StitchWebWidget> {
   late final String _viewType;
+  web.HTMLIFrameElement? _iframe;
   JSFunction? _messageListener;
 
   @override
   void initState() {
     super.initState();
-    _viewType = 'stitch-screen-${widget.screenIndex}';
+    // Unique viewType per mount ensures fresh platform view factory registration
+    // with current query parameters on back-and-forward navigation
+    final uniqueId = DateTime.now().microsecondsSinceEpoch;
+    _viewType = 'stitch-screen-${widget.screenIndex}-$uniqueId';
 
-    if (!_StitchViewWeb._registeredTypes.contains(_viewType)) {
-      _StitchViewWeb._registeredTypes.add(_viewType);
-      ui_web.platformViewRegistry.registerViewFactory(
-        _viewType,
-        (int viewId) {
-          final iframe = web.HTMLIFrameElement()
-            ..src = widget.initialUrl
-            ..style.border = 'none'
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..style.overflow = 'auto';
-          return iframe;
-        },
-      );
-    }
+    ui_web.platformViewRegistry.registerViewFactory(
+      _viewType,
+      (int viewId) {
+        _iframe = web.HTMLIFrameElement()
+          ..src = widget.initialUrl
+          ..style.border = 'none'
+          ..style.width = '100%'
+          ..style.height = '100%'
+          ..style.overflow = 'auto';
+        return _iframe!;
+      },
+    );
 
     _setupListener();
+  }
+
+  @override
+  void didUpdateWidget(covariant _StitchWebWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialUrl != widget.initialUrl && _iframe != null) {
+      _iframe!.src = widget.initialUrl;
+    }
   }
 
   void _setupListener() {
@@ -96,7 +103,9 @@ class _StitchWebWidgetState extends State<_StitchWebWidget> {
   void dispose() {
     if (_messageListener != null) {
       web.window.removeEventListener('message', _messageListener!);
+      _messageListener = null;
     }
+    _iframe = null;
     super.dispose();
   }
 

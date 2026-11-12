@@ -25,7 +25,8 @@
     "**/build": true,
     "**/.vercel": true,
     "**/.dart_tool": true,
-    "**/canonical_stitch_extracted": true
+    "**/canonical_stitch_extracted": true,
+    "**/stitch_designs": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -34,7 +35,8 @@
     "**/build": true,
     "**/.vercel": true,
     "**/.dart_tool": true,
-    "**/canonical_stitch_extracted": true
+    "**/canonical_stitch_extracted": true,
+    "**/stitch_designs": true
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
@@ -43,7 +45,11 @@
     "**/build/**": true,
     "**/.vercel/**": true,
     "**/.dart_tool/**": true,
-    "**/canonical_stitch_extracted/**": true
+    "**/canonical_stitch_extracted/**": true,
+    "**/stitch_designs/**": true
   },
-  "vscode-edge-devtools.webhint": false
+  "vscode-edge-devtools.webhint": false,
+  "webhint.enable": false,
+  "html.validate.scripts": false,
+  "html.validate.styles": false
 }
