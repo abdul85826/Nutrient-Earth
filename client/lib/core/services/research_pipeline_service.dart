@@ -10,6 +10,7 @@ import '../domain/input_gateway/universal_input_descriptor.dart';
 import '../domain/nutrition/nutrition_models.dart';
 import '../domain/orchestration/chatbot_intent_router.dart';
 import '../domain/orchestration/research_orchestration_pipeline.dart';
+import '../domain/orchestration/universal_question_service.dart';
 import '../domain/personalization/goal_alignment_evaluator.dart';
 import '../domain/personalization/goal_match_calculation_service.dart';
 import '../domain/personalization/user_profile_context.dart';
@@ -701,6 +702,18 @@ class ResearchPipelineService {
       case UserInputType.text:
       default:
         final cleanQuery = QuerySanitizer.sanitize(descriptor.rawPayload);
+
+        // 1. Universal Question Classification & Personalization Layer
+        final scope = UniversalQuestionService.classifyScope(cleanQuery, inputType: descriptor.inputType);
+        if (scope == QuestionScope.generalKnowledge) {
+          final generalAnswer = UniversalQuestionService.handleGeneralQuestion(cleanQuery);
+          if (generalAnswer != null) {
+            return generalAnswer;
+          }
+        } else if (scope == QuestionScope.personalizedHealth) {
+          final personalizedAnswer = UniversalQuestionService.handlePersonalizedQuestion(cleanQuery, userProfile);
+          return personalizedAnswer;
+        }
 
         final intent = ChatbotIntentRouter.classifyIntent(
           cleanQuery,

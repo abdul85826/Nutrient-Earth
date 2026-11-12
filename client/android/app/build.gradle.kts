@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.nutrientearth.nutrient_earth_client"
-    compileSdk = 36
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

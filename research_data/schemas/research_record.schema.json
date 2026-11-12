@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthResearchRecord",
+  "description": "Standardized schema for peer-reviewed research papers, clinical trials, and scientific studies across all sources.",
+  "type": "object",
+  "required": [
+    "record_id",
+    "source_id",
+    "title",
+    "acquisition_date",
+    "evidence_type",
+    "license"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "description": "Unique deterministic identifier for the record in Nutrient Earth (e.g., res_ayush_238139 or res_doi_10.1016...)."
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Identifier of the source organization or portal (e.g., src_ayushportal, src_zenodo, src_osf)."
+    },
+    "original_source_id": {
+      "type": ["string", "null"],
+      "description": "Internal ID from the original portal or database (e.g. ARP ID, Zenodo record ID)."
+    },
+    "title": {
+      "type": "string",
+      "description": "Full normalized title of the publication or trial."
+    },
+    "authors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of contributing author names."
+    },
+    "abstract": {
+      "type": "string",
+      "description": "Full scientific abstract text."
+    },
+    "publication_date": {
+      "type": ["string", "null"],
+      "description": "ISO-8601 date (YYYY, YYYY-MM, or YYYY-MM-DD) or publication year."
+    },
+    "journal": {
+      "type": ["string", "null"],
+      "description": "Journal, periodical, or publishing venue name."
+    },
+    "volume": {
+      "type": ["string", "null"]
+    },
+    "issue": {
+      "type": ["string", "null"]
+    },
+    "pages": {
+      "type": ["string", "null"]
+    },
+    "doi": {
+      "type": ["string", "null"],
+      "pattern": "^10\\.\\d{4,9}/[-._;()/:A-Za-z0-9]+$"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Original persistent URL or landing page."
+    },
+    "pdf_url": {
+      "type": ["string", "null"],
+      "description": "Direct download link to open-access PDF if legally accessible."
+    },
+    "local_pdf_path": {
+      "type": ["string", "null"],
+      "description": "Relative path to saved PDF within research_data/documents/pdf/ if downloaded."
+    },
+    "study_type": {
+      "type": "string",
+      "enum": [
+        "clinical_trial",
+        "randomized_controlled_trial",
+        "systematic_review",
+        "meta_analysis",
+        "cohort_study",
+        "case_control",
+        "preclinical_in_vivo",
+        "in_vitro",
+        "drug_research",
+        "fundamental_theoretical",
+        "epidemiological",
+        "observational",
+        "review",
+        "unclassified"
+      ]
+    },
+    "medical_system": {
+      "type": ["string", "null"],
+      "enum": [
+        "Ayurveda",
+        "Siddha",
+        "Unani",
+        "Yoga_Naturopathy",
+        "Homoeopathy",
+        "Sowa_Rigpa",
+        "Integrative_Medicine",
+        "Allopathy_Modern_Medicine",
+        null
+      ]
+    },
+    "population": {
+      "type": ["string", "null"],
+      "description": "Target subject population details (e.g. Healthy adults, Type 2 diabetes patients)."
+    },
+    "sample_size": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "intervention": {
+      "type": ["string", "null"],
+      "description": "Specific botanical formulation, nutrient, dosage, or therapeutic procedure tested."
+    },
+    "comparator": {
+      "type": ["string", "null"],
+      "description": "Control substance, placebo, or standard care comparison."
+    },
+    "outcomes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Primary and secondary endpoints measured (e.g. HbA1c, lipid profile, fasting glucose)."
+    },
+    "results_summary": {
+      "type": ["string", "null"],
+      "description": "Objective summary of statistical findings, effect sizes, and p-values."
+    },
+    "limitations": {
+      "type": ["string", "null"],
+      "description": "Documented limitations (e.g. small sample size, open-label design, duration)."
+    },
+    "evidence_type": {
+      "type": "string",
+      "enum": [
+        "human_clinical",
+        "animal_in_vivo",
+        "cellular_in_vitro",
+        "phytochemical_analytical",
+        "systematic_synthesis",
+        "traditional_textual",
+        "regulatory_guideline"
+      ]
+    },
+    "funding_and_conflicts": {
+      "type": ["string", "null"],
+      "description": "Reported funding organizations and conflict of interest disclosures."
+    },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "relevance_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Nutrient Earth relevance metric based on nutrition, botanical, and metabolic relevance."
+    },
+    "license": {
+      "type": "string",
+      "description": "Copyright, CC license, or open access license governing the paper."
+    },
+    "acquisition_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "extraction_status": {
+      "type": "string",
+      "enum": [
+        "full_text_and_pdf",
+        "metadata_and_abstract_only",
+        "restricted_paywalled",
+        "failed_download",
+        "duplicate_archived"
+      ]
+    }
+  }
+}
+

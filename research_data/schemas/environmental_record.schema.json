@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthEnvironmentalRecord",
+  "description": "Standardized schema for air quality measurements, meteorological observations, geographic health amenities, and species conservation status.",
+  "type": "object",
+  "required": [
+    "record_id",
+    "record_type",
+    "source_id",
+    "timestamp_or_date"
+  ],
+  "properties": {
+    "record_id": { "type": "string" },
+    "source_id": { "type": "string", "enum": ["src_openaq", "src_nasa", "src_openstreetmap", "src_overpass", "src_open_meteo", "src_iucn"] },
+    "record_type": { "type": "string", "enum": ["air_quality", "weather_observation", "geographic_amenity", "conservation_status"] },
+    "location": {
+      "type": "object",
+      "required": ["latitude", "longitude"],
+      "properties": {
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "city": { "type": ["string", "null"] },
+        "state_or_province": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] }
+      }
+    },
+    "timestamp_or_date": { "type": "string" },
+    "air_quality_metrics": {
+      "type": "object",
+      "properties": {
+        "pm25_ug_m3": { "type": ["number", "null"] },
+        "pm10_ug_m3": { "type": ["number", "null"] },
+        "no2_ppm": { "type": ["number", "null"] },
+        "o3_ppm": { "type": ["number", "null"] },
+        "aqi": { "type": ["integer", "null"] }
+      }
+    },
+    "weather_metrics": {
+      "type": "object",
+      "properties": {
+        "temperature_celsius": { "type": ["number", "null"] },
+        "relative_humidity_pct": { "type": ["number", "null"] },
+        "precipitation_mm": { "type": ["number", "null"] },
+        "solar_irradiance_wm2": { "type": ["number", "null"] }
+      }
+    },
+    "amenity_details": {
+      "type": "object",
+      "properties": {
+        "amenity_type": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "address": { "type": ["string", "null"] }
+      }
+    },
+    "conservation_details": {
+      "type": "object",
+      "properties": {
+        "taxon_name": { "type": ["string", "null"] },
+        "red_list_category": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
+

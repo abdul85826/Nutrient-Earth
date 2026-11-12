@@ -12,6 +12,9 @@ class HealthGoalsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 4);
+    return StitchScreenHostWidget(
+      screenIndex: 4,
+      returnTo: returnTo,
+    );
   }
 }

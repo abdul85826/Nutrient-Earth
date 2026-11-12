@@ -56,7 +56,10 @@ class AuthDestinationResolver {
   }
 
   /// Evaluates profile attributes sequentially to determine the first incomplete onboarding screen.
-  static String resolveFirstIncompleteStep(UserProfileContext profile) {
+  static String resolveFirstIncompleteStep(UserProfileContext? profile) {
+    if (profile == null) {
+      return '/onboarding/health-goals';
+    }
     if (profile.primaryGoals.isEmpty) {
       return '/onboarding/health-goals'; // Screen 04
     }

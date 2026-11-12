@@ -12,6 +12,9 @@ class EatingRoutineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 13);
+    return StitchScreenHostWidget(
+      screenIndex: 13,
+      returnTo: returnTo,
+    );
   }
 }

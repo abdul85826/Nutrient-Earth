@@ -11,9 +11,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/config/supabase_config.dart';
+import '../core/services/auth_destination_resolver.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/profile_repository.dart';
 import '../features/explore/presentation/explore_screen.dart';
+import '../features/onboarding/data/onboarding_storage_service.dart';
+import '../features/onboarding/state/onboarding_journey_state.dart';
 import '../features/onboarding/presentation/screens/01_splash_screen.dart';
 import '../features/onboarding/presentation/screens/02_welcome_screen.dart';
 import '../features/onboarding/presentation/screens/03_auth_screen.dart';
@@ -64,15 +67,18 @@ Listenable? _buildAuthRefreshListenable() {
 }
 
 /// Route redirect guard for Supabase Auth & Protected Routes.
-/// Evaluates authentication state and enforces route protection rules.
+/// Evaluates authentication state and enforces onboarding-first route protection rules.
 String? appRouterRedirect(
   BuildContext context,
   GoRouterState state, {
   AuthService? authService,
   ProfileRepository? profileRepository,
+  OnboardingStorageService? storageService,
+  OnboardingJourneyState Function()? onboardingStateProvider,
 }) {
   final effectiveAuth = authService ?? (SupabaseConfig.isInitialized ? const SupabaseAuthService() : null);
   final effectiveProfile = profileRepository ?? (SupabaseConfig.isInitialized ? const SupabaseProfileRepository() : null);
+  final effectiveStorage = storageService ?? const OnboardingStorageService();
 
   // When backend is not initialized (e.g. offline testing, mocking, or unit tests without auth), allow direct navigation
   if (effectiveAuth == null) {
@@ -98,33 +104,83 @@ String? appRouterRedirect(
     return '/auth/callback?${state.uri.query}';
   }
 
+  // Helper: Determine whether the user has completed all onboarding questions
+  bool hasCompletedOnboardingFlow() {
+    if (onboardingStateProvider != null) {
+      final s = onboardingStateProvider();
+      if (s.onboardingFinished) return true;
+    }
+    if (effectiveStorage.isOnboardingCompleted) {
+      return true;
+    }
+    return false;
+  }
+
   // 3. Protected Route Rules:
-  // Today Evidence Hub (/today) strictly requires an authenticated user
-  if (!isAuthenticated && path == '/today') {
+  // Today Hub, Explore, Multimodal processing & answer routes strictly require an authenticated session
+  const protectedRoutes = {
+    '/today',
+    '/processing-view',
+    '/answer-experience',
+    '/explore',
+    '/research',
+  };
+  final isProtected = protectedRoutes.contains(path) || path.startsWith('/today/');
+
+  if (!isAuthenticated && isProtected) {
+    if (hasCompletedOnboardingFlow()) {
+      final returnTo = Uri.encodeComponent(state.uri.toString());
+      return '/auth?mode=signup&returnTo=$returnTo';
+    }
     return '/welcome';
   }
 
-  // 4. Onboarding Completion Enforcement for Authenticated Users:
+  // 4. Authentication Route Rules for Unauthenticated Users:
+  // Authentication (/auth) cannot be reached before required onboarding completion,
+  // except for returning users signing into an existing account (mode=signin).
+  if (!isAuthenticated && path == '/auth') {
+    final mode = state.uri.queryParameters['mode'] ?? 'signup';
+    if (mode == 'signin') {
+      // Returning user logging in: allowed
+      return null;
+    }
+    // New registration or default access: requires completed onboarding
+    if (!hasCompletedOnboardingFlow()) {
+      return '/welcome';
+    }
+    return null;
+  }
+
+  // 5. Authenticated Users Route Enforcement:
   if (isAuthenticated) {
     final currentUser = effectiveAuth.currentUser;
     final cachedProfile = currentUser != null ? effectiveProfile?.getCachedProfileSync(currentUser.id) : null;
     final onboardingCompleted = cachedProfile?.onboardingCompleted ?? false;
 
-    // Authenticated user attempting to access /today without completing onboarding is redirected to onboarding
+    // Authenticated user attempting to access /today without completed profile is routed to their first incomplete step
     if (path == '/today' && cachedProfile != null && !onboardingCompleted) {
-      return '/onboarding/health-goals';
+      return AuthDestinationResolver.resolveFirstIncompleteStep(cachedProfile);
     }
 
     // Authenticated users navigating to /auth or /welcome are automatically redirected forward
-    if (path == '/auth' || path == '/welcome') {
+    if (path == '/auth' || path == '/welcome' || path == '/onboarding/completion') {
       final returnTo = state.uri.queryParameters['returnTo'];
       if (returnTo != null && returnTo.isNotEmpty) {
         final decoded = Uri.decodeComponent(returnTo);
-        if (!decoded.startsWith('/auth') && !decoded.startsWith('/welcome')) {
+        if (!decoded.startsWith('/auth') && !decoded.startsWith('/welcome') && !decoded.startsWith('/onboarding/completion')) {
           return decoded;
         }
       }
-      return onboardingCompleted ? '/today' : '/onboarding/health-goals';
+      return onboardingCompleted
+          ? '/today'
+          : AuthDestinationResolver.resolveFirstIncompleteStep(cachedProfile);
+    }
+
+    // Generic /onboarding alias for authenticated users
+    if (path == '/onboarding') {
+      return onboardingCompleted
+          ? '/today'
+          : AuthDestinationResolver.resolveFirstIncompleteStep(cachedProfile);
     }
   }
 
@@ -135,6 +191,8 @@ String? appRouterRedirect(
 GoRouter createAppRouter({
   AuthService? authService,
   ProfileRepository? profileRepository,
+  OnboardingStorageService? storageService,
+  OnboardingJourneyState Function()? onboardingStateProvider,
   Listenable? refreshListenable,
   String initialLocation = '/splash',
 }) {
@@ -146,6 +204,8 @@ GoRouter createAppRouter({
       state,
       authService: authService,
       profileRepository: profileRepository,
+      storageService: storageService,
+      onboardingStateProvider: onboardingStateProvider,
     ),
     routes: [
       // Screen 01: Brand Splash Screen
@@ -331,6 +391,56 @@ GoRouter createAppRouter({
         builder: (context, state) => const HealthGoalsScreen(),
       ),
 
+      // Canonical Step Aliases
+      GoRoute(
+        path: '/onboarding/goals',
+        builder: (context, state) => HealthGoalsScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/impact',
+        builder: (context, state) => DailyImpactScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/measurements',
+        builder: (context, state) => BodyMeasurementsScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/concerns',
+        builder: (context, state) => HealthConcernsScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/restrictions',
+        builder: (context, state) => FoodRestrictionsScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/activity',
+        builder: (context, state) => DailyActivityScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/sleep',
+        builder: (context, state) => SleepPatternsScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/onboarding/knowledge',
+        builder: (context, state) => KnowledgeLevelScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+
       // Multimodal Explore & Research Interface
       GoRoute(
         path: '/explore',
@@ -352,12 +462,15 @@ GoRouter createAppRouter({
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authService = ref.watch(authServiceProvider);
   final profileRepository = ref.watch(profileRepositoryProvider);
+  final storageService = ref.watch(onboardingStorageServiceProvider);
   final refreshNotifier = GoRouterRefreshStream(authService.authStateChanges);
   ref.onDispose(refreshNotifier.dispose);
 
   return createAppRouter(
     authService: authService,
     profileRepository: profileRepository,
+    storageService: storageService,
+    onboardingStateProvider: () => ref.read(onboardingJourneyProvider),
     refreshListenable: refreshNotifier,
   );
 });

@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthGeneticsRecord",
+  "description": "Standardized schema for genome-wide association studies (GWAS), variants, ClinVar classifications, and pharmacogenomics.",
+  "type": "object",
+  "required": [
+    "variant_id",
+    "gene_symbol",
+    "phenotype_or_trait",
+    "genome_assembly",
+    "source_id"
+  ],
+  "properties": {
+    "variant_id": { "type": "string", "description": "e.g., rs1801133 or var_clinvar_12345" },
+    "source_id": { "type": "string", "enum": ["src_gwas_catalog", "src_clinvar", "src_ensembl", "src_clingen", "src_pharmgkb"] },
+    "gene_symbol": { "type": "string" },
+    "ncbi_gene_id": { "type": ["string", "null"] },
+    "ensembl_gene_id": { "type": ["string", "null"] },
+    "chromosome": { "type": ["string", "null"] },
+    "position_bp": { "type": ["integer", "null"] },
+    "genome_assembly": { "type": "string", "enum": ["GRCh38", "GRCh37"] },
+    "reference_allele": { "type": ["string", "null"] },
+    "alternate_allele": { "type": ["string", "null"] },
+    "risk_or_effect_allele": { "type": ["string", "null"] },
+    "phenotype_or_trait": { "type": "string" },
+    "trait_efo_id": { "type": ["string", "null"] },
+    "clinical_significance": {
+      "type": ["string", "null"],
+      "enum": [
+        "Pathogenic",
+        "Likely pathogenic",
+        "Uncertain significance",
+        "Likely benign",
+        "Benign",
+        "Drug response",
+        "Risk factor",
+        "Association",
+        null
+      ]
+    },
+    "p_value": { "type": ["number", "null"] },
+    "odds_ratio_or_beta": { "type": ["number", "null"] },
+    "population_ancestry": { "type": ["string", "null"] },
+    "evidence_rating": { "type": ["string", "null"] },
+    "publication_pmid": { "type": ["string", "null"] }
+  }
+}
+

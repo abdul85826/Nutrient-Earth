@@ -12,6 +12,9 @@ class PersonalDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 9);
+    return StitchScreenHostWidget(
+      screenIndex: 9,
+      returnTo: returnTo,
+    );
   }
 }

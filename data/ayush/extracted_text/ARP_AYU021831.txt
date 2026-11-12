@@ -1,0 +1,18 @@
+1 View Research Paper Details 
+Legacy ID :  7897(Ay\ HIP: A RANDOMISED DOUBLE-BLIND PLACEBO-CONTROLLED CLINICAL TRIAL. 
+Journal :  Arthritis Research & Therapy 
+Year :  2009 
+Volume :  11 
+Issue :  6 
+Page :  - - - 
+Author :  1. Alain Jacquet, 1,2,3. Pierre-Olivier Girodet, 1,2,3. Antoine Pariente, 1. Karelle Forest, 4. Laurent Mallet, 1,2,3. Nicholas Moore. 
+ARP ID :  ARP_AYU021831 
+Author's Affiliation :  1. Department of Pharmacology, University of Bordeaux, 146 rue Leo Saignat, 33076, Bordeaux, France 2. CHU de Bordeaux, 12. rue Dabernat, 33404 Talence, France 3. Centre dInvestigation Clinique, INSERM CIC0005, 146 rue Leo Saignat, 33076, Bordeaux, France 4 Phythea, 13. Rue Elsa Triolet, 77176 Savigny, France 
+Type :  JOURNAL ARTICLE 
+Corresponding Author Details :  Nicholas Moore, Email : nicholas.moore@pharmaco.u-bordeaux2.fr 
+Category :  CLINICAL RESEARCH Sub-
+Category :  CLINICAL RESEARCH EVIDENCE GRADE B 
+Body System :  MUSCULOSKELETAL 
+Disease :  OSTEOARTHROSIS OF KNEE(ICPC-L90|ICD-M17\ Abstract/ Summary/ Synopsis/ Outline : 
+Background :  INTRODUCTION: The medicinal treatment of osteoarthritis (OA\ analgesics and non-steroidal anti-inflammatory drugs (NSAIDs\ symptoms of OA and decrease the need for NSAIDs. This study tested the effects of a food supplement, Phytalgic, on pain and function in patients with osteoarthritis and their use of analgesic and NSAIDs.METHODS: A randomized double-blind parallel-groups clinical trial compared Phytalgic (fish-oil, vitamin E, Urtica dioica\ analgesics regularly. The main outcome measures were use of NSAIDs (in Defined Daily Doses per day - DDD/day\ in 500 mg paracetamol-equivalent tablets per week (PET/week\ (WOMAC\ 6.5 PET/week\ placebo arm (16.5\ P &lt; 0.001\ 95% CI: -4.9 to -15.1\ active arm (0.4 DDD/day\ 1.0 DDD/day\ P = 0.02\ (95% CI: -0.2 to -1.2\ respectively 86.5, 41.4 and 301.6\ arm (resp. 235.3, 96.3 and 746.5\ P &lt; 0.001\ 95% CI: -97.7 to -199.9\ 95% CI: -27.9 to -81.9\ 95% CI: -269.1 to -620.4\ decrease the need for analgesics and NSAIDs and improve the symptoms of osteoarthritis. Keywords: Nsaids, Osteoarthritis, Urtica Dioica, Womac URL (for Abstract/ Full paper\ https://arthritis-research.biomedcentral.com/articles/10.1186/ar2891 
+DOI :  10.1186/ar2891 Access : - Acknowledgment : -

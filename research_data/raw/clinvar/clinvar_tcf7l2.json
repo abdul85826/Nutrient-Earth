@@ -1,0 +1,362 @@
+{
+  "uids": [
+    "5039924",
+    "5037440",
+    "5030582"
+  ],
+  "5039924": {
+    "uid": "5039924",
+    "obj_type": "single nucleotide variant",
+    "accession": "VCV005039924",
+    "accession_version": "VCV005039924.1",
+    "title": "NM_001367943.1(TCF7L2):c.1500C>G (p.Pro500=)",
+    "variation_set": [
+      {
+        "measure_id": "5150641",
+        "variation_xrefs": [],
+        "variation_name": "NM_001367943.1(TCF7L2):c.1500C>G (p.Pro500=)",
+        "cdna_change": "c.1500C>G",
+        "aliases": [],
+        "variation_loc": [
+          {
+            "status": "current",
+            "assembly_name": "GRCh38",
+            "chr": "10",
+            "band": "10q25.3",
+            "start": "113165612",
+            "stop": "113165612",
+            "inner_start": "",
+            "inner_stop": "",
+            "outer_start": "",
+            "outer_stop": "",
+            "display_start": "113165612",
+            "display_stop": "113165612",
+            "assembly_acc_ver": "GCF_000001405.38",
+            "annotation_release": "",
+            "alt": "",
+            "ref": ""
+          },
+          {
+            "status": "previous",
+            "assembly_name": "GRCh37",
+            "chr": "10",
+            "band": "10q25.3",
+            "start": "114925371",
+            "stop": "114925371",
+            "inner_start": "",
+            "inner_stop": "",
+            "outer_start": "",
+            "outer_stop": "",
+            "display_start": "114925371",
+            "display_stop": "114925371",
+            "assembly_acc_ver": "GCF_000001405.25",
+            "annotation_release": "",
+            "alt": "",
+            "ref": ""
+          }
+        ],
+        "allele_freq_set": [],
+        "variant_type": "single nucleotide variant",
+        "canonical_spdi": "NC_000010.11:113165611:C:G",
+        "common_name": ""
+      }
+    ],
+    "supporting_submissions": {
+      "scv": [
+        "SCV008137764"
+      ],
+      "rcv": [
+        "RCV007123475"
+      ]
+    },
+    "germline_classification": {
+      "description": "Uncertain significance",
+      "last_evaluated": "2026/07/01 00:00",
+      "review_status": "criteria provided, single submitter",
+      "fda_recognized_database": "",
+      "trait_set": [
+        {
+          "trait_xrefs": [
+            {
+              "db_source": "MedGen",
+              "db_id": "C3661900"
+            }
+          ],
+          "trait_name": "not provided"
+        }
+      ]
+    },
+    "clinical_impact_classification": {
+      "description": "",
+      "last_evaluated": "1/01/01 00:00",
+      "review_status": "",
+      "fda_recognized_database": "",
+      "trait_set": []
+    },
+    "oncogenicity_classification": {
+      "description": "",
+      "last_evaluated": "1/01/01 00:00",
+      "review_status": "",
+      "fda_recognized_database": "",
+      "trait_set": []
+    },
+    "record_status": "",
+    "gene_sort": "TCF7L2",
+    "chr_sort": "10",
+    "location_sort": "00000000000113165612",
+    "variation_set_name": "",
+    "variation_set_id": "",
+    "genes": [
+      {
+        "symbol": "TCF7L2",
+        "geneid": "6934",
+        "strand": "+",
+        "source": "submitted"
+      }
+    ],
+    "molecular_consequence_list": [
+      "missense variant",
+      "3 prime UTR variant",
+      "synonymous variant"
+    ],
+    "protein_change": "P402R, P436R, P449R, P453R, P459R, P476R, P483R",
+    "fda_recognized_database": ""
+  },
+  "5037440": {
+    "uid": "5037440",
+    "obj_type": "Deletion",
+    "accession": "VCV005037440",
+    "accession_version": "VCV005037440.1",
+    "title": "NM_001367943.1(TCF7L2):c.552+49327del",
+    "variation_set": [
+      {
+        "measure_id": "5147723",
+        "variation_xrefs": [],
+        "variation_name": "NM_001367943.1(TCF7L2):c.552+49327del",
+        "cdna_change": "NM_001367943.1(TCF7L2):c.552+49327del",
+        "aliases": [],
+        "variation_loc": [
+          {
+            "status": "current",
+            "assembly_name": "GRCh38",
+            "chr": "10",
+            "band": "10q25.2",
+            "start": "113089447",
+            "stop": "113089447",
+            "inner_start": "",
+            "inner_stop": "",
+            "outer_start": "",
+            "outer_stop": "",
+            "display_start": "113089447",
+            "display_stop": "113089447",
+            "assembly_acc_ver": "GCF_000001405.38",
+            "annotation_release": "",
+            "alt": "",
+            "ref": ""
+          },
+          {
+            "status": "previous",
+            "assembly_name": "GRCh37",
+            "chr": "10",
+            "band": "10q25.2",
+            "start": "114849206",
+            "stop": "114849206",
+            "inner_start": "",
+            "inner_stop": "",
+            "outer_start": "",
+            "outer_stop": "",
+            "display_start": "114849206",
+            "display_stop": "114849206",
+            "assembly_acc_ver": "GCF_000001405.25",
+            "annotation_release": "",
+            "alt": "",
+            "ref": ""
+          }
+        ],
+        "allele_freq_set": [],
+        "variant_type": "Deletion",
+        "canonical_spdi": "NC_000010.11:113089446:CCCCCCC:CCCCCC",
+        "common_name": ""
+      }
+    ],
+    "supporting_submissions": {
+      "scv": [
+        "SCV008130138"
+      ],
+      "rcv": [
+        "RCV007121692"
+      ]
+    },
+    "germline_classification": {
+      "description": "Uncertain significance",
+      "last_evaluated": "2026/04/23 00:00",
+      "review_status": "criteria provided, single submitter",
+      "fda_recognized_database": "",
+      "trait_set": [
+        {
+          "trait_xrefs": [
+            {
+              "db_source": "MedGen",
+              "db_id": "C3661900"
+            }
+          ],
+          "trait_name": "not provided"
+        }
+      ]
+    },
+    "clinical_impact_classification": {
+      "description": "",
+      "last_evaluated": "1/01/01 00:00",
+      "review_status": "",
+      "fda_recognized_database": "",
+      "trait_set": []
+    },
+    "oncogenicity_classification": {
+      "description": "",
+      "last_evaluated": "1/01/01 00:00",
+      "review_status": "",
+      "fda_recognized_database": "",
+      "trait_set": []
+    },
+    "record_status": "",
+    "gene_sort": "TCF7L2",
+    "chr_sort": "10",
+    "location_sort": "00000000000113089447",
+    "variation_set_name": "",
+    "variation_set_id": "",
+    "genes": [
+      {
+        "symbol": "TCF7L2",
+        "geneid": "6934",
+        "strand": "+",
+        "source": "submitted"
+      }
+    ],
+    "molecular_consequence_list": [
+      "frameshift variant",
+      "intron variant"
+    ],
+    "protein_change": "S180fs",
+    "fda_recognized_database": ""
+  },
+  "5030582": {
+    "uid": "5030582",
+    "obj_type": "single nucleotide variant",
+    "accession": "VCV005030582",
+    "accession_version": "VCV005030582.1",
+    "title": "NM_001367943.1(TCF7L2):c.917C>T (p.Thr306Met)",
+    "variation_set": [
+      {
+        "measure_id": "5144383",
+        "variation_xrefs": [],
+        "variation_name": "NM_001367943.1(TCF7L2):c.917C>T (p.Thr306Met)",
+        "cdna_change": "c.917C>T",
+        "aliases": [],
+        "variation_loc": [
+          {
+            "status": "current",
+            "assembly_name": "GRCh38",
+            "chr": "10",
+            "band": "10q25.3",
+            "start": "113151039",
+            "stop": "113151039",
+            "inner_start": "",
+            "inner_stop": "",
+            "outer_start": "",
+            "outer_stop": "",
+            "display_start": "113151039",
+            "display_stop": "113151039",
+            "assembly_acc_ver": "GCF_000001405.38",
+            "annotation_release": "",
+            "alt": "",
+            "ref": ""
+          },
+          {
+            "status": "previous",
+            "assembly_name": "GRCh37",
+            "chr": "10",
+            "band": "10q25.3",
+            "start": "114910798",
+            "stop": "114910798",
+            "inner_start": "",
+            "inner_stop": "",
+            "outer_start": "",
+            "outer_stop": "",
+            "display_start": "114910798",
+            "display_stop": "114910798",
+            "assembly_acc_ver": "GCF_000001405.25",
+            "annotation_release": "",
+            "alt": "",
+            "ref": ""
+          }
+        ],
+        "allele_freq_set": [],
+        "variant_type": "single nucleotide variant",
+        "canonical_spdi": "NC_000010.11:113151038:C:T",
+        "common_name": ""
+      }
+    ],
+    "supporting_submissions": {
+      "scv": [
+        "SCV008120558"
+      ],
+      "rcv": [
+        "RCV007099953"
+      ]
+    },
+    "germline_classification": {
+      "description": "Uncertain significance",
+      "last_evaluated": "2026/08/17 00:00",
+      "review_status": "criteria provided, single submitter",
+      "fda_recognized_database": "",
+      "trait_set": [
+        {
+          "trait_xrefs": [
+            {
+              "db_source": "MedGen",
+              "db_id": "C0950123"
+            },
+            {
+              "db_source": "MeSH",
+              "db_id": "D030342"
+            }
+          ],
+          "trait_name": "Inborn genetic diseases"
+        }
+      ]
+    },
+    "clinical_impact_classification": {
+      "description": "",
+      "last_evaluated": "1/01/01 00:00",
+      "review_status": "",
+      "fda_recognized_database": "",
+      "trait_set": []
+    },
+    "oncogenicity_classification": {
+      "description": "",
+      "last_evaluated": "1/01/01 00:00",
+      "review_status": "",
+      "fda_recognized_database": "",
+      "trait_set": []
+    },
+    "record_status": "",
+    "gene_sort": "TCF7L2",
+    "chr_sort": "10",
+    "location_sort": "00000000000113151039",
+    "variation_set_name": "",
+    "variation_set_id": "",
+    "genes": [
+      {
+        "symbol": "TCF7L2",
+        "geneid": "6934",
+        "strand": "+",
+        "source": "submitted"
+      }
+    ],
+    "molecular_consequence_list": [
+      "missense variant"
+    ],
+    "protein_change": "T249M, T330M, T123M, T279M, T163M, T283M, T288M, T306M",
+    "fda_recognized_database": ""
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthCompoundRecord",
+  "description": "Standardized schema for chemical compounds, phytochemicals, and active pharmaceutical/botanical principles.",
+  "type": "object",
+  "required": [
+    "compound_id",
+    "name",
+    "chemical_class"
+  ],
+  "properties": {
+    "compound_id": { "type": "string" },
+    "name": { "type": "string" },
+    "iupac_name": { "type": ["string", "null"] },
+    "synonyms": { "type": "array", "items": { "type": "string" } },
+    "pubchem_cid": { "type": ["integer", "null"] },
+    "chebi_id": { "type": ["string", "null"] },
+    "chembl_id": { "type": ["string", "null"] },
+    "cas_number": { "type": ["string", "null"] },
+    "molecular_formula": { "type": ["string", "null"] },
+    "molecular_weight": { "type": ["number", "null"] },
+    "smiles": { "type": ["string", "null"] },
+    "inchi_key": { "type": ["string", "null"] },
+    "chemical_class": { "type": "string" },
+    "botanical_sources": { "type": "array", "items": { "type": "string" } },
+    "pharmacological_activities": { "type": "array", "items": { "type": "string" } },
+    "metabolic_pathways": { "type": "array", "items": { "type": "string" } }
+  }
+}
+

@@ -1,0 +1,9 @@
+1 View Research Paper Details 
+Legacy ID :  20636(Ay\ IL-1\ RECEPTOR-ASSOCIATED KINASE IRAK IN MURINE THYMOMA EL-4 CELLS1 
+Journal :  The Journal of Nutrition 
+Year :  2005 
+Volume :  135 
+Issue :  8 
+Page :  1859 - 1864 Abstract/ Summary/ Synopsis/ Outline : 
+Background :  Curcumin is a dietary compound with diverse anti-inflammatory and anticarcinogenic effects in several experimental models. A mechanism by which curcumin exerts these actions might be the direct modification of protein thiols, thereby altering the activity of the affected proteins. An early event in inflammatory signaling cascades is the recruitment of the interleukin-1 (IL-1\ IRAK\ the IL-1 receptor (IL-1RI\ We asked, therefore, whether IRAK is also a target for curcumin. Curcumin indeed blocked IRAK thiols in a murine T-cell line stably overexpressing IRAK (EL-4IRAK\ associated proteins. Inhibitory effects were not reversible by thiol-reducing agents. Thus, modification by curcumin did not occur by oxidation but rather by alkylation, as is typical for electrophilic compounds reacting as Michael addition acceptors. The block in one of the earliest events in the IL-1 signaling cascade can explain the often observed inhibition of IL-1-mediated signaling steps by curcumin further downstream. Hence, thiol modification might be a crucial step in the anti-inflammatory functions of curcumin. Keywords: Curcumin, Interleukin-1 Receptor-Associated Kinase, Redox Regulation, Thiol Modification URL (for Abstract/ Full paper\ http://jn.nutrition.org/content/135/8/1859.full.pdf 
+DOI :  10.1093/jn/135.8.1859 Access : - Acknowledgment : -

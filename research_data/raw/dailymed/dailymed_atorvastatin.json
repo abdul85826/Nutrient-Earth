@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "spl_version": 14,
+      "published_date": "Nov 09, 2026",
+      "title": "ATORVASTATIN CALCIUM TABLET, FILM COATED [ACCORD HEALTHCARE INC.]",
+      "setid": "4e06b20d-cc5d-46eb-991b-5972248de3af"
+    },
+    {
+      "spl_version": 2,
+      "published_date": "Nov 06, 2026",
+      "title": "ATORVASTATIN CALCIUM TABLET, FILM COATED [KESIN PHARMA CORPORATION]",
+      "setid": "56826bb5-ae70-af65-e063-6294a90abf74"
+    }
+  ],
+  "metadata": {
+    "db_published_date": "Nov 10, 2026 07:19:40PM EST",
+    "elements_per_page": 2,
+    "current_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Atorvastatin&pagesize=2&page=1",
+    "next_page_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Atorvastatin&pagesize=2&page=2",
+    "total_elements": 408,
+    "total_pages": 204,
+    "current_page": 1,
+    "previous_page": "null",
+    "previous_page_url": "null",
+    "next_page": 2
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "licensing_registry_version": "1.0.0",
+  "generated_at": "2026-11-11T17:36:00Z",
+  "licences": [
+    {
+      "source_id": "src_nih_ods",
+      "licence_name": "United States Public Domain (17 U.S.C. 105)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "Works of the United States Government are not subject to domestic copyright protection."
+    },
+    {
+      "source_id": "src_nccih",
+      "licence_name": "United States Public Domain (17 U.S.C. 105)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "NIH educational materials are public domain. Attribution to NIH/NCCIH recommended."
+    },
+    {
+      "source_id": "src_dailymed",
+      "licence_name": "United States Public Domain (NLM / FDA)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "FDA drug labels and SPL XML are official government records in the public domain."
+    },
+    {
+      "source_id": "src_clinvar",
+      "licence_name": "United States Public Domain (NLM / NCBI)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "NCBI databases are freely accessible without copyright restrictions. NIH guidelines request proper citation."
+    },
+    {
+      "source_id": "src_livertox",
+      "licence_name": "United States Public Domain (NLM Bookshelf)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "NCBI Bookshelf resource provided by NIDDK. Attribution requested."
+    },
+    {
+      "source_id": "src_clingen",
+      "licence_name": "Creative Commons Zero 1.0 Universal (CC0 1.0)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": false,
+      "share_alike": false,
+      "notes": "ClinGen curation data is dedicated to the public domain under CC0."
+    },
+    {
+      "source_id": "src_openstax",
+      "licence_name": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "OpenStax textbooks require explicit citation: 'Anatomy and Physiology 2e from OpenStax, CC BY 4.0'."
+    },
+    {
+      "source_id": "src_gwas_catalog",
+      "licence_name": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "EMBL-EBI Terms of Use allow free commercial reuse with standard attribution."
+    },
+    {
+      "source_id": "src_ensembl",
+      "licence_name": "EMBL-EBI Open Access Agreement (CC BY 4.0 Equivalent)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "All software and data from Ensembl are freely available with citation of Ensembl publications."
+    },
+    {
+      "source_id": "src_nasa",
+      "licence_name": "NASA Open Data Policy (Public Domain)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "NASA Earth Science data is made available according to the US Open Data Policy with scientific citation."
+    },
+    {
+      "source_id": "src_sports2d",
+      "licence_name": "BSD 3-Clause License",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "Permits commercial use, modification, and distribution provided original copyright notice is retained."
+    },
+    {
+      "source_id": "src_india_gov",
+      "licence_name": "Government Open Data License - India (GODL)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "Mandates attributing the data provider, ministry, and data.gov.in."
+    },
+    {
+      "source_id": "src_agmarknet",
+      "licence_name": "Government Open Data License - India (GODL)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "Market arrival and price statistics are published under national open data principles."
+    },
+    {
+      "source_id": "src_openstreetmap",
+      "licence_name": "Open Database License (ODbL) 1.0",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": true,
+      "notes": "Commercial use is permitted with explicit credit ('(c) OpenStreetMap contributors'). Derivative databases must be published under ODbL if redistributed."
+    },
+    {
+      "source_id": "src_z_anatomy",
+      "licence_name": "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)",
+      "is_free": true,
+      "commercial_use_permitted": true,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": true,
+      "notes": "3D meshes may be used commercially, but any derivative 3D mesh work must be released under CC BY-SA 4.0."
+    },
+    {
+      "source_id": "src_who",
+      "licence_name": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 IGO (CC BY-NC-SA 3.0 IGO)",
+      "is_free": true,
+      "commercial_use_permitted": false,
+      "modification_permitted": true,
+      "redistribution_permitted": true,
+      "attribution_required": true,
+      "share_alike": true,
+      "notes": "Free for non-commercial research and education. Commercial health applications require a formal licensing agreement from WHO."
+    },
+    {
+      "source_id": "src_pharmgkb",
+      "licence_name": "PharmGKB Data Usage Terms (CC BY-SA 4.0 with Commercial Exclusions)",
+      "is_free": true,
+      "commercial_use_permitted": false,
+      "modification_permitted": true,
+      "redistribution_permitted": false,
+      "attribution_required": true,
+      "share_alike": true,
+      "notes": "Free for academic and non-commercial research. Commercial entities or products require an explicit commercial license agreement with Stanford/PharmGKB."
+    },
+    {
+      "source_id": "src_open_meteo",
+      "licence_name": "Open-Meteo Dual License (Non-Commercial Free / Commercial Subscription)",
+      "is_free": true,
+      "commercial_use_permitted": false,
+      "modification_permitted": true,
+      "redistribution_permitted": false,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "Free hosted tier is limited to non-commercial use up to 10k calls/day. Commercial SaaS usage requires purchasing an API key or running the self-hosted open-source container."
+    },
+    {
+      "source_id": "src_iucn",
+      "licence_name": "IUCN Red List Terms of Use",
+      "is_free": true,
+      "commercial_use_permitted": false,
+      "modification_permitted": false,
+      "redistribution_permitted": false,
+      "attribution_required": true,
+      "share_alike": false,
+      "notes": "API access requires an application token. Non-commercial scientific research is approved free of charge; commercial use requires a specific agreement with IUCN."
+    }
+  ]
+}
+

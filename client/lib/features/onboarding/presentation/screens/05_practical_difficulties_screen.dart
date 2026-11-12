@@ -12,6 +12,6 @@ class PracticalDifficultiesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 5);
+    return StitchScreenHostWidget(screenIndex: 5, returnTo: returnTo);
   }
 }

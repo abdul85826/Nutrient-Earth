@@ -1,0 +1,18 @@
+1 View Research Paper Details 
+Legacy ID :  7433(Ay\ IN ADULTS WITH MODERATE HYPERCHOLESTEROLEMIA: A RANDOMIZED CLINICAL TRIAL 
+Journal :  Archives of Internal Medicine 
+Year :  2007 
+Volume :  167 
+Issue :  4 
+Page :  346 - 353 
+Author :  Christopher D. Gardner, Larry D. Lawson, Eric Block, Lorraine M. Chatterjee, Alexane Kiazand, Raymond R. Balise, Helena C. Kraemer. 
+ARP ID :  ARP_AYU004969 
+Author's Affiliation :  Stanford Prevention Research Center and Department of Medicine, Stanford University Medical School, Stanford, Calif 94305, USA. 
+Type :  JOURNAL ARTICLE 
+Corresponding Author Details :  Christopher D. Gardner, PhD, Stanford Prevention Research Center and Department of Medicine, Stanford University Medical School, Hoover Pavilion, Room N229, 211 Quarry Rd, Stanford, CA 94305-5705 cgardner@stanford.edu 
+Category :  CLINICAL RESEARCH Sub-
+Category :  CLINICAL RESEARCH EVIDENCE GRADE B 
+Body System :  ENDOCRINE / METABOLIC / NUTRITIONAL 
+Disease :  LIPID DISORDER(ICPC-T93|ICD-E78\ Abstract/ Summary/ Synopsis/ Outline : 
+Background :  BACKGROUND: Garlic is widely promoted as a cholesterol-lowering agent, but efficacy studies have produced conflicting results. Garlic supplements differ in bioavailability of key phytochemicals. We evaluated the effect of raw garlic and 2 commonly used garlic supplements on cholesterol concentrations in adults with moderate hypercholesterolemia.METHODS: In this parallel-design trial, 192 adults with low-density lipoprotein cholesterol (LDL-C\ 3.36-4.91 mmol/L\ 4 treatment arms: raw garlic, powdered garlic supplement, aged garlic extract supplement, or placebo. Garlic product doses equivalent to an average-sized garlic clove were consumed 6 d/wk for 6 months. The primary study outcome was LDL-C concentration. Fasting plasma lipid concentrations were assessed monthly. Extensive chemical characterization of study materials was conducted throughout the trial.RESULTS: Retention was 87% to 90% in all 4 treatment arms, and chemical stability of study materials was high throughout the trial. There were no statistically significant effects of the 3 forms of garlic on LDL-C concentrations. The 6-month mean (SD\ +0.4 (19.3\ +0.01 [0.50] mmol/L\ 17.2\ +0.08 [0.44] mmol/L\ 17.8\ +0.005 [0.46] mmol/L\ 16.5\ mg/dL (-0.10 [0.43] mmol/L\ statistically significant effects on high-density lipoprotein cholesterol, triglyceride levels, or total cholesterol-high-density lipoprotein cholesterol ratio.CONCLUSIONS: None of the forms of garlic used in this study, including raw garlic, when given at an approximate dose of a 4-g clove per day, 6 d/wk for 6 months, had statistically or clinically significant effects on LDL-C or other plasma lipid concentrations in adults with moderate hypercholesterolemia. Keywords: Garlic, Hyperscholesterolemia, Ldl-C URL (for Abstract/ Full paper\ http://archinte.jamanetwork.com/data/Journals/INTEMED/5575/ioi60200_346_353.pdf 
+DOI :  10.1001/archinte.167.4.346 Access : - Acknowledgment : -

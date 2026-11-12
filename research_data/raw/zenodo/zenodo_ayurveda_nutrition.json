@@ -1,0 +1,959 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "created": "2026-06-30T00:57:43.391090+00:00",
+        "modified": "2026-06-30T00:57:43.673153+00:00",
+        "id": 20303933,
+        "conceptrecid": "20303932",
+        "doi": "10.5281/zenodo.20303933",
+        "conceptdoi": "10.5281/zenodo.20303932",
+        "doi_url": "https://doi.org/10.5281/zenodo.20303933",
+        "metadata": {
+          "title": "Ayurveda: Its impact on Indian well-being",
+          "doi": "10.5281/zenodo.20303933",
+          "publication_date": "2025-12-01",
+          "description": "<p class=\"TableParagraph\"><span>Ayurveda was developed in India 3000 years ago. It is the world's oldest holistic body-threptic system. The primary goal of Ayurveda is to promote ideal well-being in society. As per the Ayurveda medical practitioner, when there is an imbalance of doshas in our bodies, we shall become sick. The significance of Ayurveda was identified only 150 years ago in India. In the post-Indian independence era,&nbsp;Ayurveda development is on the rise due to the revolution of modern energetic health and medical systems, though there is an imbalance of modern research in Ayurveda in India. The empirical study of qualitative research was conducted by the author, and secondary data were used. It is indeed needed for Ayurveda to adopt the modern medical system, reaching its ultimate peak in the Indian economy. Ayurveda treatment for chronic diseases is superior to Allopathy treatment. Hence, the ideologies of Ayurveda are to be rationalized by Ayurveda experts through the government. The government of India needs to initiate various steps for progressing Ayurveda and reaching people.</span></p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Mohan, S.",
+              "affiliation": "Precision Skills International LLC, Oman"
+            },
+            {
+              "name": "Kumar, S.",
+              "affiliation": "Devanga Arts College, India"
+            }
+          ],
+          "keywords": [
+            "Ayurveda",
+            "Ayurveda Products",
+            "Covid-19",
+            "Dosa",
+            "Herbs",
+            "Practitioner"
+          ],
+          "references": [
+            "Alina Peter M.S. RD (NL), November 27, 2019, Powerful Ayurveda Herbs and spices with Health Benefits, medically reviewed by Kath W.R.D CDE nutrition. Retrieved from https://www.healthline.com/nutrition/ayurvedic-herbs",
+            "Aneesh, T.P., Mohamed Hisham, Sonal Sekhar, M., Manjusree Madhu, & Deepa, T.V.  (2009).  International market scenario of traditional Indian herbal drugs \u2013India is declining. International Journal of Green Pharmacy, 3(3), 184-190.",
+            "Arvind Chopra, Home Opinion Renaissance in Ayurveda, Indian Express, New Delhi, June 19, 2020, 9: 36: PM, https://indianexpress.com/article/opinion/renaissance-in-ayurveda-coronavirus-healthcare-6467026",
+            "Basisht G. Exploring the progression of Ayurveda. Ayu 2011; 32:445 7",
+            "Fischer FH, Lewith G, Witt CM, Linde K, Von Ammon K, CardinimF, Brinkhaus B: High prevalence but limited evidence in contemporary and alternative medicine: guidelines for future research. BMS complement Altern Med 2014, 14(1) :46 11. Keli Miler, Health&Balance Guide, What is Ayurveda? (Medically reviewed by Melinda Ratini, MS, March 20, 2021. https://www.webmd.com/balance/guide/ayurvedic-treatments",
+            "Ila Patnaik and Shubho Roy, Why India needs to regulate Ayurveda to win the world market for natural remedies, July, 2020 08:30 am IST. https://theprint.in/ilanomics/why-india-needs-to-regulate-ayurveda-to-win-the-world-market-for-natural-remedies/462595",
+            "Joe Leech, M.S. (2017). 10 delicious herbs and species with powerful health benefits, Healthline.   https://www.healthline.com/nutrition/10-healthy-herbs-and-spices",
+            "Kochhar, SL (1981) Tropical crops: A textbook of economic botany. London: Macmillan pvt Ltd .268-71",
+            "Morandi A, Tosto C, Robert di Sarsina, DallaLibera D: Salutogenesis and Ayurveda: indications for public health   Management. EPMA J 2011, 2: 459- 465",
+            "Patel, P.  (2003). Global Resurgence and International Recognition of Ayurveda.",
+            "Patwardhan B, Bodker G: Ayurvedic genomics: establishing a genetic basis for mind \u2013body typologies. J Altencomplment Med 2008, 14 (5):571-576",
+            "Roberti di Sarsina P, Aliva M, Guadangi P: Traditional, complementary and alternative medical system and their   contribution to personalization, prediction and prevention in medicine \u2013person-centered medicine EPMA J 2012, 3:1-15",
+            "Tachaparamban NA: unique features of Ayurveda dietetics. EPMA J 2014 5(Suppl 1): A165",
+            "Thillaivanan, S., & Samraj, K.  (2014). Challenges, Constraints, and Opportunities in Herbal Medicines \u2013A       Review.  International Journal of Herbal Medicine, 2(1), 21-24.",
+            "Vshal Kaushik, Present Scenario of Indian Ayurveda Industry and the Road Ahead, Bio Spectrum, Digital Edition,05 June 2022. https://www.biospectrumindia.com/views/81/13185/present-scenario-of-indian-ayurveda-industry-and-the-road-ahead.html",
+            "Wujastyk D, Smith FM: Modern and global Ayurveda: Pluralism and paradigms. Albany, USA: SUNY Press, 2013.EPMA J 2014, 5:19. EMPA JOURNAL 2014, 5:19"
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Journal article",
+            "type": "publication",
+            "subtype": "article"
+          },
+          "journal": {
+            "issue": "4",
+            "pages": "48-56",
+            "title": "International Research Journal of Science, Technology, Education, and Management",
+            "volume": "5"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "20303932"
+                }
+              }
+            ]
+          }
+        },
+        "title": "Ayurveda: Its impact on Indian well-being",
+        "links": {
+          "self": "https://zenodo.org/api/records/20303933",
+          "self_html": "https://zenodo.org/records/20303933",
+          "preview_html": "https://zenodo.org/records/20303933?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.20303933",
+          "self_doi": "https://doi.org/10.5281/zenodo.20303933",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.20303933",
+          "reserve_doi": "https://zenodo.org/api/records/20303933/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/20303932",
+          "parent_html": "https://zenodo.org/records/20303932",
+          "parent_doi": "https://doi.org/10.5281/zenodo.20303932",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.20303932",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:20303933/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:20303933/sequence/default",
+          "files": "https://zenodo.org/api/records/20303933/files",
+          "media_files": "https://zenodo.org/api/records/20303933/media-files",
+          "thumbnails": {
+            "10": "https://zenodo.org/api/iiif/record:20303933:IRJSTEM-V5N4-2025-P05.pdf/full/%5E10,/0/default.jpg",
+            "50": "https://zenodo.org/api/iiif/record:20303933:IRJSTEM-V5N4-2025-P05.pdf/full/%5E50,/0/default.jpg",
+            "100": "https://zenodo.org/api/iiif/record:20303933:IRJSTEM-V5N4-2025-P05.pdf/full/%5E100,/0/default.jpg",
+            "250": "https://zenodo.org/api/iiif/record:20303933:IRJSTEM-V5N4-2025-P05.pdf/full/%5E250,/0/default.jpg",
+            "750": "https://zenodo.org/api/iiif/record:20303933:IRJSTEM-V5N4-2025-P05.pdf/full/%5E750,/0/default.jpg",
+            "1200": "https://zenodo.org/api/iiif/record:20303933:IRJSTEM-V5N4-2025-P05.pdf/full/%5E1200,/0/default.jpg"
+          },
+          "latest": "https://zenodo.org/api/records/20303933/versions/latest",
+          "latest_html": "https://zenodo.org/records/20303933/latest",
+          "versions": "https://zenodo.org/api/records/20303933/versions",
+          "draft": "https://zenodo.org/api/records/20303933/draft",
+          "access_links": "https://zenodo.org/api/records/20303933/access/links",
+          "access_grants": "https://zenodo.org/api/records/20303933/access/grants",
+          "access_users": "https://zenodo.org/api/records/20303933/access/users",
+          "access_request": "https://zenodo.org/api/records/20303933/access/request",
+          "access": "https://zenodo.org/api/records/20303933/access",
+          "communities": "https://zenodo.org/api/records/20303933/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/20303933/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/20303933/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/20303933/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/20303933/quota-increase",
+          "requests": "https://zenodo.org/api/records/20303933/requests"
+        },
+        "updated": "2026-06-30T00:57:43.673153+00:00",
+        "recid": "20303933",
+        "revision": 4,
+        "files": [
+          {
+            "id": "22ed49a8-56a4-4da8-ab72-c91922f83923",
+            "key": "IRJSTEM-V5N4-2025-P05.pdf",
+            "size": 408126,
+            "checksum": "md5:f2b5953a66e363d63b97f8f8ce87a6eb",
+            "links": {
+              "self": "https://zenodo.org/api/records/20303933/files/IRJSTEM-V5N4-2025-P05.pdf/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "247915"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 42,
+          "unique_downloads": 42,
+          "views": 28,
+          "unique_views": 26,
+          "version_downloads": 42,
+          "version_unique_downloads": 42,
+          "version_unique_views": 26,
+          "version_views": 28
+        },
+        "state": "done",
+        "submitted": true
+      },
+      {
+        "created": "2024-08-16T14:29:46.938323+00:00",
+        "modified": "2024-08-16T14:29:47.100819+00:00",
+        "id": 13332560,
+        "conceptrecid": "13332559",
+        "doi": "10.5281/zenodo.13332560",
+        "conceptdoi": "10.5281/zenodo.13332559",
+        "doi_url": "https://doi.org/10.5281/zenodo.13332560",
+        "metadata": {
+          "title": "Participation of alternative modes of nutrition among young soccer players in Subotica",
+          "doi": "10.5281/zenodo.13332560",
+          "publication_date": "2019",
+          "description": "<p>introduction: Along with the quality of training and genetic limitations, nutrition plays an important role is a successful sport&rsquo;s career. A lot of athletes, all over the world, are choosing a diet that partially or completely omits ingridients of animal origin, rejecting such prejudices that vegetarian, vegan or other alternative diets aren&rsquo;t suitable for nutrition of professional athletes.<br>Information about the principles of vegetarianism, macrobiotics, raw food nutrition, Ayurveda, and other various types of diets can be found today across the different types of media, especially on the Internet. Guided by the desire to achieve the best possible sport&rsquo;s results, young athletes unadvisedly accept diet that&rsquo;s not inherent to our region, most often without basic knowledge about the potential benefits or health risks of such nutrition&rsquo; modes. aim: To assess knowledge of young soccer players about alternative modes of nutrition. methods: In 2017, 33 soccer players aged 18 to 33 were interviewed in the Soccer Sports Club in Subotica.<br>results: Only one respondent in the observed group was a vegetarian. About one-third of them didn&rsquo;t know what is macrobiotics, but more than three-quarters knew what is Ayurveda. Just a few respondents were informed about the blood type-based mode of nutrition. Respondents were insufficiently informed about Chrono diet and other dietary modes of nutrition. conclusion: Alternative modes of nutrition aren&rsquo;t widely represented among young soccer players in Subotica. At the same time, this study pointed out the necessity of education about alternative modes of nutrition in the population of young athletes</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Sokolova, Ljiljana",
+              "affiliation": null
+            },
+            {
+              "name": "Katan\u010di\u0107, Ivan",
+              "affiliation": null
+            },
+            {
+              "name": "\u017divanovi\u0107, Dejan",
+              "affiliation": null,
+              "orcid": "0000-0001-8232-9368"
+            },
+            {
+              "name": "\u0110oki\u0107, Nenad",
+              "affiliation": null
+            }
+          ],
+          "keywords": [
+            "alternative mode of nutrition",
+            "young athletes",
+            "education"
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Conference proceeding",
+            "type": "publication",
+            "subtype": "conferenceproceeding"
+          },
+          "meeting": {
+            "title": "2nd International Congress of Hygiene and Preventive Medicine",
+            "dates": "10-13.4.2019.",
+            "place": "Novi Sad, Serbia"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "communities": [
+            {
+              "id": "mfuns"
+            }
+          ],
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "13332559"
+                }
+              }
+            ]
+          }
+        },
+        "title": "Participation of alternative modes of nutrition among young soccer players in Subotica",
+        "links": {
+          "self": "https://zenodo.org/api/records/13332560",
+          "self_html": "https://zenodo.org/records/13332560",
+          "preview_html": "https://zenodo.org/records/13332560?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.13332560",
+          "self_doi": "https://doi.org/10.5281/zenodo.13332560",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.13332560",
+          "reserve_doi": "https://zenodo.org/api/records/13332560/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/13332559",
+          "parent_html": "https://zenodo.org/records/13332559",
+          "parent_doi": "https://doi.org/10.5281/zenodo.13332559",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.13332559",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:13332560/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:13332560/sequence/default",
+          "files": "https://zenodo.org/api/records/13332560/files",
+          "media_files": "https://zenodo.org/api/records/13332560/media-files",
+          "thumbnails": {
+            "10": "https://zenodo.org/api/iiif/record:13332560:2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/full/%5E10,/0/default.jpg",
+            "50": "https://zenodo.org/api/iiif/record:13332560:2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/full/%5E50,/0/default.jpg",
+            "100": "https://zenodo.org/api/iiif/record:13332560:2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/full/%5E100,/0/default.jpg",
+            "250": "https://zenodo.org/api/iiif/record:13332560:2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/full/%5E250,/0/default.jpg",
+            "750": "https://zenodo.org/api/iiif/record:13332560:2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/full/%5E750,/0/default.jpg",
+            "1200": "https://zenodo.org/api/iiif/record:13332560:2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/full/%5E1200,/0/default.jpg"
+          },
+          "latest": "https://zenodo.org/api/records/13332560/versions/latest",
+          "latest_html": "https://zenodo.org/records/13332560/latest",
+          "versions": "https://zenodo.org/api/records/13332560/versions",
+          "draft": "https://zenodo.org/api/records/13332560/draft",
+          "access_links": "https://zenodo.org/api/records/13332560/access/links",
+          "access_grants": "https://zenodo.org/api/records/13332560/access/grants",
+          "access_users": "https://zenodo.org/api/records/13332560/access/users",
+          "access_request": "https://zenodo.org/api/records/13332560/access/request",
+          "access": "https://zenodo.org/api/records/13332560/access",
+          "communities": "https://zenodo.org/api/records/13332560/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/13332560/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/13332560/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/13332560/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/13332560/quota-increase",
+          "requests": "https://zenodo.org/api/records/13332560/requests"
+        },
+        "updated": "2024-08-16T14:29:47.100819+00:00",
+        "recid": "13332560",
+        "revision": 4,
+        "files": [
+          {
+            "id": "33ebd5e4-679c-4646-b40f-b47e923cc1e7",
+            "key": "2 Int Cong Hyg Prev Med 2019 Participation of alternative modes of nutrition among young soccer players in Subotica.pdf",
+            "size": 2598572,
+            "checksum": "md5:950aa45bad5e1e7a4fc85c109ab45e53",
+            "links": {
+              "self": "https://zenodo.org/api/records/13332560/files/2%20Int%20Cong%20Hyg%20Prev%20Med%202019%20Participation%20of%20alternative%20modes%20of%20nutrition%20among%20young%20soccer%20players%20in%20Subotica.pdf/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "1088843"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 36,
+          "unique_downloads": 35,
+          "views": 136,
+          "unique_views": 125,
+          "version_downloads": 36,
+          "version_unique_downloads": 35,
+          "version_unique_views": 125,
+          "version_views": 136
+        },
+        "state": "done",
+        "submitted": true
+      },
+      {
+        "created": "2023-05-03T15:56:45.264773+00:00",
+        "modified": "2024-07-12T04:29:38.460546+00:00",
+        "id": 7892504,
+        "conceptrecid": "7892503",
+        "doi": "10.5281/zenodo.7892504",
+        "conceptdoi": "10.5281/zenodo.7892503",
+        "doi_url": "https://doi.org/10.5281/zenodo.7892504",
+        "metadata": {
+          "title": "Role of Ayurveda in Geriatric Nutrition",
+          "doi": "10.5281/zenodo.7892504",
+          "publication_date": "2022-12-31",
+          "description": "<p>Gerontology is the study of the biological, psychological, and social aspects of ageing. Gerontology research involves the study of normal ageing processes and age-related diseases. Jara is an inescapable part of life. Jara Chikitsa or Rasayana is a unique therapeutic methodology to delay ageing and minimise the intensity of problems occurring in this degenerative phase of one&rsquo;s life. The hour demands to develop of an effective holistic protocol for geriatric care by combining Rasayana, Panchakarma, Dietetics, Ayurvedic medicines, lifestyle and Yoga.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Dr. Gopikrishnan P. T",
+              "affiliation": "Corresponding Author"
+            },
+            {
+              "name": "Dr. Haritha Chandran",
+              "affiliation": null
+            },
+            {
+              "name": "Dr. Haroon Irshad",
+              "affiliation": null
+            }
+          ],
+          "keywords": [
+            "Gerontology, Jara Chikitsa, Ayurveda, Old Age"
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Journal article",
+            "type": "publication",
+            "subtype": "article"
+          },
+          "journal": {
+            "issue": "3&4, JULY- DECEMBER 2022",
+            "pages": "51-57",
+            "title": "Kira\u1e47\u0101val\u012b",
+            "volume": "XIV"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "7892503"
+                }
+              }
+            ]
+          }
+        },
+        "title": "Role of Ayurveda in Geriatric Nutrition",
+        "links": {
+          "self": "https://zenodo.org/api/records/7892504",
+          "self_html": "https://zenodo.org/records/7892504",
+          "preview_html": "https://zenodo.org/records/7892504?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.7892504",
+          "self_doi": "https://doi.org/10.5281/zenodo.7892504",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.7892504",
+          "reserve_doi": "https://zenodo.org/api/records/7892504/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/7892503",
+          "parent_html": "https://zenodo.org/records/7892503",
+          "parent_doi": "https://doi.org/10.5281/zenodo.7892503",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.7892503",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:7892504/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:7892504/sequence/default",
+          "files": "https://zenodo.org/api/records/7892504/files",
+          "media_files": "https://zenodo.org/api/records/7892504/media-files",
+          "thumbnails": {
+            "10": "https://zenodo.org/api/iiif/record:7892504:Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/full/%5E10,/0/default.jpg",
+            "50": "https://zenodo.org/api/iiif/record:7892504:Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/full/%5E50,/0/default.jpg",
+            "100": "https://zenodo.org/api/iiif/record:7892504:Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/full/%5E100,/0/default.jpg",
+            "250": "https://zenodo.org/api/iiif/record:7892504:Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/full/%5E250,/0/default.jpg",
+            "750": "https://zenodo.org/api/iiif/record:7892504:Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/full/%5E750,/0/default.jpg",
+            "1200": "https://zenodo.org/api/iiif/record:7892504:Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/full/%5E1200,/0/default.jpg"
+          },
+          "latest": "https://zenodo.org/api/records/7892504/versions/latest",
+          "latest_html": "https://zenodo.org/records/7892504/latest",
+          "versions": "https://zenodo.org/api/records/7892504/versions",
+          "draft": "https://zenodo.org/api/records/7892504/draft",
+          "access_links": "https://zenodo.org/api/records/7892504/access/links",
+          "access_grants": "https://zenodo.org/api/records/7892504/access/grants",
+          "access_users": "https://zenodo.org/api/records/7892504/access/users",
+          "access_request": "https://zenodo.org/api/records/7892504/access/request",
+          "access": "https://zenodo.org/api/records/7892504/access",
+          "communities": "https://zenodo.org/api/records/7892504/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/7892504/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/7892504/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/7892504/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/7892504/quota-increase",
+          "requests": "https://zenodo.org/api/records/7892504/requests"
+        },
+        "updated": "2024-07-12T04:29:38.460546+00:00",
+        "recid": "7892504",
+        "revision": 5,
+        "files": [
+          {
+            "id": "c7d7d890-9dc4-4b5d-8aca-dbb09203fecf",
+            "key": "Role of Ayurveda in Geriatric Nutrition.pdf",
+            "size": 546898,
+            "checksum": "md5:267f3a4d580c7c17476beee9fefa1a69",
+            "links": {
+              "self": "https://zenodo.org/api/records/7892504/files/Role%20of%20Ayurveda%20in%20Geriatric%20Nutrition.pdf/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "527411"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 175,
+          "unique_downloads": 168,
+          "views": 152,
+          "unique_views": 139,
+          "version_downloads": 174,
+          "version_unique_downloads": 167,
+          "version_unique_views": 139,
+          "version_views": 152
+        },
+        "state": "done",
+        "submitted": true
+      }
+    ],
+    "total": 31697
+  },
+  "aggregations": {
+    "publication_date": {
+      "buckets": [
+        {
+          "key": "2000",
+          "doc_count": 31,
+          "label": "2000",
+          "is_selected": false
+        },
+        {
+          "key": "2001",
+          "doc_count": 27,
+          "label": "2001",
+          "is_selected": false
+        },
+        {
+          "key": "2002",
+          "doc_count": 63,
+          "label": "2002",
+          "is_selected": false
+        },
+        {
+          "key": "2003",
+          "doc_count": 51,
+          "label": "2003",
+          "is_selected": false
+        },
+        {
+          "key": "2004",
+          "doc_count": 44,
+          "label": "2004",
+          "is_selected": false
+        },
+        {
+          "key": "2005",
+          "doc_count": 106,
+          "label": "2005",
+          "is_selected": false
+        },
+        {
+          "key": "2006",
+          "doc_count": 67,
+          "label": "2006",
+          "is_selected": false
+        },
+        {
+          "key": "2007",
+          "doc_count": 79,
+          "label": "2007",
+          "is_selected": false
+        },
+        {
+          "key": "2008",
+          "doc_count": 80,
+          "label": "2008",
+          "is_selected": false
+        },
+        {
+          "key": "2009",
+          "doc_count": 133,
+          "label": "2009",
+          "is_selected": false
+        },
+        {
+          "key": "2010",
+          "doc_count": 147,
+          "label": "2010",
+          "is_selected": false
+        },
+        {
+          "key": "2011",
+          "doc_count": 179,
+          "label": "2011",
+          "is_selected": false
+        },
+        {
+          "key": "2012",
+          "doc_count": 228,
+          "label": "2012",
+          "is_selected": false
+        },
+        {
+          "key": "2013",
+          "doc_count": 308,
+          "label": "2013",
+          "is_selected": false
+        },
+        {
+          "key": "2014",
+          "doc_count": 350,
+          "label": "2014",
+          "is_selected": false
+        },
+        {
+          "key": "2015",
+          "doc_count": 401,
+          "label": "2015",
+          "is_selected": false
+        },
+        {
+          "key": "2016",
+          "doc_count": 452,
+          "label": "2016",
+          "is_selected": false
+        },
+        {
+          "key": "2017",
+          "doc_count": 725,
+          "label": "2017",
+          "is_selected": false
+        },
+        {
+          "key": "2018",
+          "doc_count": 946,
+          "label": "2018",
+          "is_selected": false
+        },
+        {
+          "key": "2019",
+          "doc_count": 1118,
+          "label": "2019",
+          "is_selected": false
+        },
+        {
+          "key": "2020",
+          "doc_count": 1189,
+          "label": "2020",
+          "is_selected": false
+        },
+        {
+          "key": "2021",
+          "doc_count": 1487,
+          "label": "2021",
+          "is_selected": false
+        },
+        {
+          "key": "2022",
+          "doc_count": 1994,
+          "label": "2022",
+          "is_selected": false
+        },
+        {
+          "key": "2023",
+          "doc_count": 2658,
+          "label": "2023",
+          "is_selected": false
+        },
+        {
+          "key": "2024",
+          "doc_count": 3501,
+          "label": "2024",
+          "is_selected": false
+        },
+        {
+          "key": "2025",
+          "doc_count": 5715,
+          "label": "2025",
+          "is_selected": false
+        },
+        {
+          "key": "2026",
+          "doc_count": 9329,
+          "label": "2026",
+          "is_selected": false
+        }
+      ],
+      "label": "Publication date"
+    },
+    "access_status": {
+      "buckets": [
+        {
+          "key": "open",
+          "doc_count": 30452,
+          "label": "Open",
+          "is_selected": false
+        },
+        {
+          "key": "restricted",
+          "doc_count": 1175,
+          "label": "Restricted",
+          "is_selected": false
+        },
+        {
+          "key": "embargoed",
+          "doc_count": 70,
+          "label": "Embargoed",
+          "is_selected": false
+        }
+      ],
+      "label": "Access status"
+    },
+    "resource_type": {
+      "buckets": [
+        {
+          "key": "publication",
+          "doc_count": 28093,
+          "label": "Publication",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "publication-article",
+                "doc_count": 21400,
+                "label": "Journal article",
+                "is_selected": false
+              },
+              {
+                "key": "publication-other",
+                "doc_count": 860,
+                "label": "Other",
+                "is_selected": false
+              },
+              {
+                "key": "publication-report",
+                "doc_count": 627,
+                "label": "Report",
+                "is_selected": false
+              },
+              {
+                "key": "publication-section",
+                "doc_count": 623,
+                "label": "Book chapter",
+                "is_selected": false
+              },
+              {
+                "key": "publication-preprint",
+                "doc_count": 542,
+                "label": "Preprint",
+                "is_selected": false
+              },
+              {
+                "key": "publication-conferencepaper",
+                "doc_count": 520,
+                "label": "Conference paper",
+                "is_selected": false
+              },
+              {
+                "key": "publication-journal",
+                "doc_count": 476,
+                "label": "Journal",
+                "is_selected": false
+              },
+              {
+                "key": "publication-book",
+                "doc_count": 388,
+                "label": "Book",
+                "is_selected": false
+              },
+              {
+                "key": "publication-taxonomictreatment",
+                "doc_count": 296,
+                "label": "Taxonomic treatment",
+                "is_selected": false
+              },
+              {
+                "key": "publication-deliverable",
+                "doc_count": 202,
+                "label": "Project deliverable",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "dataset",
+          "doc_count": 2119,
+          "label": "Dataset",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "image",
+          "doc_count": 366,
+          "label": "Image",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "image-figure",
+                "doc_count": 309,
+                "label": "Figure",
+                "is_selected": false
+              },
+              {
+                "key": "image-diagram",
+                "doc_count": 12,
+                "label": "Diagram",
+                "is_selected": false
+              },
+              {
+                "key": "image-other",
+                "doc_count": 10,
+                "label": "Other",
+                "is_selected": false
+              },
+              {
+                "key": "image-drawing",
+                "doc_count": 9,
+                "label": "Drawing",
+                "is_selected": false
+              },
+              {
+                "key": "image-photo",
+                "doc_count": 9,
+                "label": "Photo",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "software",
+          "doc_count": 363,
+          "label": "Software",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "software-computationalnotebook",
+                "doc_count": 10,
+                "label": "Computational notebook",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "other",
+          "doc_count": 295,
+          "label": "Other",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "poster",
+          "doc_count": 188,
+          "label": "Poster",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "presentation",
+          "doc_count": 162,
+          "label": "Presentation",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "lesson",
+          "doc_count": 40,
+          "label": "Lesson",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "video",
+          "doc_count": 23,
+          "label": "Video/Audio",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "event",
+          "doc_count": 20,
+          "label": "Event",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        }
+      ],
+      "label": "Resource types"
+    },
+    "subject": {
+      "buckets": [
+        {
+          "key": "Biodiversity",
+          "doc_count": 2038,
+          "label": "Biodiversity",
+          "is_selected": false
+        },
+        {
+          "key": "Taxonomy",
+          "doc_count": 1911,
+          "label": "Taxonomy",
+          "is_selected": false
+        },
+        {
+          "key": "nutrition",
+          "doc_count": 1382,
+          "label": "nutrition",
+          "is_selected": false
+        },
+        {
+          "key": "health",
+          "doc_count": 672,
+          "label": "health",
+          "is_selected": false
+        },
+        {
+          "key": "Animalia",
+          "doc_count": 606,
+          "label": "Animalia",
+          "is_selected": false
+        },
+        {
+          "key": "evidence-based",
+          "doc_count": 599,
+          "label": "evidence-based",
+          "is_selected": false
+        },
+        {
+          "key": "science communication",
+          "doc_count": 595,
+          "label": "science communication",
+          "is_selected": false
+        },
+        {
+          "key": "LIFE Science Hub",
+          "doc_count": 593,
+          "label": "LIFE Science Hub",
+          "is_selected": false
+        },
+        {
+          "key": "Nutrition",
+          "doc_count": 536,
+          "label": "Nutrition",
+          "is_selected": false
+        },
+        {
+          "key": "Ayurveda",
+          "doc_count": 356,
+          "label": "Ayurveda",
+          "is_selected": false
+        }
+      ],
+      "label": "Subjects"
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "key": "pdf",
+          "doc_count": 26669,
+          "label": "PDF",
+          "is_selected": false
+        },
+        {
+          "key": "docx",
+          "doc_count": 1241,
+          "label": "DOCX",
+          "is_selected": false
+        },
+        {
+          "key": "html",
+          "doc_count": 853,
+          "label": "HTML",
+          "is_selected": false
+        },
+        {
+          "key": "zip",
+          "doc_count": 661,
+          "label": "ZIP",
+          "is_selected": false
+        },
+        {
+          "key": "xlsx",
+          "doc_count": 581,
+          "label": "XLSX",
+          "is_selected": false
+        },
+        {
+          "key": "png",
+          "doc_count": 406,
+          "label": "PNG",
+          "is_selected": false
+        },
+        {
+          "key": "csv",
+          "doc_count": 317,
+          "label": "CSV",
+          "is_selected": false
+        },
+        {
+          "key": "xml",
+          "doc_count": 294,
+          "label": "XML",
+          "is_selected": false
+        },
+        {
+          "key": "jpg",
+          "doc_count": 275,
+          "label": "JPG",
+          "is_selected": false
+        },
+        {
+          "key": "txt",
+          "doc_count": 232,
+          "label": "TXT",
+          "is_selected": false
+        }
+      ],
+      "label": "File type"
+    }
+  },
+  "links": {
+    "self": "https://zenodo.org/api/records?page=1&q=ayurveda+nutrition&size=3&sort=bestmatch",
+    "next": "https://zenodo.org/api/records?page=2&q=ayurveda+nutrition&size=3&sort=bestmatch"
+  }
+}

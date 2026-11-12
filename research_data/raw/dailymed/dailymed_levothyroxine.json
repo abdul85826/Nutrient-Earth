@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "spl_version": 104,
+      "published_date": "Nov 09, 2026",
+      "title": "LEVOTHYROXINE SODIUM TABLET [BRYANT RANCH PREPACK]",
+      "setid": "3b282e57-1009-4d2c-8ca2-9cca9f791937"
+    },
+    {
+      "spl_version": 13,
+      "published_date": "Nov 09, 2026",
+      "title": "LEVOXYL (LEVOTHYROXINE SODIUM) TABLET [PFIZER LABORATORIES DIV PFIZER INC]",
+      "setid": "758588c3-c63e-491b-0aa2-4f50d80cb174"
+    }
+  ],
+  "metadata": {
+    "db_published_date": "Nov 10, 2026 07:19:40PM EST",
+    "elements_per_page": 2,
+    "current_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Levothyroxine&pagesize=2&page=1",
+    "next_page_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Levothyroxine&pagesize=2&page=2",
+    "total_elements": 448,
+    "total_pages": 224,
+    "current_page": 1,
+    "previous_page": "null",
+    "previous_page_url": "null",
+    "next_page": 2
+  }
+}

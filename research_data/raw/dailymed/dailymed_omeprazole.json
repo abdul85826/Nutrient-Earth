@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "spl_version": 9,
+      "published_date": "Nov 02, 2026",
+      "title": "OMEPRAZOLE TABLET, DELAYED RELEASE [H E B]",
+      "setid": "5ceaec04-3ca3-4c7c-9184-51a42686a595"
+    },
+    {
+      "spl_version": 3,
+      "published_date": "Nov 02, 2026",
+      "title": "OMEPRAZOLE TABLET, ORALLY DISINTEGRATING, DELAYED RELEASE [AMAZON.COM SERVICES LLC]",
+      "setid": "d344a8ba-6a03-40c5-8bf6-485142a35485"
+    }
+  ],
+  "metadata": {
+    "db_published_date": "Nov 10, 2026 07:19:40PM EST",
+    "elements_per_page": 2,
+    "current_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Omeprazole&pagesize=2&page=1",
+    "next_page_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Omeprazole&pagesize=2&page=2",
+    "total_elements": 457,
+    "total_pages": 229,
+    "current_page": 1,
+    "previous_page": "null",
+    "previous_page_url": "null",
+    "next_page": 2
+  }
+}

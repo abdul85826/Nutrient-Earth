@@ -1,0 +1,50 @@
+[
+  {
+    "filename": "fao_infoods_biofoodcomp2_database.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_biofoodcomp2_database.pdf",
+    "size_bytes": 834891,
+    "sha256": "1895411541d47accb7a1cc81e616fafbe4225a512e4b3841a8314c35af77035f"
+  },
+  {
+    "filename": "fao_infoods_density_database_v2.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_density_database_v2.pdf",
+    "size_bytes": 1398472,
+    "sha256": "41a48793d69061c9ef7d9d99d3cab4e901492b1c42c47f386bf0532f3bdb585c"
+  },
+  {
+    "filename": "fao_infoods_phyfoodcomp1_database.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_phyfoodcomp1_database.pdf",
+    "size_bytes": 883680,
+    "sha256": "cd8d86e712894dce79258364fa8182a3270330c9acac1e28bd8a4c5160578a36"
+  },
+  {
+    "filename": "george_institute_data_collector_instructions.pdf",
+    "path": "research_data/documents/fao_infoods/george_institute_data_collector_instructions.pdf",
+    "size_bytes": 1332299,
+    "sha256": "42d0e0f278316eab2dc8ea627c5eddb63e88e1eb361db0d2eee41ade3d1a258a"
+  },
+  {
+    "filename": "fao_infoods_guidelines_checking_food_composition_data.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_guidelines_checking_food_composition_data.pdf",
+    "size_bytes": 1078990,
+    "sha256": "e020c9ba0956ad7b5ec627b73bf5965150944a457879833e1fdde68981ba39b5"
+  },
+  {
+    "filename": "fao_infoods_anfood2_database.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_anfood2_database.pdf",
+    "size_bytes": 1566453,
+    "sha256": "436c62476d3d0f7682ed437edd21da978c189ac0ca250b96c31871446a3b9c6f"
+  },
+  {
+    "filename": "fao_infoods_guidelines_converting_units.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_guidelines_converting_units.pdf",
+    "size_bytes": 1212905,
+    "sha256": "7435bd7a308a5a9178200dc5a306426cf6982189d9d28eeb11cf0e3057f4c959"
+  },
+  {
+    "filename": "fao_infoods_analytical_food_composition_user_guide.pdf",
+    "path": "research_data/documents/fao_infoods/fao_infoods_analytical_food_composition_user_guide.pdf",
+    "size_bytes": 1203308,
+    "sha256": "315db257d743a8ac27fb2e538c3bfc4aad5d3ce7f85c77ceb5d0b5d0811a2063"
+  }
+]

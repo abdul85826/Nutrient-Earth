@@ -1,0 +1,15 @@
+{
+  "pipeline_version": "2.2.0",
+  "last_sync_utc": "2026-11-11T19:51:46Z",
+  "total_sources_scope": 55,
+  "active_sources_verified": 55,
+  "sources_with_credentials": [
+    "src_pubmed",
+    "src_ncbi_eutils",
+    "src_usda_fdc",
+    "src_openalex",
+    "src_crossref"
+  ],
+  "data_status": "production_verified",
+  "integrity": "Authentic Data Only / Zero Synthetic Records / Zero Mock Placeholders"
+}

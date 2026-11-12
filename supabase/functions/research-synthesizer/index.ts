@@ -51,17 +51,17 @@ serve(async (req: Request) => {
 
     // 2. Cryptographic Authentication & Authorization Enforcement
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized: Missing or malformed Bearer authorization token.' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const apiKey = req.headers.get('apikey');
+    let token = '';
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+      token = authHeader.substring(7).trim();
+    } else if (apiKey) {
+      token = apiKey.trim();
     }
 
-    const token = authHeader.substring(7).trim();
     if (!token) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized: Empty bearer token.' }),
+        JSON.stringify({ error: 'Unauthorized: Missing Authorization or apikey header.' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -69,22 +69,26 @@ serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
 
-    // Initialize authenticated Supabase client using caller's JWT
+    // Initialize Supabase client using caller's token
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: false },
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
 
-    // Verify token with Supabase Auth server and derive authenticated user identity
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized: Invalid, expired, or unverified access token.' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Check if caller provides an authenticated user session token or the project anon key
+    let authenticatedUserId: string | null = null;
+    const isAnonKey = token === supabaseAnonKey;
 
-    const authenticatedUserId = user.id;
+    if (!isAnonKey) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser(token);
+        if (user) {
+          authenticatedUserId = user.id;
+        }
+      } catch (_) {
+        // Fallback: treated as unauthenticated caller
+      }
+    }
 
     // 3. Parse and Validate Request Payload
     const body = (await req.json()) as SynthesizerRequest;
@@ -97,35 +101,50 @@ serve(async (req: Request) => {
 
     const query = body.query.trim();
 
-    // 4. Server-Side Health Data Privacy Guardrail
-    // Never trust client-supplied boolean flags. Classify incoming query directly on the server.
+    // 4. Server-Side Health Data Privacy Guardrail & Personalization Gating
+    // Distinguish general knowledge inquiries from personal clinical guidance
     const isPersonalHealthData =
       ServerHealthPrivacyGuard.containsPersonalHealthData(query) ||
       body.containsPersonalHealthData === true ||
       body.taskType === 'personalized_clinical_guidance';
 
+    // Strict Gating: If this is personal health data or personalized clinical guidance,
+    // an authenticated user session is strictly mandatory. General questions are never blocked.
+    if (isPersonalHealthData && !authenticatedUserId) {
+      return new Response(
+        JSON.stringify({
+          error: 'Unauthorized: Personalized health analysis requires an authenticated user session.',
+          code: 'AUTH_REQUIRED_FOR_PERSONALIZED_QUERY',
+          message: 'Please sign in to access personalized nutritional analysis and body-specific calculations.',
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // 5. Retrieve Authorized User Context from Database (enforces RLS with user token)
     let verifiedUserContext: import('./types.ts').AnonymizedUserProfileContext | undefined = undefined;
-    try {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('age, biological_sex, primary_goals, activity_level, dietary_preference, known_conditions, active_supplements')
-        .eq('user_id', authenticatedUserId)
-        .maybeSingle();
+    if (authenticatedUserId) {
+      try {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('age, biological_sex, primary_goals, activity_level, dietary_preference, known_conditions, active_supplements')
+          .eq('user_id', authenticatedUserId)
+          .maybeSingle();
 
-      if (profileData) {
-        verifiedUserContext = {
-          age: profileData.age,
-          biological_sex: profileData.biological_sex,
-          primary_goals: profileData.primary_goals ?? [],
-          activity_level: profileData.activity_level,
-          dietary_preference: profileData.dietary_preference,
-          known_conditions: profileData.known_conditions ?? [],
-          active_supplements: profileData.active_supplements ?? [],
-        };
+        if (profileData) {
+          verifiedUserContext = {
+            age: profileData.age,
+            biological_sex: profileData.biological_sex,
+            primary_goals: profileData.primary_goals ?? [],
+            activity_level: profileData.activity_level,
+            dietary_preference: profileData.dietary_preference,
+            known_conditions: profileData.known_conditions ?? [],
+            active_supplements: profileData.active_supplements ?? [],
+          };
+        }
+      } catch (_) {
+        // Safe fallback if profile not yet populated
       }
-    } catch (_) {
-      // Safe fallback if profile not yet populated
     }
 
     const enrichedRequest: SynthesizerRequest = {

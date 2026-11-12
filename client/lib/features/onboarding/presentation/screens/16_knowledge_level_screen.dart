@@ -12,6 +12,9 @@ class KnowledgeLevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 16);
+    return StitchScreenHostWidget(
+      screenIndex: 16,
+      returnTo: returnTo,
+    );
   }
 }

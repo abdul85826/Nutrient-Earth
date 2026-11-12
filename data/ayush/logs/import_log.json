@@ -1,0 +1,64 @@
+{
+  "pipeline_name": "Nutrient Earth AYUSH Acquisition Pipeline",
+  "start_time": "2026-11-11T16:26:45.679758+00:00",
+  "target_records": 800,
+  "steps": {
+    "phase_1_session": {
+      "status": "success",
+      "duration_seconds": 0.83
+    },
+    "phase_2_acquisition": {
+      "status": "success",
+      "raw_candidates_found": 1175,
+      "duration_seconds": 28.59
+    },
+    "phase_3_deduplication": {
+      "status": "success",
+      "unique_candidates": 1175,
+      "duplicates_merged": 0,
+      "duration_seconds": 0.09
+    },
+    "phase_4_ranking": {
+      "status": "success",
+      "selected_count": 800,
+      "min_score": 24.0,
+      "max_score": 64.0,
+      "avg_score": 42.84,
+      "duration_seconds": 0.03
+    },
+    "phase_5_enrichment": {
+      "status": "success",
+      "enriched_count": 800,
+      "records_with_abstracts": 800,
+      "records_with_doi": 489,
+      "records_with_authors": 790,
+      "duration_seconds": 376.95
+    },
+    "phase_6_pdf_download": {
+      "status": "success",
+      "downloaded": 800,
+      "restricted": 0,
+      "abstract_only": 0,
+      "unavailable": 0,
+      "duration_seconds": 373.4
+    },
+    "phase_7_text_extraction": {
+      "status": "success",
+      "extracted_count": 800,
+      "total_extracted_characters": 1540889,
+      "duration_seconds": 2.53
+    }
+  },
+  "end_time": "2026-11-11T16:39:48.933175+00:00",
+  "total_duration_seconds": 783.25,
+  "deliverables": {
+    "manifest_path": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\exports\\manifest_800.json",
+    "metadata_json_path": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\exports\\metadata_export.json",
+    "metadata_csv_path": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\exports\\metadata_export.csv",
+    "failed_restricted_report_path": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\exports\\failed_restricted_report.json",
+    "sql_seed_path": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\exports\\ayush_evidence_chunks_seed.sql",
+    "pdfs_raw_dir": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\pdfs\\raw",
+    "extracted_text_dir": "D:\\Documents\\NE_App\\Nutrient_Earth\\data\\ayush\\extracted_text"
+  },
+  "log_timestamp": "2026-11-11T16:39:48.933255+00:00"
+}

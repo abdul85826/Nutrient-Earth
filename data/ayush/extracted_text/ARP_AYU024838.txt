@@ -1,0 +1,9 @@
+1 View Research Paper Details 
+Legacy ID :  255359(Ay\ PUBLICATIONS. 
+Journal :  International Journal of Ayurveda Research 
+Year :  2023 
+Volume :  4 
+Issue :  2 
+Page :  78 - 83 Abstract/ Summary/ Synopsis/ Outline : 
+Background :  A new area of research known as ayurgenomics was established by integrating the Tridosha and Prakriti principles with genomics. Throughout the past few years, various studies have been undertaken and published. In order to determine the research hotspots and trends, we retrieved the published literature of ayurgenomics from the dimension data base and performed a bibliometric analysis using VOSviewer to examine keywords, authors, nations, and organizations. A total of 32 suitable publications were examined between the years of 2011 and January 2023, with the most publications occurring in the year 2022. The analysis revealed an increasing trend in the number of publications. Mitali Mukerji and Bhavna Parashar were found as most active researchers in ayurgenomics. Publications came from four nations: India, China, the United States, and Denmark, with India having the highest number (18\ occurrences were medicine (54\ 53\ 50\ on ayurgenomics. It is still a relatively new field and more research is needed to fully understand its potential benefits and limitations. Keywords: Ayurgenomics, Ayurveda, Bibliometric Analysis, Prakriti, Tridosha URL (for Abstract/ Full paper\ https://journals.lww.com/ijar/Fulltext/2023/04000/Quantifying_the_progress_of_ayurgenomics_research_.4.aspx 
+DOI :  10.4103/ijar.ijar_34_23 Access : - Acknowledgment : -

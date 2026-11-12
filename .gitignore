@@ -123,3 +123,16 @@ scratch/
 .gsd/
 run-web.bat
 run-web.ps1
+
+# -----------------------------------------------------------------------------
+# LARGE SCIENTIFIC RESEARCH ARTIFACTS (> 50 MB / GitHub 100 MB Limit)
+# Preserved locally & verified via research_data/acquisition_registry/ manifests
+# -----------------------------------------------------------------------------
+research_data/documents/publications/ccras_ayurveda_research_and_development.pdf
+research_data/documents/publications/ayush_document_nutritional.pdf
+research_data/documents/publications/ccras_nutritional_advocacy_in_ayurveda.pdf
+research_data/documents/publications/ayush_compendium_select_research_publications.pdf
+research_data/documents/extracted_chunks/ccras_ayurveda_research_and_development_chunks.jsonl
+research_data/documents/extracted_chunks/ayush_compendium_select_research_publications_chunks.jsonl
+research_data/documents/extracted_chunks/ccras_medico_ethno_botanical_survey_chunks.jsonl
+

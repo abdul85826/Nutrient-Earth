@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'core/config/app_config.dart';
 import 'core/config/supabase_config.dart';
 import 'core/design_system/theme.dart';
+import 'features/onboarding/data/onboarding_storage_service.dart';
 import 'routing/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
 
   try {
     await AppConfig.initialize();
@@ -19,6 +22,12 @@ void main() async {
     await SupabaseConfig.initialize();
   } catch (e) {
     debugPrint('[SupabaseConfig] Initialization error: $e');
+  }
+
+  try {
+    await OnboardingStorageService.initialize();
+  } catch (e) {
+    debugPrint('[OnboardingStorageService] Initialization error: $e');
   }
 
   runApp(const ProviderScope(child: NutrientEarthApp()));

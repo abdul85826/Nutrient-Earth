@@ -12,6 +12,9 @@ class ReviewPhase1Screen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 8);
+    return StitchScreenHostWidget(
+      screenIndex: 8,
+      returnTo: returnTo,
+    );
   }
 }

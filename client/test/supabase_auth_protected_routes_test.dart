@@ -18,7 +18,29 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nutrient_earth_client/core/domain/personalization/user_profile_context.dart';
 import 'package:nutrient_earth_client/core/services/auth_service.dart';
 import 'package:nutrient_earth_client/core/services/profile_repository.dart';
+import 'package:nutrient_earth_client/features/onboarding/data/onboarding_storage_service.dart';
+import 'package:nutrient_earth_client/features/onboarding/state/onboarding_journey_state.dart';
 import 'package:nutrient_earth_client/routing/app_router.dart';
+
+class MockOnboardingStorageService extends OnboardingStorageService {
+  final bool _completed;
+  final OnboardingJourneyState? _stagedState;
+
+  const MockOnboardingStorageService({
+    bool isOnboardingCompleted = false,
+    OnboardingJourneyState? stagedState,
+  })  : _completed = isOnboardingCompleted,
+        _stagedState = stagedState;
+
+  @override
+  bool get isOnboardingCompleted => _completed;
+
+  @override
+  OnboardingJourneyState? get cachedStagedState => _stagedState;
+
+  @override
+  Future<OnboardingJourneyState?> loadStagedOnboarding() async => _stagedState;
+}
 
 class MockTestProfileRepo implements ProfileRepository {
   final bool onboardingCompleted;
@@ -268,7 +290,7 @@ void main() {
       expect(appRouter.routeInformationProvider.value.uri.path, isNotEmpty);
     });
 
-    test('Unauthenticated user navigating to protected onboarding route is redirected to /auth with returnTo', () {
+    test('Unauthenticated user navigating to onboarding routes is allowed without requiring an account', () {
       final router = createAppRouter(authService: mockAuth);
       final state = _createState(router, '/onboarding/health-goals');
 
@@ -278,9 +300,8 @@ void main() {
         authService: mockAuth,
       );
 
-      // Must redirect to /auth with encoded returnTo
-      expect(redirect, contains('/auth?mode=signin&returnTo='));
-      expect(redirect, contains(Uri.encodeComponent('/onboarding/health-goals')));
+      // Must allow unauthenticated users to complete onboarding
+      expect(redirect, isNull);
     });
 
     test('Unauthenticated user navigating to public routes (welcome, splash) is not blocked', () {
@@ -303,15 +324,64 @@ void main() {
       expect(redirectSplash, isNull);
     });
 
-    test('Unauthenticated user navigating to /today is redirected to /auth', () {
+    test('Unauthenticated user navigating to /auth before completing onboarding is redirected to /welcome', () {
+      final router = createAppRouter(authService: mockAuth);
+      final stateAuth = _createState(router, '/auth?mode=signup');
+      final redirectAuth = appRouterRedirect(
+        MockBuildContext(),
+        stateAuth,
+        authService: mockAuth,
+        storageService: const MockOnboardingStorageService(isOnboardingCompleted: false),
+      );
+      expect(redirectAuth, equals('/welcome'));
+    });
+
+    test('Unauthenticated user who completed onboarding navigating to /auth is allowed', () {
+      final router = createAppRouter(authService: mockAuth);
+      final stateAuth = _createState(router, '/auth?mode=signup');
+      final redirectAuth = appRouterRedirect(
+        MockBuildContext(),
+        stateAuth,
+        authService: mockAuth,
+        storageService: const MockOnboardingStorageService(isOnboardingCompleted: true),
+      );
+      expect(redirectAuth, isNull);
+    });
+
+    test('Unauthenticated user navigating to /auth?mode=signin is allowed for returning account login', () {
+      final router = createAppRouter(authService: mockAuth);
+      final stateSignIn = _createState(router, '/auth?mode=signin');
+      final redirectSignIn = appRouterRedirect(
+        MockBuildContext(),
+        stateSignIn,
+        authService: mockAuth,
+        storageService: const MockOnboardingStorageService(isOnboardingCompleted: false),
+      );
+      expect(redirectSignIn, isNull);
+    });
+
+    test('Unauthenticated user navigating to /today before completing onboarding is redirected to /welcome', () {
       final router = createAppRouter(authService: mockAuth);
       final stateToday = _createState(router, '/today');
       final redirectToday = appRouterRedirect(
         MockBuildContext(),
         stateToday,
         authService: mockAuth,
+        storageService: const MockOnboardingStorageService(isOnboardingCompleted: false),
       );
-      expect(redirectToday, equals('/auth?mode=signin&returnTo=%2Ftoday'));
+      expect(redirectToday, equals('/welcome'));
+    });
+
+    test('Unauthenticated user who completed onboarding navigating to /today is redirected to /auth with returnTo', () {
+      final router = createAppRouter(authService: mockAuth);
+      final stateToday = _createState(router, '/today');
+      final redirectToday = appRouterRedirect(
+        MockBuildContext(),
+        stateToday,
+        authService: mockAuth,
+        storageService: const MockOnboardingStorageService(isOnboardingCompleted: true),
+      );
+      expect(redirectToday, equals('/auth?mode=signup&returnTo=%2Ftoday'));
     });
 
     test('Authenticated user navigating to /auth is redirected forward to /today when onboarding complete', () {

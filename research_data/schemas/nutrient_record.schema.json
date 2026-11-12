@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthNutrientRecord",
+  "description": "Standardized schema for essential vitamins, minerals, macronutrients, Dietary Reference Intakes (DRIs), and Upper Tolerable Intake Levels (UL).",
+  "type": "object",
+  "required": [
+    "nutrient_id",
+    "nutrient_name",
+    "category",
+    "unit",
+    "reference_intakes",
+    "jurisdiction",
+    "evidence_source"
+  ],
+  "properties": {
+    "nutrient_id": {
+      "type": "string",
+      "description": "Identifier (e.g., nut_vitamin_d3, nut_magnesium_elemental)."
+    },
+    "nutrient_name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["vitamin", "mineral", "macronutrient", "trace_element", "amino_acid", "fatty_acid", "phytonutrient"]
+    },
+    "chemical_forms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "form_name": { "type": "string" },
+          "bioavailability": { "type": ["string", "null"] },
+          "chebi_id": { "type": ["string", "null"] },
+          "pubchem_cid": { "type": ["string", "null"] }
+        },
+        "required": ["form_name"]
+      }
+    },
+    "unit": {
+      "type": "string",
+      "enum": ["mcg", "mg", "g", "IU", "kcal"]
+    },
+    "physiological_functions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reference_intakes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["population_group", "age_min_years", "age_max_years", "sex", "rda_or_ai_value", "unit"],
+        "properties": {
+          "population_group": { "type": "string" },
+          "age_min_years": { "type": "number" },
+          "age_max_years": { "type": "number" },
+          "sex": { "type": "string", "enum": ["both", "male", "female", "pregnancy", "lactation"] },
+          "rda_or_ai_type": { "type": "string", "enum": ["RDA", "AI", "EAR", "Safe_Intake"] },
+          "rda_or_ai_value": { "type": "number" },
+          "upper_tolerable_limit_ul": { "type": ["number", "null"] },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "deficiency_symptoms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "toxicity_symptoms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dietary_food_sources": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "interactions": {
+      "type": "object",
+      "properties": {
+        "synergists": { "type": "array", "items": { "type": "string" } },
+        "antagonists": { "type": "array", "items": { "type": "string" } },
+        "drug_interactions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Regulatory authority (e.g., US_NIH_ODS, ICMR_NIN_India, EFSA_Europe, WHO)."
+    },
+    "effective_date": {
+      "type": "string"
+    },
+    "evidence_source": {
+      "type": "string"
+    }
+  }
+}
+

@@ -1,0 +1,931 @@
+{
+  "hits": {
+    "hits": [
+      {
+        "created": "2025-12-04T06:50:51.096510+00:00",
+        "modified": "2025-12-04T06:50:51.414790+00:00",
+        "id": 17811179,
+        "conceptrecid": "17811178",
+        "doi": "10.5281/zenodo.17811179",
+        "conceptdoi": "10.5281/zenodo.17811178",
+        "doi_url": "https://doi.org/10.5281/zenodo.17811179",
+        "metadata": {
+          "title": "The Effect of Fiber Consumption on Metabolic Health and Oral Surface Cleanliness",
+          "doi": "10.5281/zenodo.17811179",
+          "publication_date": "2025-10-31",
+          "description": "<p>Background and aim: Fiber plays a crucial role in maintaining human health. A recommended diet is one that provides an adequate amount of dietary fiber. Healthier dietary habits, particularly an increased intake of fiber, can contribute to the prevention of both periodontal diseases and systemic metabolic disorders. This study aims to analyze the effects of fiber consumption on oral health and cleanliness as well as overall systemic health.</p>\n<p>Purpose: To evaluate the impact of dietary fiber consumption on oral surface cleanliness and systemic metabolic health, with emphasis on its potential role in preventing periodontal diseases and metabolic disorders.</p>\n<p>Methods: This research employed a literature review method using PubMed and Google Scholar databases. A total of six relevant studies were selected for analysis.</p>\n<p>Results: Increased dietary fiber intake was associated with improved oral cleanliness, enhanced insulin sensitivity, and a lower incidence of obesity, cardiovascular disease, and metabolic syndrome. The mechanical properties of fibrous foods contributed to oral biofilm reduction, while systemic effects supported overall metabolic regulation.</p>\n<p>Conclusion: Dietary fiber plays an essential role in maintaining oral health and preventing systemic diseases. Diet composition may also influence the body&rsquo;s response to periodontal therapy. Moreover, dietary fiber can help reduce body weight in obese individuals and assist those with insulin resistance in controlling blood glucose levels.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Ayu, Chelsea Rahmita",
+              "affiliation": "Bachelor Program in Dentistry, Faculty of Dental Medicine, Airlangga University, Surabaya, Indonesia."
+            },
+            {
+              "name": "Syarif, Riluciana Nursafitri",
+              "affiliation": "Bachelor Program in Dentistry, Faculty of Dental Medicine, Airlangga University, Surabaya, Indonesia."
+            },
+            {
+              "name": "Tantiana, Tantiana",
+              "affiliation": "Department of Oral Biology, Faculty of Dental Medicine, Airlangga University, Surabaya, Indonesia."
+            },
+            {
+              "name": "Budikusuma, Christian Victor",
+              "affiliation": "Residency Program in Dental Radiology, Faculty of Dental Medicine, Airlangga University, Surabaya, Indonesia."
+            }
+          ],
+          "keywords": [
+            "Teeth",
+            "Food",
+            "Metabolism",
+            "Fiber",
+            "Oral Health",
+            "Systemic Health"
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Journal article",
+            "type": "publication",
+            "subtype": "article"
+          },
+          "journal": {
+            "issue": "1",
+            "pages": "1279-1284",
+            "title": "World Journal of Advanced Research and Reviews",
+            "volume": "28"
+          },
+          "alternate_identifiers": [
+            {
+              "identifier": "10.30574/wjarr.2025.28.1.3545"
+            }
+          ],
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "communities": [
+            {
+              "id": "wjarr"
+            }
+          ],
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "17811178"
+                }
+              }
+            ]
+          }
+        },
+        "title": "The Effect of Fiber Consumption on Metabolic Health and Oral Surface Cleanliness",
+        "links": {
+          "self": "https://zenodo.org/api/records/17811179",
+          "self_html": "https://zenodo.org/records/17811179",
+          "preview_html": "https://zenodo.org/records/17811179?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.17811179",
+          "self_doi": "https://doi.org/10.5281/zenodo.17811179",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.17811179",
+          "reserve_doi": "https://zenodo.org/api/records/17811179/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/17811178",
+          "parent_html": "https://zenodo.org/records/17811178",
+          "parent_doi": "https://doi.org/10.5281/zenodo.17811178",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.17811178",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:17811179/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:17811179/sequence/default",
+          "files": "https://zenodo.org/api/records/17811179/files",
+          "media_files": "https://zenodo.org/api/records/17811179/media-files",
+          "thumbnails": {
+            "10": "https://zenodo.org/api/iiif/record:17811179:WJARR-2025-3545.pdf/full/%5E10,/0/default.jpg",
+            "50": "https://zenodo.org/api/iiif/record:17811179:WJARR-2025-3545.pdf/full/%5E50,/0/default.jpg",
+            "100": "https://zenodo.org/api/iiif/record:17811179:WJARR-2025-3545.pdf/full/%5E100,/0/default.jpg",
+            "250": "https://zenodo.org/api/iiif/record:17811179:WJARR-2025-3545.pdf/full/%5E250,/0/default.jpg",
+            "750": "https://zenodo.org/api/iiif/record:17811179:WJARR-2025-3545.pdf/full/%5E750,/0/default.jpg",
+            "1200": "https://zenodo.org/api/iiif/record:17811179:WJARR-2025-3545.pdf/full/%5E1200,/0/default.jpg"
+          },
+          "latest": "https://zenodo.org/api/records/17811179/versions/latest",
+          "latest_html": "https://zenodo.org/records/17811179/latest",
+          "versions": "https://zenodo.org/api/records/17811179/versions",
+          "draft": "https://zenodo.org/api/records/17811179/draft",
+          "access_links": "https://zenodo.org/api/records/17811179/access/links",
+          "access_grants": "https://zenodo.org/api/records/17811179/access/grants",
+          "access_users": "https://zenodo.org/api/records/17811179/access/users",
+          "access_request": "https://zenodo.org/api/records/17811179/access/request",
+          "access": "https://zenodo.org/api/records/17811179/access",
+          "communities": "https://zenodo.org/api/records/17811179/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/17811179/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/17811179/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/17811179/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/17811179/quota-increase",
+          "requests": "https://zenodo.org/api/records/17811179/requests"
+        },
+        "updated": "2025-12-04T06:50:51.414790+00:00",
+        "recid": "17811179",
+        "revision": 4,
+        "files": [
+          {
+            "id": "11f32c1a-a26a-4111-9de2-07432ed5e56f",
+            "key": "WJARR-2025-3545.pdf",
+            "size": 480162,
+            "checksum": "md5:73edf9d4fc91918c06ccc69c14b57b66",
+            "links": {
+              "self": "https://zenodo.org/api/records/17811179/files/WJARR-2025-3545.pdf/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "155121"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 33,
+          "unique_downloads": 33,
+          "views": 47,
+          "unique_views": 47,
+          "version_downloads": 33,
+          "version_unique_downloads": 33,
+          "version_unique_views": 47,
+          "version_views": 47
+        },
+        "state": "done",
+        "submitted": true
+      },
+      {
+        "created": "2026-06-02T16:47:17.913798+00:00",
+        "modified": "2026-06-02T16:47:18.165683+00:00",
+        "id": 20513332,
+        "conceptrecid": "20513331",
+        "doi": "10.5281/zenodo.20513332",
+        "conceptdoi": "10.5281/zenodo.20513331",
+        "doi_url": "https://doi.org/10.5281/zenodo.20513332",
+        "metadata": {
+          "title": "DASH DIET AND ITS ROLE IN THE PREVENTION OF HYPERTENSION AND METABOLIC SYNDROME",
+          "doi": "10.5281/zenodo.20513332",
+          "publication_date": "2026-06-02",
+          "description": "<p class=\"MsoNormal\">&nbsp;Hypertension and metabolic syndrome are among the leading non-communicable diseases worldwide and represent major public health challenges. Dietary interventions play a crucial role in reducing cardiovascular risk factors and improving overall health outcomes. The Dietary Approaches to Stop Hypertension (DASH) diet has been widely recognized as an effective nutritional strategy for lowering blood pressure and improving metabolic health. This article reviews the principles of the DASH diet and summarizes its effects on hypertension and metabolic syndrome based on current scientific evidence.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Araboyev, Shoxruxbek Adxamjon ugli",
+              "affiliation": "X"
+            }
+          ],
+          "keywords": [
+            "DASH diet, hypertension, metabolic syndrome, healthy nutrition, cardiovascular health."
+          ],
+          "references": [
+            "Usmanova G.K. OILA TIBBIYOTI YURAK-QON TOMIR VA BOSHQA YUQUMLI BO'LMAGAN KASALLIKLARNING OLDINI OLISH UCHUN ENG YAXSHI YONDASHUV // \u042d\u043a\u043e\u043d\u043e\u043c\u0438\u043a\u0430 \u0438 \u0441\u043e\u0446\u0438\u0443\u043c. 2023. \u21169 (112). URL: https://cyberleninka.ru/article/n/oila-tibbiyoti-yurak-qon-tomir-va-boshqa-yuqumli-bolmagan-kasalliklarning-oldini-olish-uchun-eng-yaxshi-yondashuv (\u0434\u0430\u0442\u0430 \u043e\u0431\u0440\u0430\u0449\u0435\u043d\u0438\u044f: 28.12.2024).",
+            "Usmanova G. K., Jumanova L. A. BOLALAR VA O'SMIRLAR SALOMATLIGINING SHAKLLANISHI, ULARNING TA'LIM FAOLIYATI GIGIYENASI //\u0415\u0432\u0440\u0430\u0437\u0438\u0439\u0441\u043a\u0438\u0439 \u0436\u0443\u0440\u043d\u0430\u043b \u043f\u0440\u0430\u0432\u0430, \u0444\u0438\u043d\u0430\u043d\u0441\u043e\u0432 \u0438 \u043f\u0440\u0438\u043a\u043b\u0430\u0434\u043d\u044b\u0445 \u043d\u0430\u0443\u043a. \u2013 2022. \u2013 \u0422. 2. \u2013 \u2116. 1. \u2013 \u0421. 13-16.",
+            "\u0423\u0441\u043c\u0430\u043d\u043e\u0432\u0430 \u0413. \u041a., \u041c\u0438\u043d\u0430\u0432\u0430\u0440\u043e\u0432 \u0410. \u0410., \u041e\u0442\u0430\u0436\u043e\u043d\u043e\u0432 \u0418. \u0422. \u0420\u041e\u041b\u042c \u0410\u041a\u0422\u0418\u0412\u041d\u041e\u0421\u0422\u0418 \u041d\u0410\u0421\u0415\u041b\u0415\u041d\u0418\u042f \u0412 \u041f\u0420\u041e\u0424\u0418\u041b\u0410\u041a\u0422\u0418\u041a\u0415 \u0417\u0410\u0411\u041e\u041b\u0415\u0412\u0410\u041d\u0418\u0419 //\u042d\u043a\u043e\u043d\u043e\u043c\u0438\u043a\u0430 \u0438 \u0441\u043e\u0446\u0438\u0443\u043c. \u2013 2022. \u2013 \u2116. 3-1 (94). \u2013 \u0421. 490-492.",
+            "Usmanova G. K. THE IMPORTANCE OF HYGIENE IN HUMAN HEALTH //\u042d\u043a\u043e\u043d\u043e\u043c\u0438\u043a\u0430 \u0438 \u0441\u043e\u0446\u0438\u0443\u043c. \u2013 2022. \u2013 \u2116. 2-2 (93). \u2013 \u0421. 433-436.",
+            "\u041c\u0438\u0440\u0437\u0430\u0435\u0432\u0430 \u041c. \u041c. \u0438 \u0434\u0440. \u041c\u041d\u0415\u041d\u0418\u0415 \u0412\u0420\u0410\u0427\u0415\u0419 \u0421\u0415\u041b\u0410 \u041e\u0411 \u0423\u041b\u0423\u0427\u0428\u0415\u041d\u0418\u0418 \u041c\u0415\u0414\u0418\u041a\u041e-\u0421\u0410\u041d\u0418\u0422\u0410\u0420\u041d\u041e\u0419 \u041f\u041e\u041c\u041e\u0429\u0418 //\u0430\u043f\u0440\u0435\u043b\u044c-\u0438\u044e\u043d\u044c. \u2013 2020. \u2013 \u0421. 47."
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Journal article",
+            "type": "publication",
+            "subtype": "article"
+          },
+          "journal": {
+            "issue": "6",
+            "pages": "3-5",
+            "title": "Egyptian Medical Journal of the National Research Center",
+            "volume": "4"
+          },
+          "license": {
+            "id": "cc-by-4.0"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 0,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "20513331"
+                }
+              }
+            ]
+          }
+        },
+        "title": "DASH DIET AND ITS ROLE IN THE PREVENTION OF HYPERTENSION AND METABOLIC SYNDROME",
+        "links": {
+          "self": "https://zenodo.org/api/records/20513332",
+          "self_html": "https://zenodo.org/records/20513332",
+          "preview_html": "https://zenodo.org/records/20513332?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.20513332",
+          "self_doi": "https://doi.org/10.5281/zenodo.20513332",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.20513332",
+          "reserve_doi": "https://zenodo.org/api/records/20513332/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/20513331",
+          "parent_html": "https://zenodo.org/records/20513331",
+          "parent_doi": "https://doi.org/10.5281/zenodo.20513331",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.20513331",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:20513332/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:20513332/sequence/default",
+          "files": "https://zenodo.org/api/records/20513332/files",
+          "media_files": "https://zenodo.org/api/records/20513332/media-files",
+          "thumbnails": {
+            "10": "https://zenodo.org/api/iiif/record:20513332:3-5.pdf/full/%5E10,/0/default.jpg",
+            "50": "https://zenodo.org/api/iiif/record:20513332:3-5.pdf/full/%5E50,/0/default.jpg",
+            "100": "https://zenodo.org/api/iiif/record:20513332:3-5.pdf/full/%5E100,/0/default.jpg",
+            "250": "https://zenodo.org/api/iiif/record:20513332:3-5.pdf/full/%5E250,/0/default.jpg",
+            "750": "https://zenodo.org/api/iiif/record:20513332:3-5.pdf/full/%5E750,/0/default.jpg",
+            "1200": "https://zenodo.org/api/iiif/record:20513332:3-5.pdf/full/%5E1200,/0/default.jpg"
+          },
+          "latest": "https://zenodo.org/api/records/20513332/versions/latest",
+          "latest_html": "https://zenodo.org/records/20513332/latest",
+          "versions": "https://zenodo.org/api/records/20513332/versions",
+          "draft": "https://zenodo.org/api/records/20513332/draft",
+          "access_links": "https://zenodo.org/api/records/20513332/access/links",
+          "access_grants": "https://zenodo.org/api/records/20513332/access/grants",
+          "access_users": "https://zenodo.org/api/records/20513332/access/users",
+          "access_request": "https://zenodo.org/api/records/20513332/access/request",
+          "access": "https://zenodo.org/api/records/20513332/access",
+          "communities": "https://zenodo.org/api/records/20513332/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/20513332/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/20513332/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/20513332/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/20513332/quota-increase",
+          "requests": "https://zenodo.org/api/records/20513332/requests"
+        },
+        "updated": "2026-06-02T16:47:18.165683+00:00",
+        "recid": "20513332",
+        "revision": 4,
+        "files": [
+          {
+            "id": "0039dbb1-239a-4239-a558-7372c3ff2a36",
+            "key": "3-5.pdf",
+            "size": 137846,
+            "checksum": "md5:4d9d937f88c7b8bbc84bad86b95e41be",
+            "links": {
+              "self": "https://zenodo.org/api/records/20513332/files/3-5.pdf/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "488486"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 23,
+          "unique_downloads": 21,
+          "views": 51,
+          "unique_views": 51,
+          "version_downloads": 23,
+          "version_unique_downloads": 21,
+          "version_unique_views": 51,
+          "version_views": 51
+        },
+        "state": "done",
+        "submitted": true
+      },
+      {
+        "created": "2026-10-26T19:16:13.905669+00:00",
+        "modified": "2026-10-26T19:16:14.063717+00:00",
+        "id": 23674437,
+        "conceptrecid": "23672675",
+        "doi": "10.5281/zenodo.23674437",
+        "conceptdoi": "10.5281/zenodo.23672675",
+        "doi_url": "https://doi.org/10.5281/zenodo.23674437",
+        "metadata": {
+          "title": "SPIRIT 2025 Checklist for the CoDiet WP5 Study Protocol",
+          "doi": "10.5281/zenodo.23674437",
+          "publication_date": "2026-10-26",
+          "description": "<p>This record contains the completed SPIRIT 2025 (Standard Protocol Items: Recommendations for Interventional Trials) checklist accompanying the study protocol entitled \"Use of an AI-driven personalised dietary advice or a general dietary advice to improve dietary intake in a population at risk of cardiovascular disease\".</p>\n<p>The CoDiet Work Package 5 (WP5) study is a multicentre randomised controlled trial designed to evaluate the effectiveness of AI-driven personalised dietary advice compared with general dietary advice in improving dietary quality and cardiometabolic health among adults at increased cardiometabolic risk.</p>\n<p>The checklist identifies the relevant sections of the study protocol corresponding to the SPIRIT reporting recommendations and is provided to support transparent and comprehensive reporting of the trial methodology.</p>\n<p><strong>Clinical trial registration:</strong> ISRCTN10538845.</p>",
+          "access_right": "open",
+          "creators": [
+            {
+              "name": "Lu, Baichen",
+              "affiliation": "Nutrition Section, Department of Metabolism, Digestion and Reproduction, Imperial College London, UK"
+            }
+          ],
+          "keywords": [
+            "SPIRIT 2025; CoDiet; Study Protocol; Personalised Nutrition; Randomised Controlled Trial"
+          ],
+          "language": "eng",
+          "resource_type": {
+            "title": "Report",
+            "type": "publication",
+            "subtype": "report"
+          },
+          "license": {
+            "id": "cc-zero"
+          },
+          "relations": {
+            "version": [
+              {
+                "index": 2,
+                "is_last": true,
+                "parent": {
+                  "pid_type": "recid",
+                  "pid_value": "23672675"
+                }
+              }
+            ]
+          }
+        },
+        "title": "SPIRIT 2025 Checklist for the CoDiet WP5 Study Protocol",
+        "links": {
+          "self": "https://zenodo.org/api/records/23674437",
+          "self_html": "https://zenodo.org/records/23674437",
+          "preview_html": "https://zenodo.org/records/23674437?preview=1",
+          "doi": "https://doi.org/10.5281/zenodo.23674437",
+          "self_doi": "https://doi.org/10.5281/zenodo.23674437",
+          "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23674437",
+          "reserve_doi": "https://zenodo.org/api/records/23674437/draft/pids/doi",
+          "parent": "https://zenodo.org/api/records/23672675",
+          "parent_html": "https://zenodo.org/records/23672675",
+          "parent_doi": "https://doi.org/10.5281/zenodo.23672675",
+          "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.23672675",
+          "self_iiif_manifest": "https://zenodo.org/api/iiif/record:23674437/manifest",
+          "self_iiif_sequence": "https://zenodo.org/api/iiif/record:23674437/sequence/default",
+          "files": "https://zenodo.org/api/records/23674437/files",
+          "media_files": "https://zenodo.org/api/records/23674437/media-files",
+          "latest": "https://zenodo.org/api/records/23674437/versions/latest",
+          "latest_html": "https://zenodo.org/records/23674437/latest",
+          "versions": "https://zenodo.org/api/records/23674437/versions",
+          "draft": "https://zenodo.org/api/records/23674437/draft",
+          "access_links": "https://zenodo.org/api/records/23674437/access/links",
+          "access_grants": "https://zenodo.org/api/records/23674437/access/grants",
+          "access_users": "https://zenodo.org/api/records/23674437/access/users",
+          "access_request": "https://zenodo.org/api/records/23674437/access/request",
+          "access": "https://zenodo.org/api/records/23674437/access",
+          "communities": "https://zenodo.org/api/records/23674437/communities",
+          "communities-suggestions": "https://zenodo.org/api/records/23674437/communities-suggestions",
+          "request_deletion": "https://zenodo.org/api/records/23674437/request-deletion",
+          "file_modification": "https://zenodo.org/api/records/23674437/file-modification",
+          "quota_increase": "https://zenodo.org/api/records/23674437/quota-increase",
+          "requests": "https://zenodo.org/api/records/23674437/requests"
+        },
+        "updated": "2026-10-26T19:16:14.063717+00:00",
+        "recid": "23674437",
+        "revision": 4,
+        "files": [
+          {
+            "id": "5a3778c4-1c22-464b-a54d-3a288d810bed",
+            "key": "CoDiet_WP5_SPIRIT_2025_Checklist_Final_Resent.docx",
+            "size": 36032,
+            "checksum": "md5:968bbbe352590354ed36fe6d99efe196",
+            "links": {
+              "self": "https://zenodo.org/api/records/23674437/files/CoDiet_WP5_SPIRIT_2025_Checklist_Final_Resent.docx/content"
+            }
+          }
+        ],
+        "swh": null,
+        "owners": [
+          {
+            "id": "1308519"
+          }
+        ],
+        "status": "published",
+        "stats": {
+          "downloads": 14,
+          "unique_downloads": 14,
+          "views": 26,
+          "unique_views": 26,
+          "version_downloads": 11,
+          "version_unique_downloads": 11,
+          "version_unique_views": 14,
+          "version_views": 14
+        },
+        "state": "done",
+        "submitted": true
+      }
+    ],
+    "total": 351841
+  },
+  "aggregations": {
+    "publication_date": {
+      "buckets": [
+        {
+          "key": "2000",
+          "doc_count": 719,
+          "label": "2000",
+          "is_selected": false
+        },
+        {
+          "key": "2001",
+          "doc_count": 764,
+          "label": "2001",
+          "is_selected": false
+        },
+        {
+          "key": "2002",
+          "doc_count": 846,
+          "label": "2002",
+          "is_selected": false
+        },
+        {
+          "key": "2003",
+          "doc_count": 912,
+          "label": "2003",
+          "is_selected": false
+        },
+        {
+          "key": "2004",
+          "doc_count": 896,
+          "label": "2004",
+          "is_selected": false
+        },
+        {
+          "key": "2005",
+          "doc_count": 1072,
+          "label": "2005",
+          "is_selected": false
+        },
+        {
+          "key": "2006",
+          "doc_count": 1132,
+          "label": "2006",
+          "is_selected": false
+        },
+        {
+          "key": "2007",
+          "doc_count": 1446,
+          "label": "2007",
+          "is_selected": false
+        },
+        {
+          "key": "2008",
+          "doc_count": 1296,
+          "label": "2008",
+          "is_selected": false
+        },
+        {
+          "key": "2009",
+          "doc_count": 1471,
+          "label": "2009",
+          "is_selected": false
+        },
+        {
+          "key": "2010",
+          "doc_count": 1580,
+          "label": "2010",
+          "is_selected": false
+        },
+        {
+          "key": "2011",
+          "doc_count": 1842,
+          "label": "2011",
+          "is_selected": false
+        },
+        {
+          "key": "2012",
+          "doc_count": 2274,
+          "label": "2012",
+          "is_selected": false
+        },
+        {
+          "key": "2013",
+          "doc_count": 2809,
+          "label": "2013",
+          "is_selected": false
+        },
+        {
+          "key": "2014",
+          "doc_count": 3639,
+          "label": "2014",
+          "is_selected": false
+        },
+        {
+          "key": "2015",
+          "doc_count": 4561,
+          "label": "2015",
+          "is_selected": false
+        },
+        {
+          "key": "2016",
+          "doc_count": 5479,
+          "label": "2016",
+          "is_selected": false
+        },
+        {
+          "key": "2017",
+          "doc_count": 8005,
+          "label": "2017",
+          "is_selected": false
+        },
+        {
+          "key": "2018",
+          "doc_count": 10187,
+          "label": "2018",
+          "is_selected": false
+        },
+        {
+          "key": "2019",
+          "doc_count": 11803,
+          "label": "2019",
+          "is_selected": false
+        },
+        {
+          "key": "2020",
+          "doc_count": 15699,
+          "label": "2020",
+          "is_selected": false
+        },
+        {
+          "key": "2021",
+          "doc_count": 19313,
+          "label": "2021",
+          "is_selected": false
+        },
+        {
+          "key": "2022",
+          "doc_count": 23480,
+          "label": "2022",
+          "is_selected": false
+        },
+        {
+          "key": "2023",
+          "doc_count": 31753,
+          "label": "2023",
+          "is_selected": false
+        },
+        {
+          "key": "2024",
+          "doc_count": 39247,
+          "label": "2024",
+          "is_selected": false
+        },
+        {
+          "key": "2025",
+          "doc_count": 62536,
+          "label": "2025",
+          "is_selected": false
+        },
+        {
+          "key": "2026",
+          "doc_count": 94801,
+          "label": "2026",
+          "is_selected": false
+        }
+      ],
+      "label": "Publication date"
+    },
+    "access_status": {
+      "buckets": [
+        {
+          "key": "open",
+          "doc_count": 337105,
+          "label": "Open",
+          "is_selected": false
+        },
+        {
+          "key": "restricted",
+          "doc_count": 13877,
+          "label": "Restricted",
+          "is_selected": false
+        },
+        {
+          "key": "embargoed",
+          "doc_count": 859,
+          "label": "Embargoed",
+          "is_selected": false
+        }
+      ],
+      "label": "Access status"
+    },
+    "resource_type": {
+      "buckets": [
+        {
+          "key": "publication",
+          "doc_count": 281857,
+          "label": "Publication",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "publication-article",
+                "doc_count": 189929,
+                "label": "Journal article",
+                "is_selected": false
+              },
+              {
+                "key": "publication-other",
+                "doc_count": 11726,
+                "label": "Other",
+                "is_selected": false
+              },
+              {
+                "key": "publication-preprint",
+                "doc_count": 11234,
+                "label": "Preprint",
+                "is_selected": false
+              },
+              {
+                "key": "publication-conferencepaper",
+                "doc_count": 8408,
+                "label": "Conference paper",
+                "is_selected": false
+              },
+              {
+                "key": "publication-report",
+                "doc_count": 7940,
+                "label": "Report",
+                "is_selected": false
+              },
+              {
+                "key": "publication-taxonomictreatment",
+                "doc_count": 7444,
+                "label": "Taxonomic treatment",
+                "is_selected": false
+              },
+              {
+                "key": "publication-journal",
+                "doc_count": 4752,
+                "label": "Journal",
+                "is_selected": false
+              },
+              {
+                "key": "publication-section",
+                "doc_count": 4080,
+                "label": "Book chapter",
+                "is_selected": false
+              },
+              {
+                "key": "publication-book",
+                "doc_count": 3412,
+                "label": "Book",
+                "is_selected": false
+              },
+              {
+                "key": "publication-deliverable",
+                "doc_count": 3280,
+                "label": "Project deliverable",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "dataset",
+          "doc_count": 36071,
+          "label": "Dataset",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "image",
+          "doc_count": 10162,
+          "label": "Image",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "image-figure",
+                "doc_count": 9164,
+                "label": "Figure",
+                "is_selected": false
+              },
+              {
+                "key": "image-diagram",
+                "doc_count": 281,
+                "label": "Diagram",
+                "is_selected": false
+              },
+              {
+                "key": "image-other",
+                "doc_count": 213,
+                "label": "Other",
+                "is_selected": false
+              },
+              {
+                "key": "image-photo",
+                "doc_count": 106,
+                "label": "Photo",
+                "is_selected": false
+              },
+              {
+                "key": "image-drawing",
+                "doc_count": 49,
+                "label": "Drawing",
+                "is_selected": false
+              },
+              {
+                "key": "image-plot",
+                "doc_count": 33,
+                "label": "Plot",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "software",
+          "doc_count": 9326,
+          "label": "Software",
+          "is_selected": false,
+          "inner": {
+            "buckets": [
+              {
+                "key": "software-computationalnotebook",
+                "doc_count": 392,
+                "label": "Computational notebook",
+                "is_selected": false
+              }
+            ]
+          }
+        },
+        {
+          "key": "other",
+          "doc_count": 4129,
+          "label": "Other",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "presentation",
+          "doc_count": 3863,
+          "label": "Presentation",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "poster",
+          "doc_count": 3593,
+          "label": "Poster",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "video",
+          "doc_count": 841,
+          "label": "Video/Audio",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "lesson",
+          "doc_count": 748,
+          "label": "Lesson",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        },
+        {
+          "key": "event",
+          "doc_count": 497,
+          "label": "Event",
+          "is_selected": false,
+          "inner": {
+            "buckets": []
+          }
+        }
+      ],
+      "label": "Resource types"
+    },
+    "subject": {
+      "buckets": [
+        {
+          "key": "Biodiversity",
+          "doc_count": 24886,
+          "label": "Biodiversity",
+          "is_selected": false
+        },
+        {
+          "key": "Taxonomy",
+          "doc_count": 22591,
+          "label": "Taxonomy",
+          "is_selected": false
+        },
+        {
+          "key": "Animalia",
+          "doc_count": 12723,
+          "label": "Animalia",
+          "is_selected": false
+        },
+        {
+          "key": "Arthropoda",
+          "doc_count": 7240,
+          "label": "Arthropoda",
+          "is_selected": false
+        },
+        {
+          "key": "Insecta",
+          "doc_count": 5224,
+          "label": "Insecta",
+          "is_selected": false
+        },
+        {
+          "key": "Chordata",
+          "doc_count": 3808,
+          "label": "Chordata",
+          "is_selected": false
+        },
+        {
+          "key": "mental health",
+          "doc_count": 3495,
+          "label": "mental health",
+          "is_selected": false
+        },
+        {
+          "key": "COVID-19",
+          "doc_count": 2680,
+          "label": "COVID-19",
+          "is_selected": false
+        },
+        {
+          "key": "Mammalia",
+          "doc_count": 2520,
+          "label": "Mammalia",
+          "is_selected": false
+        },
+        {
+          "key": "Artificial Intelligence",
+          "doc_count": 2478,
+          "label": "Artificial Intelligence",
+          "is_selected": false
+        }
+      ],
+      "label": "Subjects"
+    },
+    "file_type": {
+      "buckets": [
+        {
+          "key": "pdf",
+          "doc_count": 266222,
+          "label": "PDF",
+          "is_selected": false
+        },
+        {
+          "key": "html",
+          "doc_count": 20055,
+          "label": "HTML",
+          "is_selected": false
+        },
+        {
+          "key": "zip",
+          "doc_count": 18021,
+          "label": "ZIP",
+          "is_selected": false
+        },
+        {
+          "key": "docx",
+          "doc_count": 13589,
+          "label": "DOCX",
+          "is_selected": false
+        },
+        {
+          "key": "png",
+          "doc_count": 9923,
+          "label": "PNG",
+          "is_selected": false
+        },
+        {
+          "key": "xlsx",
+          "doc_count": 9571,
+          "label": "XLSX",
+          "is_selected": false
+        },
+        {
+          "key": "csv",
+          "doc_count": 6931,
+          "label": "CSV",
+          "is_selected": false
+        },
+        {
+          "key": "txt",
+          "doc_count": 5815,
+          "label": "TXT",
+          "is_selected": false
+        },
+        {
+          "key": "md",
+          "doc_count": 5152,
+          "label": "MD",
+          "is_selected": false
+        },
+        {
+          "key": "jpg",
+          "doc_count": 3564,
+          "label": "JPG",
+          "is_selected": false
+        }
+      ],
+      "label": "File type"
+    }
+  },
+  "links": {
+    "self": "https://zenodo.org/api/records?page=1&q=metabolic+health+dietary+trial&size=3&sort=bestmatch",
+    "next": "https://zenodo.org/api/records?page=2&q=metabolic+health+dietary+trial&size=3&sort=bestmatch"
+  }
+}

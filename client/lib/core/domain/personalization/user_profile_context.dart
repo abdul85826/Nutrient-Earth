@@ -23,28 +23,30 @@ class UserProfileContext {
   final String sleepQuality;
   final String knowledgeLevel;
   final List<String> difficulties;
+  final String difficultiesNote;
   final Map<String, dynamic> dailyImpacts;
   final bool onboardingCompleted;
 
   const UserProfileContext({
     required this.userId,
     required this.displayName,
-    required this.age,
-    required this.biologicalSex,
-    required this.primaryGoals,
-    required this.activityLevel,
-    required this.dietaryPreference,
-    required this.budgetConstraint,
-    required this.willingnessToChange,
+    this.age = 0,
+    this.biologicalSex = 'unspecified',
+    this.primaryGoals = const [],
+    this.activityLevel = '',
+    this.dietaryPreference = '',
+    this.budgetConstraint = '',
+    this.willingnessToChange = '',
     this.knownConditions = const [],
     this.activeSupplements = const [],
     this.allergies = const [],
     this.heightCm,
     this.weightKg,
-    this.eatingRoutine = 'regular',
-    this.sleepQuality = 'good_consistent',
-    this.knowledgeLevel = 'basics',
+    this.eatingRoutine = '',
+    this.sleepQuality = '',
+    this.knowledgeLevel = '',
     this.difficulties = const [],
+    this.difficultiesNote = '',
     this.dailyImpacts = const {},
     this.onboardingCompleted = false,
   });
@@ -53,16 +55,16 @@ class UserProfileContext {
     return UserProfileContext(
       userId: json['user_id'] as String? ?? json['userId'] as String? ?? '',
       displayName: json['display_name'] as String? ?? json['displayName'] as String? ?? 'User',
-      age: (json['age'] as num?)?.toInt() ?? 30,
+      age: (json['age'] as num?)?.toInt() ?? 0,
       biologicalSex: json['biological_sex'] as String? ?? json['biologicalSex'] as String? ?? 'unspecified',
       primaryGoals: (json['primary_goals'] as List<dynamic>? ?? json['primaryGoals'] as List<dynamic>?)
               ?.map((g) => g.toString())
               .toList() ??
           const [],
-      activityLevel: json['activity_level'] as String? ?? json['activityLevel'] as String? ?? 'moderate',
-      dietaryPreference: json['dietary_preference'] as String? ?? json['dietaryPreference'] as String? ?? 'omnivorous',
-      budgetConstraint: json['budget_constraint'] as String? ?? json['budgetConstraint'] as String? ?? 'moderate',
-      willingnessToChange: json['willingness_to_change'] as String? ?? json['willingnessToChange'] as String? ?? 'high',
+      activityLevel: json['activity_level'] as String? ?? json['activityLevel'] as String? ?? '',
+      dietaryPreference: json['dietary_preference'] as String? ?? json['dietaryPreference'] as String? ?? '',
+      budgetConstraint: json['budget_constraint'] as String? ?? json['budgetConstraint'] as String? ?? '',
+      willingnessToChange: json['willingness_to_change'] as String? ?? json['willingnessToChange'] as String? ?? '',
       knownConditions: (json['known_conditions'] as List<dynamic>? ?? json['knownConditions'] as List<dynamic>?)
               ?.map((c) => c.toString())
               .toList() ??
@@ -77,13 +79,14 @@ class UserProfileContext {
           const [],
       heightCm: (json['height_cm'] as num?)?.toDouble() ?? (json['heightCm'] as num?)?.toDouble(),
       weightKg: (json['weight_kg'] as num?)?.toDouble() ?? (json['weightKg'] as num?)?.toDouble(),
-      eatingRoutine: json['eating_routine'] as String? ?? json['eatingRoutine'] as String? ?? 'regular',
-      sleepQuality: json['sleep_quality'] as String? ?? json['sleepQuality'] as String? ?? 'good_consistent',
-      knowledgeLevel: json['knowledge_level'] as String? ?? json['knowledgeLevel'] as String? ?? 'basics',
+      eatingRoutine: json['eating_routine'] as String? ?? json['eatingRoutine'] as String? ?? '',
+      sleepQuality: json['sleep_quality'] as String? ?? json['sleepQuality'] as String? ?? '',
+      knowledgeLevel: json['knowledge_level'] as String? ?? json['knowledgeLevel'] as String? ?? '',
       difficulties: (json['difficulties'] as List<dynamic>?)
               ?.map((d) => d.toString())
               .toList() ??
           const [],
+      difficultiesNote: json['difficulties_note'] as String? ?? json['difficultiesNote'] as String? ?? '',
       dailyImpacts: json['daily_impacts'] as Map<String, dynamic>? ?? json['dailyImpacts'] as Map<String, dynamic>? ?? const {},
       onboardingCompleted: json['onboarding_completed'] as bool? ?? json['onboardingCompleted'] as bool? ?? false,
     );
@@ -108,6 +111,7 @@ class UserProfileContext {
         'sleep_quality': sleepQuality,
         'knowledge_level': knowledgeLevel,
         'difficulties': difficulties,
+        'difficulties_note': difficultiesNote,
         'daily_impacts': dailyImpacts,
         'onboarding_completed': onboardingCompleted,
       };

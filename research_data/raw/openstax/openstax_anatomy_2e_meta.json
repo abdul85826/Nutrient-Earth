@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "total_count": 1
+  },
+  "items": [
+    {
+      "id": 585,
+      "meta": {
+        "slug": "anatomy-and-physiology-2e",
+        "type": "books.Book",
+        "detail_url": "https://openstax.org/apps/cms/api/v2/pages/585/",
+        "html_url": "https://openstax.org/details/books/anatomy-and-physiology-2e",
+        "first_published_at": "2022-03-25T10:54:32.774000-05:00",
+        "locale": "en"
+      },
+      "title": "Anatomy and Physiology 2e"
+    }
+  ]
+}

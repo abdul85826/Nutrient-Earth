@@ -122,27 +122,31 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
     try {
       // 2. Session verification and code exchange via Supabase SDK
       if (!auth.isAuthenticated) {
-        if (code != null && code.trim().isNotEmpty) {
+        Session? activeSession = SupabaseConfig.client?.auth.currentSession;
+
+        if (activeSession == null && code != null && code.trim().isNotEmpty) {
           setState(() {
-            _statusMessage = 'Exchanging authorization code for session...';
+            _statusMessage = 'Securing clinical authentication session...';
           });
 
+          // Wait up to 1500ms for Gotrue's internal auto-exchange on web
           try {
-            // Attempt exchange via official SDK
-            await auth.exchangeCodeForSession(code.trim());
-          } catch (exchangeError) {
-            // If already exchanged by internal Gotrue handler, verify whether session exists now
-            final currentSession = SupabaseConfig.client?.auth.currentSession;
-            if (currentSession == null) {
-              // Wait briefly for reactive auth state change
-              final hasSession = await SupabaseConfig.client?.auth.onAuthStateChange
-                  .firstWhere((e) => e.session != null)
-                  .timeout(
-                    const Duration(seconds: 4),
-                    onTimeout: () => const AuthState(AuthChangeEvent.initialSession, null),
-                  );
+            final authState = await SupabaseConfig.client?.auth.onAuthStateChange
+                .firstWhere((e) => e.session != null)
+                .timeout(const Duration(milliseconds: 1500));
+            activeSession = authState?.session;
+          } catch (_) {
+            // Internal listener timed out; perform explicit exchange below
+          }
 
-              if (hasSession?.session == null) {
+          if (activeSession == null) {
+            try {
+              final exchangeResponse = await auth.exchangeCodeForSession(code.trim());
+              activeSession = exchangeResponse.session;
+            } catch (exchangeError) {
+              // Final check: did internal Gotrue complete the exchange concurrently?
+              activeSession = SupabaseConfig.client?.auth.currentSession;
+              if (activeSession == null) {
                 final errStr = exchangeError.toString().toLowerCase();
                 if (errStr.contains('expired') || errStr.contains('invalid') || errStr.contains('already used')) {
                   throw Exception('Your sign-in link has expired or has already been used. Please request a fresh link.');
@@ -151,10 +155,11 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
               }
             }
           }
-        } else {
-          // If no code present and no session, wait up to 2 seconds for initial session restore
+        } else if (activeSession == null) {
+          // If no code present and no session, wait up to 1500ms for session restoration from local storage
           await Future.delayed(const Duration(milliseconds: 1200));
-          if (!auth.isAuthenticated) {
+          activeSession = SupabaseConfig.client?.auth.currentSession;
+          if (activeSession == null && !auth.isAuthenticated) {
             setState(() {
               _isLoading = false;
               _errorMessage = 'No active authentication session found. Please sign in again.';
@@ -193,13 +198,13 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
         final baseline = UserProfileContext(
           userId: user.id,
           displayName: rawName.isNotEmpty ? rawName : 'User',
-          age: 25,
+          age: 0,
           biologicalSex: 'unspecified',
           primaryGoals: const [],
-          activityLevel: 'moderate',
-          dietaryPreference: 'omnivore',
-          budgetConstraint: 'moderate',
-          willingnessToChange: 'high',
+          activityLevel: '',
+          dietaryPreference: '',
+          budgetConstraint: '',
+          willingnessToChange: '',
           onboardingCompleted: false,
         );
 

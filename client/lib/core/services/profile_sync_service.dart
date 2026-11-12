@@ -62,8 +62,9 @@ class ProfileSyncService {
       );
 
       if (success) {
-        // 3. Securely wipe local staging storage upon successful account synchronization
+        // 3. Securely wipe local staging storage and reset notifier state upon successful account synchronization
         await _storageService.clearStagedOnboarding();
+        notifier.reset();
         debugPrint('[ProfileSyncService] Staged onboarding successfully synchronized and local buffer purged.');
         return true;
       } else {

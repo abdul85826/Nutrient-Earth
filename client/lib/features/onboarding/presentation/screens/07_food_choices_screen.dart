@@ -12,6 +12,9 @@ class FoodChoicesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 7);
+    return StitchScreenHostWidget(
+      screenIndex: 7,
+      returnTo: returnTo,
+    );
   }
 }

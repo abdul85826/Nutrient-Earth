@@ -1,0 +1,128 @@
+{
+  "_embedded": {
+    "studies": [
+      {
+        "initial_sample_size": "1,102 European ancestry cases, 1,002 European ancestry controls",
+        "replication_sample_size": "NA",
+        "gxe": false,
+        "gxg": false,
+        "snp_count": 7092507,
+        "imputed": true,
+        "pooled": false,
+        "accession_id": "GCST90559242",
+        "full_summary_stats_available": true,
+        "user_requested": false,
+        "pubmed_id": 41361163,
+        "platforms": "Affymetrix,Illumina [7092507] (imputed)",
+        "disease_trait": "Age-related macular degeneration",
+        "genotyping_technologies": [
+          "Genome-wide sequencing",
+          "Genome-wide genotyping array"
+        ],
+        "efo_traits": [
+          {
+            "efo_id": "MONDO_0005150",
+            "efo_trait": "age-related macular degeneration"
+          }
+        ],
+        "discovery_ancestry": [
+          "2104 European (Australia, Germany, Netherlands)"
+        ],
+        "replication_ancestry": [],
+        "full_summary_stats": "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST90559001-GCST90560000/GCST90559242",
+        "terms_of_license": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "bg_efo_traits": [],
+        "cohort": [
+          "CERA",
+          "EUGENDA",
+          "LEI",
+          "Ubonn"
+        ],
+        "array_manufacturer": [
+          "Illumina",
+          "Affymetrix"
+        ],
+        "_links": {
+          "self": {
+            "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST90559242"
+          },
+          "ancestries": {
+            "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST90559242/ancestries{?sort,direction}",
+            "templated": true
+          }
+        }
+      },
+      {
+        "initial_sample_size": "2,174 European ancestry cases, 944 European ancestry controls",
+        "replication_sample_size": "NA",
+        "gxe": false,
+        "gxg": false,
+        "snp_count": 7092507,
+        "imputed": true,
+        "pooled": false,
+        "accession_id": "GCST90559241",
+        "full_summary_stats_available": true,
+        "user_requested": false,
+        "pubmed_id": 41361163,
+        "platforms": "Affymetrix,Illumina [7092507] (imputed)",
+        "disease_trait": "Age-related macular degeneration",
+        "genotyping_technologies": [
+          "Genome-wide sequencing",
+          "Genome-wide genotyping array"
+        ],
+        "efo_traits": [
+          {
+            "efo_id": "MONDO_0005150",
+            "efo_trait": "age-related macular degeneration"
+          }
+        ],
+        "discovery_ancestry": [
+          "3118 European (Australia, Germany, Netherlands)"
+        ],
+        "replication_ancestry": [],
+        "full_summary_stats": "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST90559001-GCST90560000/GCST90559241",
+        "terms_of_license": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "bg_efo_traits": [],
+        "cohort": [
+          "CERA",
+          "EUGENDA",
+          "LEI",
+          "Ubonn"
+        ],
+        "array_manufacturer": [
+          "Illumina",
+          "Affymetrix"
+        ],
+        "_links": {
+          "self": {
+            "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST90559241"
+          },
+          "ancestries": {
+            "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies/GCST90559241/ancestries{?sort,direction}",
+            "templated": true
+          }
+        }
+      }
+    ]
+  },
+  "_links": {
+    "first": {
+      "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies?search=folate+metabolism&page=0&size=2"
+    },
+    "self": {
+      "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies?search=folate+metabolism&page=0&size=2"
+    },
+    "next": {
+      "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies?search=folate+metabolism&page=1&size=2"
+    },
+    "last": {
+      "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/studies?search=folate+metabolism&page=123849&size=2"
+    }
+  },
+  "page": {
+    "size": 2,
+    "totalElements": 247699,
+    "totalPages": 123850,
+    "number": 0
+  }
+}

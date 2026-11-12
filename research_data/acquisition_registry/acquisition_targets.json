@@ -1,0 +1,143 @@
+{
+  "acquisition_plan_version": "1.0.0",
+  "created_at": "2026-11-11T17:38:00Z",
+  "total_sources": 35,
+  "acquisition_batches": [
+    {
+      "batch_id": "batch_01_herbs_ayurveda",
+      "name": "Ayurveda, Botanical Taxonomy and Traditional Medicine",
+      "category": "A_ayurveda_medicinal_plants",
+      "sources": ["src_ayushportal", "src_nmpb", "src_ccras"],
+      "target_records": 1000,
+      "priority": "HIGH",
+      "target_entities": [
+        "Withania somnifera (Ashwagandha)",
+        "Tinospora cordifolia (Guduchi)",
+        "Curcuma longa (Haridra)",
+        "Bacopa monnieri (Brahmi)",
+        "Ocimum sanctum (Tulsi)",
+        "Emblica officinalis (Amalaki)",
+        "Terminalia chebula (Haritaki)",
+        "Commiphora mukul (Guggulu)",
+        "Asparagus racemosus (Shatavari)",
+        "Zingiber officinale (Shunthi)",
+        "Trigonella foenum-graecum (Methi)",
+        "Cinnamomum verum (Twak)",
+        "Moringa oleifera (Shigru)",
+        "Gymnema sylvestre (Meshashringi)"
+      ]
+    },
+    {
+      "batch_id": "batch_02_nutrients_supplements",
+      "name": "Vitamins, Minerals, Supplements and LiverTox Safety",
+      "category": "B_vitamins_supplements_safety",
+      "sources": ["src_nih_ods", "src_nccih", "src_livertox"],
+      "target_records": 240,
+      "priority": "HIGH",
+      "target_entities": [
+        "Vitamin A (Retinol)",
+        "Vitamin B1 (Thiamine)",
+        "Vitamin B2 (Riboflavin)",
+        "Vitamin B3 (Niacin)",
+        "Vitamin B6 (Pyridoxine)",
+        "Vitamin B9 (Folate)",
+        "Vitamin B12 (Cobalamin)",
+        "Vitamin C (Ascorbic Acid)",
+        "Vitamin D3 (Cholecalciferol)",
+        "Vitamin E (Tocopherol)",
+        "Vitamin K2 (Menaquinone)",
+        "Calcium",
+        "Magnesium",
+        "Zinc",
+        "Iron",
+        "Selenium",
+        "Iodine",
+        "Potassium",
+        "Omega-3 Fatty Acids (EPA/DHA)",
+        "Coenzyme Q10"
+      ]
+    },
+    {
+      "batch_id": "batch_03_medicines_terminology",
+      "name": "DailyMed SPL, RxNorm Concept Mappings and Clinical Health Topics",
+      "category": "C_medicines_clinical_terminology",
+      "sources": ["src_dailymed", "src_rxnorm", "src_medlineplus"],
+      "target_records": 350,
+      "priority": "MEDIUM",
+      "target_entities": [
+        "Metformin",
+        "Atorvastatin",
+        "Levothyroxine",
+        "Amlodipine",
+        "Omeprazole",
+        "Losartan",
+        "Gabapentin",
+        "Metoprolol",
+        "Hydrochlorothiazide",
+        "Sertraline"
+      ]
+    },
+    {
+      "batch_id": "batch_04_exercise_biomechanics",
+      "name": "Physical Activity Compendium, Biomechanics & Anatomy",
+      "category": "E_anatomy_physiology_biomechanics",
+      "sources": ["src_pacompendium", "src_openstax", "src_sports2d", "src_z_anatomy"],
+      "target_records": 280,
+      "priority": "HIGH",
+      "target_entities": [
+        "Walking and Running METs",
+        "Resistance Training METs",
+        "Yoga and Asana METs",
+        "Cycling METs",
+        "Major Muscle Groups (Quadriceps, Hamstrings, Gluteus, Core, Latissimus, Deltoids)",
+        "Joint Range of Motion & Gait Mechanics"
+      ]
+    },
+    {
+      "batch_id": "batch_05_genetics_pharmacogenomics",
+      "name": "GWAS Catalog, ClinVar Clinical Variations & Ensembl",
+      "category": "G_genetics_pharmacogenomics",
+      "sources": ["src_gwas_catalog", "src_clinvar", "src_ensembl", "src_clingen"],
+      "target_records": 400,
+      "priority": "HIGH",
+      "target_entities": [
+        "MTHFR (rs1801133 - Folate metabolism)",
+        "FTO (rs9939609 - Adiposity and satiety)",
+        "APOE (rs429358, rs7412 - Lipid metabolism)",
+        "CYP1A2 (rs762551 - Caffeine metabolism)",
+        "TCF7L2 (rs7903146 - Insulin secretion)",
+        "SLC30A8 (rs13266634 - Zinc transport in beta cells)",
+        "PPARG (rs1801282 - Fatty acid sensitivity)"
+      ]
+    },
+    {
+      "batch_id": "batch_06_open_research",
+      "name": "Open Science Framework & Zenodo Open Access Repositories",
+      "category": "F_open_research_datasets",
+      "sources": ["src_zenodo", "src_osf"],
+      "target_records": 200,
+      "priority": "MEDIUM",
+      "target_entities": [
+        "Clinical trials in Ayurvedic pharmacology",
+        "Dietary intervention datasets",
+        "Microbiome and dietary fiber datasets",
+        "Continuous glucose monitoring (CGM) open trial data"
+      ]
+    },
+    {
+      "batch_id": "batch_07_environment_agriculture",
+      "name": "Open-Meteo, OpenStreetMap POIs & Agmarknet Agriculture",
+      "category": "H_I_environment_agriculture",
+      "sources": ["src_open_meteo", "src_openstreetmap", "src_agmarknet", "src_openaq"],
+      "target_records": 250,
+      "priority": "MEDIUM",
+      "target_entities": [
+        "Air quality measurements (PM2.5, PM10)",
+        "Solar radiation and UV index",
+        "Pharmacy and Ayurvedic dispensary geographic locations",
+        "Mandi arrival trends for turmeric, ginger, fenugreek, and seasonal pulses"
+      ]
+    }
+  ]
+}
+

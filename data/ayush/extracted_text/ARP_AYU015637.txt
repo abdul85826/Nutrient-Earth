@@ -1,0 +1,9 @@
+1 View Research Paper Details 
+Legacy ID :  241479(Ay\ AND STANDARDIZATION OF REFERENCE STANDARDS OF PRAKRITI COLOR REPRESENTOR. 
+Journal :  Journal of Natural Remedies 
+Year :  2021 
+Volume :  21 
+Issue :  2 
+Page :  141 - 148 Abstract/ Summary/ Synopsis/ Outline : 
+Background :  Aim and Objective of the Study: In spite of individualized variation, skin color-one of the Prakriti determining characteristics contribute an important role to confirm the diagnosis of Prakriti as stated in Ayurveda viz. Dhusaragatra (dusky color of body\ (coppery color\ Sarakanda\ present study was intended to affirm and standardize the skin color variation in accordance to Prakriti in term of RGB values. Method: Prakriti of 100 infants was assessed through PRSIPA (Prototype Research Software for Infant Prakriti Assessment\ gathered from facial photographs of healthy infants of different Prakriti in addition to photographs of Tamra (70-80% Oxidized and non-oxidized copper plate\ L.\ Durva\ MunjaRoxb. (Sarkanda\ red, black, Sodic, alluvial soil\ Discussion: Minimum intermediate t value difference and non-significant p value shows that R, G, B and total RGB value of Kapha Prakriti infants skin is very close to RGB score of dry stem Part of Saccharum MunjaRoxb. (Sarkanda\ L.\ (Durva\ Vata Prakriti infants&#226;s skin is also close to processed dry Red soil, Black soil and processed 25% wet alluvial soil. Conclusion: We can conclude summary of brief result and discussion that evaluation of skin color by photograph through RGB value calculated by MATLAB R 2014b is specific objective parameter for Prakrti determination in infant. Significant variation in RGB values is seen as per Prakriti of infants. Keywords: Infant, Kapha, Pitta, Prakriti, Rgb, Vata URL (for Abstract/ Full paper\ https://www.informaticsjournals.com/index.php/jnr/article/view/25862 
+DOI :  10.18311/jnr/2021/25862 Access : - Acknowledgment : -

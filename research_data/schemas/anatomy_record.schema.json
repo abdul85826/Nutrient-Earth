@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthAnatomyRecord",
+  "description": "Standardized schema for anatomical structures, musculoskeletal systems, organs, and 3D mesh references.",
+  "type": "object",
+  "required": [
+    "structure_id",
+    "standard_name",
+    "organ_system",
+    "source_id"
+  ],
+  "properties": {
+    "structure_id": { "type": "string" },
+    "source_id": { "type": "string", "enum": ["src_openstax", "src_z_anatomy"] },
+    "standard_name": { "type": "string" },
+    "latin_name": { "type": ["string", "null"] },
+    "organ_system": {
+      "type": "string",
+      "enum": [
+        "musculoskeletal",
+        "cardiovascular",
+        "digestive",
+        "nervous",
+        "endocrine",
+        "respiratory",
+        "immune_lymphatic",
+        "urinary",
+        "integumentary",
+        "reproductive"
+      ]
+    },
+    "body_region": { "type": "string" },
+    "muscle_origin": { "type": ["string", "null"] },
+    "muscle_insertion": { "type": ["string", "null"] },
+    "muscle_action": { "type": ["string", "null"] },
+    "innervation": { "type": ["string", "null"] },
+    "blood_supply": { "type": ["string", "null"] },
+    "mesh_filename": { "type": ["string", "null"] },
+    "mesh_format": { "type": ["string", "null"], "enum": ["gltf", "glb", "obj", null] },
+    "license": { "type": "string" }
+  }
+}
+

@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="en"><head>
 <title>Nutrient Earth — Health Goals</title>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta content="mobile_stack" name="shell-type"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -34,22 +34,27 @@
     }
     ::-webkit-scrollbar {
       display: none;
+      width: 0px;
+      height: 0px;
+      background: transparent;
     }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
+      width: 0px;
+      height: 0px;
+      background: transparent;
     }
     .no-scrollbar {
       -ms-overflow-style: none;
-      scrollbar-width: none;
     }
+
     body {
       min-height: max(884px, 100dvh);
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
   </style>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-    tailwind.config = {
+<script id="tailwind-config">tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
@@ -85,8 +90,7 @@
           }
         }
       }
-    }
-  </script>
+    };</script>
 
 <script id="ne-flutter-bridge-core">
   window.NEBridge = {
@@ -147,7 +151,7 @@
 <div class="space-y-3">
 <div class="relative flex items-center">
 <span class="material-symbols-outlined absolute left-3.5 text-stone-500 text-[22px] pointer-events-none">search</span>
-<input autocomplete="off" class="w-full pl-11 pr-10 py-3.5 bg-warm-card border border-warm-border rounded-xl text-[15px] text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 focus:ring-1 focus:ring-forest-700 transition-all shadow-sm" id="health-search-input" placeholder="Search a condition, symptom, or goal..." type="text"/>
+<input autocomplete="off" class="w-full pl-11 pr-10 py-3.5 bg-warm-card border border-warm-border rounded-xl text-[15px] text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 focus:ring-1 focus:ring-forest-700 transition-all shadow-sm" id="health-search-input" aria-label="Search a condition, symptom, or goal" title="Search a condition, symptom, or goal" placeholder="Search a condition, symptom, or goal..." type="text"/>
 <button aria-label="Clear search" class="hidden absolute right-3 w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:text-stone-800 transition-colors" id="search-clear-btn">
 <span class="material-symbols-outlined text-[16px]">close</span>
 </button>
@@ -166,30 +170,11 @@
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
 <span class="text-[15px] font-semibold text-stone-900">Your selections</span>
-<span class="px-2.5 py-0.5 rounded-full bg-forest-800 text-white font-medium text-[12px]" id="selected-badge-count">3</span>
+<span class="px-2.5 py-0.5 rounded-full bg-forest-800 text-white font-medium text-[12px]" id="selected-badge-count">0</span>
 </div>
 <button class="text-[13px] font-medium text-forest-700 hover:underline min-h-[36px] flex items-center" id="clear-all-btn" type="button">Clear all</button>
 </div>
-<div class="flex flex-wrap gap-2 pt-0.5" id="selected-chips-container">
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="prediabetes">
-<span>Prediabetes</span>
-<button aria-label="Remove Prediabetes" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="low_energy">
-<span>Low energy or fatigue</span>
-<button aria-label="Remove Low energy or fatigue" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="improve_sleep">
-<span>Improve sleep</span>
-<button aria-label="Remove Improve sleep" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-</div>
+<div class="flex flex-wrap gap-2 pt-0.5" id="selected-chips-container"></div>
 </div>
 <!-- Live Search Results Dropdown -->
 <div class="hidden space-y-2" id="search-live-results">
@@ -219,35 +204,35 @@
 <div class="category-content px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Diabetes</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="diabetes" data-label="Diabetes" type="checkbox"/>
+<input id="cond-diabetes" aria-label="Diabetes" title="Diabetes" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="diabetes" data-label="Diabetes" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Prediabetes</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="prediabetes" data-label="Prediabetes" type="checkbox"/>
+<input id="cond-prediabetes" aria-label="Prediabetes" title="Prediabetes" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="prediabetes" data-label="Prediabetes" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">PCOS (Polycystic ovary syndrome)</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="pcos" data-label="PCOS" type="checkbox"/>
+<input id="cond-pcos" aria-label="PCOS" title="PCOS" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="pcos" data-label="PCOS" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Thyroid conditions</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="thyroid" data-label="Thyroid conditions" type="checkbox"/>
+<input id="cond-thyroid" aria-label="Thyroid conditions" title="Thyroid conditions" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="thyroid" data-label="Thyroid conditions" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">High blood pressure / Hypertension</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="high_bp" data-label="High blood pressure" type="checkbox"/>
+<input id="cond-high_bp" aria-label="High blood pressure" title="High blood pressure" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="high_bp" data-label="High blood pressure" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Heart health &amp; cholesterol</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="heart_health" data-label="Heart health" type="checkbox"/>
+<input id="cond-heart_health" aria-label="Heart health" title="Heart health" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="heart_health" data-label="Heart health" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Fatty liver disease</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="fatty_liver" data-label="Fatty liver disease" type="checkbox"/>
+<input id="cond-fatty_liver" aria-label="Fatty liver disease" title="Fatty liver disease" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="fatty_liver" data-label="Fatty liver disease" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Digestive conditions (IBS, acid reflux)</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="digestive_conditions" data-label="Digestive conditions" type="checkbox"/>
+<input id="cond-digestive_conditions" aria-label="Digestive conditions" title="Digestive conditions" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="digestive_conditions" data-label="Digestive conditions" type="checkbox"/>
 </label>
 </div>
 </div>
@@ -268,27 +253,27 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Low energy or fatigue</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="low_energy" data-label="Low energy or fatigue" type="checkbox"/>
+<input id="cond-low_energy" aria-label="Low energy or fatigue" title="Low energy or fatigue" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="low_energy" data-label="Low energy or fatigue" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Poor sleep or waking unrested</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="poor_sleep" data-label="Poor sleep" type="checkbox"/>
+<input id="cond-poor_sleep" aria-label="Poor sleep" title="Poor sleep" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="poor_sleep" data-label="Poor sleep" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Bloating and abdominal discomfort</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="bloating" data-label="Bloating" type="checkbox"/>
+<input id="cond-bloating" aria-label="Bloating" title="Bloating" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="bloating" data-label="Bloating" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Brain fog &amp; difficulty focusing</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="brain_fog" data-label="Brain fog" type="checkbox"/>
+<input id="cond-brain_fog" aria-label="Brain fog" title="Brain fog" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="brain_fog" data-label="Brain fog" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Hair thinning or loss</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="hair_loss" data-label="Hair thinning" type="checkbox"/>
+<input id="cond-hair_loss" aria-label="Hair thinning" title="Hair thinning" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="hair_loss" data-label="Hair thinning" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">High stress or mood swings</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="stress_mood" data-label="High stress" type="checkbox"/>
+<input id="cond-stress_mood" aria-label="High stress" title="High stress" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="stress_mood" data-label="High stress" type="checkbox"/>
 </label>
 </div>
 </div>
@@ -309,23 +294,23 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Eat a balanced, nutritious diet</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="balanced_diet" data-label="Balanced diet" type="checkbox"/>
+<input id="cond-balanced_diet" aria-label="Balanced diet" title="Balanced diet" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="balanced_diet" data-label="Balanced diet" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Understand calories and macros</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="calories_macros" data-label="Calories &amp; macros" type="checkbox"/>
+<input id="cond-calories_macros" aria-label="Calories &amp; macros" title="Calories &amp; macros" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="calories_macros" data-label="Calories &amp; macros" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Increase daily protein intake</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="protein_intake" data-label="Increase protein" type="checkbox"/>
+<input id="cond-protein_intake" aria-label="Increase protein" title="Increase protein" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="protein_intake" data-label="Increase protein" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Improve prebiotic &amp; dietary fiber</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="dietary_fiber" data-label="Improve fiber" type="checkbox"/>
+<input id="cond-dietary_fiber" aria-label="Improve fiber" title="Improve fiber" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="dietary_fiber" data-label="Improve fiber" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Blood sugar steady nutrition</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="blood_sugar_nutrition" data-label="Blood sugar nutrition" type="checkbox"/>
+<input id="cond-blood_sugar_nutrition" aria-label="Blood sugar nutrition" title="Blood sugar nutrition" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="blood_sugar_nutrition" data-label="Blood sugar nutrition" type="checkbox"/>
 </label>
 </div>
 </div>
@@ -346,19 +331,19 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Manage and lose weight sustainably</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="lose_weight" data-label="Lose weight" type="checkbox"/>
+<input id="cond-lose_weight" aria-label="Lose weight" title="Lose weight" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="lose_weight" data-label="Lose weight" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Build lean muscle mass</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="build_muscle" data-label="Build muscle" type="checkbox"/>
+<input id="cond-build_muscle" aria-label="Build muscle" title="Build muscle" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="build_muscle" data-label="Build muscle" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Improve physical stamina and endurance</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_endurance" data-label="Improve endurance" type="checkbox"/>
+<input id="cond-improve_endurance" aria-label="Improve endurance" title="Improve endurance" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_endurance" data-label="Improve endurance" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Support healthy joint and metabolic aging</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="healthy_aging" data-label="Healthy aging" type="checkbox"/>
+<input id="cond-healthy_aging" aria-label="Healthy aging" title="Healthy aging" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="healthy_aging" data-label="Healthy aging" type="checkbox"/>
 </label>
 </div>
 </div>
@@ -379,19 +364,19 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Improve sleep quality and rhythm</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_sleep" data-label="Improve sleep" type="checkbox"/>
+<input id="cond-improve_sleep" aria-label="Improve sleep" title="Improve sleep" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_sleep" data-label="Improve sleep" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Manage stress and cortisol regulation</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="manage_stress" data-label="Manage stress" type="checkbox"/>
+<input id="cond-manage_stress" aria-label="Manage stress" title="Manage stress" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="manage_stress" data-label="Manage stress" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Build sustainable micro-habits</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="build_habits" data-label="Build micro-habits" type="checkbox"/>
+<input id="cond-build_habits" aria-label="Build micro-habits" title="Build micro-habits" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="build_habits" data-label="Build micro-habits" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Hydration &amp; circadian timing</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="hydration" data-label="Hydration" type="checkbox"/>
+<input id="cond-hydration" aria-label="Hydration" title="Hydration" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="hydration" data-label="Hydration" type="checkbox"/>
 </label>
 </div>
 </div>
@@ -412,15 +397,15 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Understand a recent lab test or blood biomarker</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="lab_results" data-label="Lab results" type="checkbox"/>
+<input id="cond-lab_results" aria-label="Lab results" title="Lab results" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="lab_results" data-label="Lab results" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Understand a medical diagnosis</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="diagnosis" data-label="Understand diagnosis" type="checkbox"/>
+<input id="cond-diagnosis" aria-label="Understand diagnosis" title="Understand diagnosis" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="diagnosis" data-label="Understand diagnosis" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Explore a specific nutritional hypothesis</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="specific_question" data-label="Explore hypothesis" type="checkbox"/>
+<input id="cond-specific_question" aria-label="Explore hypothesis" title="Explore hypothesis" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="specific_question" data-label="Explore hypothesis" type="checkbox"/>
 </label>
 </div>
 </div>
@@ -432,11 +417,11 @@
 <span class="material-symbols-outlined text-[20px] text-forest-700">edit_note</span>
 <span class="text-[15px] font-semibold text-stone-900">Something else?</span>
 </div>
-<textarea class="w-full p-3 text-[14px] bg-warm-subtle border border-warm-border rounded-xl text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 transition-all resize-none" id="custom-concern-input" placeholder="Tell us what you'd like help with..." rows="2"></textarea>
+<textarea class="w-full p-3 text-[14px] bg-warm-subtle border border-warm-border rounded-xl text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 transition-all resize-none" id="custom-concern-input" placeholder="Tell us what you'd like help with..." rows="2" aria-label="Tell us what you would like help with or describe your health goals" title="Tell us what you would like help with or describe your health goals"></textarea>
 <p class="text-[13px] leading-relaxed text-stone-600">We'll review and match this safely without making medical assumptions.</p>
 </div>
 <!-- Optional Diabetes Follow-up Card -->
-<div class="bg-sage-100/60 border border-sage-300/80 rounded-2xl p-4 space-y-3" id="followup-container">
+<div class="hidden bg-sage-100/60 border border-sage-300/80 rounded-2xl p-4 space-y-3" id="followup-container">
 <div class="flex items-start justify-between gap-2">
 <div class="space-y-1">
 <div class="flex items-center gap-1.5 text-forest-800 text-[12px] font-semibold uppercase tracking-wider">
@@ -449,7 +434,7 @@
 </div>
 <div class="flex flex-wrap gap-2 pt-0.5" id="followup-tags">
 <button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Type 1</button>
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-forest-900 text-white border border-forest-900 transition-all min-h-[36px]" type="button">Type 2</button>
+<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Type 2</button>
 <button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Gestational diabetes</button>
 <button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Another type</button>
 <button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Not sure</button>
@@ -470,7 +455,7 @@
 <footer class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#FBF9F4]/90 backdrop-blur-md border-t border-warm-border/60">
 <div class="px-5 py-3 max-w-md mx-auto">
 <button class="w-full h-14 bg-forest-900 text-white font-semibold text-[16px] rounded-xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all hover:bg-forest-800" id="step-continue-btn" type="button">
-<span id="cta-label">Continue (3 selected)</span>
+<span id="cta-label">Continue</span>
 <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
 </button>
 </div>
@@ -478,11 +463,7 @@
 <!-- Interactivity Script -->
 <script>
     (function initHealthConcernsInteractivity() {
-      const selectedItems = new Map([
-        ['prediabetes', 'Prediabetes'],
-        ['low_energy', 'Low energy or fatigue'],
-        ['improve_sleep', 'Improve sleep']
-      ]);
+      const selectedItems = new Map();
 
       const searchInput = document.getElementById('health-search-input');
       const clearBtn = document.getElementById('search-clear-btn');
@@ -619,8 +600,8 @@
 
         if (clearBtn) clearBtn.classList.remove('hidden');
 
-        const matches = searchCatalog.filter(item => 
-          item.label.toLowerCase().includes(q) || 
+        const matches = searchCatalog.filter(item =>
+          item.label.toLowerCase().includes(q) ||
           item.tags.some(t => t.toLowerCase().includes(q))
         );
 
@@ -697,6 +678,28 @@
 (function() {
   function initScreen() {
     console.log('[Stitch] Screen 04 loaded');
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var preGoals = params.get('goals');
+      if (preGoals) {
+        var goalList = preGoals.split(',');
+        goalList.forEach(function(gid) {
+          gid = gid.trim();
+          var cb = document.querySelector('input[type="checkbox"][data-id="' + gid + '"]');
+          if (cb && !cb.checked) {
+            cb.checked = true;
+            cb.dispatchEvent(new Event('change'));
+          }
+        });
+      }
+      var preCustom = params.get('custom');
+      if (preCustom) {
+        var customInput = document.getElementById('custom-concern-input');
+        if (customInput) customInput.value = preCustom;
+      }
+    } catch(e) {
+      console.warn('Could not rehydrate goals from url', e);
+    }
 
     var continueBtn = document.getElementById('step-continue-btn') || document.querySelector('footer button') || document.querySelector('button:has(#cta-label)');
     if (continueBtn) {
@@ -712,10 +715,31 @@
             if (txt) selected.push(txt);
           });
         }
-        if (selected.length === 0) {
-          selected.push('Energy & Vitality Optimization');
+        var customConcern = '';
+        var customInput = document.getElementById('custom-concern-input');
+        if (customInput && customInput.value.trim().length > 0) {
+          customConcern = customInput.value.trim();
         }
-        window.NEBridge.send('SAVE_GOALS', { goals: selected, nextRoute: '/onboarding/difficulties' });
+        if (selected.length === 0 && customConcern.length === 0) {
+          var banner = document.getElementById('screen04-error-banner');
+          if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'screen04-error-banner';
+            banner.className = 'rounded-xl p-3 bg-red-100 text-red-800 border border-red-300 text-xs font-semibold text-center mb-3 transition-all';
+            banner.textContent = 'Please select at least one health focus or enter what you would like help with.';
+            var footerBox = document.querySelector('footer div') || document.body;
+            footerBox.insertBefore(banner, footerBox.firstChild);
+          } else {
+            banner.classList.remove('hidden');
+          }
+          setTimeout(function() { if (banner) banner.classList.add('hidden'); }, 5000);
+          return;
+        }
+        window.NEBridge.send('SAVE_GOALS', {
+          goals: selected,
+          customConcern: customConcern,
+          nextRoute: '/onboarding/difficulties'
+        });
       });
     }
     var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button[aria-label="Go Back"]');

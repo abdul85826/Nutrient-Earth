@@ -1,0 +1,18 @@
+1 View Research Paper Details 
+Legacy ID :  196074(Ay\ DOUBLE-BLIND, RANDOMIZED, PLACEBO-CONTROLLED PILOT STUDY. 
+Journal :  Journal of EvidenceBased Integrative Medicine 
+Year :  2018 
+Volume :  23 
+Issue :  - 
+Page :  - - - 
+Author :  1. Christine T. Peterson, 2,3. Alexana R. Vaughn, 4. Vandana Sharma, 1,5. Deepak Chopra, 1. Paul J. Mills, 4. Scott N. Peterson, 2,6,7. Raja K. Sivamani. 
+ARP ID :  ARP_AYU023680 
+Author's Affiliation :  1. University of California San Diego, La Jolla, CA, USA;2. University of California Davis, Sacramento, CA, USA;3. Drexel University, Philadelphia, PA, USA;4. Sanford Burnham Prebys Medical Discovery Institute, La Jolla, CA, USA;5. Chopra Foundation, Carlsbad, CA, USA;6. California State University, Sacramento, CA, USA;7. Pacific Skin Institute, Sacramento, CA, USA. 
+Type :  JOURNAL ARTICLE 
+Corresponding Author Details :  Christine T. Peterson, PhD, Center of Excellence for Research and Training in Integrative Health Research, Department of Family Medicine and Public Health, University of California San Diego, 9500 Gilman Drive #0725, La Jolla, CA 92093, USA. Email: chpeterson@ucsd.edu 
+Category :  CLINICAL RESEARCH Sub-
+Category :  CLINICAL RESEARCH EVIDENCE GRADE B 
+Body System :  GENERAL/UNSPECIFIED 
+Disease :  HEALTH MAINT/PREVENTIVE MEDICINE(ICPC-A98|ICD- Z01, Z10, Z11, Z12, Z13, Z40, Z70\ Abstract/ Summary/ Synopsis/ Outline : 
+Background :  Background: Curcuma longa (common name: turmeric\ increased clinical attention. Insufficient data exist on the effects of curcumin and turmeric on the gut microbiota and such studies in humans are lacking.Methods: Turmeric tablets with extract of piperine (Bioperine\ n = 6\ n = 5\ n = 3\ were provided to healthy human subjects and subsequent changes in the gut microbiota were determined by 16S rDNA sequencing. Results: The number of taxa detected ranged from 172 to 325 bacterial species. The placebo group displayed an overall reduction in species by 15%, whereas turmeric-treated subjects displayed a modest 7% increase in observed species posttreatment. Subjects taking curcumin displayed an average increase of 69% in detected species. The gut microbiota response to treatment was highly personalized, thus leading to responders and nonresponders displaying response concordance. These responsive subjects defined a signature involving uniform increases in most Clostridium spp., Bacteroides spp., Citrobacter spp., Cronobacter spp., Enterobacter spp., Enterococcus spp., Klebsiella spp., Parabacteroides spp., and Pseudomonas spp. Common to these subjects was the reduced relative abundance of several Blautia spp. and most Ruminococcus spp.Conclusions: All participants microbiota displayed significant variation over time and individualized response to treatment. Among the responsive participants, both turmeric and curcumin altered the gut microbiota in a highly similar manner, suggesting that curcumin may drive the majority of observed changes observed in turmeric-treated subjects. Keywords: Antioxidant, Curcumin, Gastrointestinal, Microbiota, Turmeric URL (for Abstract/ Full paper\ https://journals.sagepub.com/doi/full/10.1177/2515690X18790725 
+DOI :  10.1177/2515690X18790725 Access : - Acknowledgment : -

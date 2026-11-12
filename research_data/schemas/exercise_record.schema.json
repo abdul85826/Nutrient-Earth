@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthExerciseRecord",
+  "description": "Standardized schema for exercise classification, Metabolic Equivalent of Task (MET) values, and biomechanics kinematics.",
+  "type": "object",
+  "required": [
+    "activity_id",
+    "activity_name",
+    "major_heading",
+    "met_value",
+    "source_id"
+  ],
+  "properties": {
+    "activity_id": { "type": "string" },
+    "source_id": { "type": "string", "enum": ["src_pacompendium", "src_addbiomechanics", "src_sports2d"] },
+    "code_number": { "type": ["string", "null"] },
+    "major_heading": { "type": "string" },
+    "specific_activity_description": { "type": "string" },
+    "activity_name": { "type": "string" },
+    "met_value": { "type": "number", "minimum": 0.5, "maximum": 30.0 },
+    "intensity_level": { "type": "string", "enum": ["sedentary", "light", "moderate", "vigorous"] },
+    "primary_muscles_engaged": { "type": "array", "items": { "type": "string" } },
+    "joint_movements": { "type": "array", "items": { "type": "string" } },
+    "biomechanics_model_path": { "type": ["string", "null"] },
+    "provenance_reference": { "type": "string" }
+  }
+}
+

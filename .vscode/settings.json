@@ -1,10 +1,49 @@
 {
   "coderabbit.respectGitIgnore": true,
-  "coderabbit.autoReviewMode": "Disabled",
+  "coderabbit.autoReviewMode": "disabled",
   "coderabbit.completionNotifications": false,
   "coderabbit.reviewCompletionSound": false,
   "coderabbit.autoStartTask": false,
   "files.associations": {
-    "deploy.yml": "yaml"
-  }
+    "deploy.yml": "yaml",
+    "**/supabase/migrations/*.sql": "pgsql",
+    "**/supabase/**/*.sql": "pgsql",
+    "*.html": "html",
+    "code.html": "html"
+  },
+  "gradle.autoDetect": "off",
+  "gradle.nestedProjects": false,
+  "gradle.enableStatusBar": false,
+  "java.gradle.buildServer.enabled": "off",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/build": true,
+    "**/.vercel": true,
+    "**/.dart_tool": true,
+    "**/canonical_stitch_extracted": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/build": true,
+    "**/.vercel": true,
+    "**/.dart_tool": true,
+    "**/canonical_stitch_extracted": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/build/**": true,
+    "**/.vercel/**": true,
+    "**/.dart_tool/**": true,
+    "**/canonical_stitch_extracted/**": true
+  },
+  "vscode-edge-devtools.webhint": false
 }

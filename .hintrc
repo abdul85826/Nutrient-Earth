@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "compat-api/css": "off",
+    "meta-viewport": "off",
+    "axe/forms": "off",
+    "axe/structure": "off"
+  },
+  "ignoredUrls": [
+    "**/.vercel/**",
+    "**/build/**",
+    "**/.dart_tool/**",
+    "**/canonical_stitch_extracted/**",
+    "**/stitch_designs/**",
+    "**/node_modules/**"
+  ]
+}

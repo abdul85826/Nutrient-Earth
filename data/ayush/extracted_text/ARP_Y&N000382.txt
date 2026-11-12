@@ -1,0 +1,9 @@
+1 View Research Paper Details 
+Legacy ID :  6951(Y&N\ BLOOD CHEMISTRY DATA FROM A CALORIE RESTRICTION STUDY IN RHESUS MONKEYS. 
+Journal :  
+Year :  1998 
+Volume :  33 
+Issue :  5 
+Page :  421 - 443 Abstract/ Summary/ Synopsis/ Outline : 
+Background :  We examined a dataset derived from a battery of hematology and blood chemistry tests to identify candidate biomarkers of aging in a sample of 33 male rhesus monkeys (Macaca mulatta\ group subjected to 30% calorie restriction for six to seven years compared to the control group fed the same nutritionally fortified diet to approximate ad lib levels. Variables that met the following criteria were selected: (1\ (2\ 3\ (4\ lymphocytes, and serum levels of alkaline phosphatase, albumin, creatinine, and calcium. These variables were then submitted to a principal component analysis, which yielded a single component accounting for about 58% of the total variance. Based on this marked degree of covariance, these candidate biomarkers of aging could be combined into a biological age score (BAS\ When chronological age was regressed onto BAS, the slopes of the control and experimental groups could be compared. Although a trend toward a slower aging rate in calorie-restricted monkeys was apparent, this analysis did not detect a statistically significant difference in the rate of aging between these groups estimated by this index. Despite this result, a logical strategy was confirmed for expanding the search for candidate biomarkers of aging to apply to this and to other studies assessing interventions that purport to affect the rate of aging in long-lived species. Keywords: URL (for Abstract/ Full paper\ https://www.sciencedirect.com/science/article/abs/pii/S0531556597001344?via%3Dihub 
+DOI :  - Access : - Acknowledgment : -

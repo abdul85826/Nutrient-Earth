@@ -12,6 +12,9 @@ class SleepPatternsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 15);
+    return StitchScreenHostWidget(
+      screenIndex: 15,
+      returnTo: returnTo,
+    );
   }
 }

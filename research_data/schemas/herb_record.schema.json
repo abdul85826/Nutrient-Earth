@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthHerbRecord",
+  "description": "Standardized schema for botanical species, medicinal plants, traditional systems (Ayurveda, Siddha, Unani), phytochemistry, and safety.",
+  "type": "object",
+  "required": [
+    "herb_id",
+    "accepted_botanical_name",
+    "common_names",
+    "traditional_systems",
+    "license"
+  ],
+  "properties": {
+    "herb_id": {
+      "type": "string",
+      "description": "Unique identifier (e.g., herb_withania_somnifera or herb_nmpb_1204)."
+    },
+    "accepted_botanical_name": {
+      "type": "string",
+      "description": "Binomial botanical name conforming to IPNI / Plants of the World Online (e.g., Withania somnifera (L.) Dunal)."
+    },
+    "botanical_synonyms": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "common_names": {
+      "type": "object",
+      "description": "Common vernacular names categorized by language/system.",
+      "properties": {
+        "sanskrit": { "type": "array", "items": { "type": "string" } },
+        "hindi": { "type": "array", "items": { "type": "string" } },
+        "english": { "type": "array", "items": { "type": "string" } },
+        "tamil": { "type": "array", "items": { "type": "string" } },
+        "arabic_unani": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "plant_family": {
+      "type": "string"
+    },
+    "plant_parts_used": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "traditional_systems": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["Ayurveda", "Siddha", "Unani", "Yoga_Naturopathy", "Traditional_Chinese_Medicine", "Western_Herbalism"]
+      }
+    },
+    "traditional_properties": {
+      "type": "object",
+      "properties": {
+        "rasa": { "type": "array", "items": { "type": "string" } },
+        "guna": { "type": "array", "items": { "type": "string" } },
+        "virya": { "type": "string" },
+        "vipaka": { "type": "string" },
+        "dosha_effects": {
+          "type": "object",
+          "properties": {
+            "vata": { "type": "string", "enum": ["pacifies", "aggravates", "neutral"] },
+            "pitta": { "type": "string", "enum": ["pacifies", "aggravates", "neutral"] },
+            "kapha": { "type": "string", "enum": ["pacifies", "aggravates", "neutral"] }
+          }
+        }
+      }
+    },
+    "traditional_uses": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "documented_preparations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Traditional forms (e.g., Churna, Kwatha, Taila, Ghrita, Asava/Arishta, standardized extract)."
+    },
+    "active_phytochemicals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "compound_id": { "type": ["string", "null"] },
+          "class": { "type": "string" }
+        },
+        "required": ["name"]
+      }
+    },
+    "mechanisms_of_action": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "toxicity_and_safety": {
+      "type": "object",
+      "properties": {
+        "safety_class": { "type": "string" },
+        "contraindications": { "type": "array", "items": { "type": "string" } },
+        "adverse_effects": { "type": "array", "items": { "type": "string" } },
+        "herb_drug_interactions": { "type": "array", "items": { "type": "string" } },
+        "pregnancy_lactation_safety": { "type": "string" }
+      }
+    },
+    "geographic_distribution": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "conservation_status": {
+      "type": ["string", "null"],
+      "description": "IUCN Red List status (e.g. LC, VU, EN, CR, DD)."
+    },
+    "source_references": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "license": {
+      "type": "string"
+    }
+  }
+}
+

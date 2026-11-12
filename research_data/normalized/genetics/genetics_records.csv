@@ -1,0 +1,31 @@
+ensembl_gene_id,clinical_significance,alternate_allele,odds_ratio_or_beta,trait_efo_id,evidence_rating,gene_symbol,source_id,population_ancestry,genome_assembly,chromosome,position_bp,ncbi_gene_id,variant_id,reference_allele,p_value,risk_or_effect_allele,phenotype_or_trait,publication_pmid
+,Uncertain significance,,,,"criteria provided, single submitter",TCF7L2,src_clinvar,,GRCh38,,,6934,var_clinvar_5039924,,,,Clinical condition,
+,Uncertain significance,,,,"criteria provided, single submitter",TCF7L2,src_clinvar,,GRCh38,,,6934,var_clinvar_5037440,,,,Clinical condition,
+,Uncertain significance,,,,"criteria provided, single submitter",TCF7L2,src_clinvar,,GRCh38,,,6934,var_clinvar_5030582,,,,Clinical condition,
+,Association,,,,GWAS Published Study,TCF7L2,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,type 2 diabetes,None
+,Association,,,,GWAS Published Study,TCF7L2,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,type 2 diabetes,None
+,Uncertain significance,,,,"criteria provided, single submitter",FTO,src_clinvar,,GRCh38,,,79068,var_clinvar_4929990,,,,Clinical condition,
+,Likely benign,,,,"criteria provided, single submitter",FTO,src_clinvar,,GRCh38,,,79068,var_clinvar_4929989,,,,Clinical condition,
+,Likely benign,,,,"criteria provided, single submitter",FTO,src_clinvar,,GRCh38,,,79068,var_clinvar_4929988,,,,Clinical condition,
+,Association,,,,GWAS Published Study,FTO,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,body mass index,None
+,Association,,,,GWAS Published Study,FTO,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,body mass index,None
+,Likely pathogenic,,,,"criteria provided, single submitter",MTHFR,src_clinvar,,GRCh38,,,4524,var_clinvar_5041866,,,,Clinical condition,
+,Likely benign,,,,"criteria provided, single submitter",C1orf167,src_clinvar,,GRCh38,,,284498,var_clinvar_5038538,,,,Clinical condition,
+,Pathogenic,,,,"criteria provided, single submitter",CENPS-CORT,src_clinvar,,GRCh38,,,100526739,var_clinvar_5038308,,,,Clinical condition,
+,Association,,,,GWAS Published Study,MTHFR,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,folate metabolism,None
+,Association,,,,GWAS Published Study,MTHFR,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,folate metabolism,None
+,Uncertain significance,,,,"criteria provided, single submitter",TCF7L2,src_clinvar,,GRCh38,,,6934,var_clinvar_5039924,,,,Clinical condition,
+,Uncertain significance,,,,"criteria provided, single submitter",TCF7L2,src_clinvar,,GRCh38,,,6934,var_clinvar_5037440,,,,Clinical condition,
+,Uncertain significance,,,,"criteria provided, single submitter",TCF7L2,src_clinvar,,GRCh38,,,6934,var_clinvar_5030582,,,,Clinical condition,
+,Association,,,,GWAS Published Study,TCF7L2,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,type 2 diabetes,None
+,Association,,,,GWAS Published Study,TCF7L2,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,type 2 diabetes,None
+,Uncertain significance,,,,"criteria provided, single submitter",FTO,src_clinvar,,GRCh38,,,79068,var_clinvar_4929990,,,,Clinical condition,
+,Likely benign,,,,"criteria provided, single submitter",FTO,src_clinvar,,GRCh38,,,79068,var_clinvar_4929989,,,,Clinical condition,
+,Likely benign,,,,"criteria provided, single submitter",FTO,src_clinvar,,GRCh38,,,79068,var_clinvar_4929988,,,,Clinical condition,
+,Association,,,,GWAS Published Study,FTO,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,body mass index,None
+,Association,,,,GWAS Published Study,FTO,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,body mass index,None
+,Likely pathogenic,,,,"criteria provided, single submitter",MTHFR,src_clinvar,,GRCh38,,,4524,var_clinvar_5041866,,,,Clinical condition,
+,Likely benign,,,,"criteria provided, single submitter",C1orf167,src_clinvar,,GRCh38,,,284498,var_clinvar_5038538,,,,Clinical condition,
+,Pathogenic,,,,"criteria provided, single submitter",CENPS-CORT,src_clinvar,,GRCh38,,,100526739,var_clinvar_5038308,,,,Clinical condition,
+,Association,,,,GWAS Published Study,MTHFR,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,folate metabolism,None
+,Association,,,,GWAS Published Study,MTHFR,src_gwas_catalog,Global,GRCh38,,,,gwas_None,,,,folate metabolism,None

@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "spl_version": 32,
+      "published_date": "Nov 09, 2026",
+      "title": "AMLODIPINE BESYLATE TABLET [PD-RX PHARMACEUTICALS, INC.]",
+      "setid": "47114f60-4151-43d4-ac2d-adc49492a679"
+    },
+    {
+      "spl_version": 17,
+      "published_date": "Nov 04, 2026",
+      "title": "AMLODIPINE AND BENAZEPRIL HYDROCHLORIDE CAPSULE [PD-RX PHARMACEUTICALS, INC.]",
+      "setid": "02e233c4-48d1-456d-8fc8-f99a06ef854a"
+    }
+  ],
+  "metadata": {
+    "db_published_date": "Nov 10, 2026 07:19:40PM EST",
+    "elements_per_page": 2,
+    "current_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Amlodipine&pagesize=2&page=1",
+    "next_page_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?drug_name=Amlodipine&pagesize=2&page=2",
+    "total_elements": 352,
+    "total_pages": 176,
+    "current_page": 1,
+    "previous_page": "null",
+    "previous_page_url": "null",
+    "next_page": 2
+  }
+}

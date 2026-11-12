@@ -6,12 +6,14 @@
 // ==============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/domain/personalization/user_profile_context.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/profile_repository.dart';
 import '../../../core/services/task_repository.dart';
 import '../../today/state/today_state.dart';
+import '../data/onboarding_storage_service.dart';
 
 class OnboardingJourneyState {
   // Phase 1: Health Foundations (Screens 04 - 08)
@@ -20,6 +22,7 @@ class OnboardingJourneyState {
   final String difficultiesNote;
   final Map<String, int> dailyImpacts; // difficulty code -> 1..4
   final bool impactFluctuates;
+  final bool dailyImpactsSkipped;
   final String dietaryPattern; // omnivorous, vegetarian, vegan, eggetarian, pescatarian, other
   final String customDietaryPattern;
   final Set<String> foodIntolerances;
@@ -42,6 +45,14 @@ class OnboardingJourneyState {
   final String activityLevel; // sedentary, light, moderate, active, athlete
   final String sleepQuality; // good_consistent, sometimes_disturbed, difficulty_sleeping, irregular
   final String knowledgeLevel; // beginner, basics, intermediate, advanced
+  final bool onboardingFinished;
+
+  // Universal Health Concern & Dynamic Questionnaire Extensions
+  final Set<String> selectedConcernIds;
+  final String customPrimaryConcern;
+  final Map<String, dynamic> questionAnswers;
+  final Set<int> skippedStepIndices;
+  final bool isNewUser;
 
   // Persistence & UI State
   final bool isSaving;
@@ -53,15 +64,16 @@ class OnboardingJourneyState {
     this.difficultiesNote = '',
     this.dailyImpacts = const {},
     this.impactFluctuates = false,
-    this.dietaryPattern = 'omnivore',
+    this.dailyImpactsSkipped = false,
+    this.dietaryPattern = '',
     this.customDietaryPattern = '',
     this.foodIntolerances = const {},
     this.foodsToAvoid = const {},
     this.phase1Reviewed = false,
     this.firstName = '',
-    this.age = 25,
-    this.heightCm = 170.0,
-    this.weightKg = 65.0,
+    this.age = 0,
+    this.heightCm,
+    this.weightKg,
     this.heightUnit = 'ft',
     this.weightUnit = 'lb',
     this.weightSkipped = false,
@@ -69,10 +81,16 @@ class OnboardingJourneyState {
     this.strictlyNoRestrictions = false,
     this.allergens = const {},
     this.customAllergen = '',
-    this.eatingRoutine = 'regular',
-    this.activityLevel = 'moderate',
-    this.sleepQuality = 'good_consistent',
-    this.knowledgeLevel = 'basics',
+    this.eatingRoutine = '',
+    this.activityLevel = '',
+    this.sleepQuality = '',
+    this.knowledgeLevel = '',
+    this.onboardingFinished = false,
+    this.selectedConcernIds = const {},
+    this.customPrimaryConcern = '',
+    this.questionAnswers = const {},
+    this.skippedStepIndices = const {},
+    this.isNewUser = true,
     this.isSaving = false,
     this.saveError,
   });
@@ -83,6 +101,7 @@ class OnboardingJourneyState {
     String? difficultiesNote,
     Map<String, int>? dailyImpacts,
     bool? impactFluctuates,
+    bool? dailyImpactsSkipped,
     String? dietaryPattern,
     String? customDietaryPattern,
     Set<String>? foodIntolerances,
@@ -103,6 +122,12 @@ class OnboardingJourneyState {
     String? activityLevel,
     String? sleepQuality,
     String? knowledgeLevel,
+    bool? onboardingFinished,
+    Set<String>? selectedConcernIds,
+    String? customPrimaryConcern,
+    Map<String, dynamic>? questionAnswers,
+    Set<int>? skippedStepIndices,
+    bool? isNewUser,
     bool? isSaving,
     String? saveError,
   }) {
@@ -112,6 +137,7 @@ class OnboardingJourneyState {
       difficultiesNote: difficultiesNote ?? this.difficultiesNote,
       dailyImpacts: dailyImpacts ?? this.dailyImpacts,
       impactFluctuates: impactFluctuates ?? this.impactFluctuates,
+      dailyImpactsSkipped: dailyImpactsSkipped ?? this.dailyImpactsSkipped,
       dietaryPattern: dietaryPattern ?? this.dietaryPattern,
       customDietaryPattern: customDietaryPattern ?? this.customDietaryPattern,
       foodIntolerances: foodIntolerances ?? this.foodIntolerances,
@@ -132,6 +158,12 @@ class OnboardingJourneyState {
       activityLevel: activityLevel ?? this.activityLevel,
       sleepQuality: sleepQuality ?? this.sleepQuality,
       knowledgeLevel: knowledgeLevel ?? this.knowledgeLevel,
+      onboardingFinished: onboardingFinished ?? this.onboardingFinished,
+      selectedConcernIds: selectedConcernIds ?? this.selectedConcernIds,
+      customPrimaryConcern: customPrimaryConcern ?? this.customPrimaryConcern,
+      questionAnswers: questionAnswers ?? this.questionAnswers,
+      skippedStepIndices: skippedStepIndices ?? this.skippedStepIndices,
+      isNewUser: isNewUser ?? this.isNewUser,
       isSaving: isSaving ?? this.isSaving,
       saveError: saveError,
     );
@@ -144,6 +176,7 @@ class OnboardingJourneyState {
       'difficultiesNote': difficultiesNote,
       'dailyImpacts': dailyImpacts,
       'impactFluctuates': impactFluctuates,
+      'dailyImpactsSkipped': dailyImpactsSkipped,
       'dietaryPattern': dietaryPattern,
       'customDietaryPattern': customDietaryPattern,
       'foodIntolerances': foodIntolerances.toList(),
@@ -164,6 +197,12 @@ class OnboardingJourneyState {
       'activityLevel': activityLevel,
       'sleepQuality': sleepQuality,
       'knowledgeLevel': knowledgeLevel,
+      'onboardingFinished': onboardingFinished,
+      'selectedConcernIds': selectedConcernIds.toList(),
+      'customPrimaryConcern': customPrimaryConcern,
+      'questionAnswers': questionAnswers,
+      'skippedStepIndices': skippedStepIndices.toList(),
+      'isNewUser': isNewUser,
     };
   }
 
@@ -174,15 +213,16 @@ class OnboardingJourneyState {
       difficultiesNote: json['difficultiesNote'] as String? ?? '',
       dailyImpacts: (json['dailyImpacts'] as Map?)?.map((k, v) => MapEntry(k.toString(), (v as num).toInt())) ?? const {},
       impactFluctuates: json['impactFluctuates'] as bool? ?? false,
-      dietaryPattern: json['dietaryPattern'] as String? ?? 'omnivore',
+      dailyImpactsSkipped: json['dailyImpactsSkipped'] as bool? ?? false,
+      dietaryPattern: json['dietaryPattern'] as String? ?? '',
       customDietaryPattern: json['customDietaryPattern'] as String? ?? '',
       foodIntolerances: (json['foodIntolerances'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
       foodsToAvoid: (json['foodsToAvoid'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
       phase1Reviewed: json['phase1Reviewed'] as bool? ?? false,
       firstName: json['firstName'] as String? ?? '',
-      age: (json['age'] as num?)?.toInt() ?? 25,
-      heightCm: (json['heightCm'] as num?)?.toDouble() ?? 170.0,
-      weightKg: (json['weightKg'] as num?)?.toDouble() ?? 65.0,
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      heightCm: (json['heightCm'] as num?)?.toDouble(),
+      weightKg: (json['weightKg'] as num?)?.toDouble(),
       heightUnit: json['heightUnit'] as String? ?? 'ft',
       weightUnit: json['weightUnit'] as String? ?? 'lb',
       weightSkipped: json['weightSkipped'] as bool? ?? false,
@@ -190,12 +230,16 @@ class OnboardingJourneyState {
       strictlyNoRestrictions: json['strictlyNoRestrictions'] as bool? ?? false,
       allergens: (json['allergens'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
       customAllergen: json['customAllergen'] as String? ?? '',
-      eatingRoutine: json['eatingRoutine'] as String? ?? 'regular',
-      activityLevel: json['activityLevel'] as String? ?? 'moderate',
-      sleepQuality: json['sleepQuality'] as String? ?? 'good_consistent',
-      knowledgeLevel: json['knowledgeLevel'] as String? ?? 'basics',
-      isSaving: false,
-      saveError: null,
+      eatingRoutine: json['eatingRoutine'] as String? ?? '',
+      activityLevel: json['activityLevel'] as String? ?? '',
+      sleepQuality: json['sleepQuality'] as String? ?? '',
+      knowledgeLevel: json['knowledgeLevel'] as String? ?? '',
+      onboardingFinished: json['onboardingFinished'] as bool? ?? false,
+      selectedConcernIds: (json['selectedConcernIds'] as List?)?.map((e) => e.toString()).toSet() ?? const {},
+      customPrimaryConcern: json['customPrimaryConcern'] as String? ?? '',
+      questionAnswers: (json['questionAnswers'] as Map?)?.map((k, v) => MapEntry(k.toString(), v)) ?? const {},
+      skippedStepIndices: (json['skippedStepIndices'] as List?)?.map((e) => (e as num).toInt()).toSet() ?? const {},
+      isNewUser: json['isNewUser'] as bool? ?? (json['healthGoals'] == null || (json['healthGoals'] as List).isEmpty),
     );
   }
 }
@@ -207,11 +251,12 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
   OnboardingJourneyState get currentState => state;
 
   void setHealthGoals(Set<String> goals) {
-    final concerns = Set<String>.from(state.prioritizedConcerns);
-    for (final g in goals) {
-      concerns.add(g);
-    }
-    state = state.copyWith(healthGoals: goals, prioritizedConcerns: concerns);
+    state = state.copyWith(
+      healthGoals: goals,
+      prioritizedConcerns: goals,
+      selectedConcernIds: goals,
+      isNewUser: goals.isEmpty ? state.isNewUser : false,
+    );
   }
 
   void toggleHealthGoal(String goal) {
@@ -221,24 +266,17 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     } else {
       updated.add(goal);
     }
-    // Also synchronize to prioritized concerns if not customized yet
-    final concerns = Set<String>.from(state.prioritizedConcerns);
-    if (updated.contains(goal)) {
-      concerns.add(goal);
-    } else {
-      concerns.remove(goal);
-    }
-    state = state.copyWith(healthGoals: updated, prioritizedConcerns: concerns);
+    state = state.copyWith(
+      healthGoals: updated,
+      prioritizedConcerns: updated,
+      selectedConcernIds: updated,
+      isNewUser: updated.isEmpty ? state.isNewUser : false,
+    );
   }
 
   void setDifficulties(Set<String> diffs) {
+    // Retain existing authentic impacts for difficulties that remain selected; do not fabricate impacts for new ones
     final impacts = Map<String, int>.from(state.dailyImpacts);
-    for (final d in diffs) {
-      if (!impacts.containsKey(d)) {
-        impacts[d] = 2;
-      }
-    }
-    // Remove impacts for deselected difficulties
     impacts.removeWhere((k, _) => !diffs.contains(k));
     state = state.copyWith(difficulties: diffs, dailyImpacts: impacts);
   }
@@ -274,6 +312,10 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(impactFluctuates: val);
   }
 
+  void setDailyImpactsSkipped(bool val) {
+    state = state.copyWith(dailyImpactsSkipped: val);
+  }
+
   void setDietaryPattern(String pattern, {String? custom, String? customPattern}) {
     state = state.copyWith(
       dietaryPattern: pattern,
@@ -297,8 +339,75 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = newState;
   }
 
+  void hydrateFromProfile(UserProfileContext profile) {
+    state = OnboardingJourneyState(
+      healthGoals: profile.primaryGoals.toSet(),
+      prioritizedConcerns: profile.knownConditions.toSet(),
+      selectedConcernIds: profile.primaryGoals.toSet(),
+      difficulties: profile.difficulties.toSet(),
+      difficultiesNote: profile.difficultiesNote,
+      dailyImpacts: profile.dailyImpacts.map((k, v) => MapEntry(k.toString(), (v as num).toInt())),
+      dailyImpactsSkipped: profile.dailyImpacts.isEmpty && profile.difficulties.isNotEmpty,
+      dietaryPattern: profile.dietaryPreference,
+      firstName: profile.displayName == 'User' ? '' : profile.displayName,
+      age: profile.age,
+      heightCm: profile.heightCm,
+      weightKg: profile.weightKg,
+      allergens: profile.allergies.toSet(),
+      eatingRoutine: profile.eatingRoutine,
+      activityLevel: profile.activityLevel,
+      sleepQuality: profile.sleepQuality,
+      knowledgeLevel: profile.knowledgeLevel,
+      onboardingFinished: profile.onboardingCompleted,
+      isNewUser: false,
+    );
+  }
+
   void reset() {
     state = const OnboardingJourneyState();
+  }
+
+  void setSelectedConcernIds(Set<String> concerns) {
+    state = state.copyWith(selectedConcernIds: concerns, isNewUser: false);
+  }
+
+  void toggleConcernId(String id) {
+    final updated = Set<String>.from(state.selectedConcernIds);
+    if (updated.contains(id)) {
+      updated.remove(id);
+    } else {
+      updated.add(id);
+    }
+    state = state.copyWith(selectedConcernIds: updated, isNewUser: false);
+  }
+
+  void setCustomPrimaryConcern(String concern) {
+    state = state.copyWith(customPrimaryConcern: concern);
+  }
+
+  void setQuestionAnswer(String questionId, dynamic answer) {
+    final updated = Map<String, dynamic>.from(state.questionAnswers);
+    updated[questionId] = answer;
+    state = state.copyWith(questionAnswers: updated);
+  }
+
+  void setQuestionAnswers(Map<String, dynamic> answers) {
+    final updated = Map<String, dynamic>.from(state.questionAnswers);
+    updated.addAll(answers);
+    state = state.copyWith(questionAnswers: updated);
+  }
+
+  void skipStep(int stepIndex) {
+    final updated = Set<int>.from(state.skippedStepIndices)..add(stepIndex);
+    state = state.copyWith(skippedStepIndices: updated);
+  }
+
+  void markExistingUser() {
+    state = state.copyWith(isNewUser: false);
+  }
+
+  void markNewUser() {
+    state = state.copyWith(isNewUser: true);
   }
 
   void toggleFoodIntolerance(String intolerance) {
@@ -427,15 +536,19 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(knowledgeLevel: level);
   }
 
+  void setOnboardingFinished(bool finished) {
+    state = state.copyWith(onboardingFinished: finished);
+  }
+
   Future<bool> completeOnboarding({
     AuthService? auth,
     ProfileRepository? profileRepo,
     TaskRepository? taskRepo,
   }) async {
+    state = state.copyWith(onboardingFinished: true, phase1Reviewed: true);
     if (auth != null && profileRepo != null && taskRepo != null) {
       return saveAndComplete(auth: auth, profileRepo: profileRepo, taskRepo: taskRepo);
     }
-    state = state.copyWith(phase1Reviewed: true);
     return true;
   }
 
@@ -449,13 +562,17 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(isSaving: true, saveError: null);
 
     try {
-      final userId = auth.currentUser?.id ?? 'usr_${DateTime.now().millisecondsSinceEpoch}';
+      final user = auth.currentUser;
+      if (user == null || user.id.trim().isEmpty) {
+        throw AuthException('Cannot synchronize profile: user is not authenticated.');
+      }
+      final userId = user.id.trim();
       final name = state.firstName.trim().isNotEmpty ? state.firstName.trim() : 'Explorer';
       final primaryGoalsList = state.healthGoals.isNotEmpty
           ? state.healthGoals.toList()
           : (state.prioritizedConcerns.isNotEmpty
               ? state.prioritizedConcerns.toList()
-              : ['Energy & Vitality Optimization']);
+              : <String>[]);
 
       final knownConditionsList = <String>[
         ...state.difficulties.map((d) => 'Difficulty: $d'),
@@ -473,8 +590,8 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
         primaryGoals: primaryGoalsList,
         activityLevel: state.activityLevel,
         dietaryPreference: state.dietaryPattern,
-        budgetConstraint: 'moderate',
-        willingnessToChange: 'high',
+        budgetConstraint: '',
+        willingnessToChange: '',
         knownConditions: knownConditionsList,
         activeSupplements: const [],
         allergies: state.allergens.toList(),
@@ -484,6 +601,7 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
         sleepQuality: state.sleepQuality,
         knowledgeLevel: state.knowledgeLevel,
         difficulties: state.difficulties.toList(),
+        difficultiesNote: state.difficultiesNote,
         dailyImpacts: state.dailyImpacts,
         onboardingCompleted: true,
       );
@@ -491,16 +609,18 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
       // Save profile to Supabase
       await profileRepo.saveUserProfile(profile);
 
-      // Seed goal-tailored daily plan tasks based on the authentic selected goal
-      final primaryGoal = primaryGoalsList.first.toLowerCase();
-      final seededTasks = _generateGoalTailoredTasks(primaryGoal);
-      for (final task in seededTasks) {
-        try {
-          await taskRepo.createTask(task);
-        } catch (_) {}
+      // Seed goal-tailored daily plan tasks based on authentic selected goal (if any)
+      if (primaryGoalsList.isNotEmpty) {
+        final primaryGoal = primaryGoalsList.first.toLowerCase();
+        final seededTasks = _generateGoalTailoredTasks(primaryGoal);
+        for (final task in seededTasks) {
+          try {
+            await taskRepo.createTask(task);
+          } catch (_) {}
+        }
       }
 
-      state = state.copyWith(isSaving: false, saveError: null);
+      state = state.copyWith(isSaving: false, saveError: null, onboardingFinished: true);
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -618,6 +738,7 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
 
 final onboardingJourneyProvider =
     StateNotifierProvider<OnboardingJourneyNotifier, OnboardingJourneyState>((ref) {
-  return OnboardingJourneyNotifier();
+  final storage = ref.watch(onboardingStorageServiceProvider);
+  return OnboardingJourneyNotifier(storage.cachedStagedState);
 });
 

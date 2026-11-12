@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthSafetyRecord",
+  "description": "Standardized schema for drug-induced and herb-induced liver injury (LiverTox), toxicities, and food safety standards.",
+  "type": "object",
+  "required": [
+    "safety_id",
+    "agent_name",
+    "agent_type",
+    "source_id",
+    "livertox_likelihood_score"
+  ],
+  "properties": {
+    "safety_id": { "type": "string" },
+    "source_id": { "type": "string" },
+    "agent_name": { "type": "string" },
+    "agent_type": { "type": "string", "enum": ["pharmaceutical", "herbal_botanical", "dietary_supplement", "food_additive", "contaminant"] },
+    "cas_number": { "type": ["string", "null"] },
+    "livertox_likelihood_score": {
+      "type": "string",
+      "enum": [
+        "Category A: Well known cause of clinically apparent liver injury",
+        "Category B: Highly likely cause of clinically apparent liver injury",
+        "Category C: Probable cause of clinically apparent liver injury",
+        "Category D: Possible cause of clinically apparent liver injury",
+        "Category E: Unlikely cause of clinically apparent liver injury",
+        "Category E*: Suspected but unproven cause of liver injury",
+        "Category X: Unknown / Insufficient evidence"
+      ]
+    },
+    "pattern_of_injury": {
+      "type": ["string", "null"],
+      "description": "Hepatocellular, Cholestatic, Mixed, or Steatotic."
+    },
+    "latency_period": { "type": ["string", "null"] },
+    "clinical_presentation": { "type": ["string", "null"] },
+    "mechanism_of_toxicity": { "type": ["string", "null"] },
+    "recommended_monitoring": { "type": "array", "items": { "type": "string" } },
+    "contraindications": { "type": "array", "items": { "type": "string" } },
+    "food_safety_limits": {
+      "type": "object",
+      "properties": {
+        "mrl_ppm": { "type": ["number", "null"], "description": "Maximum Residue Limit in ppm" },
+        "adi_mg_per_kg": { "type": ["number", "null"], "description": "Acceptable Daily Intake in mg/kg bw" },
+        "jurisdiction": { "type": ["string", "null"] }
+      }
+    },
+    "reference_links": { "type": "array", "items": { "type": "string" } }
+  }
+}
+

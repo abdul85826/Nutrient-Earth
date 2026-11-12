@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NutrientEarthMedicineRecord",
+  "description": "Standardized schema for pharmaceutical products, active ingredients, SPL labels, and RxNorm concepts.",
+  "type": "object",
+  "required": [
+    "medicine_id",
+    "generic_name",
+    "active_ingredients",
+    "source_id"
+  ],
+  "properties": {
+    "medicine_id": { "type": "string" },
+    "source_id": { "type": "string", "enum": ["src_dailymed", "src_rxnorm", "src_medlineplus"] },
+    "generic_name": { "type": "string" },
+    "brand_names": { "type": "array", "items": { "type": "string" } },
+    "rxcui": { "type": ["string", "null"] },
+    "spl_set_id": { "type": ["string", "null"] },
+    "active_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "strength": { "type": ["string", "null"] },
+          "rxcui": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "dosage_forms": { "type": "array", "items": { "type": "string" } },
+    "routes_of_administration": { "type": "array", "items": { "type": "string" } },
+    "pharmacological_class": { "type": "array", "items": { "type": "string" } },
+    "boxed_warnings": { "type": "array", "items": { "type": "string" } },
+    "contraindications": { "type": "array", "items": { "type": "string" } },
+    "adverse_reactions": { "type": "array", "items": { "type": "string" } },
+    "drug_interactions": { "type": "array", "items": { "type": "string" } },
+    "food_and_herb_interactions": { "type": "array", "items": { "type": "string" } },
+    "label_source_url": { "type": "string", "format": "uri" },
+    "effective_date": { "type": ["string", "null"] }
+  }
+}
+

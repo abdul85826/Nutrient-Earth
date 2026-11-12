@@ -1,0 +1,231 @@
+{
+  "api_registry_version": "1.0.0",
+  "last_audited": "2026-11-11T17:35:00Z",
+  "apis": [
+    {
+      "source_id": "src_dailymed",
+      "name": "DailyMed REST API v2",
+      "base_url": "https://dailymed.nlm.nih.gov/dailymed/services/v2",
+      "documentation": "https://dailymed.nlm.nih.gov/dailymed/app-support-web-services.cfm",
+      "endpoints": {
+        "get_spls": "/spls.json",
+        "get_spl_detail": "/spls/{set_id}.json",
+        "get_drug_names": "/drugnames.json",
+        "get_ndcs": "/ndcs.json"
+      },
+      "auth_type": "none",
+      "rate_limit": "No strict published limit; recommended <= 3 req/sec",
+      "data_formats": ["JSON", "XML"]
+    },
+    {
+      "source_id": "src_rxnorm",
+      "name": "RxNav REST API",
+      "base_url": "https://rxnav.nlm.nih.gov/REST",
+      "documentation": "https://rxnav.nlm.nih.gov/RxNormAPI.html",
+      "endpoints": {
+        "version": "/version.json",
+        "find_rxcui_by_name": "/rxcui.json?name={name}",
+        "get_all_concepts_by_class": "/allconcepts.json?tty=IN",
+        "get_rxcui_properties": "/rxcui/{rxcui}/properties.json",
+        "get_drugs_by_name": "/drugs.json?name={name}"
+      },
+      "auth_type": "none",
+      "rate_limit": "20 requests per second maximum",
+      "data_formats": ["JSON", "XML"]
+    },
+    {
+      "source_id": "src_medlineplus",
+      "name": "MedlinePlus Web Service",
+      "base_url": "https://wsearch.nlm.nih.gov/ws/query",
+      "documentation": "https://medlineplus.gov/xml.html",
+      "endpoints": {
+        "query": "?db=healthTopics&term={term}&retmax={limit}"
+      },
+      "auth_type": "none",
+      "rate_limit": "No strict published limit; recommended <= 2 req/sec",
+      "data_formats": ["XML"]
+    },
+    {
+      "source_id": "src_livertox",
+      "name": "NCBI Bookshelf E-utilities API",
+      "base_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
+      "documentation": "https://www.ncbi.nlm.nih.gov/books/NBK25501/",
+      "endpoints": {
+        "esummary": "/esummary.fcgi?db=books&id={id}&retmode=json",
+        "esearch": "/esearch.fcgi?db=books&term=LiverTox+[book]+AND+{term}&retmode=json"
+      },
+      "auth_type": "api_key_optional",
+      "rate_limit": "3 req/sec without API key; 10 req/sec with free NCBI API key",
+      "data_formats": ["JSON", "XML"]
+    },
+    {
+      "source_id": "src_who",
+      "name": "WHO Global Health Observatory OData v4 API",
+      "base_url": "https://ghoapi.azureedge.net/api",
+      "documentation": "https://www.who.int/data/gho/info/gho-odata-api",
+      "endpoints": {
+        "dimensions": "/Dimension",
+        "indicators": "/Indicator",
+        "indicator_data": "/{indicator_code}"
+      },
+      "auth_type": "none",
+      "rate_limit": "Standard public Azure Edge CDN caching",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_openstax",
+      "name": "OpenStax CMS API",
+      "base_url": "https://openstax.org/apps/cms/api/v2",
+      "documentation": "https://openstax.org/details/books/anatomy-and-physiology-2e",
+      "endpoints": {
+        "book_detail": "/pages/?type=books.Book&slug=anatomy-and-physiology-2e"
+      },
+      "auth_type": "none",
+      "rate_limit": "Polite web rate limit <= 1 req/sec",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_osf",
+      "name": "Open Science Framework API v2",
+      "base_url": "https://api.osf.io/v2",
+      "documentation": "https://developer.osf.io/",
+      "endpoints": {
+        "nodes": "/nodes/?filter[title]={query}",
+        "node_detail": "/nodes/{node_id}/",
+        "files": "/nodes/{node_id}/files/"
+      },
+      "auth_type": "none_or_token",
+      "rate_limit": "100 requests per minute unauthenticated; 10,000 per day with personal token",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_zenodo",
+      "name": "Zenodo REST API",
+      "base_url": "https://zenodo.org/api",
+      "documentation": "https://developers.zenodo.org/",
+      "endpoints": {
+        "records": "/records?q={query}&size={size}&page={page}",
+        "record_detail": "/records/{id}"
+      },
+      "auth_type": "none_or_token",
+      "rate_limit": "60 requests per minute unauthenticated; 100 per minute with free personal token",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_gwas_catalog",
+      "name": "GWAS Catalog REST API v2",
+      "base_url": "https://www.ebi.ac.uk/gwas/rest/api/v2",
+      "documentation": "https://www.ebi.ac.uk/gwas/rest/docs/api",
+      "endpoints": {
+        "studies": "/studies?size={size}&page={page}",
+        "associations": "/associations?size={size}&page={page}",
+        "traits": "/efoTraits?size={size}"
+      },
+      "auth_type": "none",
+      "rate_limit": "Polite access <= 5 req/sec",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_clinvar",
+      "name": "NCBI ClinVar E-utilities",
+      "base_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
+      "documentation": "https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/",
+      "endpoints": {
+        "esearch": "/esearch.fcgi?db=clinvar&term={query}&retmode=json&retmax={limit}",
+        "esummary": "/esummary.fcgi?db=clinvar&id={ids}&retmode=json"
+      },
+      "auth_type": "api_key_optional",
+      "rate_limit": "3 req/sec unauthenticated; 10 req/sec with NCBI key",
+      "data_formats": ["JSON", "XML"]
+    },
+    {
+      "source_id": "src_ensembl",
+      "name": "Ensembl REST API",
+      "base_url": "https://rest.ensembl.org",
+      "documentation": "https://rest.ensembl.org/",
+      "endpoints": {
+        "ping": "/info/ping",
+        "lookup_symbol": "/lookup/symbol/homo_sapiens/{symbol}?content-type=application/json",
+        "vep_hgvs": "/vep/human/hgvs/{hgvs}?content-type=application/json"
+      },
+      "auth_type": "none",
+      "rate_limit": "15 requests per second maximum",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_clingen",
+      "name": "ClinGen Evidence Repository API",
+      "base_url": "https://erepo.clinicalgenome.org/evrepo/api",
+      "documentation": "https://erepo.clinicalgenome.org/evrepo/ui/api",
+      "endpoints": {
+        "interpretations": "/interpretations?size={size}&page={page}"
+      },
+      "auth_type": "none",
+      "rate_limit": "Polite access <= 2 req/sec",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_nasa",
+      "name": "NASA POWER Meteorological & Solar API",
+      "base_url": "https://power.larc.nasa.gov/api",
+      "documentation": "https://power.larc.nasa.gov/docs/services/api/v1/",
+      "endpoints": {
+        "temporal_daily_point": "/temporal/daily/point?parameters=T2M,RH2M,ALLSKY_SFC_SW_DWN&community=AG&longitude={lon}&latitude={lat}&start={start}&end={end}&format=JSON"
+      },
+      "auth_type": "none",
+      "rate_limit": "30 requests per minute",
+      "data_formats": ["JSON", "CSV"]
+    },
+    {
+      "source_id": "src_openstreetmap",
+      "name": "OpenStreetMap Nominatim API",
+      "base_url": "https://nominatim.openstreetmap.org",
+      "documentation": "https://nominatim.org/release-docs/latest/api/Overview/",
+      "endpoints": {
+        "search": "/search?q={query}&format=json&limit={limit}",
+        "reverse": "/reverse?lat={lat}&lon={lon}&format=json"
+      },
+      "auth_type": "none (Valid descriptive User-Agent mandatory)",
+      "rate_limit": "Strict maximum 1 request per second",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_open_meteo",
+      "name": "Open-Meteo Weather API",
+      "base_url": "https://api.open-meteo.com/v1",
+      "documentation": "https://open-meteo.com/en/docs",
+      "endpoints": {
+        "forecast": "/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m"
+      },
+      "auth_type": "none (Commercial SaaS requires subscription)",
+      "rate_limit": "10,000 requests per day for non-commercial evaluation",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_openaq",
+      "name": "OpenAQ API v3",
+      "base_url": "https://api.openaq.org/v3",
+      "documentation": "https://docs.openaq.org/",
+      "endpoints": {
+        "locations": "/locations?limit={limit}",
+        "measurements": "/sensors/{sensor_id}/measurements"
+      },
+      "auth_type": "api_key_required (Free registration at openaq.org)",
+      "rate_limit": "Depends on key tier (default free: 5 req/sec)",
+      "data_formats": ["JSON"]
+    },
+    {
+      "source_id": "src_india_gov",
+      "name": "Data.gov.in API Platform",
+      "base_url": "https://api.data.gov.in",
+      "documentation": "https://data.gov.in/developer",
+      "endpoints": {
+        "resource": "/resource/{resource_id}?api-key={key}&format=json&limit={limit}"
+      },
+      "auth_type": "api_key_required (Free registration at data.gov.in)",
+      "rate_limit": "10 requests per minute default",
+      "data_formats": ["JSON", "XML", "CSV"]
+    }
+  ]
+}
+

@@ -1,0 +1,9 @@
+1 View Research Paper Details 
+Legacy ID :  175689(Ay\ 
+Journal :  Scientific Reports 
+Year :  2015 
+Volume :  5 
+Issue :  - 
+Page :  - - - Abstract/ Summary/ Synopsis/ Outline : 
+Background :  The practice of Ayurveda, the traditional medicine of India, is based on the concept of three major constitutional types (Vata, Pitta and Kapha\ Prakriti. In the present study, we performed genome-wide SNP (single nucleotide polymorphism\ Affymetrix, 6.0\ male individuals (after screening 3416 subjects\ p = 1 &#215; 10-5\ between Prakritis, without any confounding effect of stratification, after 106 permutations. Principal component analysis (PCA\ classified 262 individuals into their respective groups (Vata, Pitta and Kapha\ categorization. We further validated our finding with 297 Indian population samples with known ancestry. Subsequently, we found that PGM1 correlates with phenotype of Pitta as described in the ancient text of Caraka Samhita, suggesting that the phenotypic classification of Indias traditional medicine has a genetic basis; and its Prakriti-based practice in vogue for many centuries resonates with personalized medicine. Keywords: URL (for Abstract/ Full paper\ https://www.nature.com/articles/srep15786 
+DOI :  10.1038/srep15786 Access : - Acknowledgment : -

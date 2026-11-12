@@ -12,6 +12,6 @@ class DailyImpactScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StitchScreenHostWidget(screenIndex: 6);
+    return StitchScreenHostWidget(screenIndex: 6, returnTo: returnTo);
   }
 }

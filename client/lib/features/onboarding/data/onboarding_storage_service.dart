@@ -17,17 +17,56 @@ class OnboardingStorageService {
   static const String _timestampKey = 'ne_staged_onboarding_timestamp';
   static const Duration maxAbandonmentWindow = Duration(hours: 48);
 
+  static SharedPreferences? _cachedPrefs;
+  static OnboardingJourneyState? _cachedStagedState;
+
   final SharedPreferences? _prefs;
 
   const OnboardingStorageService({SharedPreferences? prefs}) : _prefs = prefs;
 
+  /// Synchronous access to the active cached staged onboarding state
+  OnboardingJourneyState? get cachedStagedState => _cachedStagedState;
+
+  /// Synchronously returns whether the staged onboarding flow has been completed
+  bool get isOnboardingCompleted => _cachedStagedState?.onboardingFinished ?? false;
+
+  /// Pre-initializes SharedPreferences and rehydrates staged onboarding synchronously
+  static Future<void> initialize([SharedPreferences? prefs]) async {
+    try {
+      _cachedPrefs = prefs ?? await SharedPreferences.getInstance();
+      final timestamp = _cachedPrefs?.getInt(_timestampKey);
+      if (timestamp != null) {
+        final stagedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+        final age = DateTime.now().difference(stagedTime);
+        if (age <= maxAbandonmentWindow) {
+          final jsonStr = _cachedPrefs?.getString(_storageKey);
+          if (jsonStr != null && jsonStr.isNotEmpty) {
+            final decoded = jsonDecode(jsonStr);
+            if (decoded is Map<String, dynamic>) {
+              _cachedStagedState = OnboardingJourneyState.fromJson(decoded);
+              debugPrint('[OnboardingStorage] Pre-initialized with active staged onboarding.');
+            }
+          }
+        } else {
+          debugPrint('[OnboardingStorage] Staged onboarding expired on startup. Purging.');
+          await _cachedPrefs?.remove(_storageKey);
+          await _cachedPrefs?.remove(_timestampKey);
+          _cachedStagedState = null;
+        }
+      }
+    } catch (e) {
+      debugPrint('[OnboardingStorage] Initialization error: $e');
+    }
+  }
+
   Future<SharedPreferences> _getPrefs() async {
-    return _prefs ?? await SharedPreferences.getInstance();
+    return _prefs ?? _cachedPrefs ?? await SharedPreferences.getInstance();
   }
 
   /// Persists unauthenticated onboarding state to local storage with timestamp.
   Future<void> saveStagedOnboarding(OnboardingJourneyState state) async {
     try {
+      _cachedStagedState = state;
       final prefs = await _getPrefs();
       final jsonMap = state.toJson();
       final jsonStr = jsonEncode(jsonMap);
@@ -45,6 +84,7 @@ class OnboardingStorageService {
       final prefs = await _getPrefs();
       final timestamp = prefs.getInt(_timestampKey);
       if (timestamp == null) {
+        _cachedStagedState = null;
         return null;
       }
 
@@ -60,17 +100,22 @@ class OnboardingStorageService {
 
       final jsonStr = prefs.getString(_storageKey);
       if (jsonStr == null || jsonStr.isEmpty) {
+        _cachedStagedState = null;
         return null;
       }
 
       final decoded = jsonDecode(jsonStr);
       if (decoded is Map<String, dynamic>) {
         debugPrint('[OnboardingStorage] Restored active unauthenticated onboarding state.');
-        return OnboardingJourneyState.fromJson(decoded);
+        final state = OnboardingJourneyState.fromJson(decoded);
+        _cachedStagedState = state;
+        return state;
       }
+      _cachedStagedState = null;
       return null;
     } catch (e) {
       debugPrint('[OnboardingStorage] Error loading staged onboarding: $e');
+      _cachedStagedState = null;
       return null;
     }
   }
@@ -78,6 +123,7 @@ class OnboardingStorageService {
   /// Clears staged onboarding data from local storage upon completion or cancellation.
   Future<void> clearStagedOnboarding() async {
     try {
+      _cachedStagedState = null;
       final prefs = await _getPrefs();
       await prefs.remove(_storageKey);
       await prefs.remove(_timestampKey);

@@ -1,0 +1,59 @@
+[
+  [
+    "02050",
+    "conditioning exercise",
+    "resistance training, multiple exercises, 8-15 reps",
+    5.0,
+    [
+      "Quadriceps",
+      "Chest",
+      "Back",
+      "Core"
+    ]
+  ],
+  [
+    "17190",
+    "walking",
+    "walking, 3.0 mph, level, moderate pace, firm surface",
+    3.5,
+    [
+      "Calves",
+      "Hamstrings",
+      "Quadriceps"
+    ]
+  ],
+  [
+    "02150",
+    "conditioning exercise",
+    "yoga, Hatha or Vinyasa style, physical poses and pranayama",
+    2.5,
+    [
+      "Full-body stabilizers",
+      "Core",
+      "Spinal extensors"
+    ]
+  ],
+  [
+    "02010",
+    "bicycling",
+    "bicycling, stationary, moderate to vigorous effort (100-150W)",
+    6.8,
+    [
+      "Quadriceps",
+      "Gluteals",
+      "Calves"
+    ]
+  ],
+  [
+    "15675",
+    "running",
+    "running, 5.0 mph (12 min/mile)",
+    8.3,
+    [
+      "Quadriceps",
+      "Hamstrings",
+      "Gluteals",
+      "Cardiorespiratory"
+    ]
+  ]
+]
