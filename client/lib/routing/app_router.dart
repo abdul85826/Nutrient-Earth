@@ -37,6 +37,7 @@ import '../features/onboarding/presentation/screens/15_sleep_patterns_screen.dar
 import '../features/onboarding/presentation/screens/16_knowledge_level_screen.dart';
 import '../features/onboarding/presentation/screens/17_completion_screen.dart';
 import '../features/today/presentation/today_screen.dart';
+import '../features/profile/presentation/profile_settings_screen.dart';
 import '../features/today/presentation/widgets/input_processing_view.dart';
 import '../features/today/presentation/widgets/universal_reference_answer_card.dart';
 
@@ -163,7 +164,7 @@ String? appRouterRedirect(
     }
 
     // Authenticated users navigating to /auth or /welcome are automatically redirected forward
-    if (path == '/auth' || path == '/welcome' || path == '/onboarding/completion') {
+    if (path == '/auth' || path == '/welcome') {
       final returnTo = state.uri.queryParameters['returnTo'];
       if (returnTo != null && returnTo.isNotEmpty) {
         final decoded = Uri.decodeComponent(returnTo);
@@ -283,7 +284,9 @@ GoRouter createAppRouter({
       // Screen 08: Review Health Profile Phase 1 Checkpoint
       GoRoute(
         path: '/onboarding/review-phase1',
-        builder: (context, state) => const ReviewPhase1Screen(),
+        builder: (context, state) => ReviewPhase1Screen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
       ),
 
       // Screen 09: Personal Details
@@ -353,13 +356,25 @@ GoRouter createAppRouter({
       // Screen 17: Onboarding Completion
       GoRoute(
         path: '/onboarding/completion',
-        builder: (context, state) => const CompletionScreen(),
+        builder: (context, state) => CompletionScreen(
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
       ),
 
       // Screen 18: Today — Authenticated Evidence Hub
       GoRoute(
         path: '/today',
         builder: (context, state) => const TodayScreen(),
+      ),
+
+      // Profile & Account Settings
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileSettingsScreen(initialTab: 0),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const ProfileSettingsScreen(initialTab: 1),
       ),
 
       // Universal Multimodal Reference Processing View

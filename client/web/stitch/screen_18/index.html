@@ -110,7 +110,7 @@
 <span class="text-[9px] font-sans uppercase tracking-[0.12em] text-[#4F6359] font-bold mt-0.5">EVIDENCE COMPANION</span>
 </div>
 </div>
-<button aria-label="User profile" class="w-10 h-10 rounded-full bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.04)] flex items-center justify-center text-[#051F20] active:scale-95 transition-transform shrink-0" type="button">
+<button id="user-profile-btn" aria-label="User profile" class="w-10 h-10 rounded-full bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.04)] flex items-center justify-center text-[#051F20] active:scale-95 transition-transform shrink-0" type="button">
 <svg class="w-4.5 h-4.5 text-[#051F20]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 <circle cx="12" cy="7" r="4"></circle>
@@ -122,7 +122,7 @@
 <div class="flex items-center justify-between gap-3">
 <div class="space-y-1 z-10 flex-1 min-w-0 pr-1">
 <span class="text-[11px] font-sans uppercase tracking-[0.08em] text-[#4F6359] font-bold block">MONDAY, 14 OCT 2026</span>
-<h2 class="font-serif text-[26px] leading-[1.16] font-semibold text-[#051F20] tracking-tight">Good morning, Sarah.</h2>
+<h2 id="today-greeting-heading" class="font-serif text-[26px] leading-[1.16] font-semibold text-[#051F20] tracking-tight">Good morning, Explorer.</h2>
 <p class="text-[14px] text-[#4F6359] leading-snug font-medium pt-0.5">Let's find evidence-based answers for a healthier you.</p>
 </div>
 <div class="relative shrink-0 flex items-center justify-center">
@@ -355,6 +355,26 @@
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
     console.log('[Stitch] Screen 18 loaded');
+
+    // Profile Navigation & Dynamic Greeting
+    var searchParams = new URLSearchParams(window.location.search);
+    var userName = searchParams.get('name') || '';
+    try {
+      if (!userName) userName = sessionStorage.getItem('ne_first_name') || '';
+    } catch (_) {}
+    if (userName && userName.trim().length > 0) {
+      var greetingEl = document.getElementById('today-greeting-heading');
+      if (greetingEl) greetingEl.textContent = 'Good morning, ' + userName.trim() + '.';
+    }
+
+    var profileBtn = document.getElementById('user-profile-btn') || document.querySelector('button[aria-label="User profile"]');
+    if (profileBtn) {
+      profileBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.NEBridge.navigate('/profile');
+      });
+    }
+
 
     document.querySelectorAll('button').forEach(function(btn) {
       var text = btn.innerText.trim();

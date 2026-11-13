@@ -18,6 +18,7 @@ import '../../../features/today/state/today_state.dart';
 import '../../services/auth_destination_resolver.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_repository.dart';
+import '../../domain/personalization/user_profile_context.dart';
 import '../../services/profile_sync_service.dart';
 import '../../services/task_repository.dart';
 import 'stitch_view_interface.dart';
@@ -164,6 +165,15 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       if (journey.activityLevel.isNotEmpty) params['activity'] = journey.activityLevel;
       if (journey.sleepQuality.isNotEmpty) params['sleep'] = journey.sleepQuality;
       if (journey.knowledgeLevel.isNotEmpty) params['knowledge'] = journey.knowledgeLevel;
+    } else if (widget.screenIndex == 18) {
+      if (journey.firstName.trim().isNotEmpty) {
+        params['name'] = journey.firstName.trim();
+      } else {
+        final cached = ref.read(profileRepositoryProvider).getCachedProfileSync(ref.read(authServiceProvider).currentUser?.id);
+        if (cached != null && cached.displayName.trim().isNotEmpty && cached.displayName != 'User') {
+          params['name'] = cached.displayName.trim();
+        }
+      }
     }
 
     final query = params.isNotEmpty ? '?${Uri(queryParameters: params).query}' : '';
@@ -172,6 +182,69 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
 
   @visibleForTesting
   Future<void> handleStitchMessageForTesting(Map<String, dynamic> msg) => _handleStitchMessage(msg);
+
+  Future<void> _handlePostSaveNavigation(String defaultNextRoute) async {
+    final authService = ref.read(authServiceProvider);
+    final user = authService.currentUser;
+    final isEditingProfile = widget.returnTo == '/profile';
+
+    if (isEditingProfile && authService.isAuthenticated && user != null) {
+      try {
+        final journey = ref.read(onboardingJourneyProvider);
+        final profileRepo = ref.read(profileRepositoryProvider);
+        final existing = await profileRepo.getCurrentUserProfile(explicitUserId: user.id);
+
+        final primaryGoalsList = journey.healthGoals.isNotEmpty
+            ? journey.healthGoals.toList()
+            : (journey.prioritizedConcerns.isNotEmpty
+                ? journey.prioritizedConcerns.toList()
+                : (existing?.primaryGoals ?? <String>[]));
+
+        final knownConditionsList = <String>[
+          ...journey.difficulties.map((d) => 'Difficulty: $d'),
+          ...journey.allergens.map((a) => 'Allergy: $a'),
+        ];
+        if (journey.customAllergen.trim().isNotEmpty) {
+          knownConditionsList.add('Allergy: ${journey.customAllergen.trim()}');
+        }
+
+        final profile = UserProfileContext(
+          userId: user.id.trim(),
+          displayName: journey.firstName.trim().isNotEmpty
+              ? journey.firstName.trim()
+              : (existing?.displayName ?? 'Explorer'),
+          age: journey.age > 0 ? journey.age : (existing?.age ?? 0),
+          biologicalSex: existing?.biologicalSex ?? 'unspecified',
+          primaryGoals: primaryGoalsList,
+          activityLevel: journey.activityLevel.isNotEmpty ? journey.activityLevel : (existing?.activityLevel ?? ''),
+          dietaryPreference: journey.dietaryPattern.isNotEmpty ? journey.dietaryPattern : (existing?.dietaryPreference ?? ''),
+          budgetConstraint: existing?.budgetConstraint ?? '',
+          willingnessToChange: existing?.willingnessToChange ?? '',
+          knownConditions: knownConditionsList.isNotEmpty ? knownConditionsList : (existing?.knownConditions ?? const []),
+          activeSupplements: existing?.activeSupplements ?? const [],
+          allergies: journey.allergens.isNotEmpty ? journey.allergens.toList() : (existing?.allergies ?? const []),
+          heightCm: journey.heightCm ?? existing?.heightCm,
+          weightKg: journey.weightSkipped ? null : (journey.weightKg ?? existing?.weightKg),
+          eatingRoutine: journey.eatingRoutine.isNotEmpty ? journey.eatingRoutine : (existing?.eatingRoutine ?? ''),
+          sleepQuality: journey.sleepQuality.isNotEmpty ? journey.sleepQuality : (existing?.sleepQuality ?? ''),
+          knowledgeLevel: journey.knowledgeLevel.isNotEmpty ? journey.knowledgeLevel : (existing?.knowledgeLevel ?? ''),
+          difficulties: journey.difficulties.isNotEmpty ? journey.difficulties.toList() : (existing?.difficulties ?? const []),
+          difficultiesNote: journey.difficultiesNote.isNotEmpty ? journey.difficultiesNote : (existing?.difficultiesNote ?? ''),
+          dailyImpacts: journey.dailyImpacts.isNotEmpty ? journey.dailyImpacts : (existing?.dailyImpacts ?? const {}),
+          onboardingCompleted: true,
+        );
+
+        await profileRepo.saveUserProfile(profile);
+      } catch (e) {
+        debugPrint('[StitchScreenHost] Error synchronizing profile update: $e');
+      }
+    }
+
+    final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
+        ? widget.returnTo!
+        : defaultNextRoute;
+    if (mounted) context.go(next);
+  }
 
   Future<void> _handleStitchMessage(Map<String, dynamic> msg) async {
     final type = msg['type'] as String? ?? '';
@@ -486,10 +559,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           notifier.setCustomPrimaryConcern(customConcern.trim());
         }
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/difficulties');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/difficulties');
         break;
 
       case 'SAVE_DIFFICULTIES':
@@ -502,10 +572,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           notifier.setDifficultiesNote(note);
         }
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/daily-impact');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/daily-impact');
         break;
 
       case 'SAVE_DAILY_IMPACTS':
@@ -535,10 +602,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
             }
           }
           await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-          final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-              ? widget.returnTo!
-              : (msg['nextRoute'] as String? ?? '/onboarding/food-choices');
-          if (mounted) context.go(next);
+          await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/food-choices');
         } catch (e) {
           debugPrint('[StitchScreenHost] Error saving daily impacts: $e');
           if (mounted) {
@@ -568,20 +632,14 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           notifier.setFoodsToAvoid(rawAvoid.map((e) => e.toString()).toSet());
         }
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/review-phase1');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/review-phase1');
         break;
 
       case 'CONFIRM_PHASE1':
       case 'SAVE_STEP_08':
         notifier.setPhase1Reviewed(true);
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/personal-details');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/personal-details');
         break;
 
       case 'SAVE_PERSONAL_DETAILS':
@@ -590,10 +648,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         final age = (msg['age'] as num?)?.toInt() ?? 25;
         notifier.setPersonalDetails(name: name, age: age);
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/body-measurements');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/body-measurements');
         break;
 
       case 'SAVE_MEASUREMENTS':
@@ -611,10 +666,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           weightSkipped: weightSkipped,
         );
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/health-concerns');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/health-concerns');
         break;
 
       case 'SAVE_CONCERNS':
@@ -624,10 +676,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           notifier.setPrioritizedConcerns(rawConcerns.map((e) => e.toString()).toSet());
         }
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/food-restrictions');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/food-restrictions');
         break;
 
       case 'SAVE_RESTRICTIONS':
@@ -646,10 +695,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           }
         }
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/eating-routine');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/eating-routine');
         break;
 
       case 'SAVE_EATING_ROUTINE':
@@ -657,10 +703,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         final routine = msg['routine'] as String?;
         if (routine != null) notifier.setEatingRoutine(routine);
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/daily-activity');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/daily-activity');
         break;
 
       case 'SAVE_ACTIVITY_LEVEL':
@@ -668,10 +711,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         final level = msg['level'] as String?;
         if (level != null) notifier.setActivityLevel(level);
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/sleep-patterns');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/sleep-patterns');
         break;
 
       case 'SAVE_SLEEP_QUALITY':
@@ -679,10 +719,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         final quality = msg['quality'] as String?;
         if (quality != null) notifier.setSleepQuality(quality);
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/knowledge-level');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/knowledge-level');
         break;
 
       case 'SAVE_KNOWLEDGE_LEVEL':
@@ -690,10 +727,7 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         final level = msg['level'] as String?;
         if (level != null) notifier.setKnowledgeLevel(level);
         await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        final next = (widget.returnTo != null && widget.returnTo!.isNotEmpty)
-            ? widget.returnTo!
-            : (msg['nextRoute'] as String? ?? '/onboarding/completion');
-        if (mounted) context.go(next);
+        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/completion');
         break;
 
       case 'COMPLETE_ONBOARDING':

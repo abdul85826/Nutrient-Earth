@@ -117,7 +117,7 @@
 <header class="fixed top-0 inset-x-0 z-50 bg-[#FBF9F4]/90 backdrop-blur-md pt-safe border-b border-warm-border/60">
 <title>Nutrient Earth — Health Goals</title>
 <div class="h-16 px-4 flex items-center justify-between gap-3 max-w-md mx-auto">
-<button aria-label="Go back" class="min-w-[48px] min-h-[48px] w-12 h-12 rounded-full flex items-center justify-center text-stone-800 hover:bg-stone-200/50 active:scale-95 transition-all" onclick="history.back()">
+<button aria-label="Go back" class="min-w-[48px] min-h-[48px] w-12 h-12 rounded-full flex items-center justify-center text-stone-800 hover:bg-stone-200/50 active:scale-95 transition-all" id="header-back-btn">
 <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
 </button>
 <div class="flex-1 flex flex-col items-center justify-center text-center px-1">
@@ -738,7 +738,7 @@
         window.NEBridge.send('SAVE_GOALS', {
           goals: selected,
           customConcern: customConcern,
-          nextRoute: '/onboarding/difficulties'
+          nextRoute: returnTo || '/onboarding/difficulties'
         });
       });
     }
@@ -746,7 +746,7 @@
     if (backBtn) {
       backBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        window.NEBridge.navigate('/welcome');
+        window.NEBridge.navigate(returnTo || '/welcome');
       });
     }
   }
