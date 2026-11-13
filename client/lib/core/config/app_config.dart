@@ -18,6 +18,9 @@ class AppConfig {
     _configMap = {};
   }
 
+  static bool get isInitialized =>
+      _configMap.isNotEmpty || (dotenv.isInitialized && supabaseUrl.isNotEmpty);
+
   static const int defaultDevWebPort = 3000;
   static const String defaultDevOrigin = 'http://localhost:$defaultDevWebPort';
   static const String defaultProdOrigin = 'https://www.nutrientearth.win';
