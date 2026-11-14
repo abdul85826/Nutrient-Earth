@@ -1,17 +1,16 @@
 // ==============================================================================
 // Nutrient Earth — App Router (GoRouter)
-// Unified router providing clean routing to the canonical HomeScreen.
+// Clean entry point with zero screens loaded, ready for fresh screen additions.
 // ==============================================================================
 
 import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/config/supabase_config.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/profile_repository.dart';
-import '../features/home/presentation/home_screen.dart';
 import '../features/onboarding/data/onboarding_storage_service.dart';
 import '../features/onboarding/state/onboarding_journey_state.dart';
 
@@ -76,11 +75,10 @@ GoRouter createAppRouter({
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const Scaffold(
+          backgroundColor: Color(0xFFFBF9F4),
+          body: SizedBox.shrink(),
+        ),
       ),
     ],
   );
