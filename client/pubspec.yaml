@@ -73,24 +73,6 @@ flutter:
   assets:
     - assets/
     - assets/images/
-    - assets/stitch/screen_01/
-    - assets/stitch/screen_02/
-    - assets/stitch/screen_03/
-    - assets/stitch/screen_04/
-    - assets/stitch/screen_05/
-    - assets/stitch/screen_06/
-    - assets/stitch/screen_07/
-    - assets/stitch/screen_08/
-    - assets/stitch/screen_09/
-    - assets/stitch/screen_10/
-    - assets/stitch/screen_11/
-    - assets/stitch/screen_12/
-    - assets/stitch/screen_13/
-    - assets/stitch/screen_14/
-    - assets/stitch/screen_15/
-    - assets/stitch/screen_16/
-    - assets/stitch/screen_17/
-    - assets/stitch/screen_18/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

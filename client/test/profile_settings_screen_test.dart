@@ -11,7 +11,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:nutrient_earth_client/core/domain/personalization/user_profile_context.dart';
 import 'package:nutrient_earth_client/core/services/auth_service.dart';
