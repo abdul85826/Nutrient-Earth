@@ -4,24 +4,11 @@
   "outputDirectory": "build/web",
   "rewrites": [
     {
-      "source": "/stitch/:screen/index.html",
-      "destination": "/stitch/:screen/"
-    },
-    {
-      "source": "/((?!assets/|canvaskit/|stitch/|icons/|.*\\.[a-zA-Z0-9]+$).*)",
+      "source": "/((?!assets/|canvaskit/|icons/|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
-    {
-      "source": "/stitch/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Content-Security-Policy", "value": "frame-ancestors 'self'" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    },
     {
       "source": "/(.*)",
       "headers": [

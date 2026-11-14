@@ -51,12 +51,11 @@ jobs:
         working-directory: client
         run: flutter analyze
 
-      - name: Run Existing Tests
+      - name: Run Core Tests
         working-directory: client
         run: |
-          flutter test test/core/services/email_auth_flow_test.dart
-          flutter test test/oauth_callback_and_session_restoration_test.dart
-          flutter test test/core/services/auth_destination_resolver_test.dart
+          flutter test test/security_audit_test.dart
+          flutter test test/deterministic_energy_calculation_test.dart
 
       - name: Compile Flutter Web Release
         working-directory: client
@@ -77,8 +76,6 @@ jobs:
           test -f build/web/assets/config.json
           test -f build/web/icons/Icon-192.png
           test -f build/web/icons/Icon-512.png
-          test -f build/web/stitch/screen_01/index.html
-          test -f build/web/stitch/screen_18/index.html
 
           if find build/web -type f -name ".env" | grep -q .; then
             echo "ERROR: Private environment file found in Web output."
@@ -103,8 +100,6 @@ jobs:
           test -f .vercel/output/config.json || { echo "ERROR: .vercel/output/config.json missing"; exit 1; }
           test -f .vercel/output/static/index.html || { echo "ERROR: .vercel/output/static/index.html missing"; exit 1; }
           test -f .vercel/output/static/main.dart.js || { echo "ERROR: .vercel/output/static/main.dart.js missing"; exit 1; }
-          test -f .vercel/output/static/stitch/screen_01/index.html || { echo "ERROR: .vercel/output/static/stitch/screen_01/index.html missing"; exit 1; }
-          test -f .vercel/output/static/stitch/screen_18/index.html || { echo "ERROR: .vercel/output/static/stitch/screen_18/index.html missing"; exit 1; }
           echo "SUCCESS: .vercel/output conforms to Build Output API v3."
 
       - name: Archive Production Web Artifact

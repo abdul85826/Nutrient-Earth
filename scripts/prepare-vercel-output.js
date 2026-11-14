@@ -104,16 +104,6 @@ const config = {
       continue: true
     },
     {
-      src: '^/stitch/(.*)$',
-      headers: {
-        'x-content-type-options': 'nosniff',
-        'x-frame-options': 'SAMEORIGIN',
-        'content-security-policy': "frame-ancestors 'self'",
-        'referrer-policy': 'strict-origin-when-cross-origin'
-      },
-      continue: true
-    },
-    {
       src: '^/(.*)$',
       headers: {
         'x-content-type-options': 'nosniff',
@@ -125,14 +115,10 @@ const config = {
       continue: true
     },
     {
-      src: '^/stitch/(screen_[0-9]+)/index\\.html$',
-      dest: '/stitch/$1/'
-    },
-    {
       handle: 'filesystem'
     },
     {
-      src: '^/((?!assets/|canvaskit/|stitch/|icons/|.*\\.[a-zA-Z0-9]+$).*)$',
+      src: '^/((?!assets/|canvaskit/|icons/|.*\\.[a-zA-Z0-9]+$).*)$',
       dest: '/index.html'
     }
   ]
@@ -160,6 +146,4 @@ console.log(`  - config.json: Valid Build Output API v3 specification.`);
 console.log(`  - static/: ${totalFiles} static files prepared.`);
 console.log(`  - index.html: ${fs.existsSync(path.join(vercelStaticDir, 'index.html'))}`);
 console.log(`  - main.dart.js: ${fs.existsSync(path.join(vercelStaticDir, 'main.dart.js'))}`);
-console.log(`  - stitch/screen_01/index.html: ${fs.existsSync(path.join(vercelStaticDir, 'stitch', 'screen_01', 'index.html'))}`);
-console.log(`  - stitch/screen_18/index.html: ${fs.existsSync(path.join(vercelStaticDir, 'stitch', 'screen_18', 'index.html'))}`);
 
