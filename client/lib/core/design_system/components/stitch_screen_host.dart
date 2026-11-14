@@ -37,10 +37,12 @@ class StitchScreenHostWidget extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<StitchScreenHostWidget> createState() => _StitchScreenHostWidgetState();
+  ConsumerState<StitchScreenHostWidget> createState() =>
+      _StitchScreenHostWidgetState();
 }
 
-class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget> {
+class _StitchScreenHostWidgetState
+    extends ConsumerState<StitchScreenHostWidget> {
   late final StitchViewPlatform _platformView;
   bool _isAuthenticating = false;
   String _authLoadingMessage = 'Connecting with Google...';
@@ -115,18 +117,34 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         params['avoid'] = journey.foodsToAvoid.join(',');
       }
     } else if (widget.screenIndex == 8) {
-      if (journey.healthGoals.isNotEmpty) params['goals'] = journey.healthGoals.join(',');
-      if (journey.difficulties.isNotEmpty) params['difficulties'] = journey.difficulties.join(',');
-      if (journey.dietaryPattern.isNotEmpty) params['pattern'] = journey.dietaryPattern;
-      if (journey.foodIntolerances.isNotEmpty) params['intolerances'] = journey.foodIntolerances.join(',');
-      if (journey.foodsToAvoid.isNotEmpty) params['avoid'] = journey.foodsToAvoid.join(',');
-      if (journey.dailyImpacts.isNotEmpty) params['impacts'] = jsonEncode(journey.dailyImpacts);
+      if (journey.healthGoals.isNotEmpty) {
+        params['goals'] = journey.healthGoals.join(',');
+      }
+      if (journey.difficulties.isNotEmpty) {
+        params['difficulties'] = journey.difficulties.join(',');
+      }
+      if (journey.dietaryPattern.isNotEmpty) {
+        params['pattern'] = journey.dietaryPattern;
+      }
+      if (journey.foodIntolerances.isNotEmpty) {
+        params['intolerances'] = journey.foodIntolerances.join(',');
+      }
+      if (journey.foodsToAvoid.isNotEmpty) {
+        params['avoid'] = journey.foodsToAvoid.join(',');
+      }
+      if (journey.dailyImpacts.isNotEmpty) {
+        params['impacts'] = jsonEncode(journey.dailyImpacts);
+      }
     } else if (widget.screenIndex == 9) {
       if (journey.firstName.isNotEmpty) params['name'] = journey.firstName;
       if (journey.age > 0) params['age'] = journey.age.toString();
     } else if (widget.screenIndex == 10) {
-      if (journey.heightCm != null) params['heightCm'] = journey.heightCm.toString();
-      if (journey.weightKg != null) params['weightKg'] = journey.weightKg.toString();
+      if (journey.heightCm != null) {
+        params['heightCm'] = journey.heightCm.toString();
+      }
+      if (journey.weightKg != null) {
+        params['weightKg'] = journey.weightKg.toString();
+      }
       params['heightUnit'] = journey.heightUnit;
       params['weightUnit'] = journey.weightUnit;
       if (journey.weightSkipped) params['weightSkipped'] = 'true';
@@ -135,53 +153,104 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         params['concerns'] = journey.prioritizedConcerns.join(',');
       }
     } else if (widget.screenIndex == 12) {
-      if (journey.strictlyNoRestrictions) params['strictlyNoRestrictions'] = 'true';
-      if (journey.allergens.isNotEmpty) params['allergens'] = journey.allergens.join(',');
-      if (journey.customAllergen.isNotEmpty) params['customAllergen'] = journey.customAllergen;
+      if (journey.strictlyNoRestrictions) {
+        params['strictlyNoRestrictions'] = 'true';
+      }
+      if (journey.allergens.isNotEmpty) {
+        params['allergens'] = journey.allergens.join(',');
+      }
+      if (journey.customAllergen.isNotEmpty) {
+        params['customAllergen'] = journey.customAllergen;
+      }
     } else if (widget.screenIndex == 13) {
-      if (journey.eatingRoutine.isNotEmpty) params['routine'] = journey.eatingRoutine;
+      if (journey.eatingRoutine.isNotEmpty) {
+        params['routine'] = journey.eatingRoutine;
+      }
     } else if (widget.screenIndex == 14) {
-      if (journey.activityLevel.isNotEmpty) params['level'] = journey.activityLevel;
+      if (journey.activityLevel.isNotEmpty) {
+        params['level'] = journey.activityLevel;
+      }
     } else if (widget.screenIndex == 15) {
-      if (journey.sleepQuality.isNotEmpty) params['quality'] = journey.sleepQuality;
+      if (journey.sleepQuality.isNotEmpty) {
+        params['quality'] = journey.sleepQuality;
+      }
     } else if (widget.screenIndex == 16) {
-      if (journey.knowledgeLevel.isNotEmpty) params['level'] = journey.knowledgeLevel;
+      if (journey.knowledgeLevel.isNotEmpty) {
+        params['level'] = journey.knowledgeLevel;
+      }
     } else if (widget.screenIndex == 17) {
-      if (journey.healthGoals.isNotEmpty) params['goals'] = journey.healthGoals.join(',');
-      if (journey.difficulties.isNotEmpty) params['difficulties'] = journey.difficulties.join(',');
-      if (journey.dailyImpacts.isNotEmpty) params['impacts'] = jsonEncode(journey.dailyImpacts);
-      if (journey.dietaryPattern.isNotEmpty) params['pattern'] = journey.dietaryPattern;
-      if (journey.foodIntolerances.isNotEmpty) params['intolerances'] = journey.foodIntolerances.join(',');
-      if (journey.foodsToAvoid.isNotEmpty) params['avoid'] = journey.foodsToAvoid.join(',');
+      if (journey.healthGoals.isNotEmpty) {
+        params['goals'] = journey.healthGoals.join(',');
+      }
+      if (journey.difficulties.isNotEmpty) {
+        params['difficulties'] = journey.difficulties.join(',');
+      }
+      if (journey.dailyImpacts.isNotEmpty) {
+        params['impacts'] = jsonEncode(journey.dailyImpacts);
+      }
+      if (journey.dietaryPattern.isNotEmpty) {
+        params['pattern'] = journey.dietaryPattern;
+      }
+      if (journey.foodIntolerances.isNotEmpty) {
+        params['intolerances'] = journey.foodIntolerances.join(',');
+      }
+      if (journey.foodsToAvoid.isNotEmpty) {
+        params['avoid'] = journey.foodsToAvoid.join(',');
+      }
       if (journey.firstName.isNotEmpty) params['name'] = journey.firstName;
       if (journey.age > 0) params['age'] = journey.age.toString();
-      if (journey.heightCm != null) params['heightCm'] = journey.heightCm.toString();
-      if (journey.weightKg != null) params['weightKg'] = journey.weightKg.toString();
-      if (journey.prioritizedConcerns.isNotEmpty) params['concerns'] = journey.prioritizedConcerns.join(',');
-      if (journey.strictlyNoRestrictions) params['strictlyNoRestrictions'] = 'true';
-      if (journey.allergens.isNotEmpty) params['allergens'] = journey.allergens.join(',');
-      if (journey.customAllergen.isNotEmpty) params['customAllergen'] = journey.customAllergen;
-      if (journey.eatingRoutine.isNotEmpty) params['routine'] = journey.eatingRoutine;
-      if (journey.activityLevel.isNotEmpty) params['activity'] = journey.activityLevel;
-      if (journey.sleepQuality.isNotEmpty) params['sleep'] = journey.sleepQuality;
-      if (journey.knowledgeLevel.isNotEmpty) params['knowledge'] = journey.knowledgeLevel;
+      if (journey.heightCm != null) {
+        params['heightCm'] = journey.heightCm.toString();
+      }
+      if (journey.weightKg != null) {
+        params['weightKg'] = journey.weightKg.toString();
+      }
+      if (journey.prioritizedConcerns.isNotEmpty) {
+        params['concerns'] = journey.prioritizedConcerns.join(',');
+      }
+      if (journey.strictlyNoRestrictions) {
+        params['strictlyNoRestrictions'] = 'true';
+      }
+      if (journey.allergens.isNotEmpty) {
+        params['allergens'] = journey.allergens.join(',');
+      }
+      if (journey.customAllergen.isNotEmpty) {
+        params['customAllergen'] = journey.customAllergen;
+      }
+      if (journey.eatingRoutine.isNotEmpty) {
+        params['routine'] = journey.eatingRoutine;
+      }
+      if (journey.activityLevel.isNotEmpty) {
+        params['activity'] = journey.activityLevel;
+      }
+      if (journey.sleepQuality.isNotEmpty) {
+        params['sleep'] = journey.sleepQuality;
+      }
+      if (journey.knowledgeLevel.isNotEmpty) {
+        params['knowledge'] = journey.knowledgeLevel;
+      }
     } else if (widget.screenIndex == 18) {
       if (journey.firstName.trim().isNotEmpty) {
         params['name'] = journey.firstName.trim();
       } else {
-        final cached = ref.read(profileRepositoryProvider).getCachedProfileSync(ref.read(authServiceProvider).currentUser?.id);
-        if (cached != null && cached.displayName.trim().isNotEmpty && cached.displayName != 'User') {
+        final cached = ref.read(profileRepositoryProvider).getCachedProfileSync(
+            ref.read(authServiceProvider).currentUser?.id);
+        if (cached != null &&
+            cached.displayName.trim().isNotEmpty &&
+            cached.displayName != 'User') {
           params['name'] = cached.displayName.trim();
         }
       }
     }
 
-    final query = params.isNotEmpty ? '?${Uri(queryParameters: params).query}' : '';
+    final query =
+        params.isNotEmpty ? '?${Uri(queryParameters: params).query}' : '';
     return 'stitch/screen_$idxStr/$query';
   }
 
   @visibleForTesting
-  Future<void> handleStitchMessageForTesting(Map<String, dynamic> msg) => _handleStitchMessage(msg);
+  Future<void> handleStitchMessageForTesting(Map<String, dynamic> msg) =>
+      _handleStitchMessage(msg);
 
   Future<void> _handlePostSaveNavigation(String defaultNextRoute) async {
     final authService = ref.read(authServiceProvider);
@@ -192,7 +261,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       try {
         final journey = ref.read(onboardingJourneyProvider);
         final profileRepo = ref.read(profileRepositoryProvider);
-        final existing = await profileRepo.getCurrentUserProfile(explicitUserId: user.id);
+        final existing =
+            await profileRepo.getCurrentUserProfile(explicitUserId: user.id);
 
         final primaryGoalsList = journey.healthGoals.isNotEmpty
             ? journey.healthGoals.toList()
@@ -216,21 +286,43 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           age: journey.age > 0 ? journey.age : (existing?.age ?? 0),
           biologicalSex: existing?.biologicalSex ?? 'unspecified',
           primaryGoals: primaryGoalsList,
-          activityLevel: journey.activityLevel.isNotEmpty ? journey.activityLevel : (existing?.activityLevel ?? ''),
-          dietaryPreference: journey.dietaryPattern.isNotEmpty ? journey.dietaryPattern : (existing?.dietaryPreference ?? ''),
+          activityLevel: journey.activityLevel.isNotEmpty
+              ? journey.activityLevel
+              : (existing?.activityLevel ?? ''),
+          dietaryPreference: journey.dietaryPattern.isNotEmpty
+              ? journey.dietaryPattern
+              : (existing?.dietaryPreference ?? ''),
           budgetConstraint: existing?.budgetConstraint ?? '',
           willingnessToChange: existing?.willingnessToChange ?? '',
-          knownConditions: knownConditionsList.isNotEmpty ? knownConditionsList : (existing?.knownConditions ?? const []),
+          knownConditions: knownConditionsList.isNotEmpty
+              ? knownConditionsList
+              : (existing?.knownConditions ?? const []),
           activeSupplements: existing?.activeSupplements ?? const [],
-          allergies: journey.allergens.isNotEmpty ? journey.allergens.toList() : (existing?.allergies ?? const []),
+          allergies: journey.allergens.isNotEmpty
+              ? journey.allergens.toList()
+              : (existing?.allergies ?? const []),
           heightCm: journey.heightCm ?? existing?.heightCm,
-          weightKg: journey.weightSkipped ? null : (journey.weightKg ?? existing?.weightKg),
-          eatingRoutine: journey.eatingRoutine.isNotEmpty ? journey.eatingRoutine : (existing?.eatingRoutine ?? ''),
-          sleepQuality: journey.sleepQuality.isNotEmpty ? journey.sleepQuality : (existing?.sleepQuality ?? ''),
-          knowledgeLevel: journey.knowledgeLevel.isNotEmpty ? journey.knowledgeLevel : (existing?.knowledgeLevel ?? ''),
-          difficulties: journey.difficulties.isNotEmpty ? journey.difficulties.toList() : (existing?.difficulties ?? const []),
-          difficultiesNote: journey.difficultiesNote.isNotEmpty ? journey.difficultiesNote : (existing?.difficultiesNote ?? ''),
-          dailyImpacts: journey.dailyImpacts.isNotEmpty ? journey.dailyImpacts : (existing?.dailyImpacts ?? const {}),
+          weightKg: journey.weightSkipped
+              ? null
+              : (journey.weightKg ?? existing?.weightKg),
+          eatingRoutine: journey.eatingRoutine.isNotEmpty
+              ? journey.eatingRoutine
+              : (existing?.eatingRoutine ?? ''),
+          sleepQuality: journey.sleepQuality.isNotEmpty
+              ? journey.sleepQuality
+              : (existing?.sleepQuality ?? ''),
+          knowledgeLevel: journey.knowledgeLevel.isNotEmpty
+              ? journey.knowledgeLevel
+              : (existing?.knowledgeLevel ?? ''),
+          difficulties: journey.difficulties.isNotEmpty
+              ? journey.difficulties.toList()
+              : (existing?.difficulties ?? const []),
+          difficultiesNote: journey.difficultiesNote.isNotEmpty
+              ? journey.difficultiesNote
+              : (existing?.difficultiesNote ?? ''),
+          dailyImpacts: journey.dailyImpacts.isNotEmpty
+              ? journey.dailyImpacts
+              : (existing?.dailyImpacts ?? const {}),
           onboardingCompleted: true,
         );
 
@@ -248,7 +340,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
 
   Future<void> _handleStitchMessage(Map<String, dynamic> msg) async {
     final type = msg['type'] as String? ?? '';
-    debugPrint('[StitchScreenHost] Screen ${widget.screenIndex} received: $type => $msg');
+    debugPrint(
+        '[StitchScreenHost] Screen ${widget.screenIndex} received: $type => $msg');
 
     if (widget.onAction != null) {
       widget.onAction!(type, msg);
@@ -262,7 +355,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         if (route != null && mounted) {
           if (widget.screenIndex == 3 && route == '/welcome') {
             // Screen 03 Back button: if in signup mode or completed onboarding, return to completion screen
-            final isSignin = GoRouterState.of(context).uri.queryParameters['mode'] == 'signin';
+            final isSignin =
+                GoRouterState.of(context).uri.queryParameters['mode'] ==
+                    'signin';
             if (!isSignin) {
               route = '/onboarding/completion';
             }
@@ -273,7 +368,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               final user = authService.currentUser;
               if (user != null) {
                 final profileRepo = ref.read(profileRepositoryProvider);
-                final existingProfile = await profileRepo.getCurrentUserProfile(explicitUserId: user.id);
+                final existingProfile = await profileRepo.getCurrentUserProfile(
+                    explicitUserId: user.id);
                 if (existingProfile != null) {
                   notifier.hydrateFromProfile(existingProfile);
                 }
@@ -288,7 +384,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               }
             } else {
               // Unauthenticated visitor: restore any active in-flight onboarding progress
-              final staged = await ref.read(onboardingStorageServiceProvider).loadStagedOnboarding();
+              final staged = await ref
+                  .read(onboardingStorageServiceProvider)
+                  .loadStagedOnboarding();
               if (staged != null && staged.healthGoals.isNotEmpty) {
                 notifier.hydrate(staged);
               }
@@ -302,13 +400,16 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
 
       case 'GOOGLE_SIGN_IN':
         if (_isAuthenticating) {
-          debugPrint('[StitchScreenHost] Google sign-in already in progress. Ignoring duplicate.');
+          debugPrint(
+              '[StitchScreenHost] Google sign-in already in progress. Ignoring duplicate.');
           break;
         }
 
         setState(() {
           _isAuthenticating = true;
-          _authLoadingMessage = kIsWeb ? 'Connecting to Google...' : 'Opening Google account chooser...';
+          _authLoadingMessage = kIsWeb
+              ? 'Connecting to Google...'
+              : 'Opening Google account chooser...';
         });
 
         try {
@@ -351,12 +452,15 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               });
 
               // Synchronize staged onboarding answers if present
-              await ref.read(profileSyncServiceProvider).synchronizeStagedOnboarding(
-                user: user,
-                notifier: notifier,
-              );
+              await ref
+                  .read(profileSyncServiceProvider)
+                  .synchronizeStagedOnboarding(
+                    user: user,
+                    notifier: notifier,
+                  );
 
-              final destination = await AuthDestinationResolver.resolveDestination(
+              final destination =
+                  await AuthDestinationResolver.resolveDestination(
                 profileRepository: profileRepo,
                 userId: user.id,
                 returnTo: widget.returnTo,
@@ -376,7 +480,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
+                    const Icon(Icons.error_outline_rounded,
+                        color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                     Expanded(child: Text(ae.message)),
                   ],
@@ -395,7 +500,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
+                    const Icon(Icons.error_outline_rounded,
+                        color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                     Expanded(child: Text('Google sign-in failed: $e')),
                   ],
@@ -432,12 +538,14 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         }
 
         final cleanEmail = email.trim().toLowerCase();
-        final emailRegex = RegExp(r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$');
+        final emailRegex = RegExp(
+            r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$');
         if (!emailRegex.hasMatch(cleanEmail) || cleanEmail.length > 254) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Please enter a valid email format (e.g. name@example.com).'),
+                content: Text(
+                    'Please enter a valid email format (e.g. name@example.com).'),
                 backgroundColor: Color(0xFFBA1A1A),
               ),
             );
@@ -450,7 +558,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Security verification token invalid. Please refresh the page.'),
+                content: Text(
+                    'Security verification token invalid. Please refresh the page.'),
                 backgroundColor: Color(0xFFBA1A1A),
               ),
             );
@@ -462,7 +571,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Security verification required. Please complete the verification challenge.'),
+                content: Text(
+                    'Security verification required. Please complete the verification challenge.'),
                 backgroundColor: Color(0xFFBA1A1A),
               ),
             );
@@ -472,7 +582,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
 
         // 3. Duplicate request guard
         if (_isAuthenticating) {
-          debugPrint('[StitchScreenHost] Authentication already in progress. Ignoring duplicate request.');
+          debugPrint(
+              '[StitchScreenHost] Authentication already in progress. Ignoring duplicate request.');
           break;
         }
 
@@ -491,10 +602,12 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
             setState(() {
               _isAuthenticating = false;
             });
-            final returnTarget = widget.returnTo != null && widget.returnTo!.isNotEmpty
-                ? '&returnTo=${Uri.encodeComponent(widget.returnTo!)}'
-                : '';
-            context.go('/auth/verify-email?email=${Uri.encodeComponent(cleanEmail)}$returnTarget');
+            final returnTarget =
+                widget.returnTo != null && widget.returnTo!.isNotEmpty
+                    ? '&returnTo=${Uri.encodeComponent(widget.returnTo!)}'
+                    : '';
+            context.go(
+                '/auth/verify-email?email=${Uri.encodeComponent(cleanEmail)}$returnTarget');
           }
         } on AuthException catch (ae) {
           if (mounted) {
@@ -509,7 +622,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.info_outline_rounded, color: Colors.white, size: 20),
+                    const Icon(Icons.info_outline_rounded,
+                        color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                     Expanded(child: Text(displayError)),
                   ],
@@ -528,7 +642,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: Colors.white, size: 20),
+                    const Icon(Icons.error_outline_rounded,
+                        color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                     Expanded(child: Text('Failed to send sign-in link: $e')),
                   ],
@@ -558,8 +673,11 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         if (customConcern != null && customConcern.trim().isNotEmpty) {
           notifier.setCustomPrimaryConcern(customConcern.trim());
         }
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/difficulties');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/difficulties');
         break;
 
       case 'SAVE_DIFFICULTIES':
@@ -571,14 +689,18 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         if (note != null) {
           notifier.setDifficultiesNote(note);
         }
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/daily-impact');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/daily-impact');
         break;
 
       case 'SAVE_DAILY_IMPACTS':
       case 'SAVE_STEP_06':
         try {
-          final isSkipped = msg['skipped'] == true || msg['dailyImpactsSkipped'] == true;
+          final isSkipped =
+              msg['skipped'] == true || msg['dailyImpactsSkipped'] == true;
           if (isSkipped) {
             notifier.setDailyImpactsSkipped(true);
             notifier.setDailyImpacts({});
@@ -601,8 +723,11 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               notifier.setImpactFluctuates(msg['impactFluctuates'] == true);
             }
           }
-          await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-          await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/food-choices');
+          await ref
+              .read(onboardingStorageServiceProvider)
+              .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+          await _handlePostSaveNavigation(
+              msg['nextRoute'] as String? ?? '/onboarding/food-choices');
         } catch (e) {
           debugPrint('[StitchScreenHost] Error saving daily impacts: $e');
           if (mounted) {
@@ -621,25 +746,33 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
       case 'SAVE_STEP_07':
         final pattern = msg['dietaryPattern'] ?? msg['pattern'];
         if (pattern is String && pattern.isNotEmpty) {
-          notifier.setDietaryPattern(pattern, custom: msg['customDietaryPattern'] as String?);
+          notifier.setDietaryPattern(pattern,
+              custom: msg['customDietaryPattern'] as String?);
         }
         final rawIntolerances = msg['foodIntolerances'] ?? msg['intolerances'];
         if (rawIntolerances is List) {
-          notifier.setFoodIntolerances(rawIntolerances.map((e) => e.toString()).toSet());
+          notifier.setFoodIntolerances(
+              rawIntolerances.map((e) => e.toString()).toSet());
         }
         final rawAvoid = msg['foodsToAvoid'] ?? msg['avoid'];
         if (rawAvoid is List) {
           notifier.setFoodsToAvoid(rawAvoid.map((e) => e.toString()).toSet());
         }
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/review-phase1');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/review-phase1');
         break;
 
       case 'CONFIRM_PHASE1':
       case 'SAVE_STEP_08':
         notifier.setPhase1Reviewed(true);
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/personal-details');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/personal-details');
         break;
 
       case 'SAVE_PERSONAL_DETAILS':
@@ -647,8 +780,11 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         final name = msg['name'] as String? ?? '';
         final age = (msg['age'] as num?)?.toInt() ?? 25;
         notifier.setPersonalDetails(name: name, age: age);
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/body-measurements');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/body-measurements');
         break;
 
       case 'SAVE_MEASUREMENTS':
@@ -665,18 +801,25 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
           weightUnit: weightUnit,
           weightSkipped: weightSkipped,
         );
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/health-concerns');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/health-concerns');
         break;
 
       case 'SAVE_CONCERNS':
       case 'SAVE_STEP_11':
         final rawConcerns = msg['concerns'] ?? msg['prioritizedConcerns'];
         if (rawConcerns is List) {
-          notifier.setPrioritizedConcerns(rawConcerns.map((e) => e.toString()).toSet());
+          notifier.setPrioritizedConcerns(
+              rawConcerns.map((e) => e.toString()).toSet());
         }
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/food-restrictions');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/food-restrictions');
         break;
 
       case 'SAVE_RESTRICTIONS':
@@ -687,47 +830,64 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         } else {
           final rawAllergens = msg['allergens'];
           if (rawAllergens is List) {
-            notifier.setAllergens(rawAllergens.map((e) => e.toString()).toSet());
+            notifier
+                .setAllergens(rawAllergens.map((e) => e.toString()).toSet());
           }
-          final customAllergen = msg['customAllergen'] as String? ?? msg['custom'] as String?;
+          final customAllergen =
+              msg['customAllergen'] as String? ?? msg['custom'] as String?;
           if (customAllergen != null && customAllergen.isNotEmpty) {
             notifier.setCustomAllergen(customAllergen);
           }
         }
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/eating-routine');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/eating-routine');
         break;
 
       case 'SAVE_EATING_ROUTINE':
       case 'SAVE_STEP_13':
         final routine = msg['routine'] as String?;
         if (routine != null) notifier.setEatingRoutine(routine);
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/daily-activity');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/daily-activity');
         break;
 
       case 'SAVE_ACTIVITY_LEVEL':
       case 'SAVE_STEP_14':
         final level = msg['level'] as String?;
         if (level != null) notifier.setActivityLevel(level);
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/sleep-patterns');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/sleep-patterns');
         break;
 
       case 'SAVE_SLEEP_QUALITY':
       case 'SAVE_STEP_15':
         final quality = msg['quality'] as String?;
         if (quality != null) notifier.setSleepQuality(quality);
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/knowledge-level');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/knowledge-level');
         break;
 
       case 'SAVE_KNOWLEDGE_LEVEL':
       case 'SAVE_STEP_16':
         final level = msg['level'] as String?;
         if (level != null) notifier.setKnowledgeLevel(level);
-        await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
-        await _handlePostSaveNavigation(msg['nextRoute'] as String? ?? '/onboarding/completion');
+        await ref
+            .read(onboardingStorageServiceProvider)
+            .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+        await _handlePostSaveNavigation(
+            msg['nextRoute'] as String? ?? '/onboarding/completion');
         break;
 
       case 'COMPLETE_ONBOARDING':
@@ -735,7 +895,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
         notifier.setOnboardingFinished(true);
         if (!authService.isAuthenticated) {
           // Unauthenticated user finished onboarding questions -> proceed to Screen 03 (Auth Trust Protocol)
-          await ref.read(onboardingStorageServiceProvider).saveStagedOnboarding(ref.read(onboardingJourneyProvider));
+          await ref
+              .read(onboardingStorageServiceProvider)
+              .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
           if (mounted) context.go('/auth?mode=signup');
         } else {
           // Authenticated user completing onboarding
@@ -745,7 +907,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
               profileRepo: ref.read(profileRepositoryProvider),
               taskRepo: ref.read(taskRepositoryProvider),
             );
-            await ref.read(onboardingStorageServiceProvider).clearStagedOnboarding();
+            await ref
+                .read(onboardingStorageServiceProvider)
+                .clearStagedOnboarding();
           } catch (e) {
             debugPrint('Onboarding completion persistence note: $e');
           }
@@ -762,7 +926,9 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
 
       case 'TOGGLE_TASK':
         final rawIndex = msg['index'] ?? msg['taskId'];
-        final index = rawIndex is int ? rawIndex : int.tryParse(rawIndex?.toString() ?? '0') ?? 0;
+        final index = rawIndex is int
+            ? rawIndex
+            : int.tryParse(rawIndex?.toString() ?? '0') ?? 0;
         ref.read(todayStateProvider.notifier).toggleTask(index);
         break;
 
@@ -798,7 +964,8 @@ class _StitchScreenHostWidgetState extends ConsumerState<StitchScreenHostWidget>
                   child: Center(
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 32),
-                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 28, vertical: 24),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFBF9F4),
                         borderRadius: BorderRadius.circular(24),

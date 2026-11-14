@@ -58,6 +58,14 @@ function copyFolderSync(from, to) {
 console.log('Copying Flutter web assets into .vercel/output/static...');
 copyFolderSync(clientBuildWeb, vercelStaticDir);
 
+// Explicitly copy client/web/stitch into .vercel/output/static/stitch to guarantee availability
+const clientWebStitch = path.join(projectRoot, 'client', 'web', 'stitch');
+const targetStitch = path.join(vercelStaticDir, 'stitch');
+if (fs.existsSync(clientWebStitch)) {
+  console.log('Syncing authentic Stitch screen artboards into .vercel/output/static/stitch...');
+  copyFolderSync(clientWebStitch, targetStitch);
+}
+
 const staticNestedConfig = path.join(vercelStaticDir, 'assets', 'assets', 'config.json');
 const staticDirectConfig = path.join(vercelStaticDir, 'assets', 'config.json');
 if (fs.existsSync(staticNestedConfig) && !fs.existsSync(staticDirectConfig)) {
@@ -72,6 +80,13 @@ const config = {
       src: '^/assets/(.*)$',
       headers: {
         'cache-control': 'public, max-age=31536000, immutable'
+      },
+      continue: true
+    },
+    {
+      src: '^/stitch/(.*)$',
+      headers: {
+        'cache-control': 'public, max-age=3600, must-revalidate'
       },
       continue: true
     },
@@ -118,7 +133,7 @@ const config = {
       handle: 'filesystem'
     },
     {
-      src: '^/((?!assets/|canvaskit/|icons/|.*\\.[a-zA-Z0-9]+$).*)$',
+      src: '^/((?!assets/|canvaskit/|icons/|stitch/|.*\\.[a-zA-Z0-9]+$).*)$',
       dest: '/index.html'
     }
   ]

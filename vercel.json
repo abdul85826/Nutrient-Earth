@@ -4,7 +4,7 @@
   "outputDirectory": "build/web",
   "rewrites": [
     {
-      "source": "/((?!assets/|canvaskit/|icons/|.*\\.[a-zA-Z0-9]+$).*)",
+      "source": "/((?!assets/|canvaskit/|icons/|stitch/|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
   ],
