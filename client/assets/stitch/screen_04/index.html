@@ -141,34 +141,15 @@
 </div>
 </div>
 <!-- Selected Items Summary & Chips -->
-<div class="space-y-3 p-4 bg-warm-subtle rounded-2xl border border-warm-border" id="selected-items-section">
+<div class="space-y-3 p-4 bg-warm-subtle rounded-2xl border border-warm-border hidden" id="selected-items-section">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
 <span class="text-[15px] font-semibold text-stone-900">Your selections</span>
-<span class="px-2.5 py-0.5 rounded-full bg-forest-800 text-white font-medium text-[12px]" id="selected-badge-count">3</span>
+<span class="px-2.5 py-0.5 rounded-full bg-forest-800 text-white font-medium text-[12px]" id="selected-badge-count">0</span>
 </div>
 <button class="text-[13px] font-medium text-forest-700 hover:underline min-h-[36px] flex items-center" id="clear-all-btn" type="button">Clear all</button>
 </div>
-<div class="flex flex-wrap gap-2 pt-0.5" id="selected-chips-container">
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="prediabetes">
-<span>Prediabetes</span>
-<button aria-label="Remove Prediabetes" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="low_energy">
-<span>Low energy or fatigue</span>
-<button aria-label="Remove Low energy or fatigue" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="improve_sleep">
-<span>Improve sleep</span>
-<button aria-label="Remove Improve sleep" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-</div>
+<div class="flex flex-wrap gap-2 pt-0.5" id="selected-chips-container"></div>
 </div>
 <!-- Live Search Results Dropdown -->
 <div class="hidden space-y-2" id="search-live-results">
@@ -202,7 +183,7 @@
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Prediabetes</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="prediabetes" data-label="Prediabetes" type="checkbox"/>
+<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="prediabetes" data-label="Prediabetes" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">PCOS (Polycystic ovary syndrome)</span>
@@ -247,7 +228,7 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Low energy or fatigue</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="low_energy" data-label="Low energy or fatigue" type="checkbox"/>
+<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="low_energy" data-label="Low energy or fatigue" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Poor sleep or waking unrested</span>
@@ -358,7 +339,7 @@
 <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Improve sleep quality and rhythm</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_sleep" data-label="Improve sleep" type="checkbox"/>
+<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_sleep" data-label="Improve sleep" type="checkbox"/>
 </label>
 <label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
 <span class="text-[15px] font-medium text-stone-800">Manage stress and cortisol regulation</span>
@@ -415,7 +396,7 @@
 <p class="text-[13px] leading-relaxed text-stone-600">We'll review and match this safely without making medical assumptions.</p>
 </div>
 <!-- Optional Diabetes Follow-up Card -->
-<div class="bg-sage-100/60 border border-sage-300/80 rounded-2xl p-4 space-y-3" id="followup-container">
+<div class="bg-sage-100/60 border border-sage-300/80 rounded-2xl p-4 space-y-3 hidden" id="followup-container">
 <div class="flex items-start justify-between gap-2">
 <div class="space-y-1">
 <div class="flex items-center gap-1.5 text-forest-800 text-[12px] font-semibold uppercase tracking-wider">
@@ -449,7 +430,7 @@
 <footer class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#FBF9F4]/90 backdrop-blur-md border-t border-warm-border/60">
 <div class="px-5 py-3 max-w-md mx-auto">
 <button class="w-full h-14 bg-forest-900 text-white font-semibold text-[16px] rounded-xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all hover:bg-forest-800" id="step-continue-btn" type="button">
-<span id="cta-label">Continue (3 selected)</span>
+<span id="cta-label">Continue</span>
 <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
 </button>
 </div>
@@ -457,17 +438,16 @@
 <!-- Interactivity Script -->
 <script>
     (function initHealthConcernsInteractivity() {
-      const selectedItems = new Map([
-        ['prediabetes', 'Prediabetes'],
-        ['low_energy', 'Low energy or fatigue'],
-        ['improve_sleep', 'Improve sleep']
-      ]);
+      const STORAGE_KEY = 'nutrient_earth_selected_goals';
+      const selectedItems = new Map();
+      window.selectedHealthGoalsMap = selectedItems;
 
       const searchInput = document.getElementById('health-search-input');
       const clearBtn = document.getElementById('search-clear-btn');
       const liveResults = document.getElementById('search-live-results');
       const resultsList = document.getElementById('search-results-list');
       const chipsContainer = document.getElementById('selected-chips-container');
+      const selectedSection = document.getElementById('selected-items-section');
       const badgeCount = document.getElementById('selected-badge-count');
       const ctaLabel = document.getElementById('cta-label');
       const followupContainer = document.getElementById('followup-container');
@@ -508,11 +488,72 @@
         { id: 'specific_question', label: 'Explore a specific nutritional hypothesis', tags: ['supplements', 'science'] }
       ];
 
+      function saveState() {
+        try {
+          const entries = Array.from(selectedItems.entries());
+          const json = JSON.stringify(entries);
+          localStorage.setItem(STORAGE_KEY, json);
+          sessionStorage.setItem(STORAGE_KEY, json);
+        } catch (e) {
+          console.warn('[Screen 04] State save failed:', e);
+        }
+      }
+
+      function loadState() {
+        // 1. URL search parameters take priority if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const goalsParam = urlParams.get('goals');
+        if (goalsParam && goalsParam.trim().length > 0) {
+          const list = goalsParam.split(',').map(s => s.trim()).filter(Boolean);
+          list.forEach(val => {
+            const matched = searchCatalog.find(
+              c => c.id.toLowerCase() === val.toLowerCase() || c.label.toLowerCase() === val.toLowerCase()
+            );
+            if (matched) {
+              selectedItems.set(matched.id, matched.label);
+            } else {
+              selectedItems.set(val.toLowerCase().replace(/\s+/g, '_'), val);
+            }
+          });
+          return;
+        }
+
+        // 2. Storage persistence when returning to edit
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed)) {
+              parsed.forEach(entry => {
+                if (Array.isArray(entry) && entry.length >= 2) {
+                  selectedItems.set(entry[0], entry[1]);
+                } else if (typeof entry === 'string' && entry.trim().length > 0) {
+                  const matched = searchCatalog.find(
+                    c => c.id.toLowerCase() === entry.toLowerCase() || c.label.toLowerCase() === entry.toLowerCase()
+                  );
+                  if (matched) {
+                    selectedItems.set(matched.id, matched.label);
+                  } else {
+                    selectedItems.set(entry.toLowerCase().replace(/\s+/g, '_'), entry);
+                  }
+                }
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('[Screen 04] State load failed:', e);
+        }
+      }
+
       function updateUI() {
         const count = selectedItems.size;
         if (badgeCount) badgeCount.textContent = count;
         if (ctaLabel) {
           ctaLabel.textContent = count > 0 ? `Continue (${count} selected)` : 'Continue';
+        }
+
+        if (selectedSection) {
+          selectedSection.classList.toggle('hidden', count === 0);
         }
 
         if (chipsContainer) {
@@ -544,6 +585,7 @@
             const chip = btn.closest('.selected-chip');
             const id = chip.getAttribute('data-item-id');
             selectedItems.delete(id);
+            saveState();
             updateUI();
           }
         });
@@ -553,6 +595,7 @@
       if (clearAllBtn) {
         clearAllBtn.addEventListener('click', () => {
           selectedItems.clear();
+          saveState();
           updateUI();
         });
       }
@@ -566,6 +609,7 @@
           } else {
             selectedItems.delete(id);
           }
+          saveState();
           updateUI();
         });
       });
@@ -619,6 +663,7 @@
                 } else {
                   selectedItems.set(m.id, m.label);
                 }
+                saveState();
                 updateUI();
                 runSearch(query);
               });
@@ -668,6 +713,8 @@
         });
       });
 
+      // Load existing state (URL query or storage) and update UI
+      loadState();
       updateUI();
     })();
   </script>
@@ -714,23 +761,36 @@
         e.preventDefault();
         // Extract selected goals
         var selectedGoals = [];
-        var activePills = document.querySelectorAll('#selected-concerns-container > div, .selected-chip');
-        activePills.forEach(function(pill) {
-          var txt = pill.innerText.replace(/close/g, '').replace(/\s+/g, ' ').trim();
-          if (txt && !selectedGoals.includes(txt)) selectedGoals.push(txt);
-        });
-
-        if (selectedGoals.length === 0) {
-          // If none explicitly in container, pick default tags or let user proceed
-          selectedGoals = ['Prediabetes', 'Low energy or fatigue', 'Improve sleep'];
+        if (window.selectedHealthGoalsMap && window.selectedHealthGoalsMap.size > 0) {
+          selectedGoals = Array.from(window.selectedHealthGoalsMap.values());
+        } else {
+          var activePills = document.querySelectorAll('#selected-chips-container .selected-chip, .selected-chip');
+          activePills.forEach(function(pill) {
+            var txt = pill.querySelector('span') ? pill.querySelector('span').innerText.trim() : pill.innerText.replace(/close/g, '').replace(/\s+/g, ' ').trim();
+            if (txt && !selectedGoals.includes(txt)) selectedGoals.push(txt);
+          });
         }
+
+        var customConcern = document.getElementById('custom-concern-input');
+        var customVal = customConcern ? customConcern.value.trim() : '';
 
         var urlParams = new URLSearchParams(window.location.search);
         var returnTo = urlParams.get('returnTo');
         var dest = returnTo || '/onboarding/practical-difficulties';
 
+        // Persist goals to storage before navigating
+        try {
+          if (window.selectedHealthGoalsMap) {
+            var entries = Array.from(window.selectedHealthGoalsMap.entries());
+            localStorage.setItem('nutrient_earth_selected_goals', JSON.stringify(entries));
+            sessionStorage.setItem('nutrient_earth_selected_goals', JSON.stringify(entries));
+          }
+        } catch (e) {}
+
         window.NEBridge.send('SAVE_GOALS', {
           goals: selectedGoals,
+          goalIds: window.selectedHealthGoalsMap ? Array.from(window.selectedHealthGoalsMap.keys()) : [],
+          customConcern: customVal,
           nextRoute: dest
         });
       });
