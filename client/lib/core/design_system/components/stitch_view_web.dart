@@ -50,11 +50,15 @@ class _StitchWebWidgetState extends State<_StitchWebWidget> {
     final uniqueId = DateTime.now().microsecondsSinceEpoch;
     _viewType = 'stitch-screen-${widget.screenIndex}-$uniqueId';
 
+    final cacheBustedUrl = widget.initialUrl.contains('?')
+        ? '${widget.initialUrl}&_v=$uniqueId'
+        : '${widget.initialUrl}?_v=$uniqueId';
+
     ui_web.platformViewRegistry.registerViewFactory(
       _viewType,
       (int viewId) {
         _iframe = web.HTMLIFrameElement()
-          ..src = widget.initialUrl
+          ..src = cacheBustedUrl
           ..style.border = 'none'
           ..style.width = '100%'
           ..style.height = '100%'
@@ -70,7 +74,11 @@ class _StitchWebWidgetState extends State<_StitchWebWidget> {
   void didUpdateWidget(covariant _StitchWebWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialUrl != widget.initialUrl && _iframe != null) {
-      _iframe!.src = widget.initialUrl;
+      final updateId = DateTime.now().microsecondsSinceEpoch;
+      final cacheBustedUrl = widget.initialUrl.contains('?')
+          ? '${widget.initialUrl}&_v=$updateId'
+          : '${widget.initialUrl}?_v=$updateId';
+      _iframe!.src = cacheBustedUrl;
     }
   }
 
