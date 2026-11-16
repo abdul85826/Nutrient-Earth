@@ -12,64 +12,165 @@
 <div class="max-w-xl mx-auto px-5 py-3.5 flex flex-col gap-2"><button class="w-full h-12 py-3 px-6 rounded-xl bg-primary-container text-on-primary font-headline text-base font-bold tracking-wide flex items-center justify-center gap-2 shadow-md hover:bg-secondary active:scale-[0.98] transition-all" id="submit-btn" type="button"><span id="btn-text" class="">Continue</span><span class="material-symbols-outlined text-[20px]">arrow_forward</span></button><div class="flex items-center justify-center"><button class="min-h-[48px] py-2 px-4 text-xs font-label text-secondary hover:text-primary transition-colors font-medium" type="button">Skip for now</button></div></div>
 </div>
 <script>
-    (function () {
+    (function initScreen05Interactivity() {
+      const STORAGE_KEY = 'nutrient_earth_selected_difficulties';
       const cards = document.querySelectorAll('.symptom-card');
       const submitBtn = document.getElementById('submit-btn');
       const btnText = document.getElementById('btn-text');
       const textarea = document.getElementById('custom-symptoms');
       const charCounter = document.getElementById('char-counter');
+      const searchInput = document.querySelector('input[placeholder="Search symptoms or difficulties..."]');
 
-      let selectedCount = 0;
+      function setCardVisuals(card, isChecked) {
+        const checkbox = card.querySelector('.symptom-checkbox');
+        const indicator = card.querySelector('.checkbox-indicator');
+        const labelText = card.querySelector('.symptom-label');
+        if (checkbox) checkbox.checked = isChecked;
+
+        if (isChecked) {
+          card.classList.remove('bg-surface-container');
+          card.classList.add('bg-secondary-container');
+          if (indicator) {
+            indicator.classList.remove('bg-surface', 'text-transparent');
+            indicator.classList.add('bg-primary-container', 'text-on-primary');
+          }
+          if (labelText) {
+            labelText.classList.remove('text-on-surface');
+            labelText.classList.add('text-on-secondary-container', 'font-semibold');
+          }
+        } else {
+          card.classList.remove('bg-secondary-container');
+          card.classList.add('bg-surface-container');
+          if (indicator) {
+            indicator.classList.remove('bg-primary-container', 'text-on-primary');
+            indicator.classList.add('bg-surface', 'text-transparent');
+          }
+          if (labelText) {
+            labelText.classList.remove('text-on-secondary-container', 'font-semibold');
+            labelText.classList.add('text-on-surface');
+          }
+        }
+      }
 
       function updateUI() {
-        if (selectedCount > 0) {
-          btnText.textContent = `Continue (${selectedCount} selected)`;
-        } else {
-          btnText.textContent = 'Continue';
+        const checkedCount = document.querySelectorAll('.symptom-checkbox:checked').length;
+        if (btnText) {
+          btnText.textContent = checkedCount > 0 ? `Continue (${checkedCount} selected)` : 'Continue';
+        }
+      }
+
+      function saveState() {
+        try {
+          const selected = [];
+          document.querySelectorAll('.symptom-card').forEach(c => {
+            const cb = c.querySelector('.symptom-checkbox');
+            if (cb && cb.checked) {
+              const lbl = c.querySelector('.symptom-label');
+              if (lbl) selected.push(lbl.textContent.trim());
+            }
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
+          if (textarea) {
+            localStorage.setItem(STORAGE_KEY + '_note', textarea.value.trim());
+          }
+        } catch (e) {
+          console.warn('[Screen 05] Save failed:', e);
+        }
+      }
+
+      function loadState() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const diffsParam = urlParams.get('difficulties');
+          let saved = [];
+          if (diffsParam) {
+            saved = diffsParam.split(',').map(s => s.trim().toLowerCase());
+          } else {
+            const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              if (Array.isArray(parsed)) {
+                saved = parsed.map(s => s.trim().toLowerCase());
+              }
+            }
+          }
+
+          if (saved.length > 0) {
+            cards.forEach(card => {
+              const lbl = card.querySelector('.symptom-label');
+              if (lbl && saved.includes(lbl.textContent.trim().toLowerCase())) {
+                setCardVisuals(card, true);
+              }
+            });
+          }
+
+          const savedNote = urlParams.get('note') || localStorage.getItem(STORAGE_KEY + '_note');
+          if (savedNote && textarea) {
+            textarea.value = savedNote;
+            if (charCounter) charCounter.textContent = Math.min(savedNote.length, 300);
+          }
+        } catch (e) {
+          console.warn('[Screen 05] Load failed:', e);
         }
       }
 
       cards.forEach(card => {
         const checkbox = card.querySelector('.symptom-checkbox');
-        const indicator = card.querySelector('.checkbox-indicator');
-        const labelText = card.querySelector('.symptom-label');
+        if (!checkbox) return;
 
+        // Prevent default label double-click and cleanly toggle
         card.addEventListener('click', (e) => {
-          if (e.target.tagName !== 'INPUT') {
-            checkbox.checked = !checkbox.checked;
+          if (e.target !== checkbox) {
+            e.preventDefault();
+            const newState = !checkbox.checked;
+            setCardVisuals(card, newState);
+            updateUI();
+            saveState();
           }
+        });
 
-          if (checkbox.checked) {
-            card.classList.remove('bg-surface-container');
-            card.classList.add('bg-secondary-container');
-            indicator.classList.remove('bg-surface', 'text-transparent');
-            indicator.classList.add('bg-primary-container', 'text-on-primary');
-            labelText.classList.remove('text-on-surface');
-            labelText.classList.add('text-on-secondary-container', 'font-semibold');
-            selectedCount++;
-          } else {
-            card.classList.remove('bg-secondary-container');
-            card.classList.add('bg-surface-container');
-            indicator.classList.remove('bg-primary-container', 'text-on-primary');
-            indicator.classList.add('bg-surface', 'text-transparent');
-            labelText.classList.remove('text-on-secondary-container', 'font-semibold');
-            labelText.classList.add('text-on-surface');
-            selectedCount--;
-          }
+        // Also handle native checkbox change (keyboard a11y)
+        checkbox.addEventListener('change', () => {
+          setCardVisuals(card, checkbox.checked);
           updateUI();
+          saveState();
         });
       });
+
+      // Search and filter liveness
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const q = e.target.value.trim().toLowerCase();
+          const sections = document.querySelectorAll('main section');
+          sections.forEach(sec => {
+            let hasMatch = false;
+            const secCards = sec.querySelectorAll('.symptom-card');
+            secCards.forEach(c => {
+              const label = c.querySelector('.symptom-label')?.textContent.toLowerCase() || '';
+              const code = c.querySelector('.font-label')?.textContent.toLowerCase() || '';
+              const match = !q || label.includes(q) || code.includes(q);
+              c.classList.toggle('hidden', !match);
+              if (match) hasMatch = true;
+            });
+            sec.classList.toggle('hidden', !hasMatch);
+          });
+        });
+      }
 
       if (textarea && charCounter) {
         textarea.addEventListener('input', () => {
           const len = textarea.value.length;
-          charCounter.textContent = len;
+          charCounter.textContent = Math.min(len, 300);
           if (len > 300) {
             textarea.value = textarea.value.slice(0, 300);
-            charCounter.textContent = '300';
           }
+          saveState();
         });
       }
+
+      loadState();
+      updateUI();
     })();
   </script>
 </div></main>
@@ -187,6 +288,12 @@
         var urlParams = new URLSearchParams(window.location.search);
         var returnTo = urlParams.get('returnTo');
         var dest = returnTo || '/onboarding/daily-impact';
+
+        try {
+          localStorage.setItem('nutrient_earth_selected_difficulties', JSON.stringify(selectedDifficulties));
+          sessionStorage.setItem('nutrient_earth_selected_difficulties', JSON.stringify(selectedDifficulties));
+          if (note) localStorage.setItem('nutrient_earth_selected_difficulties_note', note);
+        } catch (e) {}
 
         window.NEBridge.send('SAVE_DIFFICULTIES', {
           difficulties: selectedDifficulties,
