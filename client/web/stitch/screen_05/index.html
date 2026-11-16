@@ -594,10 +594,9 @@
               if (lbl) selected.push(lbl.textContent.trim());
             }
           });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(selected));
           if (textarea) {
-            localStorage.setItem(STORAGE_KEY + '_note', textarea.value.trim());
+            sessionStorage.setItem(STORAGE_KEY + '_note', textarea.value.trim());
           }
         } catch (e) {
           console.warn('[Screen 05] Save failed:', e);
@@ -612,7 +611,7 @@
           if (diffsParam) {
             saved = diffsParam.split(',').map(s => s.trim().toLowerCase());
           } else {
-            const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+            const stored = sessionStorage.getItem(STORAGE_KEY);
             if (stored) {
               const parsed = JSON.parse(stored);
               if (Array.isArray(parsed)) {
@@ -631,7 +630,7 @@
             });
           }
 
-          const savedNote = urlParams.get('note') || localStorage.getItem(STORAGE_KEY + '_note');
+          const savedNote = urlParams.get('note') || sessionStorage.getItem(STORAGE_KEY + '_note');
           if (savedNote && textarea) {
             textarea.value = savedNote;
             if (charCounter) charCounter.textContent = Math.min(savedNote.length, 300);
@@ -641,18 +640,10 @@
         }
       }
 
-      // Card click handling with native checkbox synchronization
+      // Native checkbox change listener on label input
       cards.forEach(card => {
         const checkbox = card.querySelector('.symptom-checkbox');
         if (!checkbox) return;
-
-        card.addEventListener('click', (e) => {
-          if (e.target !== checkbox) {
-            checkbox.checked = !checkbox.checked;
-          }
-          updateUI();
-          saveState();
-        });
 
         checkbox.addEventListener('change', () => {
           updateUI();
