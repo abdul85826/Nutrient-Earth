@@ -1,36 +1,50 @@
-<!DOCTYPE html><html lang="en"><head>
-<title>Nutrient Earth — Authentication & Trust Verification</title>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<meta content="mobile_stack" name="shell-type">
-<link href="https://fonts.googleapis.com" rel="preconnect">
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
-<style>
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Nutrient Earth — Authentication & Trust Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="mobile_stack" name="shell-type">
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet">
+  <!-- Cloudflare Turnstile Explicit JavaScript API -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <style>
     @layer base {
-      html, body {
+
+      html,
+      body {
         width: 100vw;
         margin: 0;
         padding: 0;
       }
+
       body {
         overscroll-behavior: none;
       }
+
       .pb-safe {
         padding-bottom: env(safe-area-inset-bottom, 20px);
       }
+
       .pt-safe {
         padding-top: env(safe-area-inset-top, 0px);
       }
     }
+
     ::-webkit-scrollbar {
       display: none;
     }
   </style>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-    tailwind.config = {
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
@@ -52,296 +66,429 @@
           }
         }
       }
-    }
-  </script>
-<style>
+    };</script>
+  <style>
     body {
       min-height: max(844px, 100dvh);
       background-color: #FBF9F4;
     }
   </style>
+
+  <script id="ne-flutter-bridge-core">
+    window.NEBridge = {
+      send: function (type, payload) {
+        var msg = Object.assign({ type: type }, payload || {});
+        var jsonStr = JSON.stringify(msg);
+        if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
+          window.FlutterBridge.postMessage(jsonStr);
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(msg, '*');
+        }
+        console.log('[NEBridge] ' + type, msg);
+      },
+      navigate: function (route) {
+        this.send('NAVIGATE', { route: route });
+      }
+    };
+  </script>
+
 </head>
+
 <body class="bg-surface-warm font-body text-[#1B1C19] flex flex-col min-h-screen antialiased selection:bg-[#c5ebdd]">
-<!-- Clean, Balanced Production Header -->
-<header class="fixed top-0 w-full z-40 pt-safe bg-[#FBF9F4]/90 backdrop-blur-md border-b border-border-hairline">
-<div class="h-14 px-4 flex items-center justify-between max-w-md mx-auto">
-<button aria-label="Go back" class="w-11 h-11 -ml-1 rounded-full flex items-center justify-center text-[#1B1C19] hover:bg-[#F3F5F1] active:bg-[#E5EAE2] transition-colors" onclick="history.back()">
-<span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
-</button>
-<div class="flex items-center gap-2.5 pr-2">
-<img alt="Nutrient Earth Logo" class="h-10 w-10 object-contain rounded-full shadow-sm ring-1 ring-border-hairline" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyFDKyMtdOSgsS0Es1NOVdTA8QxuhiJBWLLD1yCaQnlj5uG3pnUQatUZ4cNptXq-3iext_XvPKx9VEFVl5_n4GPWw5zlNu8eweMbSZYCw-M5hDtmlh_BcXOuw5ytqz1xT3b7IHul3N-W_BaN0tFb2glabhO_jdA8QYl-L4cy1xOYOeELm2dTjQluq8AO2W3GWXkRPtJzAz1FVREuE1ozh76h7_rHD6_u0Z0KwfHSV_kSA1OdpC0-o3">
-<span class="font-headline font-bold text-[16px] tracking-tight text-forest-dark uppercase">Nutrient Earth</span>
-</div>
-<!-- Spacer to balance header centering -->
-<div class="w-10"></div>
-</div>
-</header>
-<!-- Main Scrollable Authentication Container -->
-<main class="flex flex-col relative w-full pt-16 pb-safe bg-surface-warm flex-1">
-<div class="max-w-md mx-auto w-full px-6 pt-5 pb-8 flex flex-col min-h-[calc(100dvh-4rem)] justify-between">
-<!-- Top Content Block: Brand, Title, Copy, and Primary Actions -->
-<div class="flex flex-col space-y-6">
-<!-- Brand Label & Editorial Headline -->
-<div class="space-y-3 pt-2">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-botanical-deep"></span>
-<span class="text-[13px] font-label tracking-wider uppercase text-forest-muted font-medium">NUTRIENT EARTH</span>
-</div>
-<h1 class="text-[30px] leading-[1.25] font-headline font-bold text-[#051F20] tracking-tight">
+  <!-- Clean, Balanced Production Header -->
+  <header class="fixed top-0 w-full z-40 pt-safe bg-[#FBF9F4]/90 backdrop-blur-md border-b border-border-hairline">
+    <div class="h-14 px-4 flex items-center justify-between max-w-md mx-auto">
+      <button aria-label="Go back"
+        class="w-11 h-11 -ml-1 rounded-full flex items-center justify-center text-[#1B1C19] hover:bg-[#F3F5F1] active:bg-[#E5EAE2] transition-colors"
+        onclick="history.back()">
+        <span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
+      </button>
+      <div class="flex items-center gap-2.5 pr-2">
+        <img src="/assets/images/logo.png" alt="Nutrient Earth" class="h-8 w-8 object-contain rounded-full shadow-sm"
+          onerror="this.onerror=null; this.src='/icons/Icon-192.png';" />
+        <span class="font-headline font-bold text-[16px] tracking-tight text-forest-dark uppercase">Nutrient
+          Earth</span>
+      </div>
+      <!-- Spacer to balance header centering -->
+      <div class="w-10"></div>
+    </div>
+  </header>
+  <!-- Main Scrollable Authentication Container -->
+  <main class="flex flex-col relative w-full pt-16 pb-safe bg-surface-warm flex-1">
+    <div class="max-w-md mx-auto w-full px-6 pt-5 pb-8 flex flex-col min-h-[calc(100dvh-4rem)] justify-between">
+      <!-- Top Content Block: Brand, Title, Copy, and Primary Actions -->
+      <div class="flex flex-col space-y-6">
+        <!-- Brand Label & Editorial Headline -->
+        <div class="space-y-3 pt-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-botanical-deep"></span>
+            <span class="text-[13px] font-label tracking-wider uppercase text-forest-muted font-medium">NUTRIENT
+              EARTH</span>
+          </div>
+          <h1 class="text-[30px] leading-[1.25] font-headline font-bold text-[#051F20] tracking-tight">
             Your health journey starts with understanding.
           </h1>
-<p class="text-[16px] leading-relaxed text-[#2D4037]">
+          <p class="text-[16px] leading-relaxed text-[#2D4037]">
             Explore research, nutrition, movement, and practical ways to work toward your goals.
           </p>
-</div>
-<!-- Authentication Providers Matrix -->
-<div class="space-y-3.5 pt-1">
-<!-- Primary Action: Continue with Google (initially disabled) -->
-<button class="w-full h-[54px] px-5 rounded-2xl bg-white text-forest-dark border border-border-subtle flex items-center justify-center gap-3.5 shadow-xs transition-all duration-150 group hover:bg-[#FAFCF8] active:scale-[0.99]" id="btn-google-auth" onclick="handleGoogleAuth()" type="button">
-<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"></path>
-<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"></path>
-</svg>
-<span class="font-headline font-semibold text-[16.5px] tracking-tight">Continue with Google</span>
-</button>
-<!-- Secondary Action: Continue with Email (initially disabled) -->
-<button class="w-full h-[52px] px-5 rounded-2xl bg-surface-linen/80 text-forest-dark border border-border-subtle flex items-center justify-center gap-2.5 transition-all duration-150 hover:bg-surface-linen active:scale-[0.99] hidden" id="btn-email-flow" onclick="openEmailFlow()" type="button">
-<span class="material-symbols-outlined text-[20px] text-forest-muted">mail</span>
-<span class="font-headline font-semibold text-[16.5px] tracking-tight">Continue with email</span>
-</button>
-<!-- Inline Email Entry Field (Reveals gracefully on click) -->
-<div class="transition-all duration-200" id="email-input-container">
-<div class="bg-white rounded-2xl p-4 border border-border-subtle shadow-sm space-y-3">
-<div class="flex items-center justify-between">
-<label class="text-xs font-label uppercase tracking-wider text-forest-muted font-medium" for="email-field">Work or personal email</label>
-<button class="text-xs text-forest-muted hover:text-forest-dark" onclick="closeEmailFlow()" type="button">Cancel</button>
-</div>
-<div class="relative">
-<input class="w-full h-[46px] px-3.5 text-[14px] bg-surface-linen/50 text-forest-dark rounded-xl border border-border-hairline focus:border-botanical-deep focus:bg-white focus:outline-none transition-all placeholder:text-[#9DAAA2]" id="email-field" placeholder="name@example.com" type="email">
-</div>
-<button class="w-full h-[44px] rounded-xl bg-botanical-deep text-white font-headline font-semibold text-[14px] hover:bg-forest-dark active:scale-[0.99] transition-all flex items-center justify-center gap-2" onclick="submitEmail()" type="button">
-<span class="">Send secure sign-in link</span>
-<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-</button>
-</div>
-</div>
-<!-- Age Confirmation Requirement Row (WCAG 2.2 AA compliant with 48px touch target) -->
-<div class="pt-1">
-<label class="flex items-center gap-3 p-2.5 rounded-xl border border-border-hairline bg-surface-linen/40 hover:bg-surface-linen/70 cursor-pointer select-none transition-colors" for="age-checkbox">
-<input class="w-5 h-5 rounded border-border-subtle text-botanical-deep focus:ring-botanical-deep focus:ring-offset-0 cursor-pointer shrink-0" id="age-checkbox" onchange="handleAgeToggle(this)" type="checkbox">
-<div class="flex flex-col">
-<span class="text-[16px] font-semibold text-forest-dark leading-snug">I confirm that I am 18 or older.</span>
-<span class="text-[13px] font-label text-forest-muted mt-0.5" id="age-helper-text">Required to activate account creation</span>
-</div>
-</label>
-</div>
-</div>
-<!-- Inline Email Entry Field (Reveals gracefully on click) -->
-<!-- Existing Account Affordance -->
-<div class="pt-1 flex items-center justify-center text-center">
-<p class="text-[16px] font-body text-forest-muted">
-            Already have an account? 
-            <button class="font-headline font-bold text-botanical-deep hover:text-forest-dark underline underline-offset-4 focus:outline-none ml-1 transition-colors text-[16px]" onclick="handleSignInToggle()" type="button">
+        </div>
+        <!-- Authentication Providers Matrix -->
+        <div class="space-y-3.5 pt-1">
+          <!-- Primary Action: Continue with Google (initially disabled until 18+ confirmed) -->
+          <button disabled
+            class="w-full h-[54px] px-5 rounded-2xl bg-white text-forest-dark border border-border-subtle flex items-center justify-center gap-3.5 shadow-xs transition-all duration-150 group opacity-50 cursor-not-allowed"
+            id="btn-google-auth" onclick="handleGoogleAuth()" type="button">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4"></path>
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"></path>
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                fill="#FBBC05"></path>
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                fill="#EA4335"></path>
+            </svg>
+            <span class="font-headline font-semibold text-[16.5px] tracking-tight">Continue with Google</span>
+          </button>
+          <!-- Secondary Action: Continue with Email (initially disabled) -->
+          <button
+            class="w-full h-[52px] px-5 rounded-2xl bg-surface-linen/80 text-forest-dark border border-border-subtle flex items-center justify-center gap-2.5 transition-all duration-150 hover:bg-surface-linen active:scale-[0.99] hidden"
+            id="btn-email-flow" onclick="openEmailFlow()" type="button">
+            <span class="material-symbols-outlined text-[20px] text-forest-muted">mail</span>
+            <span class="font-headline font-semibold text-[16.5px] tracking-tight">Continue with email</span>
+          </button>
+          <!-- Inline Email Entry Field (Reveals gracefully on click) -->
+          <div class="transition-all duration-200" id="email-input-container">
+            <div class="bg-white rounded-2xl p-4 border border-border-subtle shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-label uppercase tracking-wider text-forest-muted font-medium"
+                  for="email-field">Work or personal email</label>
+                <button class="text-xs text-forest-muted hover:text-forest-dark" onclick="closeEmailFlow()"
+                  type="button">Cancel</button>
+              </div>
+              <div class="relative">
+                <input
+                  class="w-full h-[46px] px-3.5 text-[14px] bg-surface-linen/50 text-forest-dark rounded-xl border border-border-hairline focus:border-botanical-deep focus:bg-white focus:outline-none transition-all placeholder:text-[#9DAAA2]"
+                  id="email-field" aria-label="Email address" title="Email address" placeholder="name@example.com"
+                  type="email">
+              </div>
+              <!-- Cloudflare Turnstile Container -->
+              <div class="py-1 flex flex-col items-center justify-center min-h-[65px]" id="turnstile-wrapper">
+                <div id="turnstile-container"></div>
+                <p class="hidden text-xs text-[#BA1A1A] font-medium mt-1 text-center" id="turnstile-error"></p>
+              </div>
+              <button disabled
+                class="w-full h-[44px] rounded-xl bg-botanical-deep text-white font-headline font-semibold text-[14px] hover:bg-forest-dark active:scale-[0.99] transition-all flex items-center justify-center gap-2 opacity-50 cursor-not-allowed disabled:opacity-50 disabled:cursor-not-allowed"
+                id="submit-email-btn" type="button">
+                <span id="submit-email-label">Continue with email</span>
+                <span class="material-symbols-outlined text-[16px]" id="submit-email-icon">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+          <!-- Inline OTP Verification Entry Field -->
+          <div class="transition-all duration-200 hidden" id="otp-input-container">
+            <div class="bg-white rounded-2xl p-4 border border-border-subtle shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-label uppercase tracking-wider text-forest-muted font-medium"
+                  for="otp-code-field">Enter 6-Digit Code</label>
+                <button class="text-xs text-forest-muted hover:text-forest-dark font-medium"
+                  onclick="backToEmailInput()" type="button">Change email</button>
+              </div>
+              <p class="text-xs text-[#2D4037] leading-relaxed">
+                We sent a 6-digit code and a magic link to <strong id="otp-target-email"
+                  class="text-forest-dark font-semibold"></strong>. Enter the code below or tap the link in your email.
+              </p>
+              <div class="relative">
+                <input
+                  class="w-full h-[48px] px-3.5 text-center text-[22px] font-mono tracking-[0.3em] font-bold bg-surface-linen/50 text-forest-dark rounded-xl border border-border-hairline focus:border-botanical-deep focus:bg-white focus:outline-none transition-all placeholder:text-[#9DAAA2]"
+                  id="otp-code-field" aria-label="6-digit verification code" title="6-digit verification code"
+                  placeholder="······" maxlength="6" type="text" inputmode="numeric" autocomplete="one-time-code">
+              </div>
+              <p class="hidden text-xs text-[#BA1A1A] font-medium text-center" id="otp-error-msg"></p>
+              <button
+                class="w-full h-[44px] rounded-xl bg-botanical-deep text-white font-headline font-semibold text-[14px] hover:bg-forest-dark active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                id="submit-otp-btn" type="button">
+                <span id="submit-otp-label">Verify & Continue</span>
+                <span class="material-symbols-outlined text-[16px]">check</span>
+              </button>
+              <div class="text-center pt-1">
+                <button class="text-xs font-medium text-botanical-deep hover:text-forest-dark underline"
+                  onclick="resendOtpCode()" type="button" id="resend-otp-btn">
+                  Resend verification code
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Age Confirmation Requirement Row (WCAG 2.2 AA compliant with 48px touch target) -->
+          <div class="pt-1">
+            <label
+              class="flex items-center gap-3 p-2.5 rounded-xl border border-border-hairline bg-surface-linen/40 hover:bg-surface-linen/70 cursor-pointer select-none transition-colors"
+              for="age-checkbox">
+              <input
+                class="w-5 h-5 rounded border-border-subtle text-botanical-deep focus:ring-botanical-deep focus:ring-offset-0 cursor-pointer shrink-0"
+                id="age-checkbox" aria-label="I confirm I am at least 18 years old"
+                title="I confirm I am at least 18 years old" onchange="handleAgeToggle(this)" type="checkbox">
+              <div class="flex flex-col">
+                <span class="text-[16px] font-semibold text-forest-dark leading-snug">I confirm that I am 18 or
+                  older.</span>
+                <span class="text-[13px] font-label text-forest-muted mt-0.5" id="age-helper-text">Required to activate
+                  account creation</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        <!-- Inline Email Entry Field (Reveals gracefully on click) -->
+        <!-- Existing Account Affordance -->
+        <div class="pt-1 flex items-center justify-center text-center">
+          <p class="text-[16px] font-body text-forest-muted">
+            Already have an account?
+            <button
+              class="font-headline font-bold text-botanical-deep hover:text-forest-dark underline underline-offset-4 focus:outline-none ml-1 transition-colors text-[16px]"
+              onclick="handleSignInToggle()" type="button">
               Sign in
             </button>
-</p>
-</div>
-</div>
-<!-- Bottom Reassurance & Legal Block -->
-<div class="space-y-4 pt-5">
-<!-- Privacy & Transparency Card -->
-<div class="bg-surface-linen rounded-2xl p-4 border border-border-subtle shadow-xs">
-<div class="flex items-start gap-3">
-<div class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 mt-0.5 text-botanical-deep border border-border-hairline shadow-xs">
-<span class="material-symbols-outlined text-[18px]">verified_user</span>
-</div>
-<div class="flex-1">
-<p class="text-[16px] leading-snug text-forest-dark font-semibold">
-          Your health information is personal. Here's how Nutrient Earth uses your data.
-        </p>
-<!-- Structured Policy & Transparency Links -->
-<div class="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-border-subtle/80">
-<button class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none" onclick="openSheet('data-use')" type="button">
-<span class="">How we use your data</span>
-<span class="material-symbols-outlined text-[16px]">chevron_right</span>
-</button>
-<button class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none" onclick="openSheet('ai-research')" type="button">
-<span class="">AI and research</span>
-<span class="material-symbols-outlined text-[16px]">chevron_right</span>
-</button>
-<button class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none" onclick="openSheet('privacy')" type="button">
-<span class="">Privacy Policy</span>
-<span class="material-symbols-outlined text-[16px]">chevron_right</span>
-</button>
-<button class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none" onclick="openSheet('terms')" type="button">
-<span class="">Terms of Service</span>
-<span class="material-symbols-outlined text-[16px]">chevron_right</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-<!-- Subtle, calm footer note -->
-<div class="text-center px-2 pb-1">
-<p class="text-[13px] leading-relaxed text-[#717975]">
-      By creating an account, you acknowledge our commitment to transparency and data sovereignty.
-    </p>
-</div>
-</div>
-</div>
-</main>
-<!-- Minimal Feedback Toast -->
-<!-- In-App Interactive Information Bottom Sheets / Modals -->
-<div class="fixed inset-0 bg-forest-dark/40 backdrop-blur-xs z-50 transition-opacity duration-200 opacity-0 hidden" id="sheet-backdrop" onclick="closeActiveSheet()"></div>
-<div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50 bg-white rounded-t-3xl border-t border-border-subtle shadow-2xl p-6 transition-transform duration-300 transform max-h-[85vh] flex flex-col translate-y-full" id="policy-sheet">
-<!-- Header Handle & Close -->
-<div class="flex items-center justify-between pb-3 border-b border-border-hairline shrink-0">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-botanical-deep"></span>
-<h3 class="text-[18px] font-headline font-bold text-forest-dark tracking-tight" id="sheet-title">Policy Information</h3>
-</div>
-<button aria-label="Close modal" class="w-8 h-8 rounded-full bg-surface-linen text-forest-muted flex items-center justify-center hover:text-forest-dark hover:bg-border-subtle transition-colors" onclick="closeActiveSheet()" type="button">
-<span class="material-symbols-outlined text-[18px]">close</span>
-</button>
-</div>
-<!-- Scrollable Sheet Content -->
-<div class="overflow-y-auto pt-4 pb-2 text-[15px] leading-relaxed text-forest-muted space-y-3.5 font-body pr-1" id="sheet-content">
-<!-- Dynamic injection based on selected policy -->
-</div>
-<!-- Bottom Done Action -->
-<div class="pt-4 mt-2 border-t border-border-hairline shrink-0">
-<button class="w-full h-11 rounded-xl bg-forest-dark text-white font-headline font-semibold text-[14px] hover:bg-botanical-deep active:scale-[0.99] transition-all" onclick="closeActiveSheet()" type="button">
-      Done reading
-    </button>
-</div>
-</div>
-<script>
-  const policyData = {
-    'data-use': {
-      title: 'How We Use Your Data',
-      content: `
+          </p>
+        </div>
+      </div>
+      <!-- Bottom Reassurance & Legal Block -->
+      <div class="space-y-4 pt-5">
+        <!-- Privacy & Transparency Card -->
+        <div class="bg-surface-linen rounded-2xl p-4 border border-border-subtle shadow-xs">
+          <div class="flex items-start gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 mt-0.5 text-botanical-deep border border-border-hairline shadow-xs">
+              <span class="material-symbols-outlined text-[18px]">verified_user</span>
+            </div>
+            <div class="flex-1">
+              <p class="text-[16px] leading-snug text-forest-dark font-semibold">
+                Your health information is personal. Here's how Nutrient Earth uses your data.
+              </p>
+              <!-- Structured Policy & Transparency Links -->
+              <div class="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-border-subtle/80">
+                <button
+                  class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none"
+                  onclick="openSheet('data-use')" type="button">
+                  <span class="">How we use your data</span>
+                  <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+                <button
+                  class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none"
+                  onclick="openSheet('ai-research')" type="button">
+                  <span class="">AI and research</span>
+                  <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+                <button
+                  class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none"
+                  onclick="openSheet('privacy')" type="button">
+                  <span class="">Privacy Policy</span>
+                  <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+                <button
+                  class="text-left text-[15px] font-medium text-botanical-deep hover:text-forest-dark underline underline-offset-2 flex items-center gap-1 py-1 focus:outline-none"
+                  onclick="openSheet('terms')" type="button">
+                  <span class="">Terms of Service</span>
+                  <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Subtle, calm footer note -->
+        <div class="text-center px-2 pb-1">
+          <p class="text-[13px] leading-relaxed text-[#717975]">
+            By creating an account, you acknowledge our commitment to transparency and data sovereignty.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!-- Minimal Feedback Toast -->
+  <!-- In-App Interactive Information Bottom Sheets / Modals -->
+  <div class="fixed inset-0 bg-forest-dark/40 backdrop-blur-xs z-50 transition-opacity duration-200 opacity-0 hidden"
+    id="sheet-backdrop" onclick="closeActiveSheet()"></div>
+  <div
+    class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50 bg-white rounded-t-3xl border-t border-border-subtle shadow-2xl p-6 transition-transform duration-300 transform max-h-[85vh] flex flex-col translate-y-full"
+    id="policy-sheet">
+    <!-- Header Handle & Close -->
+    <div class="flex items-center justify-between pb-3 border-b border-border-hairline shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-botanical-deep"></span>
+        <h3 class="text-[18px] font-headline font-bold text-forest-dark tracking-tight" id="sheet-title">Policy
+          Information</h3>
+      </div>
+      <button aria-label="Close modal"
+        class="w-8 h-8 rounded-full bg-surface-linen text-forest-muted flex items-center justify-center hover:text-forest-dark hover:bg-border-subtle transition-colors"
+        onclick="closeActiveSheet()" type="button">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+    <!-- Scrollable Sheet Content -->
+    <div class="overflow-y-auto pt-4 pb-2 text-[15px] leading-relaxed text-forest-muted space-y-3.5 font-body pr-1"
+      id="sheet-content">
+      <!-- Dynamic injection based on selected policy -->
+    </div>
+    <!-- Bottom Done Action -->
+    <div class="pt-4 mt-2 border-t border-border-hairline shrink-0">
+      <button
+        class="w-full h-11 rounded-xl bg-forest-dark text-white font-headline font-semibold text-[14px] hover:bg-botanical-deep active:scale-[0.99] transition-all"
+        onclick="closeActiveSheet()" type="button">
+        Done reading
+      </button>
+    </div>
+  </div>
+  <script>
+    const policyData = {
+      'data-use': {
+        title: 'How We Use Your Data',
+        content: `
         <p class="font-medium text-forest-dark">At Nutrient Earth, your privacy and biological data sovereignty are fundamental.</p>
         <p><strong class="text-forest-dark">1. Account & Contact Information:</strong> We collect your email address and authentication credentials purely to manage your account and send essential service updates.</p>
         <p><strong class="text-forest-dark">2. Voluntary Health & Goals Data:</strong> Nutrition habits, wellness goals, and lifestyle inputs are provided strictly at your election to personalize research insights.</p>
         <p><strong class="text-forest-dark">3. Purpose & Storage Security:</strong> Data is encrypted at rest (AES-256) and in transit (TLS 1.3). We never sell your personal or health data to third parties or advertisers.</p>
         <p><strong class="text-forest-dark">4. Rights & Withdrawal:</strong> You have full rights to request an export, correct your information, or delete your entire profile and history at any time with one click in account settings.</p>
       `
-    },
-    'ai-research': {
-      title: 'AI and Research Synthesis',
-      content: `
+      },
+      'ai-research': {
+        title: 'AI and Research Synthesis',
+        content: `
         <p class="font-medium text-forest-dark">How intelligent research assistance powers your insights:</p>
         <p><strong class="text-forest-dark">1. Research Synthesis:</strong> AI models are utilized to digest peer-reviewed clinical studies and synthesize practical summaries tailored to your indicated health interests.</p>
         <p><strong class="text-forest-dark">2. Crucial Medical Disclaimer:</strong> Nutrient Earth\'s AI synthesized recommendations are for educational and informational purposes only. It is not medical diagnosis, treatment, or care. AI can make mistakes—always consult a licensed healthcare professional for clinical decisions.</p>
         <p><strong class="text-forest-dark">3. Data Transmission Boundaries:</strong> External AI models process anonymized prompts stripped of personal direct identifiers. Your personal identity remains isolated.</p>
       `
-    },
-    'privacy': {
-      title: 'Privacy Policy Summary',
-      content: `
+      },
+      'privacy': {
+        title: 'Privacy Policy Summary',
+        content: `
         <p class="font-medium text-forest-dark">Transparent standards for every Nutrient Earth member:</p>
         <p><strong class="text-forest-dark">Retention Standards:</strong> Your data remains strictly active during your membership and is purged immediately upon deletion request.</p>
         <p><strong class="text-forest-dark">Compliance & Control:</strong> Designed in compliance with stringent global privacy standards (including GDPR and CCPA/CPRA). We adhere to data minimization principles.</p>
         <p><strong class="text-forest-dark">No Third-Party Brokers:</strong> We do not monetize member health profiles. Contact support@nutrientearth.com anytime with questions.</p>
       `
-    },
-    'terms': {
-      title: 'Terms of Service',
-      content: `
+      },
+      'terms': {
+        title: 'Terms of Service',
+        content: `
         <p class="font-medium text-forest-dark">Wellness platform usage guidelines:</p>
         <p><strong class="text-forest-dark">1. Intended Wellness Use:</strong> Nutrient Earth is designed to empower self-directed wellness literacy and healthy lifestyle exploration.</p>
         <p><strong class="text-forest-dark">2. Age Limitation:</strong> You must be 18 years of age or older to register and access Nutrient Earth.</p>
         <p><strong class="text-forest-dark">3. Member Responsibilities:</strong> Users agree to provide truthful information and use the platform in compliance with all relevant laws.</p>
       `
+      }
+    };
+
+    function openSheet(policyKey) {
+      const sheet = document.getElementById('policy-sheet');
+      const backdrop = document.getElementById('sheet-backdrop');
+      const titleEl = document.getElementById('sheet-title');
+      const contentEl = document.getElementById('sheet-content');
+
+      if (policyData[policyKey]) {
+        titleEl.textContent = policyData[policyKey].title;
+        contentEl.innerHTML = policyData[policyKey].content;
+      }
+
+      backdrop.classList.remove('hidden');
+      setTimeout(() => {
+        backdrop.classList.remove('opacity-0');
+        sheet.classList.remove('translate-y-full');
+      }, 10);
     }
-  };
 
-  function openSheet(policyKey) {
-    const sheet = document.getElementById('policy-sheet');
-    const backdrop = document.getElementById('sheet-backdrop');
-    const titleEl = document.getElementById('sheet-title');
-    const contentEl = document.getElementById('sheet-content');
-
-    if (policyData[policyKey]) {
-      titleEl.textContent = policyData[policyKey].title;
-      contentEl.innerHTML = policyData[policyKey].content;
+    function closeActiveSheet() {
+      const sheet = document.getElementById('policy-sheet');
+      const backdrop = document.getElementById('sheet-backdrop');
+      sheet.classList.add('translate-y-full');
+      backdrop.classList.add('opacity-0');
+      setTimeout(() => {
+        backdrop.classList.add('hidden');
+      }, 300);
     }
 
-    backdrop.classList.remove('hidden');
-    setTimeout(() => {
-      backdrop.classList.remove('opacity-0');
-      sheet.classList.remove('translate-y-full');
-    }, 10);
-  }
+    function handleAgeToggle(checkbox) {
+      const googleBtn = document.getElementById('btn-google-auth');
+      const submitBtn = document.getElementById('submit-email-btn');
+      const helper = document.getElementById('age-helper-text');
 
-  function closeActiveSheet() {
-    const sheet = document.getElementById('policy-sheet');
-    const backdrop = document.getElementById('sheet-backdrop');
-    sheet.classList.add('translate-y-full');
-    backdrop.classList.add('opacity-0');
-    setTimeout(() => {
-      backdrop.classList.add('hidden');
-    }, 300);
-  }
-
-  function handleAgeToggle(checkbox) {
-    const googleBtn = document.getElementById('btn-google-auth');
-    const emailBtn = document.getElementById('btn-email-flow');
-    const helper = document.getElementById('age-helper-text');
-
-    if (checkbox.checked) {
-      // Enable both buttons
-      if (googleBtn) {
-        googleBtn.removeAttribute('disabled');
-        googleBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        googleBtn.classList.add('hover:bg-[#FAFCF8]', 'active:scale-[0.99]');
-      }
-      if (emailBtn) {
-        emailBtn.removeAttribute('disabled');
-        emailBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        emailBtn.classList.add('hover:bg-surface-linen', 'active:scale-[0.99]');
-      }
-      if (helper) {
-        helper.textContent = 'Age verified (18+ confirmed)';
-        helper.classList.remove('text-forest-muted');
-        helper.classList.add('text-botanical-deep', 'font-medium');
-      }
-      showToast('Age confirmed. You can now proceed.');
-    } else {
-      // Disable buttons
-      if (googleBtn) {
-        googleBtn.setAttribute('disabled', 'true');
-        googleBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        googleBtn.classList.remove('hover:bg-[#FAFCF8]', 'active:scale-[0.99]');
-      }
-      if (emailBtn) {
-        emailBtn.setAttribute('disabled', 'true');
-        emailBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        emailBtn.classList.remove('hover:bg-surface-linen', 'active:scale-[0.99]');
-      }
-      if (helper) {
-        helper.textContent = 'Required to activate account creation';
-        helper.classList.remove('text-botanical-deep', 'font-medium');
-        helper.classList.add('text-forest-muted');
+      if (checkbox.checked) {
+        if (googleBtn) {
+          googleBtn.removeAttribute('disabled');
+          googleBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+          googleBtn.classList.add('hover:bg-[#FAFCF8]', 'active:scale-[0.99]');
+        }
+        if (submitBtn) {
+          submitBtn.removeAttribute('disabled');
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        if (helper) {
+          helper.textContent = 'Age verified (18+ confirmed)';
+          helper.classList.remove('text-forest-muted');
+          helper.classList.add('text-botanical-deep', 'font-medium');
+        }
+        showToast('Age confirmed. You can now proceed.');
+      } else {
+        if (googleBtn) {
+          googleBtn.setAttribute('disabled', 'true');
+          googleBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          googleBtn.classList.remove('hover:bg-[#FAFCF8]', 'active:scale-[0.99]');
+        }
+        if (submitBtn) {
+          submitBtn.setAttribute('disabled', 'true');
+          submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        if (helper) {
+          helper.textContent = 'Required to activate account creation';
+          helper.classList.remove('text-botanical-deep', 'font-medium');
+          helper.classList.add('text-forest-muted');
+        }
       }
     }
-  }
 
-  function handleGoogleAuth() {
-    const checkbox = document.getElementById('age-checkbox');
-    if (!checkbox || !checkbox.checked) {
-      showToast('Please confirm you are 18 or older first');
-      return;
+    var submittedUserEmail = '';
+
+    function backToEmailInput() {
+      var otpContainer = document.getElementById('otp-input-container');
+      var emailContainer = document.getElementById('email-input-container');
+      if (otpContainer) otpContainer.classList.add('hidden');
+      if (emailContainer) emailContainer.classList.remove('hidden');
+      var submitEmailBtn = document.getElementById('submit-email-btn');
+      if (submitEmailBtn) {
+        submitEmailBtn.disabled = false;
+        var label = document.getElementById('submit-email-label');
+        if (label) label.textContent = 'Continue with email';
+      }
     }
-    showToast('Connecting with Google...');
-  }
-</script><div class="transition-opacity duration-200 fixed bottom-6 left-1/2 -translate-x-1/2 bg-forest-dark text-white px-4 py-2.5 rounded-full text-xs font-label shadow-lg z-50 flex items-center gap-2 opacity-0 pointer-events-none" id="toast">
-<span class="material-symbols-outlined text-[16px] text-[#A8D0B4]">check_circle</span>
-<span class="" id="toast-text">Age confirmed. You can now proceed.</span>
-</div>
-<script>
+
+    function resendOtpCode() {
+      if (!submittedUserEmail) return;
+      showToast('Resending verification email...');
+      window.NEBridge.send('EMAIL_SIGN_IN', {
+        email: submittedUserEmail,
+        captchaToken: 'resend_request'
+      });
+    }
+
+    function handleGoogleAuth() {
+      const checkbox = document.getElementById('age-checkbox');
+      if (!checkbox || !checkbox.checked) {
+        showToast('Please confirm you are 18 or older first');
+        return;
+      }
+      showToast('Connecting with Google...');
+    }
+  </script>
+  <div
+    class="transition-opacity duration-200 fixed bottom-6 left-1/2 -translate-x-1/2 bg-forest-dark text-white px-4 py-2.5 rounded-full text-xs font-label shadow-lg z-50 flex items-center gap-2 opacity-0 pointer-events-none"
+    id="toast">
+    <span class="material-symbols-outlined text-[16px] text-[#A8D0B4]">check_circle</span>
+    <span class="" id="toast-text">Age confirmed. You can now proceed.</span>
+  </div>
+  <script>
     function showToast(message) {
       const toast = document.getElementById('toast');
       const text = document.getElementById('toast-text');
@@ -369,15 +516,10 @@
     }
 
     function submitEmail() {
-      const email = document.getElementById('email-field').value;
-      if (!email || !email.includes('@')) {
-        showToast('Please enter a valid email address');
-        return;
+      var btn = document.getElementById('submit-email-btn');
+      if (btn) {
+        btn.click();
       }
-      showToast('Secure sign-in link dispatched');
-      setTimeout(() => {
-        closeEmailFlow();
-      }, 1500);
     }
 
     function handleSignInToggle() {
@@ -387,91 +529,253 @@
 
 
 
+  <script id="ne-screen-wiring">
+    (function () {
+      var turnstileWidgetId = null;
+      var currentTurnstileToken = null;
+      var isSubmitting = false;
 
-<script id="ne-flutter-bridge-core">
-  window.NEBridge = {
-    send: function(type, payload) {
-      var msg = Object.assign({ type: type }, payload || {});
-      var jsonStr = JSON.stringify(msg);
-      if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
-        window.FlutterBridge.postMessage(jsonStr);
+      function getSiteKey() {
+        try {
+          var urlParams = new URLSearchParams(window.location.search);
+          var paramKey = urlParams.get('sitekey');
+          if (paramKey && paramKey.trim().length > 0) return paramKey.trim();
+        } catch (_) { }
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          return '1x00000000000000000000AA';
+        }
+        return window.NE_TURNSTILE_SITE_KEY || '0x4AAAAAAF7pSMBIkjdSvcBE';
       }
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage(msg, '*');
+
+      function showTurnstileError(msg) {
+        var errEl = document.getElementById('turnstile-error');
+        if (errEl) {
+          errEl.textContent = msg;
+          errEl.classList.remove('hidden');
+        }
       }
-      console.log('[NEBridge] ' + type, msg);
-    },
-    navigate: function(route) {
-      this.send('NAVIGATE', { route: route });
-    }
-  };
-</script>
 
+      function hideTurnstileError() {
+        var errEl = document.getElementById('turnstile-error');
+        if (errEl) {
+          errEl.classList.add('hidden');
+          errEl.textContent = '';
+        }
+      }
 
-<script id="ne-screen-wiring">
-(function() {
-  function initScreen() {
-    console.log('[Stitch] Screen 03 loaded');
-    
-    // Back navigation
-    var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('header button');
-    if (backBtn) {
-      backBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.NEBridge.navigate('/welcome');
-      });
-    }
+      function renderTurnstileWidget() {
+        var container = document.getElementById('turnstile-container');
+        if (!container) return;
+        if (turnstileWidgetId !== null) return; // Already initialized
 
-    // Google Auth
-    var googleBtn = document.getElementById('btn-google-auth');
-    if (googleBtn) {
-      googleBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var ageCheck = document.getElementById('age-checkbox');
-        if (ageCheck && !ageCheck.checked) {
-          if (typeof showToast === 'function') showToast('Please confirm you are 18 or older first');
+        if (typeof turnstile === 'undefined') {
+          setTimeout(renderTurnstileWidget, 200);
           return;
         }
-        window.NEBridge.send('AUTH_GOOGLE', { nextRoute: '/onboarding/health-goals' });
-      });
-    }
 
-    // Email Flow Submission
-    var submitEmailBtn = document.querySelector('#email-input-container button[onclick*="submitEmail"]') || document.querySelector('button[onclick*="submitEmail"]');
-    if (submitEmailBtn) {
-      submitEmailBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var ageCheck = document.getElementById('age-checkbox');
-        if (ageCheck && !ageCheck.checked) {
-          if (typeof showToast === 'function') showToast('Please confirm you are 18 or older first');
-          return;
+        try {
+          var siteKey = getSiteKey();
+          turnstileWidgetId = turnstile.render(container, {
+            sitekey: siteKey,
+            theme: 'light',
+            size: 'normal',
+            callback: function (token) {
+              console.log('[Turnstile] Token successfully acquired');
+              currentTurnstileToken = token;
+              hideTurnstileError();
+            },
+            'expired-callback': function () {
+              console.warn('[Turnstile] Token expired');
+              currentTurnstileToken = null;
+              showTurnstileError('Verification expired. Please complete the security check again.');
+              if (turnstileWidgetId !== null && typeof turnstile !== 'undefined') {
+                turnstile.reset(turnstileWidgetId);
+              }
+            },
+            'error-callback': function (code) {
+              console.error('[Turnstile] Verification error:', code);
+              currentTurnstileToken = null;
+              showTurnstileError('Security verification failed. Please refresh or retry.');
+            },
+            'timeout-callback': function () {
+              console.warn('[Turnstile] Challenge timeout');
+              currentTurnstileToken = null;
+              if (turnstileWidgetId !== null && typeof turnstile !== 'undefined') {
+                turnstile.reset(turnstileWidgetId);
+              }
+            }
+          });
+        } catch (e) {
+          console.error('[Turnstile] Render exception:', e);
+          showTurnstileError('Verification service could not be rendered.');
         }
-        var emailInput = document.getElementById('email-field');
-        var email = emailInput ? emailInput.value.trim() : '';
-        if (!email || !email.includes('@')) {
-          if (typeof showToast === 'function') showToast('Please enter a valid email address');
-          return;
+      }
+
+      window.resetTurnstile = function () {
+        currentTurnstileToken = null;
+        isSubmitting = false;
+        var submitBtn = document.getElementById('submit-email-btn');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          var label = document.getElementById('submit-email-label');
+          if (label) label.textContent = 'Send secure sign-in link';
         }
-        window.NEBridge.send('AUTH_EMAIL', { email: email, nextRoute: '/onboarding/health-goals' });
+        if (turnstileWidgetId !== null && typeof turnstile !== 'undefined') {
+          try {
+            turnstile.reset(turnstileWidgetId);
+          } catch (_) { }
+        }
+      };
+
+      // Cross-frame messaging from Flutter host
+      window.addEventListener('message', function (event) {
+        var data = event.data;
+        if (data && (data.type === 'RESET_CAPTCHA' || data === 'RESET_CAPTCHA')) {
+          window.resetTurnstile();
+        }
       });
-    }
 
-    // Skip / Continue anyway for unauthenticated onboarding
-    var bypassBtn = document.getElementById('bypass-auth-btn');
-    if (bypassBtn) {
-      bypassBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.NEBridge.navigate('/onboarding/health-goals');
-      });
-    }
-  }
+      function initScreen() {
+        console.log('[Stitch] Screen 03 initializing with Cloudflare Turnstile security layer');
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initScreen);
-  } else {
-    initScreen();
-  }
-})();
-</script>
+        renderTurnstileWidget();
 
-</body></html>
+        var googleBtn = document.getElementById('btn-google-auth') || document.querySelector('button:has(svg)');
+        if (googleBtn) {
+          googleBtn.addEventListener('click', function (e) {
+            var checkbox = document.getElementById('age-checkbox');
+            if (checkbox && !checkbox.checked) {
+              return;
+            }
+            e.preventDefault();
+            window.NEBridge.send('GOOGLE_SIGN_IN');
+          });
+        }
+
+        var submitEmailBtn = document.getElementById('submit-email-btn');
+        if (submitEmailBtn) {
+          submitEmailBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            var checkbox = document.getElementById('age-checkbox');
+            if (checkbox && !checkbox.checked) {
+              showTurnstileError('Please confirm you are 18 or older to proceed.');
+              return;
+            }
+
+            var emailInput = document.getElementById('email-field');
+            var emailVal = emailInput ? emailInput.value.trim() : '';
+            var emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
+            if (!emailVal || !emailRegex.test(emailVal)) {
+              showTurnstileError('Please enter a valid email address.');
+              if (emailInput) emailInput.focus();
+              return;
+            }
+
+            // Strict client-side CAPTCHA gate: never send without valid token
+            if (!currentTurnstileToken) {
+              showTurnstileError('Please complete the security verification challenge before continuing.');
+              if (turnstileWidgetId === null) {
+                renderTurnstileWidget();
+              }
+              return;
+            }
+
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            var tokenToTransmit = currentTurnstileToken;
+            currentTurnstileToken = null; // Token consumed immediately (single-use guarantee)
+
+            submitEmailBtn.disabled = true;
+            var label = document.getElementById('submit-email-label');
+            if (label) label.textContent = 'Verifying security token...';
+
+            submittedUserEmail = emailVal;
+            var targetEl = document.getElementById('otp-target-email');
+            if (targetEl) targetEl.textContent = emailVal;
+            var emailCont = document.getElementById('email-input-container');
+            var otpCont = document.getElementById('otp-input-container');
+            if (emailCont) emailCont.classList.add('hidden');
+            if (otpCont) otpCont.classList.remove('hidden');
+            var otpCodeInput = document.getElementById('otp-code-field');
+            if (otpCodeInput) {
+              otpCodeInput.value = '';
+              setTimeout(function () { otpCodeInput.focus(); }, 100);
+            }
+            showToast('Verification code & magic link sent!');
+
+            window.NEBridge.send('EMAIL_SIGN_IN', {
+              email: emailVal,
+              captchaToken: tokenToTransmit
+            });
+          });
+        }
+
+        var submitOtpBtn = document.getElementById('submit-otp-btn');
+        if (submitOtpBtn) {
+          submitOtpBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var otpField = document.getElementById('otp-code-field');
+            var code = otpField ? otpField.value.trim() : '';
+            var errEl = document.getElementById('otp-error-msg');
+            if (!code || code.length < 6) {
+              if (errEl) {
+                errEl.textContent = 'Please enter the 6-digit verification code.';
+                errEl.classList.remove('hidden');
+              }
+              if (otpField) otpField.focus();
+              return;
+            }
+            if (errEl) errEl.classList.add('hidden');
+            submitOtpBtn.disabled = true;
+            var label = document.getElementById('submit-otp-label');
+            if (label) label.textContent = 'Verifying code...';
+
+            window.NEBridge.send('VERIFY_OTP', {
+              email: submittedUserEmail,
+              token: code
+            });
+          });
+        }
+
+        var otpCodeField = document.getElementById('otp-code-field');
+        if (otpCodeField) {
+          otpCodeField.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (submitOtpBtn) submitOtpBtn.click();
+            }
+          });
+        }
+
+        var emailField = document.getElementById('email-field');
+        if (emailField) {
+          emailField.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (submitEmailBtn) submitEmailBtn.click();
+            }
+          });
+        }
+
+        var backBtn = document.querySelector('button[aria-label="Go back"]') || document.querySelector('button:has(.material-symbols-outlined)');
+        if (backBtn) {
+          backBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.NEBridge.navigate('/welcome');
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initScreen);
+      } else {
+        initScreen();
+      }
+    })();
+  </script>
+
+</body>
+
+</html>

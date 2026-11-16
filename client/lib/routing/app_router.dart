@@ -98,6 +98,17 @@ GoRouter createAppRouter({
           returnTo: state.uri.queryParameters['returnTo'],
         ),
       ),
+      GoRoute(
+        path: '/auth/verify-email',
+        builder: (context, state) => StitchScreenHostWidget(
+          screenIndex: 3,
+          returnTo: state.uri.queryParameters['returnTo'],
+        ),
+      ),
+      GoRoute(
+        path: '/auth/callback',
+        builder: (context, state) => const StitchScreenHostWidget(screenIndex: 18),
+      ),
 
       // Screen 04: Health Goals Conditions Discovery
       GoRoute(

@@ -602,12 +602,13 @@ class _StitchScreenHostWidgetState
             setState(() {
               _isAuthenticating = false;
             });
-            final returnTarget =
-                widget.returnTo != null && widget.returnTo!.isNotEmpty
-                    ? '&returnTo=${Uri.encodeComponent(widget.returnTo!)}'
-                    : '';
-            context.go(
-                '/auth/verify-email?email=${Uri.encodeComponent(cleanEmail)}$returnTarget');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Verification code & magic link sent! Enter code or tap the email link.'),
+                backgroundColor: Color(0xFF0B2B26),
+                duration: Duration(seconds: 4),
+              ),
+            );
           }
         } on AuthException catch (ae) {
           if (mounted) {
@@ -650,6 +651,88 @@ class _StitchScreenHostWidgetState
                 ),
                 backgroundColor: const Color(0xFFBA1A1A),
                 duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        } finally {
+          if (mounted) {
+            setState(() {
+              _isAuthenticating = false;
+            });
+          }
+        }
+        break;
+
+      case 'VERIFY_OTP':
+        final email = msg['email'] as String?;
+        final token = msg['token'] as String?;
+        if (email == null || email.trim().isEmpty || token == null || token.trim().isEmpty) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Please enter the 6-digit verification code.'),
+                backgroundColor: Color(0xFFBA1A1A),
+              ),
+            );
+          }
+          break;
+        }
+
+        setState(() {
+          _isAuthenticating = true;
+          _authLoadingMessage = 'Verifying code...';
+        });
+
+        try {
+          final authService = ref.read(authServiceProvider);
+          final res = await authService.verifyOtp(
+            email: email.trim().toLowerCase(),
+            token: token.trim(),
+            type: OtpType.email,
+          );
+
+          final user = res.user ?? authService.currentUser;
+          if (user != null && mounted) {
+            setState(() {
+              _authLoadingMessage = 'Personalizing your plan...';
+            });
+
+            await ref.read(profileSyncServiceProvider).synchronizeStagedOnboarding(
+              user: user,
+              notifier: notifier,
+            );
+
+            final destination = await AuthDestinationResolver.resolveDestination(
+              profileRepository: ref.read(profileRepositoryProvider),
+              userId: user.id,
+              returnTo: widget.returnTo,
+            );
+
+            if (mounted) {
+              context.go(destination);
+            }
+          }
+        } on AuthException catch (ae) {
+          if (mounted) {
+            setState(() {
+              _isAuthenticating = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(ae.message),
+                backgroundColor: const Color(0xFFBA1A1A),
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            setState(() {
+              _isAuthenticating = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Verification failed: $e'),
+                backgroundColor: const Color(0xFFBA1A1A),
               ),
             );
           }
