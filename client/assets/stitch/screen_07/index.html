@@ -65,6 +65,31 @@
       min-height: max(884px, 100dvh);
       font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
     }
+
+    /* Declarative instant reactive styling for cards */
+    .diet-card:has(input:checked) {
+      background-color: #F4F8F5 !important;
+      border: 2px solid #38675a !important;
+    }
+    .diet-card:has(input:checked) .radio-indicator {
+      background-color: #00251D !important;
+    }
+    .diet-card:has(input:checked) .radio-dot {
+      opacity: 1 !important;
+    }
+    .diet-card:has(input:checked) .diet-title {
+      color: #00251D !important;
+      font-weight: 700 !important;
+    }
+
+    .intolerance-card:has(input:checked) {
+      background-color: #F4F8F5 !important;
+      border: 2px solid #38675a !important;
+    }
+    .intolerance-card:has(input:checked) .intolerance-title {
+      color: #00251D !important;
+      font-weight: 700 !important;
+    }
   </style>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <script id="tailwind-config">
@@ -676,27 +701,9 @@
       const customDietInput = document.getElementById('custom-diet-input');
 
       function setDietOptionVisuals(targetValue) {
-        dietCards.forEach(card => {
-          const val = card.getAttribute('data-value');
-          const radio = card.querySelector('.diet-radio');
-          const isSelected = val === targetValue;
-          const indicator = card.querySelector('.radio-indicator');
-          const dot = card.querySelector('.radio-dot');
-          const title = card.querySelector('.diet-title');
-
-          if (radio) radio.checked = isSelected;
-
-          if (isSelected) {
-            card.className = 'diet-card group relative flex flex-col gap-2.5 p-3.5 sm:p-4 rounded-2xl bg-[#F4F8F5] border-2 border-[#38675a] transition-all cursor-pointer shadow-sm select-none';
-            if (indicator) indicator.className = 'radio-indicator w-5 h-5 rounded-full mt-0.5 flex-shrink-0 bg-[#00251D] flex items-center justify-center transition-colors';
-            if (dot) dot.className = 'radio-dot w-2 h-2 rounded-full bg-white opacity-100 transition-opacity';
-            if (title) title.className = 'font-headline text-[15px] font-bold text-[#00251D] diet-title transition-colors';
-          } else {
-            card.className = 'diet-card group relative flex flex-col gap-2.5 p-3.5 sm:p-4 rounded-2xl bg-[#FFFFFF] hover:bg-[#F8FAF7] border border-[#E4E9E2] transition-all cursor-pointer shadow-sm select-none';
-            if (indicator) indicator.className = 'radio-indicator w-5 h-5 rounded-full mt-0.5 flex-shrink-0 bg-surface-variant flex items-center justify-center transition-colors';
-            if (dot) dot.className = 'radio-dot w-2 h-2 rounded-full bg-white opacity-0 transition-opacity';
-            if (title) title.className = 'font-headline text-[15px] font-medium text-on-surface diet-title transition-colors';
-          }
+        const allRadios = document.querySelectorAll('input[name="diet_pattern"]');
+        allRadios.forEach(radio => {
+          radio.checked = (radio.value === targetValue);
         });
 
         if (targetValue === 'other') {
@@ -706,14 +713,31 @@
           if (dietOtherContainer) dietOtherContainer.classList.add('hidden');
         }
 
+        if (targetValue) {
+          sessionStorage.setItem('nutrient_earth_user_selected_diet', targetValue);
+        }
         saveState();
       }
 
+      // Attach native radio change listeners
+      const allDietRadios = document.querySelectorAll('input[name="diet_pattern"]');
+      allDietRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          if (radio.checked) {
+            setDietOptionVisuals(radio.value);
+          }
+        });
+      });
+
+      // Attach card click handlers for entire clickable surface
       dietCards.forEach(card => {
         card.addEventListener('click', (e) => {
           if (e.target === customDietInput) return;
-          const val = card.getAttribute('data-value');
-          setDietOptionVisuals(val);
+          const radio = card.querySelector('.diet-radio');
+          if (radio) {
+            radio.checked = true;
+            setDietOptionVisuals(radio.value);
+          }
         });
       });
 
@@ -983,7 +1007,7 @@
         // Priority 2: Stored preferences if not set by URL
         try {
           if (!hydratedDiet) {
-            const storedDiet = localStorage.getItem(STORAGE_KEY_DIET);
+            const storedDiet = sessionStorage.getItem('nutrient_earth_user_selected_diet');
             if (storedDiet) {
               setDietOptionVisuals(storedDiet);
             }
