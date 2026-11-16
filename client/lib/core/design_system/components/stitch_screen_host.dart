@@ -827,10 +827,23 @@ class _StitchScreenHostWidgetState
 
       case 'SAVE_FOOD_CHOICES':
       case 'SAVE_STEP_07':
-        final pattern = msg['dietaryPattern'] ?? msg['pattern'];
+        final pattern =
+            msg['dietaryPattern'] ?? msg['pattern'] ?? msg['dietPattern'];
         if (pattern is String && pattern.isNotEmpty) {
           notifier.setDietaryPattern(pattern,
-              custom: msg['customDietaryPattern'] as String?);
+              custom: (msg['customDietaryPattern'] ??
+                  msg['customDiet'] ??
+                  msg['custom']) as String?);
+        }
+        final rawAllergens = msg['allergens'] ?? msg['allergyList'];
+        if (rawAllergens is List) {
+          notifier.setAllergens(
+              rawAllergens.map((e) => e.toString()).toSet());
+        }
+        final customAllergen =
+            (msg['customAllergen'] ?? msg['customAllergens']) as String?;
+        if (customAllergen != null && customAllergen.isNotEmpty) {
+          notifier.setCustomAllergen(customAllergen);
         }
         final rawIntolerances = msg['foodIntolerances'] ?? msg['intolerances'];
         if (rawIntolerances is List) {
