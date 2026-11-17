@@ -19,6 +19,9 @@ class _StitchViewStub implements StitchViewPlatform {
       onMessage: onMessage,
     );
   }
+
+  @override
+  void sendMessage(Map<String, dynamic> message) {}
 }
 
 class _NativeScreenFallbackWidget extends StatelessWidget {

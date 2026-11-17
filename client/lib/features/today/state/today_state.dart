@@ -288,3 +288,5 @@ final todayStateProvider = StateNotifierProvider<TodayNotifier, TodayState>((ref
     taskRepository: taskRepo,
   );
 });
+
+final todayNotifierProvider = todayStateProvider;

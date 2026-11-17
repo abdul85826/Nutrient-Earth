@@ -160,7 +160,10 @@ class AppConfig {
         final origin = Uri.base.origin;
         if (origin.isNotEmpty && origin != 'null') {
           // Strict Production Guard: Production must never redirect to localhost
-          if (isProduction && (origin.contains('localhost') || origin.contains('127.0.0.1'))) {
+          if (isProduction || origin.contains('nutrientearth.win') || origin.contains('vercel.app')) {
+            return '$defaultProdOrigin/auth/callback';
+          }
+          if (origin.contains('localhost') || origin.contains('127.0.0.1')) {
             return '$defaultProdOrigin/auth/callback';
           }
           return '$origin/auth/callback';

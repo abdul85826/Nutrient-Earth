@@ -8,5 +8,6 @@ abstract class StitchViewPlatform {
     required String initialUrl,
     required OnStitchMessageCallback onMessage,
   });
-}
 
+  void sendMessage(Map<String, dynamic> message);
+}

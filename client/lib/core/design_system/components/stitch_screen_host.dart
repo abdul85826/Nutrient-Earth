@@ -598,6 +598,10 @@ class _StitchScreenHostWidgetState
             email: cleanEmail,
             captchaToken: captchaToken,
           );
+          _platformView.sendMessage({
+            'type': 'EMAIL_SENT_SUCCESS',
+            'email': cleanEmail,
+          });
           if (mounted) {
             setState(() {
               _isAuthenticating = false;
@@ -611,14 +615,18 @@ class _StitchScreenHostWidgetState
             );
           }
         } on AuthException catch (ae) {
+          final msg = ae.message.toLowerCase();
+          final displayError = msg.contains('captcha')
+              ? 'Verification check expired or invalid. Please retry the security challenge.'
+              : ae.message;
+          _platformView.sendMessage({
+            'type': 'EMAIL_SEND_FAILED',
+            'error': displayError,
+          });
           if (mounted) {
             setState(() {
               _isAuthenticating = false;
             });
-            final msg = ae.message.toLowerCase();
-            final displayError = msg.contains('captcha')
-                ? 'Verification check expired or invalid. Please retry the security challenge.'
-                : ae.message;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Row(
@@ -635,6 +643,11 @@ class _StitchScreenHostWidgetState
             );
           }
         } catch (e) {
+          final displayError = 'Failed to send sign-in link: $e';
+          _platformView.sendMessage({
+            'type': 'EMAIL_SEND_FAILED',
+            'error': displayError,
+          });
           if (mounted) {
             setState(() {
               _isAuthenticating = false;
@@ -646,7 +659,7 @@ class _StitchScreenHostWidgetState
                     const Icon(Icons.error_outline_rounded,
                         color: Colors.white, size: 20),
                     const SizedBox(width: 8),
-                    Expanded(child: Text('Failed to send sign-in link: $e')),
+                    Expanded(child: Text(displayError)),
                   ],
                 ),
                 backgroundColor: const Color(0xFFBA1A1A),
@@ -685,11 +698,32 @@ class _StitchScreenHostWidgetState
 
         try {
           final authService = ref.read(authServiceProvider);
-          final res = await authService.verifyOtp(
-            email: email.trim().toLowerCase(),
-            token: token.trim(),
-            type: OtpType.email,
-          );
+          final cleanEmail = email.trim().toLowerCase();
+          final cleanToken = token.trim();
+          
+          AuthResponse res;
+          try {
+            res = await authService.verifyOtp(
+              email: cleanEmail,
+              token: cleanToken,
+              type: OtpType.email,
+            );
+          } on AuthException catch (e) {
+            // Fallback for initial signup OTPs which may use OtpType.signup
+            if (e.message.toLowerCase().contains('invalid') || e.message.toLowerCase().contains('expired')) {
+              try {
+                res = await authService.verifyOtp(
+                  email: cleanEmail,
+                  token: cleanToken,
+                  type: OtpType.signup,
+                );
+              } catch (_) {
+                rethrow; // Rethrow original or secondary
+              }
+            } else {
+              rethrow;
+            }
+          }
 
           final user = res.user ?? authService.currentUser;
           if (user != null && mounted) {
@@ -713,6 +747,10 @@ class _StitchScreenHostWidgetState
             }
           }
         } on AuthException catch (ae) {
+          _platformView.sendMessage({
+            'type': 'OTP_VERIFICATION_FAILED',
+            'error': ae.message,
+          });
           if (mounted) {
             setState(() {
               _isAuthenticating = false;
@@ -725,6 +763,10 @@ class _StitchScreenHostWidgetState
             );
           }
         } catch (e) {
+          _platformView.sendMessage({
+            'type': 'OTP_VERIFICATION_FAILED',
+            'error': 'Verification failed: $e',
+          });
           if (mounted) {
             setState(() {
               _isAuthenticating = false;
@@ -742,6 +784,46 @@ class _StitchScreenHostWidgetState
               _isAuthenticating = false;
             });
           }
+        }
+        break;
+
+      case 'RESEND_OTP':
+        final email = msg['email'] as String?;
+        if (email == null || email.trim().isEmpty) break;
+        final cleanEmail = email.trim().toLowerCase();
+        try {
+          final authService = ref.read(authServiceProvider);
+          await authService.resendOtp(
+            email: cleanEmail,
+            type: OtpType.email,
+          );
+          _platformView.sendMessage({'type': 'RESEND_SUCCESS'});
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('New verification code sent to your email.'),
+                backgroundColor: Color(0xFF0B2B26),
+              ),
+            );
+          }
+        } on AuthException catch (ae) {
+          _platformView.sendMessage({
+            'type': 'RESEND_FAILED',
+            'error': ae.message,
+          });
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(ae.message),
+                backgroundColor: const Color(0xFFBA1A1A),
+              ),
+            );
+          }
+        } catch (e) {
+          _platformView.sendMessage({
+            'type': 'RESEND_FAILED',
+            'error': 'Failed to resend code: $e',
+          });
         }
         break;
 
@@ -1044,75 +1126,80 @@ class _StitchScreenHostWidgetState
       body: SafeArea(
         top: false,
         bottom: false,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: _platformView.buildView(
-                screenIndex: widget.screenIndex,
-                initialUrl: _initialUrl,
-                onMessage: _handleStitchMessage,
-              ),
-            ),
-            if (_isAuthenticating)
-              Positioned.fill(
-                child: Container(
-                  color: const Color(0x99051F20),
-                  child: Center(
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 430),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _platformView.buildView(
+                    screenIndex: widget.screenIndex,
+                    initialUrl: _initialUrl,
+                    onMessage: _handleStitchMessage,
+                  ),
+                ),
+                if (_isAuthenticating)
+                  Positioned.fill(
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 32),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 28, vertical: 24),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFBF9F4),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x33000000),
-                            blurRadius: 20,
-                            offset: Offset(0, 8),
+                      color: const Color(0x99051F20),
+                      child: Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 32),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 28, vertical: 24),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFBF9F4),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x33000000),
+                                blurRadius: 20,
+                                offset: Offset(0, 8),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(
-                            width: 32,
-                            height: 32,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              color: Color(0xFF38675A),
-                            ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(
+                                width: 32,
+                                height: 32,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  color: Color(0xFF38675A),
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                _authLoadingMessage,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF000A06),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Verifying clinical identity session',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'JetBrains Mono',
+                                  fontSize: 11,
+                                  color: Color(0xFF414845),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 18),
-                          Text(
-                            _authLoadingMessage,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF000A06),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Verifying clinical identity session',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'JetBrains Mono',
-                              fontSize: 11,
-                              color: Color(0xFF414845),
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

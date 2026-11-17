@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -467,9 +467,8 @@
     function resendOtpCode() {
       if (!submittedUserEmail) return;
       showToast('Resending verification email...');
-      window.NEBridge.send('EMAIL_SIGN_IN', {
-        email: submittedUserEmail,
-        captchaToken: 'resend_request'
+      window.NEBridge.send('RESEND_OTP', {
+        email: submittedUserEmail
       });
     }
 
@@ -541,9 +540,6 @@
           var paramKey = urlParams.get('sitekey');
           if (paramKey && paramKey.trim().length > 0) return paramKey.trim();
         } catch (_) { }
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-          return '1x00000000000000000000AA';
-        }
         return window.NE_TURNSTILE_SITE_KEY || '0x4AAAAAAF7pSMBIkjdSvcBE';
       }
 
@@ -630,8 +626,58 @@
       // Cross-frame messaging from Flutter host
       window.addEventListener('message', function (event) {
         var data = event.data;
-        if (data && (data.type === 'RESET_CAPTCHA' || data === 'RESET_CAPTCHA')) {
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data);
+          } catch (_) { }
+        }
+        if (!data) return;
+
+        if (data.type === 'RESET_CAPTCHA' || data === 'RESET_CAPTCHA') {
           window.resetTurnstile();
+        } else if (data.type === 'EMAIL_SENT_SUCCESS') {
+          isSubmitting = false;
+          var emailVal = data.email || submittedUserEmail;
+          var targetEl = document.getElementById('otp-target-email');
+          if (targetEl) targetEl.textContent = emailVal;
+          var emailCont = document.getElementById('email-input-container');
+          var otpCont = document.getElementById('otp-input-container');
+          if (emailCont) emailCont.classList.add('hidden');
+          if (otpCont) otpCont.classList.remove('hidden');
+          var otpCodeInput = document.getElementById('otp-code-field');
+          if (otpCodeInput) {
+            otpCodeInput.value = '';
+            setTimeout(function () { otpCodeInput.focus(); }, 100);
+          }
+          showToast('Verification code & magic link sent!');
+        } else if (data.type === 'EMAIL_SEND_FAILED') {
+          isSubmitting = false;
+          var submitEmailBtn = document.getElementById('submit-email-btn');
+          if (submitEmailBtn) {
+            submitEmailBtn.disabled = false;
+            var label = document.getElementById('submit-email-label');
+            if (label) label.textContent = 'Continue with email';
+          }
+          showTurnstileError(data.error || 'Failed to send verification code. Please retry.');
+          window.resetTurnstile();
+        } else if (data.type === 'OTP_VERIFICATION_FAILED') {
+          var errEl = document.getElementById('otp-error-msg');
+          if (errEl) {
+            errEl.textContent = data.error || 'Invalid or expired code. Please retry.';
+            errEl.classList.remove('hidden');
+          }
+          var submitOtpBtn = document.getElementById('submit-otp-btn');
+          if (submitOtpBtn) {
+            submitOtpBtn.disabled = false;
+            var otpLabel = document.getElementById('submit-otp-label');
+            if (otpLabel) otpLabel.textContent = 'Confirm code';
+          }
+          var otpField = document.getElementById('otp-code-field');
+          if (otpField) otpField.focus();
+        } else if (data.type === 'RESEND_SUCCESS') {
+          showToast('New verification code sent to your email!');
+        } else if (data.type === 'RESEND_FAILED') {
+          showToast(data.error || 'Could not resend code. Please wait before retrying.');
         }
       });
 
@@ -689,21 +735,9 @@
 
             submitEmailBtn.disabled = true;
             var label = document.getElementById('submit-email-label');
-            if (label) label.textContent = 'Verifying security token...';
+            if (label) label.textContent = 'Sending verification code...';
 
             submittedUserEmail = emailVal;
-            var targetEl = document.getElementById('otp-target-email');
-            if (targetEl) targetEl.textContent = emailVal;
-            var emailCont = document.getElementById('email-input-container');
-            var otpCont = document.getElementById('otp-input-container');
-            if (emailCont) emailCont.classList.add('hidden');
-            if (otpCont) otpCont.classList.remove('hidden');
-            var otpCodeInput = document.getElementById('otp-code-field');
-            if (otpCodeInput) {
-              otpCodeInput.value = '';
-              setTimeout(function () { otpCodeInput.focus(); }, 100);
-            }
-            showToast('Verification code & magic link sent!');
 
             window.NEBridge.send('EMAIL_SIGN_IN', {
               email: emailVal,

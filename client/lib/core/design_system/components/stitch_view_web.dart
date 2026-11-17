@@ -8,6 +8,8 @@ import 'stitch_view_interface.dart';
 StitchViewPlatform getStitchViewPlatform() => _StitchViewWeb();
 
 class _StitchViewWeb implements StitchViewPlatform {
+  web.HTMLIFrameElement? _currentIframe;
+
   @override
   Widget buildView({
     required int screenIndex,
@@ -18,7 +20,20 @@ class _StitchViewWeb implements StitchViewPlatform {
       screenIndex: screenIndex,
       initialUrl: initialUrl,
       onMessage: onMessage,
+      onIframeCreated: (iframe) => _currentIframe = iframe,
     );
+  }
+
+  @override
+  void sendMessage(Map<String, dynamic> message) {
+    if (_currentIframe != null && _currentIframe!.contentWindow != null) {
+      try {
+        final jsonStr = jsonEncode(message);
+        _currentIframe!.contentWindow!.postMessage(jsonStr.toJS, '*'.toJS);
+      } catch (e) {
+        debugPrint('[StitchViewWeb] Error posting message to iframe: $e');
+      }
+    }
   }
 }
 
@@ -26,11 +41,13 @@ class _StitchWebWidget extends StatefulWidget {
   final int screenIndex;
   final String initialUrl;
   final OnStitchMessageCallback onMessage;
+  final void Function(web.HTMLIFrameElement? iframe)? onIframeCreated;
 
   const _StitchWebWidget({
     required this.screenIndex,
     required this.initialUrl,
     required this.onMessage,
+    this.onIframeCreated,
   });
 
   @override
@@ -62,7 +79,11 @@ class _StitchWebWidgetState extends State<_StitchWebWidget> {
           ..style.border = 'none'
           ..style.width = '100%'
           ..style.height = '100%'
+          ..style.maxWidth = '430px'
+          ..style.margin = '0 auto'
+          ..style.display = 'block'
           ..style.overflow = 'auto';
+        widget.onIframeCreated?.call(_iframe);
         return _iframe!;
       },
     );
@@ -109,6 +130,7 @@ class _StitchWebWidgetState extends State<_StitchWebWidget> {
 
   @override
   void dispose() {
+    widget.onIframeCreated?.call(null);
     if (_messageListener != null) {
       web.window.removeEventListener('message', _messageListener!);
       _messageListener = null;
