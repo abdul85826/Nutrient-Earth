@@ -159,26 +159,31 @@
   <!-- Fixed Header Constrained to Mobile Frame -->
   <header class="fixed top-0 inset-x-0 z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
     <div class="h-16 px-4 flex items-center justify-between gap-2 max-w-md mx-auto w-full">
-      <button aria-label="Go back"
-        class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container active:scale-95 transition-all"
-        onclick="history.back()" type="button">
-        <span class="material-symbols-outlined text-[22px]">arrow_back</span>
-      </button>
-      <div class="flex-1 flex flex-col items-center justify-center px-2 text-center min-w-0">
-        <div class="flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-          <span class="font-label text-xs font-bold uppercase tracking-wider text-secondary">STEP 2 OF 5</span>
+      <div class="flex items-center gap-2 min-w-0">
+        <button aria-label="Go back"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container active:scale-95 transition-all flex-shrink-0"
+          onclick="history.back()" type="button">
+          <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+        </button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center shadow-sm border border-[#E4E9E2]">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAklV1K_v4knjOwLbJoh_pRAANStgplLx1NeVh89hrrarAG_LmvxBvbLsJq0OOiiBNfScPEUyVBtRJ28-1q-EerVd09sBxe0P4PMYxtFAgAHz3ChcYXIQ5YqyRmWFgItrXf3Z86yufVluYXo6FoWa5JchGsjhzTNp3TbZYj93NTy-vKRx8XsA3oPYxd5-o9ZpbKfFPaIqQye8nwRxytpeRgugjeJ3Cu10Act8MCZK_HnNuKN-BBb1w"
+                 alt="Nutrient Earth Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/icons/Icon-192.png';">
+          </div>
+          <span class="font-headline font-bold text-[15.5px] text-[#00251D] tracking-tight whitespace-nowrap">Nutrient Earth</span>
         </div>
-        <span class="font-headline text-xs font-bold text-on-surface truncate tracking-tight">Getting to know you</span>
       </div>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <div class="px-2.5 py-1 rounded-full bg-secondary-container/50 border border-secondary/15">
+          <span class="text-[11px] font-label font-medium uppercase tracking-wider text-[#38675a]">Step 2 of 5</span>
+        </div>
         <button aria-label="Close onboarding"
-          class="w-11 h-11 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all"
           type="button">
-          <span class="material-symbols-outlined text-[22px]">close</span>
+          <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
         <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-          <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+          <span class="material-symbols-outlined text-on-primary text-[17px]">person</span>
         </div>
       </div>
     </div>

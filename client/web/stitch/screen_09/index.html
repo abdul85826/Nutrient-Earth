@@ -1,286 +1,409 @@
-<!DOCTYPE html><html lang="en"><head>
-<title>Nutrient Earth — Personal Details</title><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { width: 100vw; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'inverse-primary': '#a9cec2', 'on-secondary-fixed-variant': '#1f4f43', 'on-tertiary': '#ffffff', 'on-secondary-fixed': '#002019', 'inverse-on-surface': '#f2f1ec', 'secondary-fixed-dim': '#9fd1c1', 'surface-dim': '#dbdad5', 'on-error': '#ffffff', 'on-primary-fixed-variant': '#2b4d44', 'on-error-container': '#93000a', 'tertiary-container': '#002614', 'surface-container-highest': '#e4e2dd', 'surface-variant': '#e4e2dd', 'primary-fixed': '#c5ebdd', 'on-tertiary-fixed-variant': '#2a4e39', 'on-primary': '#ffffff', 'on-secondary': '#ffffff', 'surface': '#fbf9f4', 'on-tertiary-fixed': '#002111', 'on-surface': '#1b1c19', 'on-primary-container': '#6b8e83', 'surface-container': '#f0eee9', 'tertiary-fixed': '#c3eccf', 'on-tertiary-container': '#6a9077', 'error-container': '#ffdad6', 'on-background': '#1b1c19', 'tertiary-fixed-dim': '#a8d0b4', 'primary-fixed-dim': '#a9cec2', 'secondary-fixed': '#bbeddc', 'outline-variant': '#c1c8c4', 'on-primary-fixed': '#002019', 'secondary-container': '#b8eada', 'inverse-surface': '#30312e', 'error': '#ba1a1a', 'on-secondary-container': '#3c6b5e', 'surface-tint': '#43655b', 'primary-container': '#00251d', 'surface-container-lowest': '#ffffff', 'surface-container-high': '#eae8e3', 'surface-bright': '#fbf9f4', 'tertiary': '#000b04', 'outline': '#717975', 'secondary': '#38675a', 'background': '#fbf9f4', 'surface-container-low': '#f5f3ee', 'primary': '#000a06', 'on-surface-variant': '#414845' }, 'borderRadius': { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, 'spacing': {}, 'fontFamily': { 'headline': ['Manrope'], 'display': ['Manrope'], 'body': ['Manrope'], 'label': ['JetBrains Mono'] }, 'fontSize': {} } } }</script><style>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Nutrient Earth — Personal Details</title>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
+  <meta content="mobile_stack" name="shell-type">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet">
+  <style>
+    @layer base {
+
+      html,
+      body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+      }
+
+      body {
+        overscroll-behavior-y: none;
+        -webkit-tap-highlight-color: transparent;
+        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+      }
+
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+
+      main> :first-child {
+        margin-top: 0 !important;
+      }
+
+      main> :last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script
+    id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'inverse-primary': '#a9cec2', 'on-secondary-fixed-variant': '#1f4f43', 'on-tertiary': '#ffffff', 'on-secondary-fixed': '#002019', 'inverse-on-surface': '#f2f1ec', 'secondary-fixed-dim': '#9fd1c1', 'surface-dim': '#dbdad5', 'on-error': '#ffffff', 'on-primary-fixed-variant': '#2b4d44', 'on-error-container': '#93000a', 'tertiary-container': '#002614', 'surface-container-highest': '#e4e2dd', 'surface-variant': '#e4e2dd', 'primary-fixed': '#c5ebdd', 'on-tertiary-fixed-variant': '#2a4e39', 'on-primary': '#ffffff', 'on-secondary': '#ffffff', 'surface': '#fbf9f4', 'on-tertiary-fixed': '#002111', 'on-surface': '#1b1c19', 'on-primary-container': '#6b8e83', 'surface-container': '#f0eee9', 'tertiary-fixed': '#c3eccf', 'on-tertiary-container': '#6a9077', 'error-container': '#ffdad6', 'on-background': '#1b1c19', 'tertiary-fixed-dim': '#a8d0b4', 'primary-fixed-dim': '#a9cec2', 'secondary-fixed': '#bbeddc', 'outline-variant': '#c1c8c4', 'on-primary-fixed': '#002019', 'secondary-container': '#b8eada', 'inverse-surface': '#30312e', 'error': '#ba1a1a', 'on-secondary-container': '#3c6b5e', 'surface-tint': '#43655b', 'primary-container': '#00251d', 'surface-container-lowest': '#ffffff', 'surface-container-high': '#eae8e3', 'surface-bright': '#fbf9f4', 'tertiary': '#000b04', 'outline': '#717975', 'secondary': '#38675a', 'background': '#fbf9f4', 'surface-container-low': '#f5f3ee', 'primary': '#000a06', 'on-surface-variant': '#414845' }, 'borderRadius': { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, 'spacing': {}, 'fontFamily': { 'headline': ['Manrope'], 'display': ['Manrope'], 'body': ['Manrope'], 'label': ['JetBrains Mono'] }, 'fontSize': {} } } }</script>
+  <style>
     body {
       min-height: max(884px, 100dvh);
     }
   </style>
-  </head><body class="bg-surface font-body text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe"><div class="h-16 px-4 flex items-center justify-between max-w-md mx-auto w-full"><div class="flex items-center gap-2"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-surface-container shadow-sm ring-1 ring-outline-variant/30"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfsrxgxNt25LHgXwaoD25_nsIkuqAYcjaQuqHdhZ-cR-fOBRuhEPHYZx3BDqTb7XVKcKYa0bZoZGNZLvoLjUQY_ClhR1LWut6tEJFeXe5eS74o0BIhabvKkvKKnpKUs83bTbOELHrO9D29uBgK_9XoWzxRH4iRFBcD7PvHWOclW44fd-oQO18lqSNv35ycBUCrGH_F9wvkAdBugbUDLfOXBIN93vbzNyiFBuOFapmUTJjLuV5FuVP8" alt="Nutrient Earth Logo" class="w-full h-full object-cover"></div><div class="flex flex-col"><span class="font-headline font-bold text-sm tracking-tight text-on-surface leading-none">Nutrient Earth</span><span class="font-label text-[10px] text-secondary font-medium tracking-wider uppercase leading-tight mt-0.5">Soil Profile Setup</span></div></div></div><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button aria-label="Dismiss flow" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95" onclick="window.location.href='#'" type="button"><span class="material-symbols-outlined text-[22px]">close</span></button></div></div></header><main class="flex flex-col relative w-full px-5 pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full max-w-md mx-auto pb-8">
-<!-- Progress Tracker Module -->
-<section class="flex flex-col gap-2.5 pt-2">
-<div class="flex items-center justify-end">
-<span class="font-label text-[11px] font-medium text-secondary tracking-tight">Step 1 of 9</span>
-</div>
-<!-- Segmented Progress Bar (Step 1 Active) -->
-<div class="grid grid-cols-9 gap-1.5 w-full">
-<div class="h-1.5 rounded-full bg-primary-container"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-<div class="h-1.5 rounded-full bg-surface-container-highest"></div>
-</div>
-</section>
-<!-- Title & Narrative Block -->
-<header class="flex flex-col mt-6 gap-1.5">
-<h1 class="font-headline text-[28px] font-extrabold tracking-tight text-on-surface leading-tight">
-      Let's get to know you
-    </h1>
-<p class="font-body text-[15px] leading-relaxed text-secondary">
-      A few basic details will help us personalize your experience.
-    </p>
-</header>
-<!-- Interactive Form Body -->
-<form class="flex flex-col gap-6 mt-6" id="detailsForm" onsubmit="event.preventDefault();">
-<!-- Field 1: Name Input -->
-<div class="flex flex-col gap-2">
-<div class="flex flex-col">
-<label class="font-headline text-[16px] font-semibold text-on-surface" for="fullNameInput">
-          What should we call you?
-        </label>
-<span class="font-body text-[13px] text-on-surface-variant">First name, nickname, or preferred name</span>
-</div>
-<div class="relative flex items-center">
-<input autocomplete="given-name" class="w-full h-14 px-4 pr-12 rounded-2xl bg-surface-container-lowest text-[16px] font-medium text-on-surface placeholder:text-outline shadow-sm transition-all focus:outline-none focus:bg-surface-container-low" id="fullNameInput" placeholder="Enter your name" type="text" value="Alex">
-<div class="absolute right-4 flex items-center justify-center w-6 h-6 rounded-full bg-secondary-container text-on-secondary-fixed-variant transition-opacity duration-200" id="nameCheckBadge">
-<span class="material-symbols-outlined text-[17px] font-bold">check</span>
-</div>
-</div>
-</div>
-<!-- Field 2: Age Input with Controls & Segment Brackets -->
-<div class="flex flex-col gap-2.5">
-<div class="flex flex-col">
-<label class="font-headline text-[16px] font-semibold text-on-surface" for="ageInput">
-          How old are you?
-        </label>
-<span class="font-body text-[13px] text-on-surface-variant">
-          Age helps us tailor evidence-based nutritional guidelines and safety parameters
-        </span>
-</div>
-<div class="flex items-center gap-2">
-<div class="relative flex-1 flex items-center">
-<input class="w-full h-14 px-4 rounded-2xl bg-surface-container-lowest text-[16px] font-semibold text-on-surface placeholder:text-outline shadow-sm transition-all focus:outline-none focus:bg-surface-container-low" id="ageInput" inputmode="numeric" max="120" min="16" pattern="[0-9]*" placeholder="Enter your age" type="number" value="28">
-</div>
-<!-- Increment / Decrement Steppers -->
-<div class="flex items-center gap-1.5 h-14 p-1.5 rounded-2xl bg-surface-container-low shadow-sm">
-<button aria-label="Decrease age" class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-lowest text-on-surface hover:bg-surface-container-high active:scale-95 transition-transform" id="decrementBtn" type="button">
-<span class="material-symbols-outlined text-[20px]">remove</span>
-</button>
-<button aria-label="Increase age" class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-lowest text-on-surface hover:bg-surface-container-high active:scale-95 transition-transform" id="incrementBtn" type="button">
-<span class="material-symbols-outlined text-[20px]">add</span>
-</button>
-</div>
-</div>
-<!-- Quick Select Age Brackets -->
-<div class="flex flex-col gap-1.5 mt-1">
-<div class="flex items-center justify-between">
-<span class="font-label text-[11px] font-medium text-secondary uppercase tracking-wider">Quick Bracket Select</span>
-<span class="font-label text-[11px] font-semibold text-on-surface" id="activeBracketLabel">26–35 Selected</span>
-</div>
-<div class="grid grid-cols-4 gap-2">
-<button class="age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary hover:bg-surface-container transition-all active:scale-95 shadow-sm" data-bracket="18-25" data-target-age="22" type="button">
-            18–25
-          </button>
-<button class="age-bracket-chip h-10 rounded-xl bg-primary-container text-[13px] font-semibold text-on-primary hover:opacity-95 transition-all active:scale-95 shadow-sm" data-bracket="26-35" data-target-age="28" type="button">
-            26–35
-          </button>
-<button class="age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary hover:bg-surface-container transition-all active:scale-95 shadow-sm" data-bracket="36-50" data-target-age="42" type="button">
-            36–50
-          </button>
-<button class="age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary hover:bg-surface-container transition-all active:scale-95 shadow-sm" data-bracket="50+" data-target-age="55" type="button">
-            50+
-          </button>
-</div>
-</div>
-<!-- Data Minimization Micro-Note -->
-<div class="flex items-start gap-2 pt-1 px-1">
-<span class="material-symbols-outlined text-[17px] text-secondary shrink-0 mt-0.5">verified_user</span>
-<p class="font-body text-[12px] leading-tight text-on-surface-variant">
-          We ask for age instead of date of birth to minimize personal data collection.
-        </p>
-</div>
-</div>
-<!-- Data Privacy & Minimization Trust Card -->
-<div class="flex items-start gap-3.5 p-4 rounded-2xl bg-secondary-container/30 shadow-[0_2px_8px_-2px_rgba(5,31,32,0.05)]">
-<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0 mt-0.5">
-<span class="material-symbols-outlined text-[18px] text-on-secondary-fixed-variant" style="font-variation-settings: 'FILL' 1;">shield</span>
-</div>
-<div class="flex flex-col gap-0.5">
-<span class="font-headline text-[13px] font-bold text-on-surface">Your privacy comes first</span>
-<p class="font-body text-[12px] leading-relaxed text-on-surface-variant">
-          We collect only what is strictly necessary to calibrate nutritional science models. We never sell or share your identity.
-        </p>
-</div>
-</div>
-<!-- Bottom Actions Container -->
-<div class="flex flex-col gap-3 pt-3">
-<button class="w-full h-[52px] rounded-full bg-primary-container text-on-primary font-headline text-[16px] font-bold flex items-center justify-center gap-2 shadow-md hover:bg-on-primary-fixed-variant active:scale-[0.98] transition-all" id="continueBtn" type="button">
-<span class="">Continue</span>
-<span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
-</button>
-<button class="w-full py-2.5 text-center font-headline text-[14px] font-semibold text-secondary hover:text-on-surface transition-colors active:scale-95" onclick="history.back()" type="button">
-        Back
-      </button>
-</div>
-</form>
-</div>
-<script>
-  (function() {
-    const ageInput = document.getElementById('ageInput');
-    const nameInput = document.getElementById('fullNameInput');
-    const nameCheckBadge = document.getElementById('nameCheckBadge');
-    const decBtn = document.getElementById('decrementBtn');
-    const incBtn = document.getElementById('incrementBtn');
-    const bracketChips = document.querySelectorAll('.age-bracket-chip');
-    const activeBracketLabel = document.getElementById('activeBracketLabel');
-    const continueBtn = document.getElementById('continueBtn');
+</head>
 
-    function updateBracketFromAge(age) {
-      let activeBracket = null;
-      if (age >= 18 && age <= 25) activeBracket = '18-25';
-      else if (age >= 26 && age <= 35) activeBracket = '26-35';
-      else if (age >= 36 && age <= 50) activeBracket = '36-50';
-      else if (age > 50) activeBracket = '50+';
+<body
+  class="bg-surface font-body text-on-surface flex flex-col min-h-screen selection:bg-secondary-container selection:text-on-secondary-container">
+  <header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe">
+    <div class="h-16 px-4 flex items-center justify-between max-w-md mx-auto w-full">
+      <div class="flex items-center gap-2"><button aria-label="Go back"
+          class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95"
+          onclick="history.back()" type="button"><span
+            class="material-symbols-outlined text-[22px]">arrow_back</span></button>
+        <div class="flex items-center gap-2.5">
+          <div
+            class="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-surface-container shadow-sm ring-1 ring-outline-variant/30">
+            <img
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfsrxgxNt25LHgXwaoD25_nsIkuqAYcjaQuqHdhZ-cR-fOBRuhEPHYZx3BDqTb7XVKcKYa0bZoZGNZLvoLjUQY_ClhR1LWut6tEJFeXe5eS74o0BIhabvKkvKKnpKUs83bTbOELHrO9D29uBgK_9XoWzxRH4iRFBcD7PvHWOclW44fd-oQO18lqSNv35ycBUCrGH_F9wvkAdBugbUDLfOXBIN93vbzNyiFBuOFapmUTJjLuV5FuVP8"
+              alt="Nutrient Earth Logo" class="w-full h-full object-cover"
+              onerror="this.onerror=null; this.src='/icons/Icon-192.png';">
+          </div>
+          <div class="flex flex-col"><span
+              class="font-headline font-bold text-sm tracking-tight text-on-surface leading-none">Nutrient
+              Earth</span><span
+              class="font-label text-[10px] text-secondary font-medium tracking-wider uppercase leading-tight mt-0.5">Step 1 of 9</span></div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span
+            class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button
+          aria-label="Dismiss flow"
+          class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95"
+          onclick="window.location.href='#'" type="button"><span
+            class="material-symbols-outlined text-[22px]">close</span></button>
+      </div>
+    </div>
+  </header>
+  <main class="flex flex-col relative w-full px-5 pt-16 pb-safe bg-surface min-h-screen">
+    <div class="flex flex-col w-full max-w-md mx-auto pb-8">
+      <!-- Progress Tracker Module -->
+      <section class="flex flex-col gap-2.5 pt-2">
+        <div class="flex items-center justify-end">
+          <span class="font-label text-[11px] font-medium text-secondary tracking-tight">Step 1 of 9</span>
+        </div>
+        <!-- Segmented Progress Bar (Step 1 Active) -->
+        <div class="grid grid-cols-9 gap-1.5 w-full">
+          <div class="h-1.5 rounded-full bg-primary-container"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+          <div class="h-1.5 rounded-full bg-surface-container-highest"></div>
+        </div>
+      </section>
+      <!-- Title & Narrative Block -->
+      <header class="flex flex-col mt-6 gap-1.5">
+        <h1 class="font-headline text-[28px] font-extrabold tracking-tight text-on-surface leading-tight">
+          Let's get to know you
+        </h1>
+        <p class="font-body text-[15px] leading-relaxed text-secondary">
+          A few basic details will help us personalize your experience.
+        </p>
+      </header>
+      <!-- Interactive Form Body -->
+      <form class="flex flex-col gap-6 mt-6" id="detailsForm" onsubmit="event.preventDefault();">
+        <!-- Field 1: Name Input -->
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
+            <label class="font-headline text-[16px] font-semibold text-on-surface" for="fullNameInput">
+              What should we call you?
+            </label>
+            <span class="font-body text-[13px] text-on-surface-variant">First name, nickname, or preferred name</span>
+          </div>
+          <div class="relative flex items-center">
+            <input autocomplete="given-name"
+              class="w-full h-14 px-4 pr-12 rounded-2xl bg-surface-container-lowest text-[16px] font-medium text-on-surface placeholder:text-outline shadow-sm transition-all focus:outline-none focus:bg-surface-container-low"
+              id="fullNameInput" placeholder="Enter your name" type="text" value="Alex">
+            <div
+              class="absolute right-4 flex items-center justify-center w-6 h-6 rounded-full bg-secondary-container text-on-secondary-fixed-variant transition-opacity duration-200"
+              id="nameCheckBadge">
+              <span class="material-symbols-outlined text-[17px] font-bold">check</span>
+            </div>
+          </div>
+        </div>
+        <!-- Field 2: Age Input with Controls & Segment Brackets -->
+        <div class="flex flex-col gap-2.5">
+          <div class="flex flex-col">
+            <label class="font-headline text-[16px] font-semibold text-on-surface" for="ageInput">
+              How old are you?
+            </label>
+            <span class="font-body text-[13px] text-on-surface-variant">
+              Age helps us tailor evidence-based nutritional guidelines and safety parameters
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1 flex items-center">
+              <input
+                class="w-full h-14 px-4 rounded-2xl bg-surface-container-lowest text-[16px] font-semibold text-on-surface placeholder:text-outline shadow-sm transition-all focus:outline-none focus:bg-surface-container-low"
+                id="ageInput" inputmode="numeric" max="120" min="16" pattern="[0-9]*" placeholder="Enter your age"
+                type="number" value="28">
+            </div>
+            <!-- Increment / Decrement Steppers -->
+            <div class="flex items-center gap-1.5 h-14 p-1.5 rounded-2xl bg-surface-container-low shadow-sm">
+              <button aria-label="Decrease age"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-lowest text-on-surface hover:bg-surface-container-high active:scale-95 transition-transform"
+                id="decrementBtn" type="button">
+                <span class="material-symbols-outlined text-[20px]">remove</span>
+              </button>
+              <button aria-label="Increase age"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-lowest text-on-surface hover:bg-surface-container-high active:scale-95 transition-transform"
+                id="incrementBtn" type="button">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+              </button>
+            </div>
+          </div>
+          <!-- Quick Select Age Brackets -->
+          <div class="flex flex-col gap-1.5 mt-1">
+            <div class="flex items-center justify-between">
+              <span class="font-label text-[11px] font-medium text-secondary uppercase tracking-wider">Quick Bracket
+                Select</span>
+              <span class="font-label text-[11px] font-semibold text-on-surface" id="activeBracketLabel">26–35
+                Selected</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2">
+              <button
+                class="age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary hover:bg-surface-container transition-all active:scale-95 shadow-sm"
+                data-bracket="18-25" data-target-age="22" type="button">
+                18–25
+              </button>
+              <button
+                class="age-bracket-chip h-10 rounded-xl bg-primary-container text-[13px] font-semibold text-on-primary hover:opacity-95 transition-all active:scale-95 shadow-sm"
+                data-bracket="26-35" data-target-age="28" type="button">
+                26–35
+              </button>
+              <button
+                class="age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary hover:bg-surface-container transition-all active:scale-95 shadow-sm"
+                data-bracket="36-50" data-target-age="42" type="button">
+                36–50
+              </button>
+              <button
+                class="age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary hover:bg-surface-container transition-all active:scale-95 shadow-sm"
+                data-bracket="50+" data-target-age="55" type="button">
+                50+
+              </button>
+            </div>
+          </div>
+          <!-- Data Minimization Micro-Note -->
+          <div class="flex items-start gap-2 pt-1 px-1">
+            <span class="material-symbols-outlined text-[17px] text-secondary shrink-0 mt-0.5">verified_user</span>
+            <p class="font-body text-[12px] leading-tight text-on-surface-variant">
+              We ask for age instead of date of birth to minimize personal data collection.
+            </p>
+          </div>
+        </div>
+        <!-- Data Privacy & Minimization Trust Card -->
+        <div
+          class="flex items-start gap-3.5 p-4 rounded-2xl bg-secondary-container/30 shadow-[0_2px_8px_-2px_rgba(5,31,32,0.05)]">
+          <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-[18px] text-on-secondary-fixed-variant"
+              style="font-variation-settings: 'FILL' 1;">shield</span>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <span class="font-headline text-[13px] font-bold text-on-surface">Your privacy comes first</span>
+            <p class="font-body text-[12px] leading-relaxed text-on-surface-variant">
+              We collect only what is strictly necessary to calibrate nutritional science models. We never sell or share
+              your identity.
+            </p>
+          </div>
+        </div>
+        <!-- Bottom Actions Container -->
+        <div class="flex flex-col gap-3 pt-3">
+          <button
+            class="w-full h-[52px] rounded-full bg-primary-container text-on-primary font-headline text-[16px] font-bold flex items-center justify-center gap-2 shadow-md hover:bg-on-primary-fixed-variant active:scale-[0.98] transition-all"
+            id="continueBtn" type="button">
+            <span class="">Continue</span>
+            <span
+              class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-0.5">arrow_forward</span>
+          </button>
+          <button
+            class="w-full py-2.5 text-center font-headline text-[14px] font-semibold text-secondary hover:text-on-surface transition-colors active:scale-95"
+            onclick="history.back()" type="button">
+            Back
+          </button>
+        </div>
+      </form>
+    </div>
+    <script>
+        (function () {
+          const ageInput = document.getElementById('ageInput');
+          const nameInput = document.getElementById('fullNameInput');
+          const nameCheckBadge = document.getElementById('nameCheckBadge');
+          const decBtn = document.getElementById('decrementBtn');
+          const incBtn = document.getElementById('incrementBtn');
+          const bracketChips = document.querySelectorAll('.age-bracket-chip');
+          const activeBracketLabel = document.getElementById('activeBracketLabel');
+          const continueBtn = document.getElementById('continueBtn');
 
-      bracketChips.forEach(chip => {
-        const isMatch = chip.getAttribute('data-bracket') === activeBracket;
-        if (isMatch) {
-          chip.className = 'age-bracket-chip h-10 rounded-xl bg-primary-container text-[13px] font-semibold text-on-primary shadow-sm hover:opacity-95 transition-all active:scale-95';
-        } else {
-          chip.className = 'age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary shadow-sm hover:bg-surface-container transition-all active:scale-95';
+          function updateBracketFromAge(age) {
+            let activeBracket = null;
+            if (age >= 18 && age <= 25) activeBracket = '18-25';
+            else if (age >= 26 && age <= 35) activeBracket = '26-35';
+            else if (age >= 36 && age <= 50) activeBracket = '36-50';
+            else if (age > 50) activeBracket = '50+';
+
+            bracketChips.forEach(chip => {
+              const isMatch = chip.getAttribute('data-bracket') === activeBracket;
+              if (isMatch) {
+                chip.className = 'age-bracket-chip h-10 rounded-xl bg-primary-container text-[13px] font-semibold text-on-primary shadow-sm hover:opacity-95 transition-all active:scale-95';
+              } else {
+                chip.className = 'age-bracket-chip h-10 rounded-xl bg-surface-container-lowest text-[13px] font-semibold text-secondary shadow-sm hover:bg-surface-container transition-all active:scale-95';
+              }
+            });
+
+            if (activeBracket) {
+              activeBracketLabel.textContent = `${activeBracket.replace('-', '–')} Selected`;
+            } else {
+              activeBracketLabel.textContent = 'Custom age entered';
+            }
+          }
+
+          // Age steppers
+          decBtn.addEventListener('click', () => {
+            let current = parseInt(ageInput.value, 10) || 28;
+            if (current > 16) {
+              ageInput.value = current - 1;
+              updateBracketFromAge(current - 1);
+            }
+          });
+
+          incBtn.addEventListener('click', () => {
+            let current = parseInt(ageInput.value, 10) || 28;
+            if (current < 110) {
+              ageInput.value = current + 1;
+              updateBracketFromAge(current + 1);
+            }
+          });
+
+          ageInput.addEventListener('input', () => {
+            const val = parseInt(ageInput.value, 10);
+            if (!isNaN(val)) {
+              updateBracketFromAge(val);
+            } else {
+              activeBracketLabel.textContent = 'Awaiting input';
+            }
+          });
+
+          // Chip quick selection
+          bracketChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+              const targetAge = chip.getAttribute('data-target-age');
+              ageInput.value = targetAge;
+              updateBracketFromAge(parseInt(targetAge, 10));
+            });
+          });
+
+          // Name dynamic verification checkmark feedback
+          nameInput.addEventListener('input', () => {
+            const trimmed = nameInput.value.trim();
+            if (trimmed.length > 0) {
+              nameCheckBadge.style.opacity = '1';
+              nameCheckBadge.style.transform = 'scale(1)';
+            } else {
+              nameCheckBadge.style.opacity = '0';
+              nameCheckBadge.style.transform = 'scale(0.8)';
+            }
+          });
+
+          // Mock progress trigger with feedback
+          continueBtn.addEventListener('click', () => {
+            continueBtn.classList.add('opacity-90', 'scale-[0.98]');
+            setTimeout(() => {
+              continueBtn.classList.remove('opacity-90', 'scale-[0.98]');
+            }, 150);
+          });
+        })();
+    </script>
+  </main>
+
+
+
+  <script id="ne-flutter-bridge-core">
+    window.NEBridge = {
+      send: function (type, payload) {
+        var msg = Object.assign({ type: type }, payload || {});
+        var jsonStr = JSON.stringify(msg);
+        if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
+          window.FlutterBridge.postMessage(jsonStr);
         }
-      });
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(msg, '*');
+        }
+        console.log('[NEBridge] ' + type, msg);
+      },
+      navigate: function (route) {
+        this.send('NAVIGATE', { route: route });
+      }
+    };
+  </script>
 
-      if (activeBracket) {
-        activeBracketLabel.textContent = `${activeBracket.replace('-', '–')} Selected`;
+
+  <script id="ne-screen-wiring">
+    (function () {
+      function initScreen() {
+        console.log('[Stitch] Screen 09 loaded');
+
+        var backBtn = document.querySelector('header button[aria-label="Go back"]') || document.querySelector('header button');
+        if (backBtn) {
+          backBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.NEBridge.navigate('/onboarding/review-phase1');
+          });
+        }
+
+        var continueBtn = document.getElementById('continueBtn') || document.querySelector('button.bg-primary-container');
+        if (continueBtn) {
+          continueBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var nameInput = document.getElementById('fullNameInput');
+            var ageInput = document.getElementById('ageInput');
+            var name = nameInput ? nameInput.value.trim() : '';
+            var age = ageInput ? parseInt(ageInput.value, 10) || 30 : 30;
+
+            var urlParams = new URLSearchParams(window.location.search);
+            var returnTo = urlParams.get('returnTo');
+            var dest = returnTo || '/onboarding/body-measurements';
+
+            window.NEBridge.send('SAVE_PERSONAL_DETAILS', {
+              fullName: name,
+              age: age,
+              nextRoute: dest
+            });
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initScreen);
       } else {
-        activeBracketLabel.textContent = 'Custom age entered';
+        initScreen();
       }
-    }
+    })();
+  </script>
 
-    // Age steppers
-    decBtn.addEventListener('click', () => {
-      let current = parseInt(ageInput.value, 10) || 28;
-      if (current > 16) {
-        ageInput.value = current - 1;
-        updateBracketFromAge(current - 1);
-      }
-    });
+</body>
 
-    incBtn.addEventListener('click', () => {
-      let current = parseInt(ageInput.value, 10) || 28;
-      if (current < 110) {
-        ageInput.value = current + 1;
-        updateBracketFromAge(current + 1);
-      }
-    });
-
-    ageInput.addEventListener('input', () => {
-      const val = parseInt(ageInput.value, 10);
-      if (!isNaN(val)) {
-        updateBracketFromAge(val);
-      } else {
-        activeBracketLabel.textContent = 'Awaiting input';
-      }
-    });
-
-    // Chip quick selection
-    bracketChips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const targetAge = chip.getAttribute('data-target-age');
-        ageInput.value = targetAge;
-        updateBracketFromAge(parseInt(targetAge, 10));
-      });
-    });
-
-    // Name dynamic verification checkmark feedback
-    nameInput.addEventListener('input', () => {
-      const trimmed = nameInput.value.trim();
-      if (trimmed.length > 0) {
-        nameCheckBadge.style.opacity = '1';
-        nameCheckBadge.style.transform = 'scale(1)';
-      } else {
-        nameCheckBadge.style.opacity = '0';
-        nameCheckBadge.style.transform = 'scale(0.8)';
-      }
-    });
-
-    // Mock progress trigger with feedback
-    continueBtn.addEventListener('click', () => {
-      continueBtn.classList.add('opacity-90', 'scale-[0.98]');
-      setTimeout(() => {
-        continueBtn.classList.remove('opacity-90', 'scale-[0.98]');
-      }, 150);
-    });
-  })();
-</script></main>
-
-
-
-<script id="ne-flutter-bridge-core">
-  window.NEBridge = {
-    send: function(type, payload) {
-      var msg = Object.assign({ type: type }, payload || {});
-      var jsonStr = JSON.stringify(msg);
-      if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
-        window.FlutterBridge.postMessage(jsonStr);
-      }
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage(msg, '*');
-      }
-      console.log('[NEBridge] ' + type, msg);
-    },
-    navigate: function(route) {
-      this.send('NAVIGATE', { route: route });
-    }
-  };
-</script>
-
-
-<script id="ne-screen-wiring">
-(function() {
-  function initScreen() {
-    console.log('[Stitch] Screen 09 loaded');
-
-    var backBtn = document.querySelector('header button[aria-label="Go back"]') || document.querySelector('header button');
-    if (backBtn) {
-      backBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.NEBridge.navigate('/onboarding/review-phase1');
-      });
-    }
-
-    var continueBtn = document.getElementById('continueBtn') || document.querySelector('button.bg-primary-container');
-    if (continueBtn) {
-      continueBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var nameInput = document.getElementById('fullNameInput');
-        var ageInput = document.getElementById('ageInput');
-        var name = nameInput ? nameInput.value.trim() : '';
-        var age = ageInput ? parseInt(ageInput.value, 10) || 30 : 30;
-
-        var urlParams = new URLSearchParams(window.location.search);
-        var returnTo = urlParams.get('returnTo');
-        var dest = returnTo || '/onboarding/body-measurements';
-
-        window.NEBridge.send('SAVE_PERSONAL_DETAILS', {
-          fullName: name,
-          age: age,
-          nextRoute: dest
-        });
-      });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initScreen);
-  } else {
-    initScreen();
-  }
-})();
-</script>
-
-</body></html>
+</html>
