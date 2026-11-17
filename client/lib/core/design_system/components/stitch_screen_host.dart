@@ -1114,6 +1114,18 @@ class _StitchScreenHostWidgetState
         ref.read(todayStateProvider.notifier).toggleTask(index);
         break;
 
+      case 'UPDATE_AVATAR':
+        final skinTone = msg['skinTone'] as String? ?? msg['tone'] as String? ?? '#E0AC69';
+        final avatarConfig = msg['avatarConfig'] is Map<String, dynamic>
+            ? msg['avatarConfig'] as Map<String, dynamic>
+            : <String, dynamic>{};
+        await ref.read(profileRepositoryProvider).updateAvatar(
+              skinTone: skinTone,
+              avatarConfig: avatarConfig,
+            );
+        await ref.read(todayNotifierProvider.notifier).loadUserProfile();
+        break;
+
       default:
         final next = msg['nextRoute'] as String?;
         if (next != null && mounted) {

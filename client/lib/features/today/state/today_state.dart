@@ -178,6 +178,20 @@ class TodayNotifier extends StateNotifier<TodayState> {
     );
   }
 
+  Future<bool> updateAvatar({
+    required String skinTone,
+    Map<String, dynamic>? avatarConfig,
+  }) async {
+    final success = await _profileRepository.updateAvatar(
+      skinTone: skinTone,
+      avatarConfig: avatarConfig,
+    );
+    if (success) {
+      await loadUserProfile();
+    }
+    return success;
+  }
+
   Future<void> toggleTask(int index) async {
     if (index < 0 || index >= state.tasks.length) return;
     final updatedList = List<DailyPlanTask>.from(state.tasks);

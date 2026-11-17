@@ -15,6 +15,7 @@ abstract class ProfileRepository {
   Future<UserProfileContext?> getCurrentUserProfile({String? explicitUserId});
   UserProfileContext? getCachedProfileSync(String? userId);
   Future<bool> saveUserProfile(UserProfileContext profile);
+  Future<bool> updateAvatar({required String skinTone, Map<String, dynamic>? avatarConfig});
   Future<bool> clearCacheForUser(String userId);
 }
 
@@ -115,6 +116,60 @@ class SupabaseProfileRepository implements ProfileRepository {
     final localSuccess = await _cacheLocally(trimmedUserId, profile);
 
     return remoteSuccess || localSuccess;
+  }
+
+  @override
+  Future<bool> updateAvatar({
+    required String skinTone,
+    Map<String, dynamic>? avatarConfig,
+  }) async {
+    final client = _getClient();
+    final user = client?.auth.currentUser;
+    final trimmedUserId = user?.id.trim();
+
+    if (trimmedUserId == null || trimmedUserId.isEmpty) {
+      return false;
+    }
+
+    bool remoteSuccess = false;
+    if (client != null) {
+      try {
+        // Attempt atomic Supabase RPC first
+        final res = await client.rpc('update_avatar', params: {
+          'p_skin_tone': skinTone,
+          'p_avatar_config': avatarConfig ?? {},
+        });
+        if (res != null) {
+          remoteSuccess = true;
+        }
+      } catch (_) {
+        // Fallback to direct PostgREST update if RPC is not yet applied
+        try {
+          await client.from('profiles').update({
+            'has_avatar': true,
+            'skin_tone': skinTone,
+            'avatar_config': avatarConfig ?? {},
+            'updated_at': DateTime.now().toIso8601String(),
+          }).eq('user_id', trimmedUserId);
+          remoteSuccess = true;
+        } catch (_) {
+          remoteSuccess = false;
+        }
+      }
+    }
+
+    // Update memory & local cache immediately
+    final existing = _memoryCache[trimmedUserId] ?? await _readFromLocalCache(trimmedUserId);
+    if (existing != null) {
+      final updated = existing.copyWith(
+        hasAvatar: true,
+        skinTone: skinTone,
+        avatarConfig: avatarConfig ?? existing.avatarConfig,
+      );
+      await _cacheLocally(trimmedUserId, updated);
+    }
+
+    return remoteSuccess || existing != null;
   }
 
   @override

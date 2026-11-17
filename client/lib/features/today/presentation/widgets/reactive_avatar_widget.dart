@@ -5,7 +5,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../today/state/today_state.dart';
+import '../../../profile/presentation/widgets/avatar_state_switcher.dart';
+
+export '../../../profile/presentation/widgets/avatar_state_switcher.dart';
 
 final avatarSkinToneProvider = StateProvider<Color>((ref) => const Color(0xFFE0AC69));
 final isAvatarCreatedProvider = StateProvider<bool>((ref) => false);
@@ -15,42 +17,9 @@ class ReactiveAvatarWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isCreated = ref.watch(isAvatarCreatedProvider);
-    final todayState = ref.watch(todayNotifierProvider);
-    final aqi = todayState.telemetry.aqi;
-    final temp = todayState.telemetry.temperatureCelsius;
-    final skinTone = ref.watch(avatarSkinToneProvider);
-
-    return Container(
-      width: 104,
-      height: 104,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: _deriveAmbientBg(temp),
-        border: Border.all(color: Colors.white, width: 2.5),
-        boxShadow: [
-          BoxShadow(
-            color: aqi > 100
-                ? const Color(0x33C62828)
-                : const Color(0x22166534),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: isCreated
-            ? CustomPaint(
-                painter: AvatarRigPainter(
-                  skinTone: skinTone,
-                  hour: DateTime.now().hour,
-                  aqi: aqi,
-                ),
-              )
-            : _buildCreateAvatarPrompt(context, ref),
-      ),
-    );
+    return const AvatarStateSwitcher(size: 110.0);
   }
+}
 
   Widget _buildCreateAvatarPrompt(BuildContext context, WidgetRef ref) {
     return Material(

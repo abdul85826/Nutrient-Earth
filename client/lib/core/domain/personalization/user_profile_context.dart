@@ -26,6 +26,9 @@ class UserProfileContext {
   final String difficultiesNote;
   final Map<String, dynamic> dailyImpacts;
   final bool onboardingCompleted;
+  final bool hasAvatar;
+  final String? skinTone;
+  final Map<String, dynamic> avatarConfig;
 
   const UserProfileContext({
     required this.userId,
@@ -49,6 +52,9 @@ class UserProfileContext {
     this.difficultiesNote = '',
     this.dailyImpacts = const {},
     this.onboardingCompleted = false,
+    this.hasAvatar = false,
+    this.skinTone,
+    this.avatarConfig = const {},
   });
 
   factory UserProfileContext.fromJson(Map<String, dynamic> json) {
@@ -89,6 +95,63 @@ class UserProfileContext {
       difficultiesNote: json['difficulties_note'] as String? ?? json['difficultiesNote'] as String? ?? '',
       dailyImpacts: json['daily_impacts'] as Map<String, dynamic>? ?? json['dailyImpacts'] as Map<String, dynamic>? ?? const {},
       onboardingCompleted: json['onboarding_completed'] as bool? ?? json['onboardingCompleted'] as bool? ?? false,
+      hasAvatar: json['has_avatar'] as bool? ?? json['hasAvatar'] as bool? ?? false,
+      skinTone: json['skin_tone'] as String? ?? json['skinTone'] as String?,
+      avatarConfig: json['avatar_config'] as Map<String, dynamic>? ?? json['avatarConfig'] as Map<String, dynamic>? ?? const {},
+    );
+  }
+
+  UserProfileContext copyWith({
+    String? userId,
+    String? displayName,
+    int? age,
+    String? biologicalSex,
+    List<String>? primaryGoals,
+    String? activityLevel,
+    String? dietaryPreference,
+    String? budgetConstraint,
+    String? willingnessToChange,
+    List<String>? knownConditions,
+    List<String>? activeSupplements,
+    List<String>? allergies,
+    double? heightCm,
+    double? weightKg,
+    String? eatingRoutine,
+    String? sleepQuality,
+    String? knowledgeLevel,
+    List<String>? difficulties,
+    String? difficultiesNote,
+    Map<String, dynamic>? dailyImpacts,
+    bool? onboardingCompleted,
+    bool? hasAvatar,
+    String? skinTone,
+    Map<String, dynamic>? avatarConfig,
+  }) {
+    return UserProfileContext(
+      userId: userId ?? this.userId,
+      displayName: displayName ?? this.displayName,
+      age: age ?? this.age,
+      biologicalSex: biologicalSex ?? this.biologicalSex,
+      primaryGoals: primaryGoals ?? this.primaryGoals,
+      activityLevel: activityLevel ?? this.activityLevel,
+      dietaryPreference: dietaryPreference ?? this.dietaryPreference,
+      budgetConstraint: budgetConstraint ?? this.budgetConstraint,
+      willingnessToChange: willingnessToChange ?? this.willingnessToChange,
+      knownConditions: knownConditions ?? this.knownConditions,
+      activeSupplements: activeSupplements ?? this.activeSupplements,
+      allergies: allergies ?? this.allergies,
+      heightCm: heightCm ?? this.heightCm,
+      weightKg: weightKg ?? this.weightKg,
+      eatingRoutine: eatingRoutine ?? this.eatingRoutine,
+      sleepQuality: sleepQuality ?? this.sleepQuality,
+      knowledgeLevel: knowledgeLevel ?? this.knowledgeLevel,
+      difficulties: difficulties ?? this.difficulties,
+      difficultiesNote: difficultiesNote ?? this.difficultiesNote,
+      dailyImpacts: dailyImpacts ?? this.dailyImpacts,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+      hasAvatar: hasAvatar ?? this.hasAvatar,
+      skinTone: skinTone ?? this.skinTone,
+      avatarConfig: avatarConfig ?? this.avatarConfig,
     );
   }
 
@@ -114,6 +177,9 @@ class UserProfileContext {
         'difficulties_note': difficultiesNote,
         'daily_impacts': dailyImpacts,
         'onboarding_completed': onboardingCompleted,
+        'has_avatar': hasAvatar,
+        'skin_tone': skinTone,
+        'avatar_config': avatarConfig,
       };
 
   /// Returns a privacy-safe, anonymized context map stripped of direct PII (name, userId)
