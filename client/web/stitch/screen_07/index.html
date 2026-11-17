@@ -202,12 +202,7 @@
     <div class="w-full max-w-md mx-auto px-4 py-6 flex flex-col gap-8 pb-12">
       <!-- Screen Header & Context -->
       <header class="flex flex-col gap-3.5">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/60 text-on-secondary-container text-[11px] font-label font-semibold tracking-wider uppercase border border-secondary/20">
-            <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-            Stage 07 • Nutritional Foundation
-          </span>
+        <div class="flex items-center justify-end">
           <span class="text-[11px] font-label text-on-surface-variant font-medium tracking-wide">Step 4 of 5</span>
         </div>
         <div class="flex flex-col gap-1.5">
@@ -701,9 +696,40 @@
       const customDietInput = document.getElementById('custom-diet-input');
 
       function setDietOptionVisuals(targetValue) {
-        const allRadios = document.querySelectorAll('input[name="diet_pattern"]');
-        allRadios.forEach(radio => {
-          radio.checked = (radio.value === targetValue);
+        if (!targetValue) return;
+        dietCards.forEach(card => {
+          const val = card.getAttribute('data-value');
+          const radio = card.querySelector('.diet-radio');
+          const indicator = card.querySelector('.radio-indicator');
+          const dot = card.querySelector('.radio-dot');
+          const title = card.querySelector('.diet-title');
+          const isSelected = (val === targetValue);
+
+          if (radio) {
+            radio.checked = isSelected;
+          }
+
+          if (isSelected) {
+            card.style.backgroundColor = '#F4F8F5';
+            card.style.borderColor = '#38675a';
+            card.style.borderWidth = '2px';
+            if (indicator) indicator.style.backgroundColor = '#00251D';
+            if (dot) dot.style.opacity = '1';
+            if (title) {
+              title.style.color = '#00251D';
+              title.style.fontWeight = '700';
+            }
+          } else {
+            card.style.backgroundColor = '#FFFFFF';
+            card.style.borderColor = '#E4E9E2';
+            card.style.borderWidth = '1px';
+            if (indicator) indicator.style.backgroundColor = '';
+            if (dot) dot.style.opacity = '0';
+            if (title) {
+              title.style.color = '';
+              title.style.fontWeight = '';
+            }
+          }
         });
 
         if (targetValue === 'other') {
@@ -713,9 +739,7 @@
           if (dietOtherContainer) dietOtherContainer.classList.add('hidden');
         }
 
-        if (targetValue) {
-          sessionStorage.setItem('nutrient_earth_user_selected_diet', targetValue);
-        }
+        sessionStorage.setItem('nutrient_earth_user_selected_diet', targetValue);
         saveState();
       }
 
@@ -733,10 +757,9 @@
       dietCards.forEach(card => {
         card.addEventListener('click', (e) => {
           if (e.target === customDietInput) return;
-          const radio = card.querySelector('.diet-radio');
-          if (radio) {
-            radio.checked = true;
-            setDietOptionVisuals(radio.value);
+          const val = card.getAttribute('data-value');
+          if (val) {
+            setDietOptionVisuals(val);
           }
         });
       });
