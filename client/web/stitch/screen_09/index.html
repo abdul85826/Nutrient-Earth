@@ -68,30 +68,26 @@
   <header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe">
     <div class="h-16 px-4 flex items-center justify-between max-w-md mx-auto w-full">
       <div class="flex items-center gap-2"><button aria-label="Go back"
-          class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95"
+          class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95 flex-shrink-0"
           onclick="history.back()" type="button"><span
             class="material-symbols-outlined text-[22px]">arrow_back</span></button>
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-2 flex-shrink-0">
           <div
-            class="w-9 h-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-surface-container shadow-sm ring-1 ring-outline-variant/30">
+            class="w-8 h-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-white shadow-sm border border-[#E4E9E2]">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfsrxgxNt25LHgXwaoD25_nsIkuqAYcjaQuqHdhZ-cR-fOBRuhEPHYZx3BDqTb7XVKcKYa0bZoZGNZLvoLjUQY_ClhR1LWut6tEJFeXe5eS74o0BIhabvKkvKKnpKUs83bTbOELHrO9D29uBgK_9XoWzxRH4iRFBcD7PvHWOclW44fd-oQO18lqSNv35ycBUCrGH_F9wvkAdBugbUDLfOXBIN93vbzNyiFBuOFapmUTJjLuV5FuVP8"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAklV1K_v4knjOwLbJoh_pRAANStgplLx1NeVh89hrrarAG_LmvxBvbLsJq0OOiiBNfScPEUyVBtRJ28-1q-EerVd09sBxe0P4PMYxtFAgAHz3ChcYXIQ5YqyRmWFgItrXf3Z86yufVluYXo6FoWa5JchGsjhzTNp3TbZYj93NTy-vKRx8XsA3oPYxd5-o9ZpbKfFPaIqQye8nwRxytpeRgugjeJ3Cu10Act8MCZK_HnNuKN-BBb1w"
               alt="Nutrient Earth Logo" class="w-full h-full object-cover"
               onerror="this.onerror=null; this.src='/icons/Icon-192.png';">
           </div>
-          <div class="flex flex-col"><span
-              class="font-headline font-bold text-sm tracking-tight text-on-surface leading-none">Nutrient
-              Earth</span><span
-              class="font-label text-[10px] text-secondary font-medium tracking-wider uppercase leading-tight mt-0.5">Step 1 of 9</span></div>
+          <span class="font-headline font-bold text-[15.5px] tracking-tight text-[#00251D] whitespace-nowrap">Nutrient Earth</span>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span
-            class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <button
           aria-label="Dismiss flow"
-          class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95"
-          onclick="window.location.href='#'" type="button"><span
-            class="material-symbols-outlined text-[22px]">close</span></button>
+          class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors active:scale-95"
+          onclick="if(window.NEBridge){window.NEBridge.navigate('/today');}else{window.location.href='/today';}" type="button"><span
+            class="material-symbols-outlined text-[20px]">close</span></button>
       </div>
     </div>
   </header>
@@ -137,15 +133,43 @@
           <div class="relative flex items-center">
             <input autocomplete="given-name"
               class="w-full h-14 px-4 pr-12 rounded-2xl bg-surface-container-lowest text-[16px] font-medium text-on-surface placeholder:text-outline shadow-sm transition-all focus:outline-none focus:bg-surface-container-low"
-              id="fullNameInput" placeholder="Enter your name" type="text" value="Alex">
+              id="fullNameInput" placeholder="Enter your name" type="text" value="">
             <div
-              class="absolute right-4 flex items-center justify-center w-6 h-6 rounded-full bg-secondary-container text-on-secondary-fixed-variant transition-opacity duration-200"
+              class="absolute right-4 flex items-center justify-center w-6 h-6 rounded-full bg-secondary-container text-on-secondary-fixed-variant opacity-0 transition-opacity duration-200"
               id="nameCheckBadge">
               <span class="material-symbols-outlined text-[17px] font-bold">check</span>
             </div>
           </div>
         </div>
-        <!-- Field 2: Age Input with Controls & Segment Brackets -->
+
+        <!-- Field 2: Biological Sex / Gender Selector -->
+        <div class="flex flex-col gap-2.5">
+          <div class="flex flex-col">
+            <label class="font-headline text-[16px] font-semibold text-on-surface">
+              Biological sex
+            </label>
+            <span class="font-body text-[13px] text-on-surface-variant">
+              Used for basal metabolic rate (BMR), hormonal context, and nutrient reference intakes
+            </span>
+          </div>
+          <div class="grid grid-cols-3 gap-2.5" id="genderGroup" role="radiogroup">
+            <button type="button" class="gender-btn flex flex-col items-center justify-center p-3.5 rounded-2xl bg-surface-container-lowest border border-[#E4E9E2] text-center hover:bg-surface-container-low transition-all active:scale-[0.98] shadow-sm select-none" data-value="female">
+              <span class="material-symbols-outlined text-[24px] text-secondary mb-1">female</span>
+              <span class="font-headline text-[14px] font-semibold text-on-surface">Female</span>
+            </button>
+            <button type="button" class="gender-btn flex flex-col items-center justify-center p-3.5 rounded-2xl bg-surface-container-lowest border border-[#E4E9E2] text-center hover:bg-surface-container-low transition-all active:scale-[0.98] shadow-sm select-none" data-value="male">
+              <span class="material-symbols-outlined text-[24px] text-secondary mb-1">male</span>
+              <span class="font-headline text-[14px] font-semibold text-on-surface">Male</span>
+            </button>
+            <button type="button" class="gender-btn flex flex-col items-center justify-center p-3.5 rounded-2xl bg-surface-container-lowest border border-[#E4E9E2] text-center hover:bg-surface-container-low transition-all active:scale-[0.98] shadow-sm select-none" data-value="other">
+              <span class="material-symbols-outlined text-[24px] text-secondary mb-1">diversity_3</span>
+              <span class="font-headline text-[13px] font-semibold text-on-surface leading-tight">Other / Intersex</span>
+            </button>
+          </div>
+          <input type="hidden" id="genderInput" name="gender" value="">
+        </div>
+
+        <!-- Field 3: Age Input with Controls & Segment Brackets -->
         <div class="flex flex-col gap-2.5">
           <div class="flex flex-col">
             <label class="font-headline text-[16px] font-semibold text-on-surface" for="ageInput">
@@ -160,7 +184,7 @@
               <input
                 class="w-full h-14 px-4 rounded-2xl bg-surface-container-lowest text-[16px] font-semibold text-on-surface placeholder:text-outline shadow-sm transition-all focus:outline-none focus:bg-surface-container-low"
                 id="ageInput" inputmode="numeric" max="120" min="16" pattern="[0-9]*" placeholder="Enter your age"
-                type="number" value="28">
+                type="number" value="">
             </div>
             <!-- Increment / Decrement Steppers -->
             <div class="flex items-center gap-1.5 h-14 p-1.5 rounded-2xl bg-surface-container-low shadow-sm">
@@ -257,6 +281,52 @@
           const bracketChips = document.querySelectorAll('.age-bracket-chip');
           const activeBracketLabel = document.getElementById('activeBracketLabel');
           const continueBtn = document.getElementById('continueBtn');
+          const genderBtns = document.querySelectorAll('.gender-btn');
+          const genderInput = document.getElementById('genderInput');
+
+          function selectGender(val) {
+            genderInput.value = val;
+            sessionStorage.setItem('nutrient_earth_user_gender', val);
+            genderBtns.forEach(btn => {
+              const icon = btn.querySelector('.material-symbols-outlined');
+              const text = btn.querySelector('span:not(.material-symbols-outlined)');
+              if (btn.getAttribute('data-value') === val) {
+                btn.className = 'gender-btn flex flex-col items-center justify-center p-3.5 rounded-2xl bg-primary-container text-on-primary border-2 border-[#00251D] text-center shadow-md select-none transition-all scale-[1.02]';
+                if (icon) icon.className = 'material-symbols-outlined text-[24px] text-on-primary mb-1';
+                if (text) text.className = 'font-headline text-[14px] font-bold text-on-primary';
+              } else {
+                btn.className = 'gender-btn flex flex-col items-center justify-center p-3.5 rounded-2xl bg-surface-container-lowest border border-[#E4E9E2] text-center hover:bg-surface-container-low transition-all active:scale-[0.98] shadow-sm select-none';
+                if (icon) icon.className = 'material-symbols-outlined text-[24px] text-secondary mb-1';
+                if (text) text.className = 'font-headline text-[14px] font-semibold text-on-surface';
+              }
+            });
+          }
+
+          genderBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              selectGender(btn.getAttribute('data-value'));
+            });
+          });
+
+          // Hydrate from URL or Session Storage
+          const urlParams = new URLSearchParams(window.location.search);
+          const initialName = urlParams.get('name') || sessionStorage.getItem('nutrient_earth_user_name') || '';
+          if (initialName && nameInput) {
+            nameInput.value = initialName;
+            nameCheckBadge.style.opacity = '1';
+          }
+          const initialAge = urlParams.get('age') || sessionStorage.getItem('nutrient_earth_user_age');
+          if (initialAge && ageInput) {
+            const parsedAge = parseInt(initialAge, 10);
+            if (!isNaN(parsedAge) && parsedAge > 0) {
+              ageInput.value = parsedAge;
+              updateBracketFromAge(parsedAge);
+            }
+          }
+          const initialGender = urlParams.get('gender') || sessionStorage.getItem('nutrient_earth_user_gender');
+          if (initialGender) {
+            selectGender(initialGender);
+          }
 
           function updateBracketFromAge(age) {
             let activeBracket = null;
@@ -380,16 +450,26 @@
             e.preventDefault();
             var nameInput = document.getElementById('fullNameInput');
             var ageInput = document.getElementById('ageInput');
+            var genderInput = document.getElementById('genderInput');
             var name = nameInput ? nameInput.value.trim() : '';
             var age = ageInput ? parseInt(ageInput.value, 10) || 30 : 30;
+            var gender = genderInput ? genderInput.value.trim() : '';
+            if (!gender) gender = 'unspecified';
+
+            if (name) sessionStorage.setItem('nutrient_earth_user_name', name);
+            if (age) sessionStorage.setItem('nutrient_earth_user_age', age.toString());
+            if (gender) sessionStorage.setItem('nutrient_earth_user_gender', gender);
 
             var urlParams = new URLSearchParams(window.location.search);
             var returnTo = urlParams.get('returnTo');
             var dest = returnTo || '/onboarding/body-measurements';
 
             window.NEBridge.send('SAVE_PERSONAL_DETAILS', {
+              name: name,
               fullName: name,
               age: age,
+              gender: gender,
+              biologicalSex: gender,
               nextRoute: dest
             });
           });

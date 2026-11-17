@@ -32,6 +32,7 @@ class OnboardingJourneyState {
   // Phase 2: Physiology & Calibration (Screens 09 - 17)
   final String firstName;
   final int age;
+  final String biologicalSex; // 'female', 'male', 'other', 'unspecified'
   final double? heightCm;
   final double? weightKg;
   final String heightUnit; // 'ft' or 'cm'
@@ -72,6 +73,7 @@ class OnboardingJourneyState {
     this.phase1Reviewed = false,
     this.firstName = '',
     this.age = 0,
+    this.biologicalSex = 'unspecified',
     this.heightCm,
     this.weightKg,
     this.heightUnit = 'ft',
@@ -109,6 +111,7 @@ class OnboardingJourneyState {
     bool? phase1Reviewed,
     String? firstName,
     int? age,
+    String? biologicalSex,
     double? heightCm,
     double? weightKg,
     String? heightUnit,
@@ -145,6 +148,7 @@ class OnboardingJourneyState {
       phase1Reviewed: phase1Reviewed ?? this.phase1Reviewed,
       firstName: firstName ?? this.firstName,
       age: age ?? this.age,
+      biologicalSex: biologicalSex ?? this.biologicalSex,
       heightCm: heightCm ?? this.heightCm,
       weightKg: weightKg ?? this.weightKg,
       heightUnit: heightUnit ?? this.heightUnit,
@@ -184,6 +188,7 @@ class OnboardingJourneyState {
       'phase1Reviewed': phase1Reviewed,
       'firstName': firstName,
       'age': age,
+      'biologicalSex': biologicalSex,
       'heightCm': heightCm,
       'weightKg': weightKg,
       'heightUnit': heightUnit,
@@ -221,6 +226,7 @@ class OnboardingJourneyState {
       phase1Reviewed: json['phase1Reviewed'] as bool? ?? false,
       firstName: json['firstName'] as String? ?? '',
       age: (json['age'] as num?)?.toInt() ?? 0,
+      biologicalSex: json['biologicalSex'] as String? ?? 'unspecified',
       heightCm: (json['heightCm'] as num?)?.toDouble(),
       weightKg: (json['weightKg'] as num?)?.toDouble(),
       heightUnit: json['heightUnit'] as String? ?? 'ft',
@@ -242,6 +248,106 @@ class OnboardingJourneyState {
       isNewUser: json['isNewUser'] as bool? ?? (json['healthGoals'] == null || (json['healthGoals'] as List).isEmpty),
     );
   }
+
+  /// Strongly-typed demographic state slice
+  UserDemographicsState get demographics => UserDemographicsState(
+        firstName: firstName,
+        age: age,
+        biologicalSex: biologicalSex,
+        heightCm: heightCm,
+        weightKg: weightKg,
+        heightUnit: heightUnit,
+        weightUnit: weightUnit,
+        weightSkipped: weightSkipped,
+      );
+
+  /// Strongly-typed health foundations & clinical context state slice
+  HealthProfileState get healthProfile => HealthProfileState(
+        healthGoals: healthGoals,
+        selectedConcernIds: selectedConcernIds,
+        difficulties: difficulties,
+        difficultiesNote: difficultiesNote,
+        dailyImpacts: dailyImpacts,
+        impactFluctuates: impactFluctuates,
+        dailyImpactsSkipped: dailyImpactsSkipped,
+        dietaryPattern: dietaryPattern,
+        customDietaryPattern: customDietaryPattern,
+        foodIntolerances: foodIntolerances,
+        foodsToAvoid: foodsToAvoid,
+        allergens: allergens,
+        customAllergen: customAllergen,
+        strictlyNoRestrictions: strictlyNoRestrictions,
+        eatingRoutine: eatingRoutine,
+        activityLevel: activityLevel,
+        sleepQuality: sleepQuality,
+        knowledgeLevel: knowledgeLevel,
+      );
+}
+
+/// Demographic & Identity State Model
+class UserDemographicsState {
+  final String firstName;
+  final int age;
+  final String biologicalSex;
+  final double? heightCm;
+  final double? weightKg;
+  final String heightUnit;
+  final String weightUnit;
+  final bool weightSkipped;
+
+  const UserDemographicsState({
+    required this.firstName,
+    required this.age,
+    required this.biologicalSex,
+    this.heightCm,
+    this.weightKg,
+    this.heightUnit = 'ft',
+    this.weightUnit = 'lb',
+    this.weightSkipped = false,
+  });
+}
+
+/// Clinical & Health Context State Model
+class HealthProfileState {
+  final Set<String> healthGoals;
+  final Set<String> selectedConcernIds;
+  final Set<String> difficulties;
+  final String difficultiesNote;
+  final Map<String, int> dailyImpacts;
+  final bool impactFluctuates;
+  final bool dailyImpactsSkipped;
+  final String dietaryPattern;
+  final String customDietaryPattern;
+  final Set<String> foodIntolerances;
+  final Set<String> foodsToAvoid;
+  final Set<String> allergens;
+  final String customAllergen;
+  final bool strictlyNoRestrictions;
+  final String eatingRoutine;
+  final String activityLevel;
+  final String sleepQuality;
+  final String knowledgeLevel;
+
+  const HealthProfileState({
+    this.healthGoals = const {},
+    this.selectedConcernIds = const {},
+    this.difficulties = const {},
+    this.difficultiesNote = '',
+    this.dailyImpacts = const {},
+    this.impactFluctuates = false,
+    this.dailyImpactsSkipped = false,
+    this.dietaryPattern = '',
+    this.customDietaryPattern = '',
+    this.foodIntolerances = const {},
+    this.foodsToAvoid = const {},
+    this.allergens = const {},
+    this.customAllergen = '',
+    this.strictlyNoRestrictions = false,
+    this.eatingRoutine = '',
+    this.activityLevel = '',
+    this.sleepQuality = '',
+    this.knowledgeLevel = '',
+  });
 }
 
 class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
@@ -434,8 +540,16 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
     state = state.copyWith(phase1Reviewed: val);
   }
 
-  void setPersonalDetails({required String name, required int age}) {
-    state = state.copyWith(firstName: name, age: age);
+  void setPersonalDetails({required String name, required int age, String? biologicalSex}) {
+    state = state.copyWith(
+      firstName: name,
+      age: age,
+      biologicalSex: biologicalSex ?? state.biologicalSex,
+    );
+  }
+
+  void setBiologicalSex(String biologicalSex) {
+    state = state.copyWith(biologicalSex: biologicalSex);
   }
 
   void setFirstName(String name) {
@@ -586,7 +700,7 @@ class OnboardingJourneyNotifier extends StateNotifier<OnboardingJourneyState> {
         userId: userId,
         displayName: name,
         age: state.age,
-        biologicalSex: 'unspecified',
+        biologicalSex: state.biologicalSex.isNotEmpty ? state.biologicalSex : 'unspecified',
         primaryGoals: primaryGoalsList,
         activityLevel: state.activityLevel,
         dietaryPreference: state.dietaryPattern,

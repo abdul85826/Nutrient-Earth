@@ -138,6 +138,9 @@ class _StitchScreenHostWidgetState
     } else if (widget.screenIndex == 9) {
       if (journey.firstName.isNotEmpty) params['name'] = journey.firstName;
       if (journey.age > 0) params['age'] = journey.age.toString();
+      if (journey.biologicalSex.isNotEmpty && journey.biologicalSex != 'unspecified') {
+        params['gender'] = journey.biologicalSex;
+      }
     } else if (widget.screenIndex == 10) {
       if (journey.heightCm != null) {
         params['heightCm'] = journey.heightCm.toString();
@@ -957,7 +960,8 @@ class _StitchScreenHostWidgetState
       case 'SAVE_STEP_09':
         final name = msg['name'] as String? ?? '';
         final age = (msg['age'] as num?)?.toInt() ?? 25;
-        notifier.setPersonalDetails(name: name, age: age);
+        final gender = (msg['gender'] ?? msg['biologicalSex']) as String? ?? 'unspecified';
+        notifier.setPersonalDetails(name: name, age: age, biologicalSex: gender);
         await ref
             .read(onboardingStorageServiceProvider)
             .saveStagedOnboarding(ref.read(onboardingJourneyProvider));
@@ -1123,6 +1127,7 @@ class _StitchScreenHostWidgetState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFBF9F4),
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         top: false,
         bottom: false,

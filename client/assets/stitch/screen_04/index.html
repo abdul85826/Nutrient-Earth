@@ -126,12 +126,10 @@
         </div>
       </div>
       <div class="flex items-center gap-1.5 flex-shrink-0">
-        <div class="px-2.5 py-1 rounded-full bg-sage-100/70 border border-sage-300/30">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-forest-700">Step 1 of 5</span>
-        </div>
-        <button aria-label="Account"
-          class="w-8 h-8 rounded-full bg-stone-200/60 flex items-center justify-center flex-shrink-0 text-stone-700 hover:bg-stone-200">
-          <span class="material-symbols-outlined text-[18px]">person</span>
+        <button aria-label="Dismiss flow"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-stone-600 hover:bg-stone-200/50 active:scale-95 transition-all flex-shrink-0"
+          onclick="if(window.NEBridge){window.NEBridge.navigate('/today');}else{window.location.href='/today';}">
+          <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
       </div>
     </div>

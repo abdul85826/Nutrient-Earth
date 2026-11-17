@@ -174,17 +174,12 @@
         </div>
       </div>
       <div class="flex items-center gap-1.5 flex-shrink-0">
-        <div class="px-2.5 py-1 rounded-full bg-secondary-container/50 border border-secondary/15">
-          <span class="text-[11px] font-label font-medium uppercase tracking-wider text-[#38675a]">Step 2 of 5</span>
-        </div>
         <button aria-label="Close onboarding"
           class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all"
+          onclick="if(window.NEBridge){window.NEBridge.navigate('/today');}else{window.location.href='/today';}"
           type="button">
           <span class="material-symbols-outlined text-[20px]">close</span>
         </button>
-        <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-          <span class="material-symbols-outlined text-on-primary text-[17px]">person</span>
-        </div>
       </div>
     </div>
   </header>
@@ -192,7 +187,7 @@
   <!-- Main Content Constrained to Mobile Frame -->
   <main class="flex flex-col relative w-full pt-16 bg-surface min-h-screen">
     <div class="flex flex-col w-full">
-      <div class="px-5 pt-3 pb-32 max-w-md mx-auto w-full flex flex-col gap-6">
+      <div class="px-5 pt-3 pb-44 max-w-md mx-auto w-full flex flex-col gap-6">
         <!-- Screen 04 Selected Conditions Summary Card -->
         <div
           class="bg-surface-container-low rounded-2xl p-4 flex flex-col gap-2.5 shadow-sm border border-outline-variant/30"
@@ -770,6 +765,30 @@
 
       loadState();
       updateUI();
+
+      // Keyboard & Virtual Viewport Awareness
+      if (searchInput) {
+        searchInput.addEventListener('focus', function() {
+          setTimeout(function() {
+            searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 250);
+        });
+      }
+      if (textarea) {
+        textarea.addEventListener('focus', function() {
+          setTimeout(function() {
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 250);
+        });
+      }
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function() {
+          const activeEl = document.activeElement;
+          if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+            activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+      }
     })();
   </script>
 

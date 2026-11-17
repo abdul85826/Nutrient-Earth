@@ -7,7 +7,7 @@
       min-height: max(884px, 100dvh);
     }
   </style>
-  </head><body class="bg-surface font-body text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe"><div class="h-16 px-4 flex items-center justify-between max-w-md mx-auto w-full"><div class="flex items-center gap-2 min-w-0"><button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all flex-shrink-0" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex items-center gap-2 flex-shrink-0"><div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center shadow-sm border border-[#E4E9E2] shrink-0"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAklV1K_v4knjOwLbJoh_pRAANStgplLx1NeVh89hrrarAG_LmvxBvbLsJq0OOiiBNfScPEUyVBtRJ28-1q-EerVd09sBxe0P4PMYxtFAgAHz3ChcYXIQ5YqyRmWFgItrXf3Z86yufVluYXo6FoWa5JchGsjhzTNp3TbZYj93NTy-vKRx8XsA3oPYxd5-o9ZpbKfFPaIqQye8nwRxytpeRgugjeJ3Cu10Act8MCZK_HnNuKN-BBb1w" alt="Nutrient Earth Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/icons/Icon-192.png';"></div><span class="font-headline font-bold text-[15.5px] text-[#00251D] tracking-tight whitespace-nowrap">Nutrient Earth</span></div></div><div class="flex items-center gap-1.5 flex-shrink-0"><div class="px-2.5 py-1 rounded-full bg-secondary-container/50 border border-secondary/15"><span class="text-[11px] font-label font-medium uppercase tracking-wider text-[#38675a]">Step 5 of 9</span></div><button aria-label="Close flow" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[20px]">close</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full max-w-md mx-auto px-4 pb-12 space-y-6">
+  </head><body class="bg-surface font-body text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe"><div class="h-16 px-4 flex items-center justify-between max-w-md mx-auto w-full"><div class="flex items-center gap-2 min-w-0"><button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all flex-shrink-0" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><div class="flex items-center gap-2 flex-shrink-0"><div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center shadow-sm border border-[#E4E9E2] shrink-0"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAklV1K_v4knjOwLbJoh_pRAANStgplLx1NeVh89hrrarAG_LmvxBvbLsJq0OOiiBNfScPEUyVBtRJ28-1q-EerVd09sBxe0P4PMYxtFAgAHz3ChcYXIQ5YqyRmWFgItrXf3Z86yufVluYXo6FoWa5JchGsjhzTNp3TbZYj93NTy-vKRx8XsA3oPYxd5-o9ZpbKfFPaIqQye8nwRxytpeRgugjeJ3Cu10Act8MCZK_HnNuKN-BBb1w" alt="Nutrient Earth Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/icons/Icon-192.png';"></div><span class="font-headline font-bold text-[15.5px] text-[#00251D] tracking-tight whitespace-nowrap">Nutrient Earth</span></div></div><div class="flex items-center gap-1.5 flex-shrink-0"><button aria-label="Close flow" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container active:scale-95 transition-all" onclick="if(window.NEBridge){window.NEBridge.navigate('/today');}else{window.location.href='/today';}" type="button"><span class="material-symbols-outlined text-[20px]">close</span></button></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full max-w-md mx-auto px-4 pb-12 space-y-6">
 <!-- Progress Header Component -->
 <div class="flex flex-col w-full pt-2">
 <div class="flex items-center justify-end pb-3">
@@ -45,15 +45,15 @@
 <!-- Routine Options Selection -->
 <fieldset class="flex flex-col space-y-3 w-full" id="eating-routine-group">
 <legend class="sr-only">Eating routine choices</legend>
-<!-- Option 1: Selected Default -->
-<label class="routine-option group relative flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-200 select-none bg-secondary-container/30 shadow-sm" data-selected="true">
-<input checked="" class="sr-only" name="routine" type="radio" value="regular"/>
+<!-- Option 1 -->
+<label class="routine-option group relative flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-200 select-none bg-surface-container-lowest shadow-[0_2px_6px_-1px_rgba(5,31,32,0.04)]" data-selected="false">
+<input class="sr-only" name="routine" type="radio" value="regular"/>
 <div class="flex items-center gap-3.5 min-w-0 pr-3">
-<div class="option-icon-box w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary-container text-on-primary transition-colors">
+<div class="option-icon-box w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 bg-surface-container text-secondary transition-colors">
 <span class="material-symbols-outlined text-[22px]">pace</span>
 </div>
 <div class="flex flex-col min-w-0">
-<span class="font-headline text-[15px] font-bold text-on-surface tracking-tight leading-snug truncate">
+<span class="font-headline text-[15px] font-semibold text-on-surface tracking-tight leading-snug truncate">
             I eat at regular times
           </span>
 <span class="font-body text-xs text-on-surface-variant leading-normal line-clamp-1">
@@ -62,8 +62,8 @@
 </div>
 </div>
 <!-- Radio Glyph -->
-<div class="radio-indicator w-5 h-5 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0 transition-transform">
-<span class="w-2 h-2 rounded-full bg-surface-container-lowest"></span>
+<div class="radio-indicator w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center flex-shrink-0 transition-transform">
+<span class="w-2 h-2 rounded-full bg-transparent"></span>
 </div>
 </label>
 <!-- Option 2 -->
