@@ -14,8 +14,10 @@ import '../core/services/auth_destination_resolver.dart';
 import '../core/services/auth_service.dart';
 import '../core/services/profile_repository.dart';
 import '../features/auth/presentation/auth_callback_screen.dart';
+import '../features/chat/presentation/intelligence_workspace_screen.dart';
 import '../features/onboarding/data/onboarding_storage_service.dart';
 import '../features/onboarding/state/onboarding_journey_state.dart';
+import '../features/profile/presentation/profile_screen.dart';
 
 /// Listens to a Stream and notifies GoRouter to re-evaluate route guards
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -425,7 +427,17 @@ GoRouter createAppRouter({
       ),
       GoRoute(
         path: '/profile',
-        builder: (context, state) => const StitchScreenHostWidget(screenIndex: 18),
+        builder: (context, state) => const ProfileScreen(),
+      ),
+
+      // Intelligence Workspace & Continuous Dialogue Hub
+      GoRoute(
+        path: '/workspace',
+        builder: (context, state) => const IntelligenceWorkspaceScreen(),
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) => const IntelligenceWorkspaceScreen(),
       ),
     ],
   );

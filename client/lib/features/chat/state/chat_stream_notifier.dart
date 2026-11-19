@@ -7,6 +7,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../../core/config/supabase_config.dart';
 import '../../../../core/domain/nutrition/nutrition_computation_engine.dart';
 import '../../../../core/domain/nutrition/nutrition_models.dart';
 import '../../../../core/domain/orchestration/chatbot_intent_router.dart';
@@ -19,6 +20,7 @@ import '../../../../core/services/research_persistence_service.dart';
 import '../../../../core/services/research_pipeline_service.dart';
 import '../../../../core/services/summary/doctor_summary_service.dart';
 import '../../../../core/services/task_repository.dart';
+import '../../../../core/services/orchestration/central_intelligence_orchestrator.dart';
 import '../../today/state/today_state.dart';
 import '../domain/chat_message.dart';
 
@@ -70,6 +72,7 @@ class ChatStreamNotifier extends StateNotifier<ChatState> {
   final DoctorSummaryService _summaryService;
   final TaskRepository _taskRepo;
   final UsdaFoodDataCentralProvider _usdaProvider;
+  final CentralIntelligenceOrchestrator? _orchestrator;
 
   bool _isDisposed = false;
 
@@ -80,12 +83,14 @@ class ChatStreamNotifier extends StateNotifier<ChatState> {
     required DoctorSummaryService summaryService,
     required TaskRepository taskRepo,
     UsdaFoodDataCentralProvider? usdaProvider,
+    CentralIntelligenceOrchestrator? orchestrator,
   })  : _profileRepo = profileRepo,
         _persistenceService = persistenceService,
         _memoryService = memoryService,
         _summaryService = summaryService,
         _taskRepo = taskRepo,
         _usdaProvider = usdaProvider ?? UsdaFoodDataCentralProvider(),
+        _orchestrator = orchestrator,
         super(ChatState(
           activeConversationId: const Uuid().v4(),
           messages: const [],
@@ -130,6 +135,61 @@ class ChatStreamNotifier extends StateNotifier<ChatState> {
 
       state = state.copyWith(messages: [welcomeMessage]);
     }
+  }
+
+  void startNewConversation() {
+    final newId = const Uuid().v4();
+    final name = state.userProfile?.displayName ?? 'there';
+    final welcomeMessage = ChatMessage(
+      id: const Uuid().v4(),
+      conversationId: newId,
+      role: ChatRole.assistant,
+      text: 'Hello $name. Starting a fresh intelligence dialogue.\n\n'
+          'Ask me anything about nutritional science, calculate caloric compositions, review medical bloodwork, '
+          'or prepare a personalized briefing for your next doctor visit.',
+      timestamp: DateTime.now(),
+      capabilityType: ChatCapabilityType.ordinaryConversation,
+    );
+    state = state.copyWith(
+      activeConversationId: newId,
+      messages: [welcomeMessage],
+      clearError: true,
+    );
+  }
+
+  Future<void> loadExistingConversation(String conversationId) async {
+    state = state.copyWith(
+      activeConversationId: conversationId,
+      clearError: true,
+    );
+
+    try {
+      final client = SupabaseConfig.client;
+      if (client != null) {
+        final List<dynamic> res = await client
+            .from('ai_messages')
+            .select()
+            .eq('conversation_id', conversationId)
+            .order('created_at', ascending: true);
+
+        if (res.isNotEmpty && !_isDisposed) {
+          final loaded = res.map((m) {
+            return ChatMessage(
+              id: m['id'] as String? ?? const Uuid().v4(),
+              conversationId: conversationId,
+              role: (m['is_user'] as bool? ?? false)
+                  ? ChatRole.user
+                  : ChatRole.assistant,
+              text: m['content'] as String? ?? '',
+              timestamp:
+                  DateTime.tryParse(m['created_at'] as String? ?? '') ??
+                      DateTime.now(),
+            );
+          }).toList();
+          state = state.copyWith(messages: loaded);
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> sendMessage(String rawInput, {List<ChatAttachment> attachments = const []}) async {
@@ -352,7 +412,41 @@ class ChatStreamNotifier extends StateNotifier<ChatState> {
         }
       }
 
-      // 4. General Scientific Research or Conversational Inquiry
+      // 4. Central Intelligence Orchestrator (8 Bounded Specialists + Twin Authorities)
+      if (_orchestrator != null) {
+        final orchestrated = await _orchestrator!.executeQuery(
+          query: trimmed,
+          userId: state.userProfile?.userId,
+        );
+
+        final buffer = StringBuffer();
+        buffer.writeln(orchestrated.directAnswer);
+
+        if (orchestrated.actionableProtocols.isNotEmpty) {
+          buffer.writeln('\n**Actionable Protocol**:');
+          for (final p in orchestrated.actionableProtocols) {
+            buffer.writeln('• $p');
+          }
+        }
+
+        final resolvedAssistant = ChatMessage(
+          id: assistantPlaceholderId,
+          conversationId: state.activeConversationId,
+          role: ChatRole.assistant,
+          text: buffer.toString().trim(),
+          timestamp: DateTime.now(),
+          capabilityType: ChatCapabilityType.scientificResearch,
+          evidenceBadge: orchestrated.evidenceConfidence,
+          mechanismCallout: orchestrated.practicalExplanation,
+          disclaimer: orchestrated.uncertaintyDisclosure,
+        );
+
+        _replacePlaceholder(assistantPlaceholderId, resolvedAssistant);
+        await _persistTurn(userMessage, resolvedAssistant);
+        return;
+      }
+
+      // 5. Fallback: General Scientific Research or Conversational Inquiry
       final answer = await ResearchPipelineService.processInquiry(
         query: trimmed,
         userProfile: state.userProfile,
@@ -426,17 +520,6 @@ class ChatStreamNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(messages: cleaned);
 
     sendMessage(lastUser.text, attachments: lastUser.attachments);
-  }
-
-  Future<void> startNewConversation() async {
-    final newId = const Uuid().v4();
-    state = state.copyWith(
-      activeConversationId: newId,
-      messages: [],
-      isGenerating: false,
-      clearError: true,
-    );
-    await _initChat();
   }
 
   Future<void> toggleActionItem(String messageId, String itemId) async {
@@ -578,5 +661,8 @@ final chatStreamProvider = StateNotifierProvider<ChatStreamNotifier, ChatState>(
     memoryService: ref.watch(personalHealthMemoryServiceProvider),
     summaryService: ref.watch(doctorSummaryServiceProvider),
     taskRepo: ref.watch(taskRepositoryProvider),
+    orchestrator: ref.watch(centralIntelligenceOrchestratorProvider),
   );
 });
+
+final chatStreamNotifierProvider = chatStreamProvider;

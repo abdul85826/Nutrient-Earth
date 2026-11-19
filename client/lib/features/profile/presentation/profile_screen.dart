@@ -6,10 +6,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../today/presentation/widgets/daily_research_feed_widget.dart';
+import '../../today/presentation/widgets/live_telemetry_strip_widget.dart';
+import '../../today/presentation/widgets/proactive_guidance_card_widget.dart';
+import '../../today/presentation/widgets/universal_food_intelligence_card.dart';
 import '../../today/state/today_state.dart';
 import 'widgets/avatar_state_switcher.dart';
+import 'widgets/data_export_modal.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -37,6 +43,8 @@ class ProfileScreen extends ConsumerWidget {
     final greetingText = effectiveName != null
         ? '$greetingTime, $effectiveName.'
         : '$greetingTime.';
+
+    final effectiveUserId = userProfile?.userId ?? 'usr_current_user';
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAF8F5), // Exact #FAF8F5 cream canvas
@@ -87,6 +95,19 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Export Health History',
+            icon: const Icon(Icons.file_download_outlined, color: Color(0xFF00251D), size: 22),
+            onPressed: () => DataExportModal.show(context, userId: effectiveUserId),
+          ),
+          IconButton(
+            tooltip: 'Intelligence Workspace',
+            icon: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF00251D), size: 21),
+            onPressed: () => context.push('/workspace'),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -161,41 +182,118 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // Search Bar
-              Container(
-                height: 52,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(26),
-                  border: Border.all(color: const Color(0xFFD5E2D8)),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x0A051F20),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.search, size: 22, color: Color(0xFF4F6359)),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Ask about food, fitness or health...',
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 14,
-                          color: Color(0xFF717975),
+              // 4-Pillar Live Telemetry Strip (Circadian, Solar, AQI, Weather)
+              const LiveTelemetryStripWidget(),
+
+              const SizedBox(height: 16),
+
+              // Search & Intelligence Prompt Field
+              GestureDetector(
+                onTap: () => context.push('/workspace'),
+                child: Container(
+                  height: 52,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(color: const Color(0xFFD5E2D8)),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x0A051F20),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: const [
+                      Icon(Icons.search, size: 22, color: Color(0xFF4F6359)),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Ask about food, nutrients, cooking or health...',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 14,
+                            color: Color(0xFF717975),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      Icon(Icons.arrow_forward_rounded, size: 18, color: Color(0xFF4F6359)),
+                    ],
+                  ),
                 ),
               ),
+
+              const SizedBox(height: 14),
+
+              // Quick Action Bar
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF00251D),
+                        side: const BorderSide(color: Color(0xFFD5E2D8)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      icon: const Icon(Icons.chat_bubble_outline, size: 16, color: Color(0xFF4A6B5D)),
+                      label: const Text(
+                        'Workspace',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      onPressed: () => context.push('/workspace'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF00251D),
+                        side: const BorderSide(color: Color(0xFFD5E2D8)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      icon: const Icon(Icons.download_rounded, size: 16, color: Color(0xFF4A6B5D)),
+                      label: const Text(
+                        'Export Data',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      onPressed: () => DataExportModal.show(context, userId: effectiveUserId),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Proactive Midday Guidance Card (Zero-Spam Enforced)
+              ProactiveGuidanceCardWidget(userId: effectiveUserId),
+
+              const SizedBox(height: 16),
+
+              // Daily Scientific Intelligence Feed (5-Article Goal-Matched, 60s Read Dwell Gate, Bilingual)
+              DailyResearchFeedWidget(userId: effectiveUserId),
+
+              const SizedBox(height: 16),
+
+              // Living Food, Nutrition & Utensil Scientific Intelligence Card
+              UniversalFoodIntelligenceCard(userId: effectiveUserId),
+
+              const SizedBox(height: 32),
             ],
           ),
         ),
