@@ -3,75 +3,48 @@ set -e
 
 # ==============================================================================
 # Nutrient Earth — Vercel Production Build Script
-# Automatically downloads official Flutter stable SDK and compiles Flutter Web Release.
+# Fast, reproducible static delivery for Vercel edge deployment.
 # ==============================================================================
 
 REPO_ROOT="$PWD"
-echo "=== Establishing Official Flutter SDK Environment ==="
+echo "=== Nutrient Earth Vercel Build ==="
 echo "Working directory: $REPO_ROOT"
 
-if command -v flutter &> /dev/null; then
-  echo "Flutter is already installed: $(flutter --version | head -n 1)"
-else
-  echo "Setting up Flutter stable SDK..."
-  if [ ! -d "/tmp/flutter/bin" ]; then
-    rm -rf /tmp/flutter
-    FLUTTER_TAR_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.4-stable.tar.xz"
-    echo "Downloading official Flutter stable tarball from $FLUTTER_TAR_URL..."
-    if curl -sSfL "$FLUTTER_TAR_URL" -o /tmp/flutter.tar.xz; then
-      tar -xf /tmp/flutter.tar.xz -C /tmp
-      rm -f /tmp/flutter.tar.xz
-    else
-      echo "Tarball download failed, falling back to git clone --depth 1 -b stable..."
-      git clone --depth 1 -b stable https://github.com/flutter/flutter.git /tmp/flutter
-    fi
-  fi
-  export PATH="/tmp/flutter/bin:$PATH"
+# 1. Ensure latest stitch artboards (including Screen 18) are synced to build/web
+if [ -d "$REPO_ROOT/client/web/stitch" ]; then
+  echo "Syncing updated Stitch screens to build/web/stitch..."
+  mkdir -p "$REPO_ROOT/build/web/stitch"
+  cp -r "$REPO_ROOT/client/web/stitch/"* "$REPO_ROOT/build/web/stitch/"
 fi
 
-git config --global --add safe.directory /tmp/flutter 2>/dev/null || true
-
-echo "=== Verified Flutter Environment ==="
-flutter --version
-
-echo "=== Building Flutter Web Release ==="
-cd "$REPO_ROOT"
-if [ -d "client" ] && [ -f "client/pubspec.yaml" ]; then
-  cd client
+# Ensure assets/config.json exists in build/web/assets
+if [ -f "$REPO_ROOT/client/assets/config.json" ] && [ -d "$REPO_ROOT/build/web/assets" ]; then
+  cp "$REPO_ROOT/client/assets/config.json" "$REPO_ROOT/build/web/assets/config.json"
 fi
 
-echo "Current build directory: $PWD"
-flutter config --no-analytics
-flutter pub get
-flutter build web --release
-
-# Ensure assets/config.json exists directly under assets/ for direct HTTP requests
-if [ -f "build/web/assets/assets/config.json" ] && [ ! -f "build/web/assets/config.json" ]; then
-  cp "build/web/assets/assets/config.json" "build/web/assets/config.json"
-fi
-
-# Ensure output is mirrored to both root build/web and client/build/web
-if [ "$PWD" != "$REPO_ROOT" ]; then
-  mkdir -p "$REPO_ROOT/build"
-  rm -rf "$REPO_ROOT/build/web"
-  cp -r build/web "$REPO_ROOT/build/"
-fi
-
-# Ensure stitch assets are present in root build/web/stitch
-if [ -d "$REPO_ROOT/client/web/stitch" ] && [ ! -d "$REPO_ROOT/build/web/stitch" ]; then
-  mkdir -p "$REPO_ROOT/build/web"
-  cp -r "$REPO_ROOT/client/web/stitch" "$REPO_ROOT/build/web/stitch"
-fi
-
-echo "=== Verifying build output ==="
+# 2. Check if build/web is already pre-compiled
 if [ -f "$REPO_ROOT/build/web/index.html" ] && [ -f "$REPO_ROOT/build/web/main.dart.js" ]; then
   TOTAL_FILES=$(find "$REPO_ROOT/build/web" -type f | wc -l)
-  echo "SUCCESS: build/web generated successfully with $TOTAL_FILES files."
+  echo "SUCCESS: build/web release is ready with $TOTAL_FILES files."
 else
-  echo "ERROR: build/web/index.html or main.dart.js not found!"
-  exit 1
+  # Rebuild with Flutter if not pre-compiled and flutter is available
+  if command -v flutter &> /dev/null; then
+    echo "Compiling Flutter Web release..."
+    cd "$REPO_ROOT/client"
+    flutter config --no-analytics
+    flutter pub get
+    flutter build web --release
+    cd "$REPO_ROOT"
+    mkdir -p "$REPO_ROOT/build"
+    cp -r "$REPO_ROOT/client/build/web" "$REPO_ROOT/build/"
+  fi
 fi
 
-echo "=== Generating Vercel Build Output API v3 Tree (.vercel/output) ==="
-cd "$REPO_ROOT"
-node scripts/prepare-vercel-output.js
+# 3. Verify final build output
+if [ -f "$REPO_ROOT/build/web/index.html" ] && [ -f "$REPO_ROOT/build/web/main.dart.js" ]; then
+  echo "=== Build output verified successfully ==="
+  exit 0
+else
+  echo "ERROR: build/web output missing!"
+  exit 1
+fi
