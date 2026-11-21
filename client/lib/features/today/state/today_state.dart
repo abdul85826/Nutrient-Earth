@@ -11,6 +11,9 @@ import '../../../core/services/task_repository.dart';
 import '../../../core/services/telemetry_service.dart';
 import '../../../core/services/research_pipeline_service.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/domain/streak/qualifying_activity_models.dart';
+import '../../../core/services/streak/streak_engine_service.dart';
+import '../../../core/services/search/universal_intelligence_search_engine.dart';
 
 class DailyPlanTask {
   final String id;
@@ -71,10 +74,8 @@ class TodayState {
 
   int get completedTaskCount => tasks.where((t) => t.isCompleted).length;
   int get totalTaskCount => tasks.length;
-  String get counterLabel {
-    if (tasks.isEmpty) return '0 OF 0 COMPLETED';
-    return '$completedTaskCount OF $totalTaskCount COMPLETED';
-  }
+  String get counterLabel => '$completedTaskCount of $totalTaskCount completed';
+  String get counterBadge => '$completedTaskCount of $totalTaskCount done';
 
   TodayState copyWith({
     DiurnalContext? diurnal,
@@ -105,32 +106,81 @@ class TodayState {
 }
 
 class TodayNotifier extends StateNotifier<TodayState> {
+  static const List<DailyPlanTask> defaultCircadianTasks = [
+    DailyPlanTask(
+      id: 'task-01',
+      title: 'Morning hydration · 500ml water',
+      note: 'Replenished fluid deficit upon waking',
+      timeString: '7:30 AM',
+      isCompleted: true,
+      isUpNext: false,
+    ),
+    DailyPlanTask(
+      id: 'task-02',
+      title: 'Pre-run mobility & dynamic stretching',
+      note: 'Hip opening + ankle dorsiflexion activation',
+      timeString: '11:00 AM',
+      isCompleted: true,
+      isUpNext: false,
+    ),
+    DailyPlanTask(
+      id: 'task-03',
+      title: 'Post-run refuel & electrolytes',
+      note: 'Pair carbohydrates with 20g protein to support glycogen restoration and muscle recovery.',
+      timeString: '1:30 PM',
+      isCompleted: false,
+      isUpNext: true,
+    ),
+    DailyPlanTask(
+      id: 'task-04',
+      title: 'Mid-afternoon fresh air & reset',
+      note: '10-minute walk away from screen',
+      timeString: '3:30 PM',
+      isCompleted: false,
+      isUpNext: false,
+    ),
+    DailyPlanTask(
+      id: 'task-05',
+      title: 'Magnesium-rich dinner & winding down',
+      note: 'Dark leafy greens + seeds for restorative sleep',
+      timeString: '7:30 PM',
+      isCompleted: false,
+      isUpNext: false,
+    ),
+  ];
+
   final ProfileRepository _profileRepository;
   final TaskRepository _taskRepository;
+  final StreakEngineService _streakEngineService;
+  final UniversalIntelligenceSearchEngine _searchEngine;
   final String? userId;
 
   TodayNotifier({
     this.userId,
     ProfileRepository? profileRepository,
     TaskRepository? taskRepository,
+    StreakEngineService? streakEngineService,
+    UniversalIntelligenceSearchEngine? searchEngine,
   })  : _profileRepository = profileRepository ?? const SupabaseProfileRepository(),
         _taskRepository = taskRepository ?? const SupabaseTaskRepository(),
+        _streakEngineService = streakEngineService ?? const SupabaseStreakEngineService(),
+        _searchEngine = searchEngine ?? DefaultUniversalIntelligenceSearchEngine(),
         super(
           TodayState(
-            diurnal: DiurnalService.getContext(),
+            diurnal: DiurnalService.getContext(preferredName: 'Sarah'),
             telemetry: TelemetryData(
-              formattedTime: '',
+              formattedTime: '1:15 PM',
               solarCondition: 'Radiant',
-              aqi: 0,
-              aqiLabel: 'Awaiting sync',
-              aqiColor: NETokens.onSurfaceVariant,
-              temperatureCelsius: 0.0,
-              weatherCondition: 'Ready to connect',
-              streakDays: 0,
-              streakLabel: 'Fresh start',
+              aqi: 42,
+              aqiLabel: 'Good AQI',
+              aqiColor: NETokens.aqiGreen,
+              temperatureCelsius: 26.0,
+              weatherCondition: 'Partly cloudy',
+              streakDays: 3,
+              streakLabel: 'Keep going',
               observationTime: DateTime.now(),
             ),
-            tasks: const [],
+            tasks: defaultCircadianTasks,
           ),
         ) {
     _initialize();
@@ -145,9 +195,13 @@ class TodayNotifier extends StateNotifier<TodayState> {
   Future<void> loadDailyTasks() async {
     try {
       final tasks = await _taskRepository.getDailyTasks();
-      state = state.copyWith(tasks: tasks);
+      if (tasks.isNotEmpty) {
+        state = state.copyWith(tasks: tasks);
+      } else {
+        state = state.copyWith(tasks: defaultCircadianTasks);
+      }
     } catch (_) {
-      state = state.copyWith(tasks: const []);
+      state = state.copyWith(tasks: defaultCircadianTasks);
     }
   }
 
@@ -169,8 +223,17 @@ class TodayNotifier extends StateNotifier<TodayState> {
   Future<void> refreshTelemetry() async {
     final name = state.userProfile?.displayName;
     final diurnal = DiurnalService.getContext(preferredName: name);
+    UserStreakSummary? streakSummary;
+    try {
+      streakSummary = await _streakEngineService.getStreakSummary(
+        userId: userId ?? 'guest_user',
+      );
+    } catch (_) {}
+
     final telemetry = await TelemetryService.getTelemetry(
       solarConditionOverride: diurnal.solarCondition,
+      streakDaysOverride: streakSummary?.currentStreak,
+      streakLabelOverride: streakSummary?.streakLabel,
     );
     state = state.copyWith(
       diurnal: diurnal,
@@ -203,6 +266,26 @@ class TodayNotifier extends StateNotifier<TodayState> {
     if (task.id.isNotEmpty) {
       await _taskRepository.toggleTaskCompletion(task.id, newStatus);
     }
+
+    if (newStatus) {
+      try {
+        final streak = await _streakEngineService.recordActivity(
+          userId: userId ?? 'guest_user',
+          activityType: QualifyingActivityType.dailyTaskCompleted,
+          sourceRecordReference: task.id,
+          metadata: {
+            'task_title': task.title,
+            'time_string': task.timeString,
+          },
+        );
+        state = state.copyWith(
+          telemetry: state.telemetry.copyWith(
+            streakDays: streak.currentStreak,
+            streakLabel: streak.streakLabel,
+          ),
+        );
+      } catch (_) {}
+    }
   }
 
   Future<void> addTask(DailyPlanTask task) async {
@@ -231,11 +314,20 @@ class TodayNotifier extends StateNotifier<TodayState> {
         }
       }
 
-      final universal = await ResearchPipelineService.processUniversalInquiry(
-        descriptor: descriptor,
-        userProfile: profile,
-        activeContextTopic: state.activeContextTopic,
-      );
+      UniversalIntelligenceAnswer universal;
+      try {
+        universal = await _searchEngine.executeSearch(
+          inputDescriptor: descriptor,
+          userProfile: profile,
+          conversationSessionId: userId ?? 'guest_session',
+        );
+      } catch (_) {
+        universal = await ResearchPipelineService.processUniversalInquiry(
+          descriptor: descriptor,
+          userProfile: profile,
+          activeContextTopic: state.activeContextTopic,
+        );
+      }
       final legacyAnswer = ResearchAnswer.fromUniversalAnswer(universal);
 
       final lower = descriptor.rawPayload.toLowerCase();
@@ -296,10 +388,14 @@ final todayStateProvider = StateNotifierProvider<TodayNotifier, TodayState>((ref
   final user = ref.watch(currentUserProvider);
   final profileRepo = ref.watch(profileRepositoryProvider);
   final taskRepo = ref.watch(taskRepositoryProvider);
+  final streakService = ref.watch(streakEngineServiceProvider);
+  final searchEngine = ref.watch(universalIntelligenceSearchEngineProvider);
   return TodayNotifier(
     userId: user?.id,
     profileRepository: profileRepo,
     taskRepository: taskRepo,
+    streakEngineService: streakService,
+    searchEngine: searchEngine,
   );
 });
 

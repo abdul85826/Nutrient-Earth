@@ -103,6 +103,46 @@ class TelemetryData {
     );
   }
 
+  TelemetryData copyWith({
+    String? formattedTime,
+    String? solarCondition,
+    int? aqi,
+    String? aqiLabel,
+    Color? aqiColor,
+    double? temperatureCelsius,
+    String? weatherCondition,
+    int? streakDays,
+    String? streakLabel,
+    bool? isCelsius,
+    DateTime? observationTime,
+    bool? isDefaultFallback,
+    bool? isStale,
+    int? relativeHumidity,
+    double? apparentTemperatureCelsius,
+    double? pm25,
+    String? hydrationGuidance,
+  }) {
+    return TelemetryData(
+      formattedTime: formattedTime ?? this.formattedTime,
+      solarCondition: solarCondition ?? this.solarCondition,
+      aqi: aqi ?? this.aqi,
+      aqiLabel: aqiLabel ?? this.aqiLabel,
+      aqiColor: aqiColor ?? this.aqiColor,
+      temperatureCelsius: temperatureCelsius ?? this.temperatureCelsius,
+      weatherCondition: weatherCondition ?? this.weatherCondition,
+      streakDays: streakDays ?? this.streakDays,
+      streakLabel: streakLabel ?? this.streakLabel,
+      isCelsius: isCelsius ?? this.isCelsius,
+      observationTime: observationTime ?? this.observationTime,
+      isDefaultFallback: isDefaultFallback ?? this.isDefaultFallback,
+      isStale: isStale ?? this.isStale,
+      relativeHumidity: relativeHumidity ?? this.relativeHumidity,
+      apparentTemperatureCelsius: apparentTemperatureCelsius ?? this.apparentTemperatureCelsius,
+      pm25: pm25 ?? this.pm25,
+      hydrationGuidance: hydrationGuidance ?? this.hydrationGuidance,
+    );
+  }
+
   static String _deriveAqiLabel(int aqi) {
     if (aqi <= 50) return 'Good AQI';
     if (aqi <= 100) return 'Moderate AQI';
@@ -137,6 +177,8 @@ class TelemetryService {
     DateTime? nowOverride,
     String? solarConditionOverride,
     HttpClient? customClient,
+    int? streakDaysOverride,
+    String? streakLabelOverride,
   }) async {
     final now = nowOverride ?? DateTime.now();
     final solar = solarConditionOverride ?? 'Radiant';
@@ -144,6 +186,9 @@ class TelemetryService {
 
     final lat = latitude ?? defaultLatitude;
     final lon = longitude ?? defaultLongitude;
+
+    final effectiveStreakDays = streakDaysOverride;
+    final effectiveStreakLabel = streakLabelOverride;
 
     // 1. Check local cache (Valid for 30 minutes)
     TelemetryData? cachedEntry;
@@ -157,6 +202,12 @@ class TelemetryService {
           cachedEntry = TelemetryData.fromJson(data, now, solar);
           // If fresh (< 30 min), return immediately
           if (now.difference(savedTime) < _cacheDuration) {
+            if (effectiveStreakDays != null) {
+              return cachedEntry.copyWith(
+                streakDays: effectiveStreakDays,
+                streakLabel: effectiveStreakLabel ?? cachedEntry.streakLabel,
+              );
+            }
             return cachedEntry;
           }
         }
@@ -223,8 +274,8 @@ class TelemetryService {
           aqiColor: aqiColor,
           temperatureCelsius: tempC,
           weatherCondition: condition,
-          streakDays: cachedEntry?.streakDays ?? 3,
-          streakLabel: cachedEntry?.streakLabel ?? 'Keep going',
+          streakDays: effectiveStreakDays ?? cachedEntry?.streakDays ?? 3,
+          streakLabel: effectiveStreakLabel ?? cachedEntry?.streakLabel ?? 'Keep going',
           isCelsius: true,
           observationTime: now,
           isDefaultFallback: false,
@@ -257,8 +308,8 @@ class TelemetryService {
         aqiColor: cachedEntry.aqiColor,
         temperatureCelsius: cachedEntry.temperatureCelsius,
         weatherCondition: cachedEntry.weatherCondition,
-        streakDays: cachedEntry.streakDays,
-        streakLabel: cachedEntry.streakLabel,
+        streakDays: effectiveStreakDays ?? cachedEntry.streakDays,
+        streakLabel: effectiveStreakLabel ?? cachedEntry.streakLabel,
         isCelsius: cachedEntry.isCelsius,
         observationTime: cachedEntry.observationTime,
         isDefaultFallback: false,
@@ -279,8 +330,8 @@ class TelemetryService {
       aqiColor: NETokens.aqiGreen,
       temperatureCelsius: 22.0,
       weatherCondition: 'Partly cloudy',
-      streakDays: 3,
-      streakLabel: 'Keep going',
+      streakDays: effectiveStreakDays ?? 3,
+      streakLabel: effectiveStreakLabel ?? 'Keep going',
       isCelsius: true,
       observationTime: now,
       isDefaultFallback: true,

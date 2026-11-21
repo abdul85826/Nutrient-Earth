@@ -21,6 +21,10 @@ import '../../services/profile_repository.dart';
 import '../../domain/personalization/user_profile_context.dart';
 import '../../services/profile_sync_service.dart';
 import '../../services/task_repository.dart';
+import '../../services/learn_repository.dart';
+import '../tokens/ne_tokens.dart';
+import '../../../features/today/presentation/widgets/learn_detail_modal.dart';
+import '../../../features/today/presentation/widgets/research_result_modal.dart';
 import 'stitch_view_interface.dart';
 import 'stitch_view_selector.dart';
 
@@ -1099,10 +1103,57 @@ class _StitchScreenHostWidgetState
         }
         break;
 
+      case 'OPEN_MENU':
+        _showTodayMenuModal(context);
+        break;
+
+      case 'LOGO_ACTION':
+        if (mounted) context.go('/today');
+        break;
+
+      case 'OPEN_CAMERA':
+        _handleCameraAction(context);
+        break;
+
+      case 'OPEN_MIC':
+        _handleMicAction(context);
+        break;
+
+      case 'VIEW_EVIDENCE':
+        final taskId = msg['taskId']?.toString() ?? 'task-03';
+        final title = msg['title']?.toString() ?? 'Post-run refuel & electrolytes';
+        _handleViewEvidenceAction(context, taskId, title);
+        break;
+
+      case 'OPEN_LEARN_ITEM':
+        final itemId = msg['itemId']?.toString() ?? 'vid-01';
+        _handleOpenLearnItem(context, itemId);
+        break;
+
+      case 'SEE_ALL_LEARN':
+        _showAllLearnModal(context);
+        break;
+
+      case 'SUBMIT_FEEDBACK':
+        final feedback = msg['feedback']?.toString() ?? msg['text']?.toString() ?? '';
+        if (feedback.isNotEmpty) {
+          ref.read(todayStateProvider.notifier).submitFeedback(feedback);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Feedback received. Thank you!'),
+                backgroundColor: NETokens.emerald,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+        break;
+
       case 'CHAT_PROMPT':
         final text = msg['text'] as String?;
         if (text != null && text.isNotEmpty) {
-          ref.read(todayStateProvider.notifier).submitResearch(text);
+          _handleChatPromptAction(context, text);
         }
         break;
 
@@ -1132,6 +1183,308 @@ class _StitchScreenHostWidgetState
           context.go(next);
         }
         break;
+    }
+  }
+
+  void _showTodayMenuModal(BuildContext context) {
+    final state = ref.read(todayStateProvider);
+    final name = state.userProfile?.displayName ?? 'Sarah Jenkins';
+    final goal = state.userProfile?.primaryGoal ?? 'Endurance Recovery';
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: NETokens.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: NETokens.borderDefault,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Color(0xFFE2EDE5),
+                    child: Icon(Icons.person_rounded, color: NETokens.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontFamily: 'Newsreader',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: NETokens.primary,
+                          ),
+                        ),
+                        Text(
+                          'Goal: $goal',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: NETokens.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: NETokens.borderSubtle, height: 1),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: const Icon(Icons.add_comment_outlined, color: NETokens.primary),
+                title: const Text('New Research Inquiry', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _handleChatPromptAction(context, 'Explore evidence-based nutrition protocols');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_circle_outlined, color: NETokens.primary),
+                title: const Text('Personal Health Profile', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.go('/profile');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.hub_outlined, color: NETokens.primary),
+                title: const Text('Intelligence Workspace', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.go('/workspace');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.menu_book_outlined, color: NETokens.primary),
+                title: const Text('Browse Scientific Feed', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showAllLearnModal(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handleCameraAction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: NETokens.background,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusLg)),
+        icon: const Icon(Icons.camera_alt_rounded, color: NETokens.emerald, size: 32),
+        title: const Text('Scan Meal or Food Label', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        content: const Text(
+          'Take a photo or choose an image from gallery to analyze nutrition with research evidence.',
+          style: TextStyle(fontSize: 13.5, color: NETokens.textSecondary, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: NETokens.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: NETokens.deepGreen,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusFull)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _handleChatPromptAction(context, 'Analyze nutritional composition of this meal');
+            },
+            child: const Text('Select Image & Analyze'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleMicAction(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: NETokens.background,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusLg)),
+        icon: const Icon(Icons.mic_rounded, color: NETokens.emerald, size: 32),
+        title: const Text('Voice Research Input', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        content: const Text(
+          'Tap start to record your scientific inquiry. Speech-to-text will transcribe and verify evidence.',
+          style: TextStyle(fontSize: 13.5, color: NETokens.textSecondary, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: NETokens.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: NETokens.deepGreen,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(NETokens.radiusFull)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              _handleChatPromptAction(context, 'How does dietary magnesium glycinate compare for sleep quality?');
+            },
+            child: const Text('Start Recording'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleViewEvidenceAction(BuildContext context, String taskId, String title) {
+    _handleChatPromptAction(context, 'Evidence basis for $title');
+  }
+
+  void _handleOpenLearnItem(BuildContext context, String itemId) {
+    final all = [
+      ...LearnRepository.featuredItems,
+      ...LearnRepository.getArticles(),
+      ...LearnRepository.getVideos(),
+    ];
+    final match = all.firstWhere(
+      (item) => item.id == itemId,
+      orElse: () => LearnRepository.featuredItems.first,
+    );
+    LearnDetailModal.show(context, match);
+  }
+
+  void _showAllLearnModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final articles = LearnRepository.getArticles();
+        final videos = LearnRepository.getVideos();
+
+        return Container(
+          decoration: const BoxDecoration(
+            color: NETokens.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: SafeArea(
+            child: DefaultTabController(
+              length: 2,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: NETokens.borderDefault,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const TabBar(
+                    labelColor: NETokens.primary,
+                    unselectedLabelColor: NETokens.textMuted,
+                    indicatorColor: NETokens.emerald,
+                    tabs: [
+                      Tab(text: 'Articles (10)'),
+                      Tab(text: 'Videos (10)'),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 400,
+                    child: TabBarView(
+                      children: [
+                        ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: articles.length,
+                          itemBuilder: (context, index) {
+                            final item = articles[index];
+                            return ListTile(
+                              dense: true,
+                              title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                              subtitle: Text(item.description, style: const TextStyle(fontSize: 11)),
+                              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                LearnDetailModal.show(context, item);
+                              },
+                            );
+                          },
+                        ),
+                        ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: videos.length,
+                          itemBuilder: (context, index) {
+                            final item = videos[index];
+                            return ListTile(
+                              dense: true,
+                              leading: const Icon(Icons.play_circle_fill_rounded, color: NETokens.emerald),
+                              title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                              subtitle: Text('${item.duration ?? ""} • ${item.description}', style: const TextStyle(fontSize: 11)),
+                              trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                              onTap: () {
+                                Navigator.pop(ctx);
+                                LearnDetailModal.show(context, item);
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _handleChatPromptAction(BuildContext context, String text) async {
+    final notifier = ref.read(todayStateProvider.notifier);
+    await notifier.submitResearch(text);
+
+    if (!mounted) return;
+    final currentState = ref.read(todayStateProvider);
+    if (currentState.activeAnswer != null) {
+      ResearchResultModal.show(context, currentState.activeAnswer!);
+    } else if (currentState.researchError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Research error: ${currentState.researchError}'),
+          backgroundColor: NETokens.error,
+        ),
+      );
     }
   }
 

@@ -98,34 +98,34 @@
 </head>
 <body class="bg-[#FBF9F4] text-[#051F20] font-sans antialiased min-h-screen flex justify-center selection:bg-[#DAF1DE]">
 <!-- Mobile Viewport Container: 390px-420px max, disciplined 16px-20px padding -->
-<main class="w-full max-w-[420px] min-h-screen px-4 sm:px-5 py-4 flex flex-col space-y-4 pb-8">
+<main class="w-full max-w-[420px] min-h-screen px-4 sm:px-5 py-4 flex flex-col space-y-4 pb-12">
 <!-- ========================================== -->
 <!-- SECTION 1: HEADER & TELEMETRY STRIP        -->
 <!-- ========================================== -->
 <section class="space-y-3.5" data-purpose="header-and-status">
 <!-- Compact, normalized App Bar -->
 <header class="flex items-center justify-between pt-1">
-<button aria-label="Open menu" class="w-12 h-12 p-3 rounded-full bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.04)] flex items-center justify-center text-[#051F20] active:scale-95 transition-transform shrink-0" type="button">
+<button id="btn-menu" aria-label="Open menu" onclick="handleMenuClick()" class="w-12 h-12 p-3 rounded-full bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.04)] flex items-center justify-center text-[#051F20] active:scale-95 hover:bg-[#F6FAF7] transition-all shrink-0" type="button">
 <svg class="w-6 h-6 text-[#051F20]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
 <line x1="4" x2="20" y1="7" y2="7"></line>
 <line x1="4" x2="20" y1="12" y2="12"></line>
 <line x1="4" x2="20" y1="17" y2="17"></line>
 </svg>
 </button>
-<div class="flex items-center space-x-2.5">
+<div class="flex items-center space-x-2.5 cursor-pointer select-none" onclick="handleLogoClick()">
 <div class="w-8 h-8 rounded-full overflow-hidden border border-[#E4E9E2] shadow-xs bg-white shrink-0 p-0.5 flex items-center justify-center">
 <!-- Verified Official Nutrient Earth Monogram -->
 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAklV1K_v4knjOwLbJoh_pRAANStgplLx1NeVh89hrrarAG_LmvxBvbLsJq0OOiiBNfScPEUyVBtRJ28-1q-EerVd09sBxe0P4PMYxtFAgAHz3ChcYXIQ5YqyRmWFgItrXf3Z86yufVluYXo6FoWa5JchGsjhzTNp3TbZYj93NTy-vKRx8XsA3oPYxd5-o9ZpbKfFPaIqQye8nwRxytpeRgugjeJ3Cu10Act8MCZK_HnNuKN-BBb1w"
      alt="Nutrient Earth Logo"
      class="w-full h-full object-cover rounded-full"
-     onerror="this.onerror=null; this.src='/icons/Icon-192.png';">
+     onerror="this.onerror=null; this.src='/assets/images/app_logo.png';">
 </div>
 <div class="flex flex-col text-left">
 <h1 class="font-serif text-[20px] font-bold tracking-tight text-[#051F20] leading-none">Nutrient Earth</h1>
 <span class="text-[9px] font-sans uppercase tracking-[0.12em] text-[#4F6359] font-bold mt-0.5">EVIDENCE COMPANION</span>
 </div>
 </div>
-<button aria-label="User profile" class="w-12 h-12 p-3 rounded-full bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.04)] flex items-center justify-center text-[#051F20] active:scale-95 transition-transform shrink-0" type="button">
+<button id="btn-profile" aria-label="User profile" onclick="handleProfileClick()" class="w-12 h-12 p-3 rounded-full bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.04)] flex items-center justify-center text-[#051F20] active:scale-95 hover:bg-[#F6FAF7] transition-all shrink-0" type="button">
 <svg class="w-6 h-6 text-[#051F20]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 <circle cx="12" cy="7" r="4"></circle>
@@ -178,7 +178,7 @@
 <path d="M20 12h2"></path>
 </svg>
 </div>
-<span id="telemetry-time" class="text-[14px] font-sans font-semibold text-[#051F20] leading-tight">--:--</span>
+<span id="telemetry-time" class="text-[14px] font-sans font-semibold text-[#051F20] leading-tight">1:30 PM</span>
 <span id="telemetry-solar" class="text-[11px] font-sans font-medium text-[#7D8F85] leading-tight mt-0.5">Radiant</span>
 </div>
 
@@ -190,7 +190,7 @@
 </svg>
 </div>
 <span id="telemetry-aqi" class="text-[14px] font-sans font-semibold text-[#051F20] leading-tight flex items-center gap-1">
-  --
+  42
   <span id="telemetry-aqi-dot" class="w-1.5 h-1.5 rounded-full bg-[#166534] inline-block animate-pulse"></span>
 </span>
 <span id="telemetry-aqi-label" class="text-[11px] font-sans font-medium text-[#7D8F85] leading-tight mt-0.5 truncate max-w-full">Good AQI</span>
@@ -203,8 +203,8 @@
 <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
 </svg>
 </div>
-<span id="telemetry-temp" class="text-[14px] font-sans font-semibold text-[#051F20] leading-tight">--°C</span>
-<span id="telemetry-condition" class="text-[11px] font-sans font-medium text-[#7D8F85] leading-tight mt-0.5 truncate max-w-full">Updating...</span>
+<span id="telemetry-temp" class="text-[14px] font-sans font-semibold text-[#051F20] leading-tight">24°C</span>
+<span id="telemetry-condition" class="text-[11px] font-sans font-medium text-[#7D8F85] leading-tight mt-0.5 truncate max-w-full">Partly cloudy</span>
 </div>
 
 <!-- 4. Longitudinal Streak -->
@@ -238,16 +238,16 @@
 <div class="space-y-2.5 pt-0.5">
 <div class="relative flex items-center bg-white rounded-full h-[52px] pl-2 pr-2 shadow-[0_2px_8px_rgba(11,43,38,0.05)] border border-[#D5E2D8] focus-within:border-[#166534] transition-all gap-1">
 <!-- Camera Button (Normalized 24px icon) -->
-<button aria-label="Scan supplement label or food" class="w-10 h-10 rounded-full flex items-center justify-center text-[#4F6359] hover:text-[#051F20] hover:bg-[#F3F7F4] active:scale-95 transition-all shrink-0" type="button">
+<button id="btn-camera" onclick="handleCameraClick()" aria-label="Scan supplement label or food" class="w-10 h-10 rounded-full flex items-center justify-center text-[#4F6359] hover:text-[#051F20] hover:bg-[#F3F7F4] active:scale-95 transition-all shrink-0" type="button">
 <svg class="w-6 h-6 p-0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
 <circle cx="12" cy="13" r="4"></circle>
 </svg>
 </button>
 <!-- Search Input -->
-<input id="research-search-input" class="w-full bg-transparent border-0 px-2 text-[14px] sm:text-[15px] font-medium text-[#051F20] placeholder:text-[#4F6359] focus:ring-0 focus:outline-none truncate" placeholder="Ask about food, fitness or your health..." type="text"/>
+<input id="research-search-input" class="w-full bg-transparent border-0 px-2 text-[14px] sm:text-[15px] font-medium text-[#051F20] placeholder:text-[#4F6359] focus:ring-0 focus:outline-none truncate" placeholder="Ask about food, fitness..." type="text"/>
 <!-- Microphone Button (Normalized 24px icon) -->
-<button aria-label="Voice search" class="w-10 h-10 rounded-full flex items-center justify-center text-[#4F6359] hover:text-[#051F20] hover:bg-[#F3F7F4] active:scale-95 transition-all shrink-0" type="button">
+<button id="btn-mic" onclick="handleMicClick()" aria-label="Voice search" class="w-10 h-10 rounded-full flex items-center justify-center text-[#4F6359] hover:text-[#051F20] hover:bg-[#F3F7F4] active:scale-95 transition-all shrink-0" type="button">
 <svg class="w-6 h-6 p-0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -256,7 +256,7 @@
 </svg>
 </button>
 <!-- Submit Button (Normalized 24px bounding box) -->
-<button id="research-submit-btn" aria-label="Send question" class="w-10 h-10 rounded-full bg-[#0B2B26] text-white flex items-center justify-center shrink-0 shadow-sm active:scale-95 hover:bg-[#163B32] transition-transform" type="button">
+<button id="research-submit-btn" onclick="handleSearchSubmit()" aria-label="Send question" class="w-10 h-10 rounded-full bg-[#0B2B26] text-white flex items-center justify-center shrink-0 shadow-sm active:scale-95 hover:bg-[#163B32] transition-transform" type="button">
 <svg class="w-6 h-6 p-0.5 text-white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24">
 <line x1="12" x2="12" y1="19" y2="5"></line>
 <polyline points="5 12 12 5 19 12"></polyline>
@@ -265,15 +265,15 @@
 </div>
 <!-- Suggestion Chips: Crisp 36px height, smooth scroll -->
 <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
-<button class="whitespace-nowrap flex items-center space-x-1.5 px-3.5 h-[36px] rounded-full bg-white border border-[#D5E2D8] text-[13px] font-semibold text-[#0B2B26] shadow-[0_1px_3px_rgba(11,43,38,0.03)] hover:bg-[#F6FAF7] active:scale-95 transition-all shrink-0" type="button">
+<button onclick="handleChipClick('Is my diet right for my goal?')" class="whitespace-nowrap flex items-center space-x-1.5 px-3.5 h-[36px] rounded-full bg-white border border-[#D5E2D8] text-[13px] font-semibold text-[#0B2B26] shadow-[0_1px_3px_rgba(11,43,38,0.03)] hover:bg-[#F6FAF7] active:scale-95 transition-all shrink-0 cursor-pointer" type="button">
 <svg class="w-3.5 h-3.5 text-[#166534] shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
 <span>Is my diet right for my goal?</span>
 </button>
-<button class="whitespace-nowrap flex items-center space-x-1.5 px-3.5 h-[36px] rounded-full bg-white border border-[#D5E2D8] text-[13px] font-semibold text-[#0B2B26] shadow-[0_1px_3px_rgba(11,43,38,0.03)] hover:bg-[#F6FAF7] active:scale-95 transition-all shrink-0" type="button">
+<button onclick="handleChipClick('Improve my recovery')" class="whitespace-nowrap flex items-center space-x-1.5 px-3.5 h-[36px] rounded-full bg-white border border-[#D5E2D8] text-[13px] font-semibold text-[#0B2B26] shadow-[0_1px_3px_rgba(11,43,38,0.03)] hover:bg-[#F6FAF7] active:scale-95 transition-all shrink-0 cursor-pointer" type="button">
 <svg class="w-3.5 h-3.5 text-[#166534] shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
 <span>Improve my recovery</span>
 </button>
-<button class="whitespace-nowrap flex items-center space-x-1.5 px-3.5 h-[36px] rounded-full bg-white border border-[#D5E2D8] text-[13px] font-semibold text-[#0B2B26] shadow-[0_1px_3px_rgba(11,43,38,0.03)] hover:bg-[#F6FAF7] active:scale-95 transition-all shrink-0" type="button">
+<button onclick="handleChipClick('How to get food right?')" class="whitespace-nowrap flex items-center space-x-1.5 px-3.5 h-[36px] rounded-full bg-white border border-[#D5E2D8] text-[13px] font-semibold text-[#0B2B26] shadow-[0_1px_3px_rgba(11,43,38,0.03)] hover:bg-[#F6FAF7] active:scale-95 transition-all shrink-0 cursor-pointer" type="button">
 <svg class="w-3.5 h-3.5 text-[#166534] shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
 <span>How to get food right?</span>
 </button>
@@ -282,41 +282,79 @@
 </section>
 
 <!-- ========================================== -->
-<!-- SECTION 3: DAILY PLAN & TODAY'S FOCUS     -->
+<!-- SECTION 3: YOUR DAILY PLAN                -->
 <!-- ========================================== -->
-<section class="space-y-3" data-purpose="daily-routine-cards">
+<section class="space-y-3" data-purpose="daily-plan-interactive">
 <div class="flex items-center justify-between">
-<h3 class="font-serif text-[18px] font-bold text-[#051F20] tracking-tight">Today's Focus & Research</h3>
-<span class="text-[11px] font-sans font-bold uppercase tracking-wider text-[#166534] bg-[#EEF5F0] px-2.5 py-0.5 rounded-full border border-[#D5E2D8]">Evidence-Based</span>
+<h3 class="font-serif text-[20px] font-bold text-[#051F20] tracking-tight">Your daily plan</h3>
+<span id="daily-plan-badge" class="text-[12px] font-sans font-bold text-[#166534] bg-[#EEF5F0] px-3 py-1 rounded-full border border-[#D5E2D8]">2 of 5 done</span>
 </div>
 
-<div class="grid grid-cols-1 gap-3">
-<!-- Card 1 -->
-<article class="p-4 rounded-[16px] bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.03)] flex items-start gap-3.5 hover:border-[#166534]/30 transition-all">
-<div class="w-9 h-9 rounded-xl bg-[#EEF5F0] text-[#166534] flex items-center justify-center shrink-0 mt-0.5">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-</div>
-<div class="flex-1 min-w-0">
-<h4 class="font-serif text-[15.5px] font-bold text-[#051F20] leading-snug">Electrolyte & Mineral Balance</h4>
-<p class="text-[12.5px] text-[#4F6359] leading-relaxed mt-1">Sustain hydration and cellular transport based on your current physical metrics.</p>
-</div>
-</article>
-
-<!-- Card 2 -->
-<article class="p-4 rounded-[16px] bg-white border border-[#E4E9E2] shadow-[0_2px_8px_rgba(11,43,38,0.03)] flex items-start gap-3.5 hover:border-[#166534]/30 transition-all">
-<div class="w-9 h-9 rounded-xl bg-[#FEF9EC] text-[#D97706] flex items-center justify-center shrink-0 mt-0.5">
-<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-</div>
-<div class="flex-1 min-w-0">
-<h4 class="font-serif text-[15.5px] font-bold text-[#051F20] leading-snug">Circadian Meal Timing</h4>
-<p class="text-[12.5px] text-[#4F6359] leading-relaxed mt-1">Optimizing insulin sensitivity by aligning caloric intake with daylight peak.</p>
-</div>
-</article>
+<div class="rounded-[20px] bg-white border border-[#E4E9E2] p-4 shadow-[0_2px_8px_rgba(11,43,38,0.03)] space-y-2.5" id="daily-plan-container">
+  <!-- Dynamic Task List populated by JS -->
+  <div id="daily-plan-tasks" class="space-y-1.5 divide-y divide-[#F1EBE0]">
+    <!-- Populated by JavaScript renderDailyTasks() -->
+  </div>
 </div>
 </section>
 
 <!-- ========================================== -->
-<!-- SECTION 4: AMBIENT USER FEEDBACK          -->
+<!-- SECTION 4: LEARN FOR TODAY                -->
+<!-- ========================================== -->
+<section class="space-y-2.5 pt-1" data-purpose="learn-today-feed">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-serif text-[20px] font-bold text-[#051F20] tracking-tight">Learn for today</h3>
+<p class="text-[12.5px] text-[#4F6359] font-medium">Three fresh picks to help you understand your health better.</p>
+</div>
+<button type="button" onclick="handleSeeAllLearn()" class="text-[12px] font-bold text-[#051F20] hover:text-[#166534] flex items-center gap-0.5 cursor-pointer transition-colors shrink-0">
+<span>See all</span>
+<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+</button>
+</div>
+
+<!-- 2-Card Media Row -->
+<div class="grid grid-cols-2 gap-3 pt-1">
+  <!-- Card 1: Video -->
+  <article class="rounded-[18px] bg-white border border-[#E4E9E2] overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col group select-none" onclick="handleOpenLearnItem('vid-01')">
+    <div class="relative w-full h-[110px] bg-[#EAF0EC] overflow-hidden">
+      <img src="/assets/images/learn_video_thumb.png" alt="How to build a balanced plate for sustained energy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80';">
+      <span class="absolute top-2 left-2 bg-[#137333] text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs">VIDEO</span>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-full bg-black/45 backdrop-blur-xs text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+          <svg class="w-4 h-4 fill-white ml-0.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </div>
+      </div>
+      <span class="absolute bottom-2 right-2 bg-black/65 text-white text-[10px] font-mono px-1.5 py-0.5 rounded font-semibold">8:24</span>
+    </div>
+    <div class="p-3 flex flex-col flex-1 justify-between">
+      <div>
+        <span class="text-[9.5px] font-bold text-[#166534] uppercase tracking-wider block mb-1">HPLC POTENCY</span>
+        <h4 class="font-serif text-[13.5px] font-bold text-[#051F20] leading-snug line-clamp-2">How to build a balanced plate for...</h4>
+      </div>
+      <span class="text-[11px] text-[#7D8F85] font-medium mt-2">For steady daily energy</span>
+    </div>
+  </article>
+
+  <!-- Card 2: Article -->
+  <article class="rounded-[18px] bg-white border border-[#E4E9E2] overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col group select-none" onclick="handleOpenLearnItem('art-01')">
+    <div class="relative w-full h-[110px] bg-[#FAF0EB] overflow-hidden">
+      <img src="/assets/images/learn_article_thumb.png" alt="Everyday habits that may support better gut health" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80';">
+      <span class="absolute top-2 left-2 bg-[#C85A32] text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs">ARTICLE</span>
+    </div>
+    <div class="p-3 flex flex-col flex-1 justify-between">
+      <div>
+        <span class="text-[9.5px] font-bold text-[#C85A32] uppercase tracking-wider block mb-1">RCT REVIEW</span>
+        <h4 class="font-serif text-[13.5px] font-bold text-[#051F20] leading-snug line-clamp-2">Everyday habits that may support better...</h4>
+      </div>
+      <span class="text-[11px] text-[#7D8F85] font-medium mt-2">Simple changes backed by research</span>
+    </div>
+  </article>
+</div>
+</section>
+
+<!-- ========================================== -->
+<!-- SECTION 5: AMBIENT USER FEEDBACK          -->
 <!-- ========================================== -->
 <footer class="rounded-xl border border-[#E4E9E2] bg-[#EEF5F0] p-3 flex items-center justify-between gap-2 shadow-[0_1px_4px_rgba(11,43,38,0.03)]" data-purpose="feedback-banner">
 <div class="flex items-center space-x-2.5 min-w-0">
@@ -330,14 +368,18 @@
 <p class="text-[10.5px] text-[#4F6359] font-medium leading-tight truncate">Tell us what helped or what to research next.</p>
 </div>
 </div>
-<div class="flex items-center bg-white border border-[#D5E2D8] rounded-full pl-3 pr-1 py-1 max-w-[155px] shadow-xs focus-within:border-[#166534] shrink-0">
-<input class="w-full bg-transparent border-0 p-0 text-[11px] font-medium text-[#051F20] placeholder:text-[#4F6359] focus:ring-0 focus:outline-none" placeholder="Type here..." type="text"/>
-<button aria-label="Submit feedback" class="w-6 h-6 rounded-full bg-[#0B2B26] text-white flex items-center justify-center shrink-0 ml-1 active:scale-95 transition-transform" type="button">
+<div id="feedback-controls-box" class="flex items-center bg-white border border-[#D5E2D8] rounded-full pl-3 pr-1 py-1 max-w-[155px] shadow-xs focus-within:border-[#166534] shrink-0">
+<input id="feedback-input" class="w-full bg-transparent border-0 p-0 text-[11px] font-medium text-[#051F20] placeholder:text-[#4F6359] focus:ring-0 focus:outline-none" placeholder="Type here..." type="text"/>
+<button id="feedback-submit-btn" onclick="handleFeedbackSubmit()" aria-label="Submit feedback" class="w-6 h-6 rounded-full bg-[#0B2B26] text-white flex items-center justify-center shrink-0 ml-1 active:scale-95 transition-transform" type="button">
 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24">
 <line x1="12" x2="12" y1="19" y2="5"></line>
 <polyline points="5 12 12 5 19 12"></polyline>
 </svg>
 </button>
+</div>
+<div id="feedback-confirmed-badge" class="hidden items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F4EA] border border-[#CEEAD6] text-[#137333] text-[11px] font-bold">
+  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  <span>Thank you</span>
 </div>
 </footer>
 </main>
@@ -411,7 +453,7 @@
       console.log('[NEBridge] ' + type, msg);
     },
     navigate: function(route) {
-      this.send('NAVIGATE', { route: route });
+      this.send('NAVIGATE', { route: route, nextRoute: route });
     }
   };
 </script>
@@ -425,6 +467,243 @@
     tempC: 24,
     condition: 'Partly cloudy',
     streak: 3
+  };
+
+  // 5 Canonical Daily Plan Tasks matching verified design
+  var dailyTasks = [
+    {
+      id: 'task-01',
+      title: 'Morning hydration · 500ml water',
+      time: '7:30 AM',
+      completed: true,
+      isUpNext: false,
+      note: ''
+    },
+    {
+      id: 'task-02',
+      title: 'Pre-run mobility & dynamic stretching',
+      time: '11:00 AM',
+      completed: true,
+      isUpNext: false,
+      note: ''
+    },
+    {
+      id: 'task-03',
+      title: 'Post-run refuel & electrolytes',
+      time: '1:30 PM · NOW',
+      completed: false,
+      isUpNext: true,
+      note: 'Pair carbohydrates with 20g protein to support glycogen restoration and muscle recovery.',
+      evidenceLink: true
+    },
+    {
+      id: 'task-04',
+      title: 'Mid-afternoon fresh air & reset',
+      time: '3:30 PM',
+      completed: false,
+      isUpNext: false,
+      note: '10-minute walk away from screen'
+    },
+    {
+      id: 'task-05',
+      title: 'Magnesium-rich dinner & winding down',
+      time: '7:30 PM',
+      completed: false,
+      isUpNext: false,
+      note: ''
+    }
+  ];
+
+  // Try hydrating persisted task check states
+  try {
+    var savedTasks = localStorage.getItem('ne_daily_plan_tasks');
+    if (savedTasks) {
+      var parsed = JSON.parse(savedTasks);
+      if (Array.isArray(parsed) && parsed.length === dailyTasks.length) {
+        for (var i = 0; i < dailyTasks.length; i++) {
+          if (typeof parsed[i].completed === 'boolean') {
+            dailyTasks[i].completed = parsed[i].completed;
+          }
+        }
+      }
+    }
+  } catch(e) {}
+
+  // Render Daily Tasks List
+  function renderDailyTasks() {
+    var container = document.getElementById('daily-plan-tasks');
+    if (!container) return;
+
+    var completedCount = dailyTasks.filter(function(t) { return t.completed; }).length;
+    var badge = document.getElementById('daily-plan-badge');
+    if (badge) {
+      badge.textContent = completedCount + ' of ' + dailyTasks.length + ' done';
+    }
+
+    var html = '';
+    dailyTasks.forEach(function(task, index) {
+      var isCompleted = task.completed;
+      var isNow = task.isUpNext && !isCompleted;
+
+      if (isNow) {
+        // Highlighted active card container for Task 3
+        html += '<div class="rounded-[16px] bg-[#F7FAF8] border border-[#D5E2D8] p-3.5 space-y-2 my-1 transition-all">';
+        html += '  <div class="flex items-center justify-between cursor-pointer select-none" onclick="toggleTaskItem(' + index + ')">';
+        html += '    <div class="flex items-center space-x-3 min-w-0">';
+        html += '      <div class="w-6 h-6 rounded-full border-2 border-[#7D8F85] bg-white flex items-center justify-center shrink-0 hover:border-[#166534] transition-colors"></div>';
+        html += '      <span class="text-[14.5px] font-bold text-[#051F20] truncate">' + task.title + '</span>';
+        html += '    </div>';
+        html += '    <span class="text-[11px] font-bold text-[#137333] bg-[#E6F4EA] px-2.5 py-0.5 rounded-full border border-[#CEEAD6] shrink-0 ml-2 font-mono">1:30 PM · NOW</span>';
+        html += '  </div>';
+        if (task.note) {
+          html += '  <p class="text-[12.5px] text-[#4F6359] leading-relaxed pl-9">' + task.note + '</p>';
+        }
+        if (task.evidenceLink) {
+          html += '  <div class="pl-9">';
+          html += '    <button type="button" onclick="handleViewEvidence(\'' + task.id + '\', \'' + task.title.replace(/'/g, "\\'") + '\')" class="text-[12.5px] font-semibold text-[#166534] hover:underline flex items-center gap-1 cursor-pointer transition-colors">';
+          html += '      <span>View evidence</span>';
+          html += '      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+          html += '    </button>';
+          html += '  </div>';
+        }
+        html += '</div>';
+      } else {
+        // Standard task row
+        html += '<div class="py-2.5 cursor-pointer select-none transition-colors hover:bg-[#F6FAF7]/50 rounded-lg px-1" onclick="toggleTaskItem(' + index + ')">';
+        html += '  <div class="flex items-center justify-between">';
+        html += '    <div class="flex items-center space-x-3 min-w-0">';
+        if (isCompleted) {
+          html += '      <div class="w-6 h-6 rounded-full bg-[#0B2B26] text-white flex items-center justify-center shrink-0 shadow-xs">';
+          html += '        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          html += '      </div>';
+          html += '      <span class="text-[14px] text-[#7D8F85] line-through truncate font-medium">' + task.title + '</span>';
+        } else {
+          html += '      <div class="w-6 h-6 rounded-full border-2 border-[#CBD5E1] bg-white flex items-center justify-center shrink-0 hover:border-[#166534] transition-colors"></div>';
+          html += '      <span class="text-[14px] font-semibold text-[#051F20] truncate">' + task.title + '</span>';
+        }
+        html += '    </div>';
+        html += '    <span class="text-[12px] text-[#7D8F85] font-mono shrink-0 ml-2">' + task.time + '</span>';
+        html += '  </div>';
+        if (task.note) {
+          html += '  <p class="text-[12px] text-[#4F6359] pl-9 mt-0.5">' + task.note + '</p>';
+        }
+        html += '</div>';
+      }
+    });
+
+    container.innerHTML = html;
+  }
+
+  window.toggleTaskItem = function(index) {
+    if (index >= 0 && index < dailyTasks.length) {
+      dailyTasks[index].completed = !dailyTasks[index].completed;
+      renderDailyTasks();
+      try {
+        localStorage.setItem('ne_daily_plan_tasks', JSON.stringify(dailyTasks));
+      } catch(e) {}
+      if (window.NEBridge) {
+        window.NEBridge.send('TOGGLE_TASK', {
+          index: index,
+          taskId: dailyTasks[index].id,
+          completed: dailyTasks[index].completed
+        });
+      }
+    }
+  };
+
+  window.handleViewEvidence = function(taskId, title) {
+    if (window.NEBridge) {
+      window.NEBridge.send('VIEW_EVIDENCE', {
+        taskId: taskId,
+        title: title || 'Post-run refuel & electrolytes'
+      });
+    }
+  };
+
+  // Header Interactions
+  window.handleMenuClick = function() {
+    if (window.NEBridge) {
+      window.NEBridge.send('OPEN_MENU');
+    }
+  };
+
+  window.handleLogoClick = function() {
+    if (window.NEBridge) {
+      window.NEBridge.send('LOGO_ACTION');
+    }
+  };
+
+  window.handleProfileClick = function() {
+    if (window.NEBridge) {
+      window.NEBridge.navigate('/profile');
+    }
+  };
+
+  // Search Bar Interactions
+  window.handleCameraClick = function() {
+    if (window.NEBridge) {
+      window.NEBridge.send('OPEN_CAMERA');
+    }
+  };
+
+  window.handleMicClick = function() {
+    if (window.NEBridge) {
+      window.NEBridge.send('OPEN_MIC');
+    }
+  };
+
+  window.handleSearchSubmit = function() {
+    var input = document.getElementById('research-search-input');
+    if (!input) return;
+    var q = input.value.trim();
+    if (q && window.NEBridge) {
+      window.NEBridge.send('CHAT_PROMPT', { text: q });
+    }
+  };
+
+  window.handleChipClick = function(text) {
+    var input = document.getElementById('research-search-input');
+    if (input) input.value = text;
+    if (window.NEBridge) {
+      window.NEBridge.send('CHAT_PROMPT', { text: text });
+    }
+  };
+
+  // Learn Section Interactions
+  window.handleSeeAllLearn = function() {
+    if (window.NEBridge) {
+      window.NEBridge.send('SEE_ALL_LEARN');
+    }
+  };
+
+  window.handleOpenLearnItem = function(itemId) {
+    if (window.NEBridge) {
+      window.NEBridge.send('OPEN_LEARN_ITEM', { itemId: itemId });
+    }
+  };
+
+  // Ambient Feedback Interactions
+  window.handleFeedbackSubmit = function() {
+    var input = document.getElementById('feedback-input');
+    if (!input) return;
+    var val = input.value.trim();
+    if (val && window.NEBridge) {
+      window.NEBridge.send('SUBMIT_FEEDBACK', { feedback: val });
+      input.value = '';
+
+      var controls = document.getElementById('feedback-controls-box');
+      var badge = document.getElementById('feedback-confirmed-badge');
+      if (controls && badge) {
+        controls.classList.add('hidden');
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+        setTimeout(function() {
+          badge.classList.add('hidden');
+          badge.classList.remove('flex');
+          controls.classList.remove('hidden');
+        }, 3000);
+      }
+    }
   };
 
   // 1. Modal State Machine
@@ -696,8 +975,9 @@
   }
 
   function initScreen() {
-    console.log('[Stitch] Screen 18 initialized with Ralph Graph Telemetry Engine');
+    console.log('[Stitch] Screen 18 initialized with Full Functional Recovery');
 
+    renderDailyTasks();
     updateClockAndGreeting();
     setInterval(updateClockAndGreeting, 1000);
 
@@ -733,31 +1013,25 @@
       if (bW) bW.textContent = 'Weight: ' + w + ' kg';
     }
 
-    // Search bar submit
+    // Search bar enter listener
     var searchInput = document.getElementById('research-search-input');
-    var submitBtn = document.getElementById('research-submit-btn');
-    if (submitBtn && searchInput) {
-      submitBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var q = searchInput.value.trim();
-        if (q) {
-          window.NEBridge.send('CHAT_PROMPT', { text: q });
-        }
-      });
+    if (searchInput) {
       searchInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
-          submitBtn.click();
+          handleSearchSubmit();
         }
       });
     }
 
-    // Navigation and Action buttons
-    var profileBtn = document.querySelector('button[aria-label="User profile"]');
-    if (profileBtn) {
-      profileBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.NEBridge.navigate('/profile');
+    // Feedback enter listener
+    var feedbackInput = document.getElementById('feedback-input');
+    if (feedbackInput) {
+      feedbackInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleFeedbackSubmit();
+        }
       });
     }
   }
