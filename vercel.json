@@ -1,6 +1,6 @@
 {
-  "version": 2,
   "cleanUrls": false,
+  "buildCommand": "node scripts/build.js",
   "outputDirectory": "build/web",
   "rewrites": [
     {

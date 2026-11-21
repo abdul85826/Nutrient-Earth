@@ -4,8 +4,7 @@
   "private": true,
   "description": "Nutrient Earth Production Web Application",
   "scripts": {
-    "build": "bash scripts/vercel-build.sh",
-    "prepare-output": "node scripts/prepare-vercel-output.js"
+    "build": "node scripts/build.js",
+    "prepare-output": "node scripts/build.js"
   }
 }
-
