@@ -182,6 +182,9 @@ class UserProfileContext {
         'avatar_config': avatarConfig,
       };
 
+  /// First declared primary goal, or empty string if none set
+  String get primaryGoal => primaryGoals.isNotEmpty ? primaryGoals.first : '';
+
   /// Returns a privacy-safe, anonymized context map stripped of direct PII (name, userId)
   /// for server-side evaluation where only physiological parameters are required.
   Map<String, dynamic> toAnonymizedEvaluationMap() => {

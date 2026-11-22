@@ -1,53 +1,71 @@
 <!DOCTYPE html>
 
-<html lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-<meta content="mobile_stack" name="shell-type"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<style>
+<html lang="en">
+
+<head>
+  <title>Nutrient Earth — Health Goals & Conditions Discovery</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport" />
+  <meta content="mobile_stack" name="shell-type" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <style>
     @layer base {
-      html, body {
+
+      html,
+      body {
         width: 100vw;
         margin: 0;
         padding: 0;
       }
+
       body {
         overscroll-behavior: none;
       }
+
       .pb-safe {
         padding-bottom: env(safe-area-inset-bottom, 0px);
       }
+
       .pt-safe {
         padding-top: env(safe-area-inset-top, 0px);
       }
-      main > :first-child {
+
+      main> :first-child {
         margin-top: 0 !important;
       }
-      main > :last-child {
+
+      main> :last-child {
         margin-bottom: 0 !important;
       }
     }
+
     ::-webkit-scrollbar {
       display: none;
     }
+
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
+
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
     body {
       min-height: max(884px, 100dvh);
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
   </style>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
       theme: {
@@ -87,661 +105,859 @@
     }
   </script>
 </head>
-<body class="bg-warm-bg font-sans text-stone-900 min-h-screen flex flex-col antialiased selection:bg-sage-100 selection:text-forest-900">
-<!-- Header / Navigation Bar -->
-<header class="fixed top-0 inset-x-0 z-50 bg-[#FBF9F4]/90 backdrop-blur-md pt-safe border-b border-warm-border/60">
-<div class="h-16 px-4 flex items-center justify-between gap-3 max-w-md mx-auto">
-<button aria-label="Go back" class="min-w-[48px] min-h-[48px] w-12 h-12 rounded-full flex items-center justify-center text-stone-800 hover:bg-stone-200/50 active:scale-95 transition-all" onclick="history.back()">
-<span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span>
-</button>
-<div class="flex-1 flex flex-col items-center justify-center text-center px-1">
-<span class="text-[12px] font-semibold uppercase tracking-wider text-forest-600">Step 1 of 5</span>
-<h1 class="text-[15px] font-semibold tracking-tight text-stone-900 line-clamp-1">Getting to know you</h1>
-</div>
-<button aria-label="Account" class="w-10 h-10 rounded-full bg-stone-200/60 flex items-center justify-center flex-shrink-0 text-stone-700 hover:bg-stone-200">
-<span class="material-symbols-outlined text-[20px]">person</span>
-</button>
-</div>
-<!-- Slim Progress Indicator -->
-<div class="w-full px-6 pb-2.5 max-w-md mx-auto">
-<div class="w-full h-1 bg-stone-200 rounded-full overflow-hidden">
-<div class="h-full bg-forest-900 rounded-full transition-all duration-300 w-1/5"></div>
-</div>
-</div>
-</header>
-<!-- Main Content Area -->
-<main class="flex flex-col relative w-full px-5 pt-20 pb-32 bg-warm-bg min-h-screen">
-<div class="flex flex-col w-full max-w-md mx-auto space-y-6 pt-2">
-<!-- Headline & Introduction -->
-<div class="space-y-2.5">
-<div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sage-100 text-forest-800 font-semibold text-[12px] tracking-wide">
-<span class="material-symbols-outlined text-[15px]">eco</span>
-<span>Foundations · Step 1 of 5</span>
-</div>
-<h2 class="text-[28px] leading-tight font-semibold text-forest-900 tracking-tight">What would you like help with?</h2>
-<p class="text-[15px] leading-relaxed text-stone-600">Search for anything on your mind. Choose as many as you like—even if you're not sure what it's called.</p>
-</div>
-<!-- Search Field & Quick Suggestion Chips -->
-<div class="space-y-3">
-<div class="relative flex items-center">
-<span class="material-symbols-outlined absolute left-3.5 text-stone-500 text-[22px] pointer-events-none">search</span>
-<input autocomplete="off" class="w-full pl-11 pr-10 py-3.5 bg-warm-card border border-warm-border rounded-xl text-[15px] text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 focus:ring-1 focus:ring-forest-700 transition-all shadow-sm" id="health-search-input" placeholder="Search a condition, symptom, or goal..." type="text"/>
-<button aria-label="Clear search" class="hidden absolute right-3 w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:text-stone-800 transition-colors" id="search-clear-btn">
-<span class="material-symbols-outlined text-[16px]">close</span>
-</button>
-</div>
-<!-- Suggestion Pills -->
-<div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-<button class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all" type="button">Diabetes</button>
-<button class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all" type="button">PCOS</button>
-<button class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all" type="button">Fatigue</button>
-<button class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all" type="button">Better sleep</button>
-<button class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all" type="button">Weight management</button>
-</div>
-</div>
-<!-- Selected Items Summary & Chips -->
-<div class="space-y-3 p-4 bg-warm-subtle rounded-2xl border border-warm-border" id="selected-items-section">
-<div class="flex items-center justify-between">
-<div class="flex items-center gap-2">
-<span class="text-[15px] font-semibold text-stone-900">Your selections</span>
-<span class="px-2.5 py-0.5 rounded-full bg-forest-800 text-white font-medium text-[12px]" id="selected-badge-count">3</span>
-</div>
-<button class="text-[13px] font-medium text-forest-700 hover:underline min-h-[36px] flex items-center" id="clear-all-btn" type="button">Clear all</button>
-</div>
-<div class="flex flex-wrap gap-2 pt-0.5" id="selected-chips-container">
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="prediabetes">
-<span>Prediabetes</span>
-<button aria-label="Remove Prediabetes" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="low_energy">
-<span>Low energy or fatigue</span>
-<button aria-label="Remove Low energy or fatigue" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-<div class="selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all" data-item-id="improve_sleep">
-<span>Improve sleep</span>
-<button aria-label="Remove Improve sleep" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all" type="button">
-<span class="material-symbols-outlined text-[15px]">close</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Live Search Results Dropdown -->
-<div class="hidden space-y-2" id="search-live-results">
-<p class="text-[13px] font-semibold uppercase tracking-wider text-forest-700">Search Results</p>
-<div class="space-y-2" id="search-results-list"></div>
-</div>
-<!-- Interactive Categories Accordions -->
-<div class="space-y-3.5" id="categories-section">
-<div>
-<p class="text-[14px] font-medium text-stone-600">Not sure where to start? Browse the categories below.</p>
-</div>
-<div class="space-y-2.5" id="accordion-group">
-<!-- Category 1: Health conditions (Expanded by default) -->
-<div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
-<button aria-expanded="true" class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors" type="button">
-<div class="flex items-center gap-3.5 min-w-0">
-<div class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]">vital_signs</span>
-</div>
-<div>
-<h3 class="text-[16px] font-semibold text-stone-900">Health conditions</h3>
-<p class="text-[13px] text-stone-500">Diabetes, thyroid, heart health, PCOS</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow rotate-180">expand_more</span>
-</button>
-<div class="category-content px-4 pb-3.5 pt-1 space-y-1">
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Diabetes</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="diabetes" data-label="Diabetes" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Prediabetes</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="prediabetes" data-label="Prediabetes" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">PCOS (Polycystic ovary syndrome)</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="pcos" data-label="PCOS" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Thyroid conditions</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="thyroid" data-label="Thyroid conditions" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">High blood pressure / Hypertension</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="high_bp" data-label="High blood pressure" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Heart health &amp; cholesterol</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="heart_health" data-label="Heart health" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Fatty liver disease</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="fatty_liver" data-label="Fatty liver disease" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Digestive conditions (IBS, acid reflux)</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="digestive_conditions" data-label="Digestive conditions" type="checkbox"/>
-</label>
-</div>
-</div>
-<!-- Category 2: Symptoms & everyday concerns -->
-<div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
-<button aria-expanded="false" class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors" type="button">
-<div class="flex items-center gap-3.5 min-w-0">
-<div class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]">healing</span>
-</div>
-<div>
-<h3 class="text-[16px] font-semibold text-stone-900">Symptoms &amp; everyday concerns</h3>
-<p class="text-[13px] text-stone-500">Fatigue, sleep, bloating, brain fog</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
-</button>
-<div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Low energy or fatigue</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="low_energy" data-label="Low energy or fatigue" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Poor sleep or waking unrested</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="poor_sleep" data-label="Poor sleep" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Bloating and abdominal discomfort</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="bloating" data-label="Bloating" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Brain fog &amp; difficulty focusing</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="brain_fog" data-label="Brain fog" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Hair thinning or loss</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="hair_loss" data-label="Hair thinning" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">High stress or mood swings</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="stress_mood" data-label="High stress" type="checkbox"/>
-</label>
-</div>
-</div>
-<!-- Category 3: Nutrition & food -->
-<div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
-<button aria-expanded="false" class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors" type="button">
-<div class="flex items-center gap-3.5 min-w-0">
-<div class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]">restaurant</span>
-</div>
-<div>
-<h3 class="text-[16px] font-semibold text-stone-900">Nutrition &amp; food</h3>
-<p class="text-[13px] text-stone-500">Balanced meals, protein, fiber, glucose</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
-</button>
-<div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Eat a balanced, nutritious diet</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="balanced_diet" data-label="Balanced diet" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Understand calories and macros</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="calories_macros" data-label="Calories &amp; macros" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Increase daily protein intake</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="protein_intake" data-label="Increase protein" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Improve prebiotic &amp; dietary fiber</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="dietary_fiber" data-label="Improve fiber" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Blood sugar steady nutrition</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="blood_sugar_nutrition" data-label="Blood sugar nutrition" type="checkbox"/>
-</label>
-</div>
-</div>
-<!-- Category 4: Fitness & body goals -->
-<div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
-<button aria-expanded="false" class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors" type="button">
-<div class="flex items-center gap-3.5 min-w-0">
-<div class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]">fitness_center</span>
-</div>
-<div>
-<h3 class="text-[16px] font-semibold text-stone-900">Fitness &amp; body goals</h3>
-<p class="text-[13px] text-stone-500">Weight management, strength, endurance</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
-</button>
-<div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Manage and lose weight sustainably</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="lose_weight" data-label="Lose weight" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Build lean muscle mass</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="build_muscle" data-label="Build muscle" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Improve physical stamina and endurance</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_endurance" data-label="Improve endurance" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Support healthy joint and metabolic aging</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="healthy_aging" data-label="Healthy aging" type="checkbox"/>
-</label>
-</div>
-</div>
-<!-- Category 5: Lifestyle & prevention -->
-<div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
-<button aria-expanded="false" class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors" type="button">
-<div class="flex items-center gap-3.5 min-w-0">
-<div class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]">bedtime</span>
-</div>
-<div>
-<h3 class="text-[16px] font-semibold text-stone-900">Lifestyle &amp; prevention</h3>
-<p class="text-[13px] text-stone-500">Sleep cycles, stress resilience, habits</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
-</button>
-<div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Improve sleep quality and rhythm</span>
-<input checked="" class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="improve_sleep" data-label="Improve sleep" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Manage stress and cortisol regulation</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="manage_stress" data-label="Manage stress" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Build sustainable micro-habits</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="build_habits" data-label="Build micro-habits" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Hydration &amp; circadian timing</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="hydration" data-label="Hydration" type="checkbox"/>
-</label>
-</div>
-</div>
-<!-- Category 6: Research & personal questions -->
-<div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
-<button aria-expanded="false" class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors" type="button">
-<div class="flex items-center gap-3.5 min-w-0">
-<div class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
-<span class="material-symbols-outlined text-[20px]">biotech</span>
-</div>
-<div>
-<h3 class="text-[16px] font-semibold text-stone-900">Research &amp; personal questions</h3>
-<p class="text-[13px] text-stone-500">Lab results, diagnoses, clinical evidence</p>
-</div>
-</div>
-<span class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
-</button>
-<div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Understand a recent lab test or blood biomarker</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="lab_results" data-label="Lab results" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Understand a medical diagnosis</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="diagnosis" data-label="Understand diagnosis" type="checkbox"/>
-</label>
-<label class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
-<span class="text-[15px] font-medium text-stone-800">Explore a specific nutritional hypothesis</span>
-<input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700" data-id="specific_question" data-label="Explore hypothesis" type="checkbox"/>
-</label>
-</div>
-</div>
-</div>
-</div>
-<!-- "Something else?" Card -->
-<div class="bg-warm-card rounded-2xl p-4 border border-warm-border space-y-2.5 shadow-sm">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-[20px] text-forest-700">edit_note</span>
-<span class="text-[15px] font-semibold text-stone-900">Something else?</span>
-</div>
-<textarea class="w-full p-3 text-[14px] bg-warm-subtle border border-warm-border rounded-xl text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 transition-all resize-none" id="custom-concern-input" placeholder="Tell us what you'd like help with..." rows="2"></textarea>
-<p class="text-[13px] leading-relaxed text-stone-600">We'll review and match this safely without making medical assumptions.</p>
-</div>
-<!-- Optional Diabetes Follow-up Card -->
-<div class="bg-sage-100/60 border border-sage-300/80 rounded-2xl p-4 space-y-3" id="followup-container">
-<div class="flex items-start justify-between gap-2">
-<div class="space-y-1">
-<div class="flex items-center gap-1.5 text-forest-800 text-[12px] font-semibold uppercase tracking-wider">
-<span class="material-symbols-outlined text-[16px]">info</span>
-<span>Optional Context</span>
-</div>
-<p class="text-[15px] font-semibold text-forest-900">Would you like to share what you know about your diabetes?</p>
-</div>
-<button class="text-[13px] font-medium text-forest-700 hover:underline flex-shrink-0 min-h-[36px] flex items-center" id="skip-followup-btn" type="button">Skip for now</button>
-</div>
-<div class="flex flex-wrap gap-2 pt-0.5" id="followup-tags">
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Type 1</button>
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-forest-900 text-white border border-forest-900 transition-all min-h-[36px]" type="button">Type 2</button>
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Gestational diabetes</button>
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Another type</button>
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Not sure</button>
-<button class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]" type="button">Prefer not to say</button>
-</div>
-</div>
-<!-- "Why we ask" Card -->
-<div class="bg-warm-subtle rounded-2xl p-4 shadow-sm space-y-2 border border-warm-border/70">
-<div class="flex items-center gap-2 text-stone-900 font-semibold text-[16px]">
-<span class="material-symbols-outlined text-[20px] text-forest-700">shield</span>
-<span>Why we ask</span>
-</div>
-<p class="text-[14px] leading-relaxed text-stone-600">Your choices help us prioritize relevant research, nutrition guidance, and practical recommendations. You decide what to share, and you can update your preferences anytime.</p>
-</div>
-</div>
-</main>
-<!-- Sticky Bottom Continue Button -->
-<footer class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#FBF9F4]/90 backdrop-blur-md border-t border-warm-border/60">
-<div class="px-5 py-3 max-w-md mx-auto">
-<button class="w-full h-14 bg-forest-900 text-white font-semibold text-[16px] rounded-xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all hover:bg-forest-800" id="step-continue-btn" type="button">
-<span id="cta-label">Continue (3 selected)</span>
-<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-</button>
-</div>
-</footer>
-<!-- Interactivity Script -->
-<script>
-    (function initHealthConcernsInteractivity() {
-      const selectedItems = new Map([
-        ['prediabetes', 'Prediabetes'],
-        ['low_energy', 'Low energy or fatigue'],
-        ['improve_sleep', 'Improve sleep']
-      ]);
 
-      const searchInput = document.getElementById('health-search-input');
-      const clearBtn = document.getElementById('search-clear-btn');
-      const liveResults = document.getElementById('search-live-results');
-      const resultsList = document.getElementById('search-results-list');
-      const chipsContainer = document.getElementById('selected-chips-container');
-      const badgeCount = document.getElementById('selected-badge-count');
-      const ctaLabel = document.getElementById('cta-label');
-      const followupContainer = document.getElementById('followup-container');
-      const skipFollowupBtn = document.getElementById('skip-followup-btn');
-      const allCheckboxes = document.querySelectorAll('input[type="checkbox"][data-id]');
-      const quickBtns = document.querySelectorAll('.quick-tag-btn');
+<body
+  class="bg-warm-bg font-sans text-stone-900 min-h-screen flex flex-col antialiased selection:bg-sage-100 selection:text-forest-900">
+  <!-- Header / Navigation Bar -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-[#FBF9F4]/90 backdrop-blur-md pt-safe border-b border-warm-border/60">
+    <div class="h-16 px-4 flex items-center justify-between gap-2 max-w-md mx-auto w-full">
+      <div class="flex items-center gap-2 min-w-0">
+        <button aria-label="Go back"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-stone-800 hover:bg-stone-200/50 active:scale-95 transition-all flex-shrink-0"
+          onclick="history.back()">
+          <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+        </button>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="w-8 h-8 rounded-full overflow-hidden bg-white flex items-center justify-center shadow-sm border border-[#E4E9E2]">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAklV1K_v4knjOwLbJoh_pRAANStgplLx1NeVh89hrrarAG_LmvxBvbLsJq0OOiiBNfScPEUyVBtRJ28-1q-EerVd09sBxe0P4PMYxtFAgAHz3ChcYXIQ5YqyRmWFgItrXf3Z86yufVluYXo6FoWa5JchGsjhzTNp3TbZYj93NTy-vKRx8XsA3oPYxd5-o9ZpbKfFPaIqQye8nwRxytpeRgugjeJ3Cu10Act8MCZK_HnNuKN-BBb1w"
+                 alt="Nutrient Earth Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/icons/Icon-192.png';">
+          </div>
+          <span class="font-headline font-bold text-[15.5px] text-[#051F20] tracking-tight whitespace-nowrap">Nutrient Earth</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <button aria-label="Dismiss flow"
+          class="w-10 h-10 rounded-full flex items-center justify-center text-stone-600 hover:bg-stone-200/50 active:scale-95 transition-all flex-shrink-0"
+          onclick="if(window.NEBridge){window.NEBridge.navigate('/today');}else{window.location.href='/today';}">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+    </div>
+    <!-- Slim Progress Indicator -->
+    <div class="w-full px-4 pb-2 max-w-md mx-auto">
+      <div class="w-full h-1 bg-stone-200 rounded-full overflow-hidden">
+        <div class="h-full bg-forest-900 rounded-full transition-all duration-300 w-1/5"></div>
+      </div>
+    </div>
+  </header>
+  <!-- Main Content Area -->
+  <main class="flex flex-col relative w-full px-5 pt-20 pb-32 bg-warm-bg min-h-screen">
+    <div class="flex flex-col w-full max-w-md mx-auto space-y-6 pt-2">
+      <!-- Headline & Introduction -->
+      <div class="space-y-2.5">
+        <h2 class="text-[28px] leading-tight font-semibold text-forest-900 tracking-tight">What would you like help
+          with?</h2>
+        <p class="text-[15px] leading-relaxed text-stone-600">Search for anything on your mind. Choose as many as you
+          like—even if you're not sure what it's called.</p>
+      </div>
+      <!-- Search Field & Quick Suggestion Chips -->
+      <div class="space-y-3">
+        <div class="relative flex items-center">
+          <span
+            class="material-symbols-outlined absolute left-3.5 text-stone-500 text-[22px] pointer-events-none">search</span>
+          <input autocomplete="off"
+            class="w-full pl-11 pr-10 py-3.5 bg-warm-card border border-warm-border rounded-xl text-[15px] text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 focus:ring-1 focus:ring-forest-700 transition-all shadow-sm"
+            id="health-search-input" placeholder="Search a condition, symptom, or goal..." type="text" />
+          <button aria-label="Clear search"
+            class="hidden absolute right-3 w-7 h-7 rounded-full bg-stone-100 flex items-center justify-center text-stone-500 hover:text-stone-800 transition-colors"
+            id="search-clear-btn">
+            <span class="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+        <!-- Suggestion Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+          <button
+            class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all"
+            type="button">Diabetes</button>
+          <button
+            class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all"
+            type="button">PCOS</button>
+          <button
+            class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all"
+            type="button">Fatigue</button>
+          <button
+            class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all"
+            type="button">Better sleep</button>
+          <button
+            class="quick-tag-btn flex-shrink-0 px-3.5 py-2 rounded-full bg-warm-subtle hover:bg-stone-200/70 border border-warm-border/60 text-stone-800 text-[14px] font-medium transition-all"
+            type="button">Weight management</button>
+        </div>
+      </div>
+      <!-- Selected Items Summary & Chips -->
+      <div class="space-y-3 p-4 bg-warm-subtle rounded-2xl border border-warm-border hidden"
+        id="selected-items-section">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-[15px] font-semibold text-stone-900">Your selections</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-forest-800 text-white font-medium text-[12px]"
+              id="selected-badge-count">0</span>
+          </div>
+          <button class="text-[13px] font-medium text-forest-700 hover:underline min-h-[36px] flex items-center"
+            id="clear-all-btn" type="button">Clear all</button>
+        </div>
+        <div class="flex flex-wrap gap-2 pt-0.5" id="selected-chips-container"></div>
+      </div>
+      <!-- Live Search Results Dropdown -->
+      <div class="hidden space-y-2" id="search-live-results">
+        <p class="text-[13px] font-semibold uppercase tracking-wider text-forest-700">Search Results</p>
+        <div class="space-y-2" id="search-results-list"></div>
+      </div>
+      <!-- Interactive Categories Accordions -->
+      <div class="space-y-3.5" id="categories-section">
+        <div>
+          <p class="text-[14px] font-medium text-stone-600">Not sure where to start? Browse the categories below.</p>
+        </div>
+        <div class="space-y-2.5" id="accordion-group">
+          <!-- Category 1: Health conditions (Expanded by default) -->
+          <div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
+            <button aria-expanded="true"
+              class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors"
+              type="button">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                  class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">vital_signs</span>
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-stone-900">Health conditions</h3>
+                  <p class="text-[13px] text-stone-500">Diabetes, thyroid, heart health, PCOS</p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow rotate-180">expand_more</span>
+            </button>
+            <div class="category-content px-4 pb-3.5 pt-1 space-y-1">
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Diabetes</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="diabetes" data-label="Diabetes" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Prediabetes</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="prediabetes" data-label="Prediabetes" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">PCOS (Polycystic ovary syndrome)</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="pcos" data-label="PCOS" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Thyroid conditions</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="thyroid" data-label="Thyroid conditions" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">High blood pressure / Hypertension</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="high_bp" data-label="High blood pressure" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Heart health &amp; cholesterol</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="heart_health" data-label="Heart health" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Fatty liver disease</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="fatty_liver" data-label="Fatty liver disease" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Digestive conditions (IBS, acid reflux)</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="digestive_conditions" data-label="Digestive conditions" type="checkbox" />
+              </label>
+            </div>
+          </div>
+          <!-- Category 2: Symptoms & everyday concerns -->
+          <div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
+            <button aria-expanded="false"
+              class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors"
+              type="button">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                  class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">healing</span>
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-stone-900">Symptoms &amp; everyday concerns</h3>
+                  <p class="text-[13px] text-stone-500">Fatigue, sleep, bloating, brain fog</p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
+            </button>
+            <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Low energy or fatigue</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="low_energy" data-label="Low energy or fatigue" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Poor sleep or waking unrested</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="poor_sleep" data-label="Poor sleep" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Bloating and abdominal discomfort</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="bloating" data-label="Bloating" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Brain fog &amp; difficulty focusing</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="brain_fog" data-label="Brain fog" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Hair thinning or loss</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="hair_loss" data-label="Hair thinning" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">High stress or mood swings</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="stress_mood" data-label="High stress" type="checkbox" />
+              </label>
+            </div>
+          </div>
+          <!-- Category 3: Nutrition & food -->
+          <div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
+            <button aria-expanded="false"
+              class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors"
+              type="button">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                  class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">restaurant</span>
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-stone-900">Nutrition &amp; food</h3>
+                  <p class="text-[13px] text-stone-500">Balanced meals, protein, fiber, glucose</p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
+            </button>
+            <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Eat a balanced, nutritious diet</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="balanced_diet" data-label="Balanced diet" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Understand calories and macros</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="calories_macros" data-label="Calories &amp; macros" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Increase daily protein intake</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="protein_intake" data-label="Increase protein" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Improve prebiotic &amp; dietary fiber</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="dietary_fiber" data-label="Improve fiber" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Blood sugar steady nutrition</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="blood_sugar_nutrition" data-label="Blood sugar nutrition" type="checkbox" />
+              </label>
+            </div>
+          </div>
+          <!-- Category 4: Fitness & body goals -->
+          <div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
+            <button aria-expanded="false"
+              class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors"
+              type="button">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                  class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">fitness_center</span>
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-stone-900">Fitness &amp; body goals</h3>
+                  <p class="text-[13px] text-stone-500">Weight management, strength, endurance</p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
+            </button>
+            <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Manage and lose weight sustainably</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="lose_weight" data-label="Lose weight" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Build lean muscle mass</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="build_muscle" data-label="Build muscle" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Improve physical stamina and endurance</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="improve_endurance" data-label="Improve endurance" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Support healthy joint and metabolic aging</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="healthy_aging" data-label="Healthy aging" type="checkbox" />
+              </label>
+            </div>
+          </div>
+          <!-- Category 5: Lifestyle & prevention -->
+          <div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
+            <button aria-expanded="false"
+              class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors"
+              type="button">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                  class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">bedtime</span>
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-stone-900">Lifestyle &amp; prevention</h3>
+                  <p class="text-[13px] text-stone-500">Sleep cycles, stress resilience, habits</p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
+            </button>
+            <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Improve sleep quality and rhythm</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="improve_sleep" data-label="Improve sleep" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Manage stress and cortisol regulation</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="manage_stress" data-label="Manage stress" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Build sustainable micro-habits</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="build_habits" data-label="Build micro-habits" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Hydration &amp; circadian timing</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="hydration" data-label="Hydration" type="checkbox" />
+              </label>
+            </div>
+          </div>
+          <!-- Category 6: Research & personal questions -->
+          <div class="category-item bg-warm-card rounded-2xl border border-warm-border overflow-hidden shadow-sm">
+            <button aria-expanded="false"
+              class="category-header w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-warm-subtle/50 transition-colors"
+              type="button">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                  class="w-9 h-9 rounded-xl bg-sage-100 flex items-center justify-center text-forest-800 flex-shrink-0">
+                  <span class="material-symbols-outlined text-[20px]">biotech</span>
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-stone-900">Research &amp; personal questions</h3>
+                  <p class="text-[13px] text-stone-500">Lab results, diagnoses, clinical evidence</p>
+                </div>
+              </div>
+              <span
+                class="material-symbols-outlined text-[20px] text-stone-500 transition-transform duration-200 accordion-arrow">expand_more</span>
+            </button>
+            <div class="category-content hidden px-4 pb-3.5 pt-1 space-y-1">
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Understand a recent lab test or blood
+                  biomarker</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="lab_results" data-label="Lab results" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Understand a medical diagnosis</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="diagnosis" data-label="Understand diagnosis" type="checkbox" />
+              </label>
+              <label
+                class="option-row flex items-center justify-between py-2 px-1 rounded-xl hover:bg-warm-subtle cursor-pointer min-h-[48px]">
+                <span class="text-[15px] font-medium text-stone-800">Explore a specific nutritional hypothesis</span>
+                <input class="h-5 w-5 rounded border-stone-300 text-forest-700 focus:ring-forest-600 accent-forest-700"
+                  data-id="specific_question" data-label="Explore hypothesis" type="checkbox" />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- "Something else?" Card -->
+      <div class="bg-warm-card rounded-2xl p-4 border border-warm-border space-y-2.5 shadow-sm">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[20px] text-forest-700">edit_note</span>
+          <span class="text-[15px] font-semibold text-stone-900">Something else?</span>
+        </div>
+        <textarea
+          class="w-full p-3 text-[14px] bg-warm-subtle border border-warm-border rounded-xl text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-forest-700 transition-all resize-none"
+          id="custom-concern-input" placeholder="Tell us what you'd like help with..." rows="2"></textarea>
+        <p class="text-[13px] leading-relaxed text-stone-600">We'll review and match this safely without making medical
+          assumptions.</p>
+      </div>
+      <!-- Optional Diabetes Follow-up Card -->
+      <div class="bg-sage-100/60 border border-sage-300/80 rounded-2xl p-4 space-y-3 hidden" id="followup-container">
+        <div class="flex items-start justify-between gap-2">
+          <div class="space-y-1">
+            <div class="flex items-center gap-1.5 text-forest-800 text-[12px] font-semibold uppercase tracking-wider">
+              <span class="material-symbols-outlined text-[16px]">info</span>
+              <span>Optional Context</span>
+            </div>
+            <p class="text-[15px] font-semibold text-forest-900">Would you like to share what you know about your
+              diabetes?</p>
+          </div>
+          <button
+            class="text-[13px] font-medium text-forest-700 hover:underline flex-shrink-0 min-h-[36px] flex items-center"
+            id="skip-followup-btn" type="button">Skip for now</button>
+        </div>
+        <div class="flex flex-wrap gap-2 pt-0.5" id="followup-tags">
+          <button
+            class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]"
+            type="button">Type 1</button>
+          <button
+            class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-forest-900 text-white border border-forest-900 transition-all min-h-[36px]"
+            type="button">Type 2</button>
+          <button
+            class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]"
+            type="button">Gestational diabetes</button>
+          <button
+            class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]"
+            type="button">Another type</button>
+          <button
+            class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]"
+            type="button">Not sure</button>
+          <button
+            class="followup-tag px-3 py-1.5 rounded-full text-[13px] font-medium bg-warm-card text-stone-800 border border-warm-border hover:border-forest-600 transition-all min-h-[36px]"
+            type="button">Prefer not to say</button>
+        </div>
+      </div>
+      <!-- "Why we ask" Card -->
+      <div class="bg-warm-subtle rounded-2xl p-4 shadow-sm space-y-2 border border-warm-border/70">
+        <div class="flex items-center gap-2 text-stone-900 font-semibold text-[16px]">
+          <span class="material-symbols-outlined text-[20px] text-forest-700">shield</span>
+          <span>Why we ask</span>
+        </div>
+        <p class="text-[14px] leading-relaxed text-stone-600">Your choices help us prioritize relevant research,
+          nutrition guidance, and practical recommendations. You decide what to share, and you can update your
+          preferences anytime.</p>
+      </div>
+    </div>
+  </main>
+  <!-- Sticky Bottom Continue Button -->
+  <footer class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-[#FBF9F4]/90 backdrop-blur-md border-t border-warm-border/60">
+    <div class="px-5 py-3 max-w-md mx-auto">
+      <button
+        class="w-full h-14 bg-forest-900 text-white font-semibold text-[16px] rounded-xl flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all hover:bg-forest-800"
+        id="step-continue-btn" type="button">
+        <span id="cta-label">Continue</span>
+        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+      </button>
+    </div>
+  </footer>
+  <!-- Interactivity Script -->
+  <script>
+      (function initHealthConcernsInteractivity() {
+        const STORAGE_KEY = 'nutrient_earth_selected_goals';
+        const selectedItems = new Map();
+        window.selectedHealthGoalsMap = selectedItems;
 
-      const searchCatalog = [
-        { id: 'diabetes', label: 'Diabetes', tags: ['sugar', 'blood sugar', 'glucose', 'insulin', 'a1c'] },
-        { id: 'prediabetes', label: 'Prediabetes', tags: ['sugar', 'pre-diabetes', 'high glucose', 'borderline'] },
-        { id: 'pcos', label: 'PCOS (Polycystic ovary syndrome)', tags: ['ovary', 'hormone', 'period', 'irregular', 'cysts'] },
-        { id: 'thyroid', label: 'Thyroid conditions', tags: ['hypothyroid', 'hashimoto', 'tsh', 'metabolism'] },
-        { id: 'high_bp', label: 'High blood pressure', tags: ['hypertension', 'systolic', 'pressure'] },
-        { id: 'heart_health', label: 'Heart health & cholesterol', tags: ['cholesterol', 'ldl', 'cardio', 'artery'] },
-        { id: 'fatty_liver', label: 'Fatty liver disease', tags: ['nafld', 'liver', 'hepatic', 'enzymes'] },
-        { id: 'digestive_conditions', label: 'Digestive conditions', tags: ['gut', 'ibs', 'gerd', 'reflux', 'stomach'] },
-        { id: 'low_energy', label: 'Low energy or fatigue', tags: ['tired', 'exhausted', 'burnout', 'sluggish', 'sleepy', 'fatigue'] },
-        { id: 'poor_sleep', label: 'Poor sleep or waking unrested', tags: ['insomnia', 'waking', 'tossing', 'restless', 'better sleep'] },
-        { id: 'bloating', label: 'Bloating and abdominal discomfort', tags: ['gut', 'gas', 'distension', 'digestion'] },
-        { id: 'brain_fog', label: 'Brain fog & difficulty focusing', tags: ['focus', 'memory', 'mental clarity', 'concentration'] },
-        { id: 'hair_loss', label: 'Hair thinning or loss', tags: ['alopecia', 'thinning', 'shedding'] },
-        { id: 'stress_mood', label: 'High stress or mood swings', tags: ['cortisol', 'anxiety', 'overwhelm', 'burnout'] },
-        { id: 'balanced_diet', label: 'Eat a balanced, nutritious diet', tags: ['healthy food', 'whole food', 'nutrition'] },
-        { id: 'calories_macros', label: 'Understand calories and macros', tags: ['tracking', 'carbs', 'fats'] },
-        { id: 'protein_intake', label: 'Increase daily protein intake', tags: ['protein', 'amino', 'muscle'] },
-        { id: 'dietary_fiber', label: 'Improve prebiotic & dietary fiber', tags: ['fiber', 'gut', 'prebiotic'] },
-        { id: 'blood_sugar_nutrition', label: 'Blood sugar steady nutrition', tags: ['glucose spike', 'glycemic', 'insulin'] },
-        { id: 'lose_weight', label: 'Manage and lose weight sustainably', tags: ['weight loss', 'weight management', 'fat loss', 'slimming', 'deficit'] },
-        { id: 'build_muscle', label: 'Build lean muscle mass', tags: ['hypertrophy', 'strength', 'gains'] },
-        { id: 'improve_endurance', label: 'Improve physical stamina and endurance', tags: ['cardio', 'stamina', 'running', 'energy'] },
-        { id: 'healthy_aging', label: 'Support healthy joint and metabolic aging', tags: ['longevity', 'joints', 'lifespan'] },
-        { id: 'improve_sleep', label: 'Improve sleep quality and rhythm', tags: ['circadian', 'melatonin', 'deep sleep', 'better sleep', 'rem'] },
-        { id: 'manage_stress', label: 'Manage stress and cortisol regulation', tags: ['cortisol', 'calm', 'nervous system'] },
-        { id: 'build_habits', label: 'Build sustainable micro-habits', tags: ['routine', 'micro habits', 'consistency'] },
-        { id: 'hydration', label: 'Hydration & circadian timing', tags: ['water', 'electrolytes'] },
-        { id: 'lab_results', label: 'Understand a recent lab test or blood biomarker', tags: ['blood test', 'biomarkers', 'lipid panel'] },
-        { id: 'diagnosis', label: 'Understand a medical diagnosis', tags: ['medical report', 'condition'] },
-        { id: 'specific_question', label: 'Explore a specific nutritional hypothesis', tags: ['supplements', 'science'] }
-      ];
+        const searchInput = document.getElementById('health-search-input');
+        const clearBtn = document.getElementById('search-clear-btn');
+        const liveResults = document.getElementById('search-live-results');
+        const resultsList = document.getElementById('search-results-list');
+        const chipsContainer = document.getElementById('selected-chips-container');
+        const selectedSection = document.getElementById('selected-items-section');
+        const badgeCount = document.getElementById('selected-badge-count');
+        const ctaLabel = document.getElementById('cta-label');
+        const followupContainer = document.getElementById('followup-container');
+        const skipFollowupBtn = document.getElementById('skip-followup-btn');
+        const allCheckboxes = document.querySelectorAll('input[type="checkbox"][data-id]');
+        const quickBtns = document.querySelectorAll('.quick-tag-btn');
 
-      function updateUI() {
-        const count = selectedItems.size;
-        if (badgeCount) badgeCount.textContent = count;
-        if (ctaLabel) {
-          ctaLabel.textContent = count > 0 ? `Continue (${count} selected)` : 'Continue';
+        const searchCatalog = [
+          { id: 'diabetes', label: 'Diabetes', tags: ['sugar', 'blood sugar', 'glucose', 'insulin', 'a1c'] },
+          { id: 'prediabetes', label: 'Prediabetes', tags: ['sugar', 'pre-diabetes', 'high glucose', 'borderline'] },
+          { id: 'pcos', label: 'PCOS (Polycystic ovary syndrome)', tags: ['ovary', 'hormone', 'period', 'irregular', 'cysts'] },
+          { id: 'thyroid', label: 'Thyroid conditions', tags: ['hypothyroid', 'hashimoto', 'tsh', 'metabolism'] },
+          { id: 'high_bp', label: 'High blood pressure', tags: ['hypertension', 'systolic', 'pressure'] },
+          { id: 'heart_health', label: 'Heart health & cholesterol', tags: ['cholesterol', 'ldl', 'cardio', 'artery'] },
+          { id: 'fatty_liver', label: 'Fatty liver disease', tags: ['nafld', 'liver', 'hepatic', 'enzymes'] },
+          { id: 'digestive_conditions', label: 'Digestive conditions', tags: ['gut', 'ibs', 'gerd', 'reflux', 'stomach'] },
+          { id: 'low_energy', label: 'Low energy or fatigue', tags: ['tired', 'exhausted', 'burnout', 'sluggish', 'sleepy', 'fatigue'] },
+          { id: 'poor_sleep', label: 'Poor sleep or waking unrested', tags: ['insomnia', 'waking', 'tossing', 'restless', 'better sleep'] },
+          { id: 'bloating', label: 'Bloating and abdominal discomfort', tags: ['gut', 'gas', 'distension', 'digestion'] },
+          { id: 'brain_fog', label: 'Brain fog & difficulty focusing', tags: ['focus', 'memory', 'mental clarity', 'concentration'] },
+          { id: 'hair_loss', label: 'Hair thinning or loss', tags: ['alopecia', 'thinning', 'shedding'] },
+          { id: 'stress_mood', label: 'High stress or mood swings', tags: ['cortisol', 'anxiety', 'overwhelm', 'burnout'] },
+          { id: 'balanced_diet', label: 'Eat a balanced, nutritious diet', tags: ['healthy food', 'whole food', 'nutrition'] },
+          { id: 'calories_macros', label: 'Understand calories and macros', tags: ['tracking', 'carbs', 'fats'] },
+          { id: 'protein_intake', label: 'Increase daily protein intake', tags: ['protein', 'amino', 'muscle'] },
+          { id: 'dietary_fiber', label: 'Improve prebiotic & dietary fiber', tags: ['fiber', 'gut', 'prebiotic'] },
+          { id: 'blood_sugar_nutrition', label: 'Blood sugar steady nutrition', tags: ['glucose spike', 'glycemic', 'insulin'] },
+          { id: 'lose_weight', label: 'Manage and lose weight sustainably', tags: ['weight loss', 'weight management', 'fat loss', 'slimming', 'deficit'] },
+          { id: 'build_muscle', label: 'Build lean muscle mass', tags: ['hypertrophy', 'strength', 'gains'] },
+          { id: 'improve_endurance', label: 'Improve physical stamina and endurance', tags: ['cardio', 'stamina', 'running', 'energy'] },
+          { id: 'healthy_aging', label: 'Support healthy joint and metabolic aging', tags: ['longevity', 'joints', 'lifespan'] },
+          { id: 'improve_sleep', label: 'Improve sleep quality and rhythm', tags: ['circadian', 'melatonin', 'deep sleep', 'better sleep', 'rem'] },
+          { id: 'manage_stress', label: 'Manage stress and cortisol regulation', tags: ['cortisol', 'calm', 'nervous system'] },
+          { id: 'build_habits', label: 'Build sustainable micro-habits', tags: ['routine', 'micro habits', 'consistency'] },
+          { id: 'hydration', label: 'Hydration & circadian timing', tags: ['water', 'electrolytes'] },
+          { id: 'lab_results', label: 'Understand a recent lab test or blood biomarker', tags: ['blood test', 'biomarkers', 'lipid panel'] },
+          { id: 'diagnosis', label: 'Understand a medical diagnosis', tags: ['medical report', 'condition'] },
+          { id: 'specific_question', label: 'Explore a specific nutritional hypothesis', tags: ['supplements', 'science'] }
+        ];
+
+        function saveState() {
+          try {
+            const entries = Array.from(selectedItems.entries());
+            const json = JSON.stringify(entries);
+            localStorage.setItem(STORAGE_KEY, json);
+            sessionStorage.setItem(STORAGE_KEY, json);
+          } catch (e) {
+            console.warn('[Screen 04] State save failed:', e);
+          }
+        }
+
+        function loadState() {
+          // 1. URL search parameters take priority if present
+          const urlParams = new URLSearchParams(window.location.search);
+          const goalsParam = urlParams.get('goals');
+          if (goalsParam && goalsParam.trim().length > 0) {
+            const list = goalsParam.split(',').map(s => s.trim()).filter(Boolean);
+            list.forEach(val => {
+              const matched = searchCatalog.find(
+                c => c.id.toLowerCase() === val.toLowerCase() || c.label.toLowerCase() === val.toLowerCase()
+              );
+              if (matched) {
+                selectedItems.set(matched.id, matched.label);
+              } else {
+                selectedItems.set(val.toLowerCase().replace(/\s+/g, '_'), val);
+              }
+            });
+            return;
+          }
+
+          // 2. Storage persistence when returning to edit
+          try {
+            const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              if (Array.isArray(parsed)) {
+                parsed.forEach(entry => {
+                  if (Array.isArray(entry) && entry.length >= 2) {
+                    selectedItems.set(entry[0], entry[1]);
+                  } else if (typeof entry === 'string' && entry.trim().length > 0) {
+                    const matched = searchCatalog.find(
+                      c => c.id.toLowerCase() === entry.toLowerCase() || c.label.toLowerCase() === entry.toLowerCase()
+                    );
+                    if (matched) {
+                      selectedItems.set(matched.id, matched.label);
+                    } else {
+                      selectedItems.set(entry.toLowerCase().replace(/\s+/g, '_'), entry);
+                    }
+                  }
+                });
+              }
+            }
+          } catch (e) {
+            console.warn('[Screen 04] State load failed:', e);
+          }
+        }
+
+        function updateUI() {
+          const count = selectedItems.size;
+          if (badgeCount) badgeCount.textContent = count;
+          if (ctaLabel) {
+            ctaLabel.textContent = count > 0 ? `Continue (${count} selected)` : 'Continue';
+          }
+
+          if (selectedSection) {
+            selectedSection.classList.toggle('hidden', count === 0);
+          }
+
+          if (chipsContainer) {
+            chipsContainer.innerHTML = '';
+            selectedItems.forEach((label, id) => {
+              const chip = document.createElement('div');
+              chip.className = 'selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all';
+              chip.setAttribute('data-item-id', id);
+              chip.innerHTML = `<span>${label}</span><button type="button" aria-label="Remove ${label}" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all"><span class="material-symbols-outlined text-[15px]">close</span></button>`;
+              chipsContainer.appendChild(chip);
+            });
+          }
+
+          allCheckboxes.forEach(cb => {
+            const id = cb.getAttribute('data-id');
+            cb.checked = selectedItems.has(id);
+          });
+
+          if (followupContainer) {
+            const hasBloodSugarConcern = selectedItems.has('diabetes') || selectedItems.has('prediabetes') || selectedItems.has('blood_sugar_nutrition');
+            followupContainer.classList.toggle('hidden', !hasBloodSugarConcern);
+          }
         }
 
         if (chipsContainer) {
-          chipsContainer.innerHTML = '';
-          selectedItems.forEach((label, id) => {
-            const chip = document.createElement('div');
-            chip.className = 'selected-chip inline-flex items-center gap-2 pl-3.5 pr-2 py-2 rounded-full bg-forest-900 text-white text-[14px] font-medium shadow-sm transition-all';
-            chip.setAttribute('data-item-id', id);
-            chip.innerHTML = `<span>${label}</span><button type="button" aria-label="Remove ${label}" class="remove-chip-btn w-5 h-5 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition-all"><span class="material-symbols-outlined text-[15px]">close</span></button>`;
-            chipsContainer.appendChild(chip);
+          chipsContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.remove-chip-btn');
+            if (btn) {
+              const chip = btn.closest('.selected-chip');
+              const id = chip.getAttribute('data-item-id');
+              selectedItems.delete(id);
+              saveState();
+              updateUI();
+            }
+          });
+        }
+
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        if (clearAllBtn) {
+          clearAllBtn.addEventListener('click', () => {
+            selectedItems.clear();
+            saveState();
+            updateUI();
           });
         }
 
         allCheckboxes.forEach(cb => {
-          const id = cb.getAttribute('data-id');
-          cb.checked = selectedItems.has(id);
-        });
-
-        if (followupContainer) {
-          const hasBloodSugarConcern = selectedItems.has('diabetes') || selectedItems.has('prediabetes') || selectedItems.has('blood_sugar_nutrition');
-          followupContainer.classList.toggle('hidden', !hasBloodSugarConcern);
-        }
-      }
-
-      if (chipsContainer) {
-        chipsContainer.addEventListener('click', (e) => {
-          const btn = e.target.closest('.remove-chip-btn');
-          if (btn) {
-            const chip = btn.closest('.selected-chip');
-            const id = chip.getAttribute('data-item-id');
-            selectedItems.delete(id);
+          cb.addEventListener('change', () => {
+            const id = cb.getAttribute('data-id');
+            const label = cb.getAttribute('data-label');
+            if (cb.checked) {
+              selectedItems.set(id, label);
+            } else {
+              selectedItems.delete(id);
+            }
+            saveState();
             updateUI();
-          }
-        });
-      }
-
-      const clearAllBtn = document.getElementById('clear-all-btn');
-      if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', () => {
-          selectedItems.clear();
-          updateUI();
-        });
-      }
-
-      allCheckboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-          const id = cb.getAttribute('data-id');
-          const label = cb.getAttribute('data-label');
-          if (cb.checked) {
-            selectedItems.set(id, label);
-          } else {
-            selectedItems.delete(id);
-          }
-          updateUI();
-        });
-      });
-
-      document.querySelectorAll('.category-header').forEach(header => {
-        header.addEventListener('click', () => {
-          const content = header.nextElementSibling;
-          const arrow = header.querySelector('.accordion-arrow');
-          const isExpanded = !content.classList.contains('hidden');
-
-          if (isExpanded) {
-            content.classList.add('hidden');
-            arrow.classList.remove('rotate-180');
-            header.setAttribute('aria-expanded', 'false');
-          } else {
-            content.classList.remove('hidden');
-            arrow.classList.add('rotate-180');
-            header.setAttribute('aria-expanded', 'true');
-          }
-        });
-      });
-
-      function runSearch(query) {
-        const q = query.trim().toLowerCase();
-        if (!q) {
-          if (clearBtn) clearBtn.classList.add('hidden');
-          if (liveResults) liveResults.classList.add('hidden');
-          return;
-        }
-
-        if (clearBtn) clearBtn.classList.remove('hidden');
-
-        const matches = searchCatalog.filter(item => 
-          item.label.toLowerCase().includes(q) || 
-          item.tags.some(t => t.toLowerCase().includes(q))
-        );
-
-        if (liveResults && resultsList) {
-          resultsList.innerHTML = '';
-          if (matches.length === 0) {
-            resultsList.innerHTML = `<div class="p-3 text-[14px] text-stone-600 bg-warm-subtle rounded-xl">No matches found for "${query}". You can add it in the "Something else?" section below.</div>`;
-          } else {
-            matches.slice(0, 6).forEach(m => {
-              const isSelected = selectedItems.has(m.id);
-              const row = document.createElement('div');
-              row.className = 'flex items-center justify-between p-3 bg-warm-card hover:bg-warm-subtle rounded-xl border border-warm-border cursor-pointer transition-colors';
-              row.innerHTML = `<span class="text-[14px] font-medium text-stone-900">${m.label}</span><button type="button" class="px-3 py-1 text-[13px] rounded-full font-medium transition-all ${isSelected ? 'bg-forest-900 text-white' : 'bg-warm-subtle text-forest-800 hover:bg-sage-100'}">${isSelected ? 'Added' : '+ Add'}</button>`;
-              row.addEventListener('click', () => {
-                if (selectedItems.has(m.id)) {
-                  selectedItems.delete(m.id);
-                } else {
-                  selectedItems.set(m.id, m.label);
-                }
-                updateUI();
-                runSearch(query);
-              });
-              resultsList.appendChild(row);
-            });
-          }
-          liveResults.classList.remove('hidden');
-        }
-      }
-
-      if (searchInput) {
-        searchInput.addEventListener('input', (e) => runSearch(e.target.value));
-      }
-
-      if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-          if (searchInput) searchInput.value = '';
-          runSearch('');
-        });
-      }
-
-      quickBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const text = btn.textContent.trim();
-          if (searchInput) {
-            searchInput.value = text;
-            runSearch(text);
-            searchInput.focus();
-          }
-        });
-      });
-
-      if (skipFollowupBtn && followupContainer) {
-        skipFollowupBtn.addEventListener('click', () => {
-          followupContainer.classList.add('hidden');
-        });
-      }
-
-      document.querySelectorAll('.followup-tag').forEach(tag => {
-        tag.addEventListener('click', () => {
-          document.querySelectorAll('.followup-tag').forEach(t => {
-            t.classList.remove('bg-forest-900', 'text-white', 'border-forest-900');
-            t.classList.add('bg-warm-card', 'text-stone-800', 'border-warm-border');
           });
-          tag.classList.remove('bg-warm-card', 'text-stone-800', 'border-warm-border');
-          tag.classList.add('bg-forest-900', 'text-white', 'border-forest-900');
         });
-      });
 
-      updateUI();
-    })();
+        document.querySelectorAll('.category-header').forEach(header => {
+          header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const arrow = header.querySelector('.accordion-arrow');
+            const isExpanded = !content.classList.contains('hidden');
+
+            if (isExpanded) {
+              content.classList.add('hidden');
+              arrow.classList.remove('rotate-180');
+              header.setAttribute('aria-expanded', 'false');
+            } else {
+              content.classList.remove('hidden');
+              arrow.classList.add('rotate-180');
+              header.setAttribute('aria-expanded', 'true');
+            }
+          });
+        });
+
+        function runSearch(query) {
+          const q = query.trim().toLowerCase();
+          if (!q) {
+            if (clearBtn) clearBtn.classList.add('hidden');
+            if (liveResults) liveResults.classList.add('hidden');
+            return;
+          }
+
+          if (clearBtn) clearBtn.classList.remove('hidden');
+
+          const matches = searchCatalog.filter(item =>
+            item.label.toLowerCase().includes(q) ||
+            item.tags.some(t => t.toLowerCase().includes(q))
+          );
+
+          if (liveResults && resultsList) {
+            resultsList.innerHTML = '';
+            if (matches.length === 0) {
+              resultsList.innerHTML = `<div class="p-3 text-[14px] text-stone-600 bg-warm-subtle rounded-xl">No matches found for "${query}". You can add it in the "Something else?" section below.</div>`;
+            } else {
+              matches.slice(0, 6).forEach(m => {
+                const isSelected = selectedItems.has(m.id);
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between p-3 bg-warm-card hover:bg-warm-subtle rounded-xl border border-warm-border cursor-pointer transition-colors';
+                row.innerHTML = `<span class="text-[14px] font-medium text-stone-900">${m.label}</span><button type="button" class="px-3 py-1 text-[13px] rounded-full font-medium transition-all ${isSelected ? 'bg-forest-900 text-white' : 'bg-warm-subtle text-forest-800 hover:bg-sage-100'}">${isSelected ? 'Added' : '+ Add'}</button>`;
+                row.addEventListener('click', () => {
+                  if (selectedItems.has(m.id)) {
+                    selectedItems.delete(m.id);
+                  } else {
+                    selectedItems.set(m.id, m.label);
+                  }
+                  saveState();
+                  updateUI();
+                  runSearch(query);
+                });
+                resultsList.appendChild(row);
+              });
+            }
+            liveResults.classList.remove('hidden');
+          }
+        }
+
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => runSearch(e.target.value));
+        }
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            runSearch('');
+          });
+        }
+
+        quickBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const text = btn.textContent.trim();
+            if (searchInput) {
+              searchInput.value = text;
+              runSearch(text);
+              searchInput.focus();
+            }
+          });
+        });
+
+        if (skipFollowupBtn && followupContainer) {
+          skipFollowupBtn.addEventListener('click', () => {
+            followupContainer.classList.add('hidden');
+          });
+        }
+
+        document.querySelectorAll('.followup-tag').forEach(tag => {
+          tag.addEventListener('click', () => {
+            document.querySelectorAll('.followup-tag').forEach(t => {
+              t.classList.remove('bg-forest-900', 'text-white', 'border-forest-900');
+              t.classList.add('bg-warm-card', 'text-stone-800', 'border-warm-border');
+            });
+            tag.classList.remove('bg-warm-card', 'text-stone-800', 'border-warm-border');
+            tag.classList.add('bg-forest-900', 'text-white', 'border-forest-900');
+          });
+        });
+
+        // Load existing state (URL query or storage) and update UI
+        loadState();
+        updateUI();
+      })();
   </script>
 
 
-<script id="ne-flutter-bridge-core">
-  window.NEBridge = {
-    send: function(type, payload) {
-      var msg = Object.assign({ type: type }, payload || {});
-      var jsonStr = JSON.stringify(msg);
-      if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
-        window.FlutterBridge.postMessage(jsonStr);
+  <script id="ne-flutter-bridge-core">
+    window.NEBridge = {
+      send: function (type, payload) {
+        var msg = Object.assign({ type: type }, payload || {});
+        var jsonStr = JSON.stringify(msg);
+        if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
+          window.FlutterBridge.postMessage(jsonStr);
+        }
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(msg, '*');
+        }
+        console.log('[NEBridge] ' + type, msg);
+      },
+      navigate: function (route) {
+        this.send('NAVIGATE', { route: route });
       }
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage(msg, '*');
-      }
-      console.log('[NEBridge] ' + type, msg);
-    },
-    navigate: function(route) {
-      this.send('NAVIGATE', { route: route });
-    }
-  };
-</script>
+    };
+  </script>
 
 
-<script id="ne-screen-wiring">
-(function() {
-  function initScreen() {
-    console.log('[Stitch] Screen 04 loaded');
-    
-    // Back button
-    var backBtn = document.querySelector('header button');
-    if (backBtn) {
-      backBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.NEBridge.navigate('/auth');
-      });
-    }
+  <script id="ne-screen-wiring">
+    (function () {
+      function initScreen() {
+        console.log('[Stitch] Screen 04 loaded');
 
-    // Continue button
-    var continueBtn = document.getElementById('step-continue-btn');
-    if (continueBtn) {
-      continueBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        // Extract selected goals
-        var selectedGoals = [];
-        var activePills = document.querySelectorAll('#selected-concerns-container > div, .selected-chip');
-        activePills.forEach(function(pill) {
-          var txt = pill.innerText.replace(/close/g, '').replace(/\s+/g, ' ').trim();
-          if (txt && !selectedGoals.includes(txt)) selectedGoals.push(txt);
-        });
-
-        if (selectedGoals.length === 0) {
-          // If none explicitly in container, pick default tags or let user proceed
-          selectedGoals = ['Prediabetes', 'Low energy or fatigue', 'Improve sleep'];
+        // Back button
+        var backBtn = document.querySelector('header button');
+        if (backBtn) {
+          backBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.NEBridge.navigate('/auth');
+          });
         }
 
-        var urlParams = new URLSearchParams(window.location.search);
-        var returnTo = urlParams.get('returnTo');
-        var dest = returnTo || '/onboarding/practical-difficulties';
+        // Continue button
+        var continueBtn = document.getElementById('step-continue-btn');
+        if (continueBtn) {
+          continueBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            // Extract selected goals
+            var selectedGoals = [];
+            if (window.selectedHealthGoalsMap && window.selectedHealthGoalsMap.size > 0) {
+              selectedGoals = Array.from(window.selectedHealthGoalsMap.values());
+            } else {
+              var activePills = document.querySelectorAll('#selected-chips-container .selected-chip, .selected-chip');
+              activePills.forEach(function (pill) {
+                var txt = pill.querySelector('span') ? pill.querySelector('span').innerText.trim() : pill.innerText.replace(/close/g, '').replace(/\s+/g, ' ').trim();
+                if (txt && !selectedGoals.includes(txt)) selectedGoals.push(txt);
+              });
+            }
 
-        window.NEBridge.send('SAVE_GOALS', {
-          goals: selectedGoals,
-          nextRoute: dest
-        });
-      });
-    }
-  }
+            var customConcern = document.getElementById('custom-concern-input');
+            var customVal = customConcern ? customConcern.value.trim() : '';
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initScreen);
-  } else {
-    initScreen();
-  }
-})();
-</script>
+            var urlParams = new URLSearchParams(window.location.search);
+            var returnTo = urlParams.get('returnTo');
+            var dest = returnTo || '/onboarding/practical-difficulties';
 
-</body></html>
+            // Persist goals to storage before navigating
+            try {
+              if (window.selectedHealthGoalsMap) {
+                var entries = Array.from(window.selectedHealthGoalsMap.entries());
+                localStorage.setItem('nutrient_earth_selected_goals', JSON.stringify(entries));
+                sessionStorage.setItem('nutrient_earth_selected_goals', JSON.stringify(entries));
+              }
+            } catch (e) { }
+
+            window.NEBridge.send('SAVE_GOALS', {
+              goals: selectedGoals,
+              goalIds: window.selectedHealthGoalsMap ? Array.from(window.selectedHealthGoalsMap.keys()) : [],
+              customConcern: customVal,
+              nextRoute: dest
+            });
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initScreen);
+      } else {
+        initScreen();
+      }
+    })();
+  </script>
+
+</body>
+
+</html>

@@ -11,6 +11,8 @@ enum GoalAlignmentStatus {
   partiallyAligned,
   misaligned,
   insufficientInformation,
+  beneficial,
+  neutral,
 }
 
 class GoalAssessmentResult {

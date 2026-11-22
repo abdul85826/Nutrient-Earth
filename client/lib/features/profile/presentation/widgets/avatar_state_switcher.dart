@@ -140,7 +140,10 @@ class AvatarStateSwitcher extends ConsumerWidget {
     );
   }
 
-  static Color _parseHexColor(String hexString) {
+  static Color _parseHexColor(String? hexString) {
+    if (hexString == null || hexString.isEmpty) {
+      return const Color(0xFFE0AC69);
+    }
     try {
       final buffer = StringBuffer();
       if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');

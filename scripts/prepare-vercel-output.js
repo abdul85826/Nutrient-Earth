@@ -45,7 +45,7 @@ try {
   if (fs.existsSync(vercelOutputDir)) {
     fs.rmSync(vercelOutputDir, { recursive: true, force: true });
   }
-} catch (_) {}
+} catch (_) { }
 fs.mkdirSync(vercelStaticDir, { recursive: true });
 
 // 3. Recursive copy of static files
@@ -62,7 +62,7 @@ function copyFolderSync(from, to) {
         try {
           if (fs.existsSync(toPath)) fs.unlinkSync(toPath);
           fs.copyFileSync(fromPath, toPath);
-        } catch (_) {}
+        } catch (_) { }
       }
     } else if (stat.isDirectory()) {
       copyFolderSync(fromPath, toPath);
@@ -156,7 +156,7 @@ const config = {
 
 try {
   if (fs.existsSync(vercelConfigFile)) fs.unlinkSync(vercelConfigFile);
-} catch (_) {}
+} catch (_) { }
 fs.writeFileSync(vercelConfigFile, JSON.stringify(config, null, 2), 'utf-8');
 
 // 5. Verification

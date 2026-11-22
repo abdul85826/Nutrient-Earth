@@ -4,6 +4,8 @@
   "API_BASE_URL": "https://cccwussgyxsfggjownem.supabase.co/functions/v1",
   "USE_EMULATOR": false,
   "TURNSTILE_SITE_KEY": "0x4AAAAAAF7pSMBIkjdSvcBE",
-  "PRODUCTION_ORIGIN": "https://www.nutrientearth.win"
+  "PRODUCTION_ORIGIN": "https://www.nutrientearth.win",
+  "AUTH_REDIRECT_URL": "https://www.nutrientearth.win/auth/callback",
+  "ENVIRONMENT": "production"
 }
 

@@ -368,7 +368,7 @@ class PersonalContextAssemblyService {
     // Level 5: Relevant Memory facts integration
     final appliedFacts = <BitemporalPersonalFact>[];
     for (final fact in memoryFacts) {
-      if (fact.status == FactValidityStatus.active) {
+      if (fact.isActive) {
         appliedFacts.add(fact);
       }
     }

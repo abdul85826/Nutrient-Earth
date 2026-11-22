@@ -30,6 +30,7 @@ import '../../domain/personalization/personal_context_assembly_service.dart';
 import '../../domain/personalization/user_profile_context.dart';
 import '../food_science/food_processing_engine.dart';
 import '../food_science/utensil_safety_service.dart';
+import '../../domain/food_science/utensil_safety_models.dart';
 import '../multimodal/image_quality_service.dart';
 import '../multimodal/product_candidate_service.dart';
 import '../multimodal/social_platform_retrieval_service.dart';
@@ -270,45 +271,47 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   // 1. Utensil & Cookware Safety
   UniversalIntelligenceAnswer _handleUtensilSafety(String query, AssembledPersonalContext context) {
     final lower = query.toLowerCase();
-    String utensilName = 'Cast Iron';
-    if (lower.contains('copper')) utensilName = 'Copper';
-    if (lower.contains('brass')) utensilName = 'Brass';
-    if (lower.contains('teflon') || lower.contains('non-stick')) utensilName = 'Teflon (PTFE)';
-    if (lower.contains('aluminium') || lower.contains('aluminum')) utensilName = 'Aluminium';
-    if (lower.contains('stainless')) utensilName = 'Stainless Steel';
-    if (lower.contains('earthen') || lower.contains('clay')) utensilName = 'Earthen Clay Pot';
+    UtensilMaterialType mat = UtensilMaterialType.castIronSeasoned;
+    if (lower.contains('copper')) mat = UtensilMaterialType.copperUnlined;
+    if (lower.contains('brass')) mat = UtensilMaterialType.brass;
+    if (lower.contains('teflon') || lower.contains('non-stick')) mat = UtensilMaterialType.nonStickPtfe;
+    if (lower.contains('aluminium') || lower.contains('aluminum')) mat = UtensilMaterialType.rawAluminium;
+    if (lower.contains('stainless')) mat = UtensilMaterialType.stainlessSteel;
+    if (lower.contains('earthen') || lower.contains('clay')) mat = UtensilMaterialType.clayEarthenware;
 
-    final profile = _utensilService.getSafetyProfile(utensilName);
+    final profile = _utensilService.getProfileForMaterial(mat);
 
     return UniversalIntelligenceAnswer(
       referenceId: 'UTENSIL-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.text,
       responseType: UniversalResponseType.nutritionKnowledge,
       query: query,
-      heroAnswer: '${profile.materialName} Cookware Safety: ${profile.overallRating.name.toUpperCase()} Safety Profile',
-      recommendation: profile.overallRating.guidanceSummary,
-      detailedExplanation: 'Chemical Reactivity & Leaching Mechanism:\n${profile.reactivityDescription}\n\n'
-          'Micro-leaching Rate: ${profile.leachingRatePer100gFood.toStringAsFixed(2)} mg/100g food in acidic mediums.\n'
-          'Temperature Ceiling: ${profile.maximumSafeTemperatureCelsius}°C.\n\n'
-          'Scientific Rationale:\n${profile.scientificRationale}',
+      heroAnswer: '${profile.material.displayName}: Safety Evaluation',
+      recommendation: profile.acidicCompatibility.label,
+      detailedExplanation: 'Clinical Implications:\n${profile.clinicalHealthImplications}\n\n'
+          'Regulatory Standard Notes:\n${profile.regulatoryStandardNotes}\n\n'
+          'Wear & Scratch Risk:\n${profile.wearAndScratchRisk}\n\n'
+          'Max Safe Temperature: ${profile.maxSafeTemperatureC}°C',
       goalMatch: const GoalMatchIndicator(
         status: GoalAlignmentStatus.neutral,
         matchLabel: 'General Kitchen Chemistry',
         rationale: 'Cookware material safety applies to general household food preparation.',
       ),
-      evidence: EvidenceProvenanceContainer(
+      evidence: const EvidenceProvenanceContainer(
         hasVerifiedSources: true,
         classification: EvidenceClassification.wellSupported,
         watermarkLabel: 'Food Contact Materials Toxicology',
-        citations: profile.citations.map((c) => ScientificSource(
-          title: c,
-          authorsOrJournal: 'Food Additives & Contaminants / FDA Food Contact Guidelines',
-          year: '2023',
-          evidenceGrade: 'Peer-Reviewed Food Chemistry',
-        )).toList(),
+        citations: [
+          ScientificSource(
+            title: 'Scientific Opinion on safety evaluation of food contact materials',
+            authorsOrJournal: 'European Food Safety Authority (EFSA)',
+            year: '2023',
+            evidenceGrade: 'Peer-Reviewed Food Chemistry',
+          ),
+        ],
       ),
-      practicalSteps: profile.practicalGuidelines,
-      uncertaintyDisclaimer: 'Leaching rates vary significantly with pH, salinity, and length of cooking contact.',
+      practicalSteps: profile.bestUseCases,
+      uncertaintyDisclaimer: 'Leaching rates vary significantly with food pH, salinity, and length of cooking contact.',
     );
   }
 

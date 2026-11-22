@@ -6,14 +6,14 @@
 // 1. Incremental source acquisition with durable checkpoints and failure isolation.
 // 2. Automated Retraction & Erratum Monitoring.
 // 3. 8-Step Change Propagation Pipeline:
--- 1. Create a new evidence version
--- 2. Identify affected claims
--- 3. Reassess the evidence
--- 4. Identify dependent recommendations
--- 5. Determine whether existing conclusions remain valid
--- 6. Produce an auditable change record
--- 7. Update current published knowledge after approval
--- 8. Notify users when the change is material
+// 1. Create a new evidence version
+// 2. Identify affected claims
+// 3. Reassess the evidence
+// 4. Identify dependent recommendations
+// 5. Determine whether existing conclusions remain valid
+// 6. Produce an auditable change record
+// 7. Update current published knowledge after approval
+// 8. Notify users when the change is material
 // 4. Historical State Reconstruction (reconstructing past knowledge at any date).
 // 5. Emergency Kill Switch for affected recommendations and articles.
 // ==============================================================================

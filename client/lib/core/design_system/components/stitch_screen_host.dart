@@ -252,7 +252,7 @@ class _StitchScreenHostWidgetState
 
     final query =
         params.isNotEmpty ? '?${Uri(queryParameters: params).query}' : '';
-    return 'stitch/screen_$idxStr/$query';
+    return '/stitch/screen_$idxStr/index.html$query';
   }
 
   @visibleForTesting

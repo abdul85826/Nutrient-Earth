@@ -51,7 +51,7 @@ class ResearchIntegrityVerificationEngine {
   final ContinuousKnowledgeUpdateEngine _updateEngine;
   final ScientificEditorialService _editorialService;
 
-  const ResearchIntegrityVerificationEngine({
+  ResearchIntegrityVerificationEngine({
     UniversalResearchTaxonomyRegistry? taxonomyRegistry,
     SourceAuthenticationService? sourceAuth,
     MethodologicalEvidenceAssessmentService? assessmentService,
@@ -64,7 +64,7 @@ class ResearchIntegrityVerificationEngine {
         _assessmentService = assessmentService ?? const MethodologicalEvidenceAssessmentService(),
         _safetyGuard = safetyGuard ?? const HumanEvidenceSeparationGuard(),
         _gateService = gateService ?? const PublishingGateService(),
-        _updateEngine = updateEngine ?? const ContinuousKnowledgeUpdateEngine(),
+        _updateEngine = updateEngine ?? ContinuousKnowledgeUpdateEngine(),
         _editorialService = editorialService ?? const ScientificEditorialService();
 
   UniversalResearchTaxonomyRegistry get taxonomy => _taxonomyRegistry;
