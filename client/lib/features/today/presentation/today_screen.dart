@@ -14,6 +14,7 @@ import 'widgets/feedback_banner.dart';
 import 'widgets/today_drawer.dart';
 import 'widgets/research_result_modal.dart';
 import 'widgets/learn_detail_modal.dart';
+import '../../profile/presentation/widgets/avatar_state_switcher.dart';
 
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
@@ -69,7 +70,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
     if (!mounted) return;
     final currentState = ref.read(todayStateProvider);
     if (currentState.activeAnswer != null) {
-      ResearchResultModal.show(context, currentState.activeAnswer!);
+      ResearchResultModal.show(
+        context,
+        currentState.activeAnswer!,
+        onSuggestionTap: (followUp) => _handleResearchSubmit(followUp),
+      );
     } else if (currentState.researchError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -203,6 +208,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
                     DynamicGreetingCard(
                       diurnal: state.diurnal,
                       onAvatarTap: _openProfile,
+                      avatarWidget: state.userProfile?.hasAvatar == true
+                          ? const AvatarStateSwitcher(size: 100.0)
+                          : null,
                     ),
                     const SizedBox(height: 12),
 
@@ -225,7 +233,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> with WidgetsBindingOb
                     // 5. Daily Plan Interactive Checklist Section
                     DailyPlanSection(
                       tasks: state.tasks,
-                      counterLabel: state.counterLabel,
+                      counterLabel: state.counterBadge,
                       onToggleTask: (index) {
                         notifier.toggleTask(index);
                       },

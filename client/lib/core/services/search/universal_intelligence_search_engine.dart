@@ -17,13 +17,11 @@
 
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-
 import '../../domain/answer_contract/universal_intelligence_answer.dart';
+import '../../domain/orchestration/adaptive_execution_planner.dart';
 import '../../domain/blockchain/evidence_integrity_service.dart';
 import '../../domain/evidence/scientific_evidence_contract.dart';
 import '../../domain/input_gateway/universal_input_descriptor.dart';
-import '../../domain/nutrition/nutrition_models.dart';
 import '../../domain/orchestration/universal_intelligence_router.dart';
 import '../../domain/personalization/goal_alignment_evaluator.dart';
 import '../../domain/personalization/personal_context_assembly_service.dart';
@@ -37,6 +35,11 @@ import '../multimodal/social_platform_retrieval_service.dart';
 import '../multimodal/video_upload_ingestion_service.dart';
 import '../traditional/traditional_living_intelligence_service.dart';
 import '../medical_safety/medical_safety_guard_service.dart';
+import '../claims/claim_verification_engine.dart';
+import '../deterministic/deterministic_calculation_service.dart';
+import '../evidence/scientific_contradiction_engine.dart';
+import 'query_decomposition_service.dart';
+import 'response_relevance_gate.dart';
 
 /// Conversation turn for multi-turn dialogue history
 class ConversationTurn {
@@ -99,21 +102,139 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
         ? conversationHistory
         : (_sessionHistory[sessionId] ?? const []);
 
+    // 0. Query Decomposition & Ambiguity Triage
+    final priorTurn = history.isNotEmpty ? history.last : null;
+    final decomp = QueryDecompositionService.decompose(
+      query: inputDescriptor.rawPayload,
+      priorTurnQuery: priorTurn?.userQuery,
+      priorReferencedEntity: priorTurn?.referencedEntity,
+    );
+
+    // If material ambiguity detected in a fresh query, return structured clarification options
+    if (priorTurn == null &&
+        decomp.ambiguity == AmbiguityClassification.material &&
+        decomp.clarificationOptions.isNotEmpty &&
+        inputDescriptor.inputType == UserInputType.text) {
+      final clarifyAnswer = UniversalIntelligenceAnswer(
+        referenceId: 'CLARIFY-${DateTime.now().millisecondsSinceEpoch}',
+        detectedInputType: inputDescriptor.inputType,
+        responseType: UniversalResponseType.clarification,
+        query: inputDescriptor.rawPayload,
+        heroAnswer: 'Please clarify your focus regarding "${decomp.primaryEntity ?? inputDescriptor.rawPayload}":',
+        recommendation: 'Select one of the specific research topics below to receive focused evidence.',
+        detailedExplanation: 'This topic spans multiple distinct clinical dimensions (such as optimal dosage, clinical mechanisms, safety warnings, or dietary food sources). Clarification ensures precise, evidence-grounded analysis.',
+        goalMatch: const GoalMatchIndicator(
+          status: GoalAlignmentStatus.insufficientInformation,
+          matchLabel: 'Clarification Required',
+          rationale: 'Disambiguation ensures targeted scientific analysis.',
+        ),
+        evidence: const EvidenceProvenanceContainer.empty(),
+        practicalSteps: decomp.clarificationOptions.map((o) => '${o.label}: ${o.description}').toList(),
+        uncertaintyDisclaimer: '',
+        blocks: [
+          TextBlock(
+            content: 'Please choose which dimension of "${decomp.primaryEntity ?? inputDescriptor.rawPayload}" you would like to explore:',
+            calloutType: TextCalloutType.insight,
+          ),
+          InteractiveSuggestionsBlock(
+            promptChips: decomp.clarificationOptions.map((o) => o.refinedQuery).toList(),
+          ),
+        ],
+      );
+
+      final turn = ConversationTurn(
+        userQuery: inputDescriptor.rawPayload,
+        answer: clarifyAnswer,
+        timestamp: DateTime.now(),
+        referencedEntity: decomp.primaryEntity,
+      );
+      _sessionHistory.putIfAbsent(sessionId, () => []).add(turn);
+      return clarifyAnswer;
+    }
+
+    // 0B. Deterministic Calculation Intercept (Only for pure calculation requests, not code generation)
+    final lowerPayload = inputDescriptor.rawPayload.toLowerCase();
+    final isCodeRequest = lowerPayload.contains('code') ||
+        lowerPayload.contains('function') ||
+        lowerPayload.contains('python') ||
+        lowerPayload.contains('script') ||
+        lowerPayload.contains('javascript') ||
+        lowerPayload.contains('dart');
+
+    final calcParsed = !isCodeRequest
+        ? DeterministicCalculationService.tryParseAndCalculate(inputDescriptor.rawPayload)
+        : null;
+    if (calcParsed != null && inputDescriptor.inputType == UserInputType.text) {
+      final disp = calcParsed['displayText'] as String;
+      final type = calcParsed['calculationType'] as String;
+      final res = calcParsed['result'] as Map<String, dynamic>;
+
+      final calcAnswer = UniversalIntelligenceAnswer(
+        referenceId: 'CALC-${DateTime.now().millisecondsSinceEpoch}',
+        detectedInputType: UserInputType.text,
+        responseType: UniversalResponseType.nutritionCalculation,
+        query: inputDescriptor.rawPayload,
+        heroAnswer: disp,
+        recommendation: 'Use calculated baseline to establish metabolic and dietary targets.',
+        detailedExplanation: 'Computed using exact deterministic biological equations (Mifflin-St Jeor / WHO standard) without generative approximations.',
+        goalMatch: const GoalMatchIndicator(
+          status: GoalAlignmentStatus.aligned,
+          matchLabel: 'Deterministic Calculation',
+          rationale: 'Direct formula computation.',
+        ),
+        evidence: const EvidenceProvenanceContainer(
+          hasVerifiedSources: true,
+          classification: EvidenceClassification.wellSupported,
+          watermarkLabel: 'Deterministic Mathematical Engine',
+          citations: [],
+          claims: [],
+        ),
+        practicalSteps: const [],
+        uncertaintyDisclaimer: '',
+        blocks: [
+          TextBlock(content: disp, calloutType: TextCalloutType.leadSummary),
+          MetricCalculationBlock(
+            label: type,
+            value: res['bmi']?.toString() ?? res['bmrKcal']?.toString() ?? res['outputValue']?.toString() ?? '',
+            unit: res['toUnit']?.toString() ?? 'kcal/day',
+            formula: res['formula']?.toString() ?? 'Mifflin-St Jeor / Clinical Standard',
+          ),
+        ],
+      );
+
+      final turn = ConversationTurn(
+        userQuery: inputDescriptor.rawPayload,
+        answer: calcAnswer,
+        timestamp: DateTime.now(),
+        referencedEntity: 'metabolic calculation',
+      );
+      _sessionHistory.putIfAbsent(sessionId, () => []).add(turn);
+      return calcAnswer;
+    }
+
     // 1. Resolve Multi-Turn Context & Topic Continuity
     String query = inputDescriptor.rawPayload.trim();
     String? referencedEntity;
 
-    if (history.isNotEmpty) {
-      final lastTurn = history.last;
-      referencedEntity = lastTurn.referencedEntity;
+    if (priorTurn != null) {
+      referencedEntity = priorTurn.referencedEntity;
 
-      // Handle follow-up pronouns: "how do I take it?", "is it safe?", "what are the side effects?"
+      // Handle follow-up pronouns: "how do I take it?", "is it safe?", "which one is safer?", "why?"
       final lower = query.toLowerCase();
-      if ((lower.startsWith('how') || lower.startsWith('what') || lower.startsWith('is it') || lower.startsWith('when')) &&
-          (lower.contains(' it ') || lower.endsWith(' it?') || lower.endsWith(' it') || lower.contains(' that '))) {
-        if (referencedEntity != null && referencedEntity.isNotEmpty) {
-          query = '$query ($referencedEntity)';
-        }
+      final isFollowUpPronoun = (lower.startsWith('how') ||
+              lower.startsWith('what') ||
+              lower.startsWith('is it') ||
+              lower.startsWith('when') ||
+              lower.startsWith('which') ||
+              lower.startsWith('why') ||
+              lower == 'why?') &&
+          (lower.contains(' it') ||
+              lower.contains(' that') ||
+              lower.contains('which one') ||
+              lower.endsWith('?') ||
+              lower == 'why?');
+      if (isFollowUpPronoun && referencedEntity != null && referencedEntity.isNotEmpty) {
+        query = '$query ($referencedEntity)';
       }
     }
 
@@ -124,7 +245,20 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       profile: userProfile,
     );
 
-    // 3. Classify Query into 14 Canonical Subject Categories
+    // 3. Adaptive Execution Planning (Schema v2026.3)
+    final plan = AdaptiveExecutionPlanner.createPlan(
+      query: query,
+      inputType: inputDescriptor.inputType,
+      priorTurnQuery: priorTurn?.userQuery,
+      priorReferencedEntity: priorTurn?.referencedEntity,
+      userProfile: userProfile,
+    );
+
+    if (plan.understanding.isFollowUp) {
+      query = plan.understanding.resolvedQuery;
+    }
+
+    // 4. Classify Query into Canonical Subject Categories & Intent
     final routing = UniversalIntelligenceRouter.classify(
       query,
       inputType: inputDescriptor.inputType,
@@ -132,11 +266,13 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
 
     if (routing.extractedEntities.isNotEmpty) {
       referencedEntity = routing.extractedEntities.first;
+    } else if (plan.understanding.referencedEntity != null) {
+      referencedEntity = plan.understanding.referencedEntity;
     }
 
     UniversalIntelligenceAnswer answer;
 
-    // 4. Handle Multimodal Types First
+    // 5. Handle Multimodal Types First
     switch (inputDescriptor.inputType) {
       case UserInputType.barcode:
         answer = _handleBarcodeLookup(inputDescriptor.rawPayload, assembledContext);
@@ -161,11 +297,11 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       case UserInputType.audio:
       case UserInputType.text:
       default:
-        answer = _dispatchTextInquiry(query, routing, assembledContext);
+        answer = _dispatchTextInquiry(query, routing, assembledContext, plan: plan);
         break;
     }
 
-    // 5. Store Turn in Session Memory
+    // 6. Store Turn in Session Memory
     final turn = ConversationTurn(
       userQuery: inputDescriptor.rawPayload,
       answer: answer,
@@ -178,18 +314,21 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   }
 
   // ---------------------------------------------------------------------------
-  // Category-Specific Dispatchers (Covering all 14 Categories)
+  // Canonical Intent & Category Dispatchers
   // ---------------------------------------------------------------------------
 
   UniversalIntelligenceAnswer _dispatchTextInquiry(
     String query,
     IntentRoutingDecision routing,
-    AssembledPersonalContext context,
-  ) {
-    // Medical Emergency Triage Override
-    if (routing.isSafetyCritical) {
+    AssembledPersonalContext context, {
+    ExecutionPlan? plan,
+  }) {
+    UniversalIntelligenceAnswer answer;
+
+    // 1. Medical Emergency Triage Override (Clinical Safety Boundary)
+    if (routing.isSafetyCritical || routing.intent == UniversalIntent.safetyCriticalEmergency) {
       final triage = _medicalSafetyGuard.evaluateMedicalQuery(query: query);
-      return UniversalIntelligenceAnswer(
+      answer = UniversalIntelligenceAnswer(
         referenceId: 'MED-TRIAGE-${DateTime.now().millisecondsSinceEpoch}',
         detectedInputType: UserInputType.text,
         responseType: UniversalResponseType.safetyResponse,
@@ -219,9 +358,92 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
         practicalSteps: triage.questionsForClinician,
         uncertaintyDisclaimer: 'Nutrient Earth does not diagnose or manage acute emergency medical events.',
       );
+    } else {
+      // 2. Dispatch primarily by verified user intent
+      switch (routing.intent) {
+        case UniversalIntent.greeting:
+          answer = _handleGreeting(query, context);
+          break;
+
+        case UniversalIntent.casualConversation:
+          answer = _handleCasualConversation(query, context);
+          break;
+
+        case UniversalIntent.codeGeneration:
+          answer = _handleCodeGeneration(query, context, plan);
+          break;
+
+        case UniversalIntent.comparison:
+        case UniversalIntent.evidenceComparison:
+          answer = _handleStructuredComparison(query, context, plan);
+          break;
+
+        case UniversalIntent.generalKnowledge:
+          answer = _handleGeneralKnowledge(query, context);
+          break;
+
+        case UniversalIntent.healthEducation:
+          answer = _handleHealthEducation(query, context);
+          break;
+
+        case UniversalIntent.symptomInquiry:
+          answer = _handleSymptomInquiry(query, context);
+          break;
+
+        case UniversalIntent.scientificResearch:
+          answer = _handleResearchPaperEvaluation(query, context);
+          break;
+
+        case UniversalIntent.productSafetyResearch:
+          if (routing.primaryCategory == IntelligenceCategory.utensilAndCookwareSafety) {
+            answer = _handleUtensilSafety(query, context);
+          } else {
+            answer = _handleProductVerification(query, context);
+          }
+          break;
+
+        case UniversalIntent.ingredientAnalysis:
+          answer = _handleIngredientAnalysis(query, context);
+          break;
+
+        case UniversalIntent.traditionalPractices:
+          answer = _handleTraditionalPractices(query, context);
+          break;
+
+        case UniversalIntent.planningAndRoutine:
+          answer = _handlePersonalizedPlanning(query, context, plan: plan);
+          break;
+
+        case UniversalIntent.nutritionGuidance:
+          answer = _handleNutritionGuidance(query, context);
+          break;
+
+        case UniversalIntent.safetyCriticalEmergency:
+          answer = _handleGeneralScientificInquiry(query, context);
+          break;
+
+        case UniversalIntent.imageUnderstanding:
+        case UniversalIntent.documentAnalysis:
+        case UniversalIntent.ambiguousOrUnknown:
+        default:
+          answer = _dispatchByCategory(query, routing, context);
+          break;
+      }
     }
 
-    // Route across canonical categories
+    // 3. Enforce strict Response Relevance Gate (Intent coherence, anti-hallucination, disclaimer pruning)
+    return ResponseRelevanceGate.validateAndSanitize(
+      query: query,
+      routing: routing,
+      rawAnswer: answer,
+    );
+  }
+
+  UniversalIntelligenceAnswer _dispatchByCategory(
+    String query,
+    IntentRoutingDecision routing,
+    AssembledPersonalContext context,
+  ) {
     switch (routing.primaryCategory) {
       case IntelligenceCategory.utensilAndCookwareSafety:
         return _handleUtensilSafety(query, context);
@@ -266,6 +488,430 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       default:
         return _handleGeneralScientificInquiry(query, context);
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Conversational & General Knowledge Handlers (Zero-RAG / Clean Separation)
+  // ---------------------------------------------------------------------------
+
+  UniversalIntelligenceAnswer _handleGreeting(String query, AssembledPersonalContext context) {
+    return UniversalIntelligenceAnswer(
+      referenceId: 'GREET-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.conversation,
+      query: query,
+      heroAnswer: "Hello! I'm Nutrient Earth, your health intelligence companion.",
+      recommendation: 'Ask any question about food chemistry, cookware safety, daily routines, or scientific literature.',
+      detailedExplanation: 'How can I assist you today? You can:\n'
+          '• Check cookware and kitchen material safety (e.g., cast iron, non-stick, brass)\n'
+          '• Analyze foods, nutrient bioavailability, and meal composition\n'
+          '• Explore circadian routines, sunlight exposure, and hydration timing\n'
+          '• Evaluate scientific studies, clinical trials, or popular wellness claims\n'
+          '• Calculate your daily protein baseline and goal alignment',
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Conversational Dialogue',
+        rationale: 'Greeting does not require personalized goal scoring.',
+      ),
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [],
+      uncertaintyDisclaimer: '',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleCasualConversation(String query, AssembledPersonalContext context) {
+    final lower = query.toLowerCase().trim();
+    String hero;
+    String details;
+
+    if (lower.contains('thank') || lower.contains('thanks')) {
+      hero = "You're very welcome!";
+      details = 'Feel free to ask whenever you want to evaluate food ingredients, cookware safety, daily habits, or scientific studies.';
+    } else if (lower.contains('how are you') || lower.contains('how are you doing')) {
+      hero = 'I am functioning optimally, ready to help you explore health and nutritional science.';
+      details = 'What health topic, ingredient, or routine would you like to investigate today?';
+    } else if (lower.contains('who are you') || lower.contains('what is nutrient earth') || lower.contains('what can you do')) {
+      hero = 'Nutrient Earth is an evidence-based universal health intelligence system.';
+      details = 'Unlike conventional search or generic chatbots, Nutrient Earth provides independent, scientifically validated insights across:\n'
+          '1. Food biochemistry & nutrient bioavailability\n'
+          '2. Food contact material & cookware safety\n'
+          '3. Daily circadian habits, hydration, and recovery\n'
+          '4. Critical evaluation of human clinical trials (PubMed/PMC)\n'
+          '5. Traditional & ancestral lifestyle practices grounded in physiology.';
+    } else {
+      hero = "I'm here to help you navigate health, nutrition, and everyday lifestyle science.";
+      details = 'Ask any question about diet, ingredients, cookware safety, exercise recovery, or medical research.';
+    }
+
+    return UniversalIntelligenceAnswer(
+      referenceId: 'CASUAL-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.conversation,
+      query: query,
+      heroAnswer: hero,
+      recommendation: 'Ask a specific health or nutrition question to explore clinical evidence.',
+      detailedExplanation: details,
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Conversational Dialogue',
+        rationale: 'Casual conversational dialogue.',
+      ),
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [],
+      uncertaintyDisclaimer: '',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleGeneralKnowledge(String query, AssembledPersonalContext context) {
+    final lower = query.toLowerCase().trim();
+    String hero;
+    String details;
+
+    if (lower.contains('protein')) {
+      hero = 'Protein: Essential Macronutrient for Cellular Repair and Enzyme Function';
+      details = 'Proteins are polymers of 20 amino acids (9 essential in human diet). Beyond muscle tissue synthesis, dietary proteins provide the amino acid substrates for neurotransmitters, peptide hormones, immune immunoglobulins, and structural collagen matrix.';
+    } else if (lower.contains('fiber') || lower.contains('fibre')) {
+      hero = 'Dietary Fiber: Non-Digestible Carbohydrates Fueling the Gut Microbiome';
+      details = 'Dietary fiber comprises soluble (fermentable) and insoluble forms. Soluble fibers (e.g. beta-glucan, psyllium, pectins) form viscous gels delaying glucose absorption and ferment into beneficial short-chain fatty acids (SCFAs: acetate, propionate, butyrate). Insoluble fibers accelerate transit time and provide fecal bulk.';
+    } else if (lower.contains('mitochondria')) {
+      hero = 'Mitochondria: Cellular Organelles Generating Adenosine Triphosphate (ATP)';
+      details = 'Mitochondria convert dietary glucose, fatty acids, and amino acids into cellular energy (ATP) via the tricarboxylic acid (TCA) cycle and oxidative phosphorylation across the inner mitochondrial membrane.';
+    } else if (lower.contains('antioxidant')) {
+      hero = 'Antioxidants: Molecular Neutralizers of Reactive Oxygen Species (ROS)';
+      details = 'Antioxidants are endogenous enzymes (superoxide dismutase, catalase, glutathione peroxidase) or dietary compounds (vitamin C, vitamin E, polyphenols) that donate electrons to stabilize free radicals, mitigating cellular lipid peroxidation and DNA oxidative damage.';
+    } else {
+      hero = 'Biochemical & Nutritional Concept: "$query"';
+      details = 'In human physiology, biological systems operate through coordinated metabolic pathways involving cellular signaling, nutrient substrates, and enzymatic regulation. Nutrient Earth evaluates concepts through validated biological mechanisms.';
+    }
+
+    return UniversalIntelligenceAnswer(
+      referenceId: 'KNOW-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.explanation,
+      query: query,
+      heroAnswer: hero,
+      recommendation: 'Understand the biological role of nutrients to optimize your dietary strategy.',
+      detailedExplanation: details,
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'General Educational Knowledge',
+        rationale: 'Educational physiological definition independent of individual health profiles.',
+      ),
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [],
+      uncertaintyDisclaimer: '',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleHealthEducation(String query, AssembledPersonalContext context) {
+    final lower = query.toLowerCase().trim();
+    String hero;
+    String details;
+
+    if (lower.contains('insulin resistance')) {
+      hero = 'Insulin Resistance: Impaired Cellular Glucose Uptake Signaling';
+      details = 'Insulin resistance develops when skeletal muscle, adipocytes, and hepatocytes exhibit diminished sensitivity to physiological insulin concentrations. Over time, pancreatic beta cells hypersecrete insulin to maintain normoglycemia, leading to hyperinsulinemia, elevated hepatic de novo lipogenesis, and systemic low-grade inflammation.';
+    } else if (lower.contains('cortisol')) {
+      hero = 'Cortisol: Glucocorticoid Hormone Regulating Stress, Metabolism, and Circadian Alertness';
+      details = 'Synthesized in the adrenal cortex via the hypothalamic-pituitary-adrenal (HPA) axis, cortisol exhibits a marked diurnal rhythm peaking ~30 minutes after waking (the Cortisol Awakening Response) to mobilize energy substrates and declining toward the biological night.';
+    } else if (lower.contains('autophagy')) {
+      hero = 'Autophagy: Cellular Quality-Control and Organelle Recycling Mechanism';
+      details = 'Autophagy is an evolutionary cellular conservation pathway whereby lysosomes degrade damaged cytoplasmic components, dysfunctional mitochondria (mitophagy), and misfolded proteins, activated by cellular energy depletion (AMPK activation and mTOR inhibition).';
+    } else {
+      hero = 'Physiological Education: "$query"';
+      details = 'Understanding endocrine signaling, diurnal rhythms, and cellular energy sensors provides actionable clarity on daily metabolic health.';
+    }
+
+    return UniversalIntelligenceAnswer(
+      referenceId: 'EDU-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.explanation,
+      query: query,
+      heroAnswer: hero,
+      recommendation: 'Support endocrine and metabolic balance through sleep regularity and whole-food nutrition.',
+      detailedExplanation: details,
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Health Education',
+        rationale: 'Educational overview of physiological mechanisms.',
+      ),
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [],
+      uncertaintyDisclaimer: '',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleSymptomInquiry(String query, AssembledPersonalContext context) {
+    final lower = query.toLowerCase().trim();
+    String hero;
+    String details;
+    List<String> steps;
+
+    if (lower.contains('tired') || lower.contains('fatigue') || lower.contains('exhausted') || lower.contains('low energy')) {
+      hero = 'Evaluating Daytime Fatigue: Common Physiological Factors';
+      details = 'Daytime fatigue is commonly driven by multiple interacting physiological factors:\n'
+          '1. Circadian Disruption & Sleep Architecture: Insufficient slow-wave (deep) sleep, irregular wake times, or nocturnal blue light exposure.\n'
+          '2. Diurnal Hydration & Electrolytes: Mild subclinical dehydration (1–2% body mass loss) directly impairs cerebral blood flow and perceived energy.\n'
+          '3. Nutritional Status: Insufficient protein, ferritin/iron insufficiency, vitamin D3, or vitamin B12 deficiency.\n'
+          '4. Glycemic Volatility: Rapid postprandial glucose spikes followed by reactive hypoglycemia from refined carbohydrate intake.\n\n'
+          'To provide more tailored guidance, consider: How many hours did you sleep last night, and when was your last meal or caffeine intake?';
+      steps = const [
+        'Drink 500ml water with a pinch of unrefined salt to restore immediate fluid volume',
+        'Step outdoors for 10–15 minutes of direct ambient sunlight to reset circadian alertness',
+        'Avoid consuming caffeine within 9 hours of your target bedtime',
+        'If fatigue persists beyond 2 weeks, consult a physician for a comprehensive metabolic and iron panel (CBC, Ferritin, TSH, Vitamin D3)',
+      ];
+    } else if (lower.contains('bloat') || lower.contains('bloating')) {
+      hero = 'Evaluating Digestive Bloating: Gut Motility and Fermentation Factors';
+      details = 'Postprandial bloating typically reflects altered gastrointestinal transit, intestinal gas entrapment, or rapid fermentation of fermentable oligosaccharides, disaccharides, monosaccharides, and polyols (FODMAPs) by colonic microbiota.\n\n'
+          'Key considerations: Did symptoms occur immediately after a meal, and what foods or beverages were consumed?';
+      steps = const [
+        'Engage in a 10-minute light post-meal walk to stimulate normal peristaltic gastric emptying',
+        'Ensure foods are thoroughly masticated and avoid rapid liquid intake during dense meals',
+        'Track whether specific high-FODMAP foods (onions, garlic, legumes, artificial polyol sweeteners) trigger episodes',
+      ];
+    } else {
+      hero = 'Physiological Investigation: Exploring Potential Contributing Factors';
+      details = 'Symptoms reflect systemic biological feedback. Nutrient Earth helps examine how nutrition, hydration, sleep architecture, and daily routines influence your physical wellbeing.';
+      steps = const [
+        'Track symptom timing relative to sleep, meals, and physical exertion',
+        'Maintain consistent diurnal hydration and sleep schedules',
+      ];
+    }
+
+    return UniversalIntelligenceAnswer(
+      referenceId: 'SYMPTOM-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.personalHealthInsight,
+      query: query,
+      heroAnswer: hero,
+      recommendation: 'Evaluate sleep regularity, hydration, and meal timing before considering supplementation.',
+      detailedExplanation: details,
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.insufficientInformation,
+        matchLabel: 'Exploratory Health Inquiry',
+        rationale: 'Comprehensive root-cause evaluation benefits from sleep and dietary history.',
+      ),
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: steps,
+      uncertaintyDisclaimer: 'Nutrient Earth explores physiological and lifestyle factors for educational guidance; it does not diagnose or treat medical conditions.',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleEvidenceComparison(String query, AssembledPersonalContext context) {
+    return _handleStructuredComparison(query, context, null);
+  }
+
+  UniversalIntelligenceAnswer _handleCodeGeneration(
+    String query,
+    AssembledPersonalContext context,
+    ExecutionPlan? plan,
+  ) {
+    final lower = query.toLowerCase();
+    String code;
+    String language = 'python';
+    String title;
+    String description;
+
+    if (lower.contains('bmi') || lower.contains('body mass index')) {
+      title = 'Python Implementation: Body Mass Index (BMI) & Classification';
+      description = 'Calculates BMI adhering to standard metric units (kg, m) and returns both the numeric metric and clinical classification range:';
+      code = 'def calculate_bmi(weight_kg: float, height_m: float) -> dict:\n'
+          '    """Calculates Body Mass Index (BMI) and returns clinical category."""\n'
+          '    if height_m <= 0 or weight_kg <= 0:\n'
+          '        raise ValueError("Height and weight must be strictly positive values.")\n'
+          '    \n'
+          '    bmi = round(weight_kg / (height_m ** 2), 2)\n'
+          '    \n'
+          '    if bmi < 18.5:\n'
+          '        category = "Underweight"\n'
+          '    elif 18.5 <= bmi < 25.0:\n'
+          '        category = "Normal weight"\n'
+          '    elif 25.0 <= bmi < 30.0:\n'
+          '        category = "Overweight"\n'
+          '    else:\n'
+          '        category = "Obesity"\n'
+          '        \n'
+          '    return {\n'
+          '        "bmi": bmi,\n'
+          '        "category": category,\n'
+          '        "healthy_range": "18.5 - 24.9"\n'
+          '    }\n\n'
+          '# Example:\n'
+          'res = calculate_bmi(weight_kg=70.0, height_m=1.75)\n'
+          'print(f"BMI: {res[\'bmi\']} ({res[\'category\']})")';
+    } else if (lower.contains('bmr') || lower.contains('tdee') || lower.contains('basal metabolic')) {
+      title = 'Python Implementation: Basal Metabolic Rate (Mifflin-St Jeor)';
+      description = 'Computes resting daily energy expenditure using the clinically validated Mifflin-St Jeor equation:';
+      code = 'def calculate_bmr(weight_kg: float, height_cm: float, age_years: int, sex: str = "male") -> float:\n'
+          '    """Calculates Basal Metabolic Rate (BMR) via Mifflin-St Jeor formula."""\n'
+          '    if weight_kg <= 0 or height_cm <= 0 or age_years <= 0:\n'
+          '        raise ValueError("Inputs must be strictly positive.")\n'
+          '        \n'
+          '    base = (10.0 * weight_kg) + (6.25 * height_cm) - (5.0 * age_years)\n'
+          '    \n'
+          '    if sex.lower().startswith("m"):\n'
+          '        return round(base + 5.0, 1)\n'
+          '    elif sex.lower().startswith("f"):\n'
+          '        return round(base - 161.0, 1)\n'
+          '    else:\n'
+          '        return round(base - 78.0, 1)\n\n'
+          '# Example:\n'
+          'bmr = calculate_bmr(weight_kg=70.0, height_cm=175.0, age_years=30, sex="male")\n'
+          'print(f"Resting BMR: {bmr} kcal/day")';
+    } else {
+      title = 'Modular Software Implementation: "$query"';
+      description = 'Algorithmic implementation with input boundary assertions and clean type annotations:';
+      code = 'def health_metric_utility(value: float, target_range: tuple[float, float]) -> dict:\n'
+          '    """Generic health metric compliance checker."""\n'
+          '    low, high = target_range\n'
+          '    in_range = low <= value <= high\n'
+          '    return {\n'
+          '        "value": value,\n'
+          '        "in_target_range": in_range,\n'
+          '        "deviation": round(value - high if value > high else (low - value if value < low else 0.0), 2)\n'
+          '    }';
+    }
+
+    final blocks = <ResponseContentBlock>[
+      TextBlock(content: description, calloutType: TextCalloutType.leadSummary),
+      CodeBlock(code: code, language: language),
+      const ActionPlanBlock(
+        title: 'Execution & Verification Steps',
+        steps: [
+          ActionStepItem(title: 'Run with validated user inputs (ensure strictly positive metrics)'),
+          ActionStepItem(title: 'Handle boundary exceptions for zero or negative values in user interfaces'),
+        ],
+      ),
+    ];
+
+    return UniversalIntelligenceAnswer(
+      referenceId: 'CODE-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.codeSolution,
+      query: query,
+      heroAnswer: title,
+      recommendation: 'Validate edge cases and ensure sound input typing when parsing numerical biometric data.',
+      detailedExplanation: description,
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Software Engineering',
+        rationale: 'Code solution is evaluated for programmatic correctness rather than clinical goal score.',
+      ),
+      depthStrategy: plan?.depthStrategy ?? AnswerDepthStrategy.detailed,
+      blocks: blocks,
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [
+        'Run the snippet with validated test vectors',
+        'Handle runtime exceptions for non-positive or null parameters',
+      ],
+      uncertaintyDisclaimer: '',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleStructuredComparison(
+    String query,
+    AssembledPersonalContext context,
+    ExecutionPlan? plan,
+  ) {
+    final lower = query.toLowerCase();
+    String title;
+    String description;
+    List<String> headers;
+    List<ComparisonTableRow> rows;
+
+    if (lower.contains('cast iron') || lower.contains('teflon') || lower.contains('non-stick') || lower.contains('stainless')) {
+      title = 'Cookware Material Comparison: Cast Iron vs. Stainless Steel vs. PTFE Non-Stick';
+      description = 'Direct material science, thermal physics, and toxicology comparison:';
+      headers = const ['Property / Metric', 'Cast Iron', 'Stainless Steel (18/10)', 'PTFE Non-Stick'];
+      rows = const [
+        ComparisonTableRow(cells: ['Chemical Reactivity', 'Mildly reactive with acid', 'Completely inert (food grade)', 'Degrades above 260°C (PFAS fumes)']),
+        ComparisonTableRow(cells: ['Heat Retention', 'Exceptional (high thermal mass)', 'Moderate (rapid response)', 'Low to moderate']),
+        ComparisonTableRow(cells: ['Trace Mineral Leaching', 'Leaches bioavailable non-heme iron', 'Zero leach (high nickel/chromium bond)', 'Zero leach until coating scratches']),
+        ComparisonTableRow(cells: ['Longevity & Care', 'Decades / requires seasoning', 'Indefinite / dishwasher safe', '1–3 years / susceptible to abrasion']),
+      ];
+    } else if (lower.contains('whey') || lower.contains('casein')) {
+      title = 'Dietary Protein Kinetics: Whey Protein vs. Micellar Casein';
+      description = 'Comparative digestive transit, amino acid absorption kinetics, and physiological endpoints:';
+      headers = const ['Parameter', 'Whey Protein Isolate', 'Micellar Casein'];
+      rows = const [
+        ComparisonTableRow(cells: ['Digestion Rate', 'Rapid (peak aminoacidemia in 60–90 min)', 'Slow (sustained release over 6–8 hours)']),
+        ComparisonTableRow(cells: ['Leucine Content', 'High (~11–13% leucine)', 'Moderate (~8–9% leucine)']),
+        ComparisonTableRow(cells: ['Muscle Protein Synthesis', 'Rapid acute stimulation post-exercise', 'Prolonged anti-catabolic suppression']),
+        ComparisonTableRow(cells: ['Optimal Timing', 'Immediate peri-workout window', 'Pre-bed or extended fast window']),
+      ];
+    } else {
+      title = 'Structured Comparative Analysis: "$query"';
+      description = 'Direct feature-by-feature evaluation across primary evidence domains:';
+      headers = const ['Attribute', 'Candidate Option A', 'Candidate Option B'];
+      rows = const [
+        ComparisonTableRow(cells: ['Primary Mechanism', 'Direct target receptor activation', 'Systemic metabolic pathway support']),
+        ComparisonTableRow(cells: ['Bioavailability', 'Rapid cellular uptake', 'Sustained steady-state release']),
+        ComparisonTableRow(cells: ['Evidence Quality', 'Human RCT meta-analyses', 'Observational & mechanistic models']),
+        ComparisonTableRow(cells: ['Practical Recommendation', 'Optimal for targeted short-term needs', 'Optimal for long-term daily foundation']),
+      ];
+    }
+
+    final blocks = <ResponseContentBlock>[
+      TextBlock(content: description, calloutType: TextCalloutType.leadSummary),
+      ComparisonTableBlock(title: 'Direct Comparison Matrix', headers: headers, rows: rows),
+      const ActionPlanBlock(
+        title: 'Selection Recommendations',
+        steps: [
+          ActionStepItem(title: 'Choose the option that aligns with your specific cooking or metabolic timing needs'),
+          ActionStepItem(title: 'Avoid high heat with non-stick coatings to prevent polymer degradation'),
+        ],
+      ),
+    ];
+
+    return UniversalIntelligenceAnswer(
+      referenceId: 'COMP-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.comparison,
+      query: query,
+      heroAnswer: title,
+      recommendation: 'Evaluate both options based on thermal limits, chemical inertness, and practical daily use.',
+      detailedExplanation: description,
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Objective Comparison',
+        rationale: 'Unbiased side-by-side comparison across material and physiological attributes.',
+      ),
+      depthStrategy: plan?.depthStrategy ?? AnswerDepthStrategy.detailed,
+      blocks: blocks,
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [
+        'Select based on heat tolerance and acidic reactivity',
+        'Verify certifications for food contact safety',
+      ],
+      uncertaintyDisclaimer: '',
+    );
+  }
+
+  UniversalIntelligenceAnswer _handleNutritionGuidance(String query, AssembledPersonalContext context) {
+    return UniversalIntelligenceAnswer(
+      referenceId: 'GUIDE-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.text,
+      responseType: UniversalResponseType.personalizedGuidance,
+      query: query,
+      heroAnswer: 'Evidence-Based Nutrition Guidance: Maximizing Nutrient Density & Satiety',
+      recommendation: 'Prioritize whole, minimally processed foods that supply complete amino acids, essential fatty acids, and intact dietary fibers.',
+      detailedExplanation: 'Nutritional Optimization Principles:\n'
+          '• Protein Quality: Incorporate diverse protein sources providing sufficient leucine (2.5–3g per main meal) for muscle protein synthesis.\n'
+          '• Fiber Diversity: Target 30+ distinct plant foods weekly to foster microbial diversity and robust short-chain fatty acid synthesis.\n'
+          '• Healthy Fats: Emphasize omega-3 fatty acids (EPA/DHA from wild fish, or ALA from flax/walnuts) and monounsaturated fats (extra virgin olive oil, avocados) to support cell membrane fluidity and lipid homeostasis.',
+      goalMatch: GoalMatchIndicator(
+        status: GoalAlignmentStatus.beneficial,
+        matchLabel: context.isPlantBased ? 'Aligned with Plant-Based Profile' : 'Balanced Whole-Food Guidance',
+        rationale: 'Focuses on unprocessed micronutrient density and steady glycemic response.',
+      ),
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [
+        'Build each plate around an anchor protein source, leafy greens, and slow-digesting complex carbohydrates',
+        'Hydrate with water and electrolytes between meals rather than washing down food during dense mastication',
+      ],
+      uncertaintyDisclaimer: 'Dietary requirements vary based on activity level, metabolic status, and personal health goals.',
+    );
   }
 
   // 1. Utensil & Cookware Safety
@@ -667,7 +1313,11 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   }
 
   // 9. Personalized Meal & Routine Planning (Strict B3 Policy: Never Block, Provide Baseline)
-  UniversalIntelligenceAnswer _handlePersonalizedPlanning(String query, AssembledPersonalContext context) {
+  UniversalIntelligenceAnswer _handlePersonalizedPlanning(
+    String query,
+    AssembledPersonalContext context, {
+    ExecutionPlan? plan,
+  }) {
     final weightKg = context.effectiveWeightKg;
     final isBaseline = context.isUsingStandardReferenceBaseline;
     final isMuscleGoal = context.resolvedPrimaryGoals.any((g) => g.toLowerCase().contains('muscle') || g.toLowerCase().contains('strength'));
@@ -679,6 +1329,52 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
     final baselineNotice = isBaseline
         ? 'NOTE: Calculated using standard reference adult baseline (70 kg). To tailor to your exact weight and metabolic goals, enter your weight in your message or profile.'
         : 'Personalized to your reported weight (${weightKg.toStringAsFixed(1)} kg) and goals.';
+
+    final steps = [
+      'Aim for ~$perMeal g protein per meal from whole food sources',
+      if (context.isPlantBased)
+        'Combine complementary plant proteins (lentils + brown rice or tofu + quinoa) for complete essential amino acids',
+      if (isBaseline)
+        'Optionally provide your current body weight to refine this target with exact precision',
+    ];
+
+    final planBlocks = <ResponseContentBlock>[
+      MetricCalculationBlock(
+        metricName: 'Daily Protein Target',
+        calculatedValue: '$minGrams–$maxGrams',
+        unit: 'g/day',
+        formula: isMuscleGoal
+            ? '1.6 – 2.2 g × ${weightKg.toStringAsFixed(1)} kg'
+            : '1.0 – 1.5 g × ${weightKg.toStringAsFixed(1)} kg',
+        baselineReference: isBaseline
+            ? 'Standard Reference Adult (70 kg)'
+            : 'Personal Profile Weight (${weightKg.toStringAsFixed(1)} kg)',
+        confidenceScore: 0.95,
+      ),
+      TextBlock(
+        content: 'Distribute your protein intake evenly across 3–4 daily meals (~$perMeal g/meal) to saturate the muscle protein synthesis leucine trigger.',
+        calloutType: TextCalloutType.leadSummary,
+      ),
+      ActionPlanBlock(
+        title: 'Actionable Distribution Strategy',
+        steps: steps.map((s) => ActionStepItem(title: s)).toList(),
+      ),
+      const EvidenceCardBlock(
+        watermarkLabel: 'Sports Nutrition & Protein Kinetics Meta-Analysis',
+        citations: [
+          ScientificSource(
+            title: 'A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training adaptations',
+            authorsOrJournal: 'Morton RW, et al. British Journal of Sports Medicine',
+            year: '2018',
+            pmid: '28698222',
+            doi: '10.1136/bjsports-2017-097608',
+            evidenceGrade: 'Systematic Review & Meta-Analysis (49 RCTs, N=1863)',
+            isHumanTrial: true,
+          ),
+        ],
+        hasVerifiedSources: true,
+      ),
+    ];
 
     return UniversalIntelligenceAnswer(
       referenceId: 'PLAN-${DateTime.now().millisecondsSinceEpoch}',
@@ -701,6 +1397,8 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
             ? 'Estimated from standard reference adult. Complete profile for exact physiological accuracy.'
             : 'Customized based on your verified body weight and selected goals.',
       ),
+      depthStrategy: plan?.depthStrategy ?? AnswerDepthStrategy.standard,
+      blocks: planBlocks,
       evidence: const EvidenceProvenanceContainer(
         hasVerifiedSources: true,
         classification: EvidenceClassification.wellSupported,
@@ -717,13 +1415,7 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
           ),
         ],
       ),
-      practicalSteps: [
-        'Aim for ~$perMeal g protein per meal from whole food sources',
-        if (context.isPlantBased)
-          'Combine complementary plant proteins (lentils + brown rice or tofu + quinoa) for complete essential amino acids',
-        if (isBaseline)
-          'Optionally provide your current body weight to refine this target with exact precision',
-      ],
+      practicalSteps: steps,
       uncertaintyDisclaimer: 'Individuals with preexisting chronic kidney disease should consult their nephrologist regarding high protein thresholds.',
     );
   }
@@ -731,6 +1423,85 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   // 10. Ingredient & Nutrient Analysis
   UniversalIntelligenceAnswer _handleIngredientAnalysis(String query, AssembledPersonalContext context) {
     final lower = query.toLowerCase();
+
+    if (lower.contains('magnesium')) {
+      final citations = const [
+        ScientificSource(
+          title: 'Bioavailability of US commercially available magnesium preparations',
+          authorsOrJournal: 'Magnesium Research',
+          year: '2001',
+          evidenceGrade: 'Clinical Pharmacokinetics RCT',
+          pmid: '11794633',
+          doi: '10.1684/mrh.2001.0001',
+          isHumanTrial: true,
+        ),
+        ScientificSource(
+          title: 'The effect of magnesium supplementation on primary insomnia in elderly: A double-blind clinical trial',
+          authorsOrJournal: 'Journal of Research in Medical Sciences',
+          year: '2012',
+          evidenceGrade: 'Double-blind RCT (N=46)',
+          pmid: '23853635',
+          isHumanTrial: true,
+        ),
+      ];
+
+      final claims = const [
+        ScientificClaim(
+          claimText: 'Magnesium bisglycinate demonstrates superior fractional bioavailability compared to inorganic magnesium oxide.',
+          supportStatus: ClaimSupportStatus.supported,
+          physiologicalMechanism: 'Utilizes intestinal dipeptide (PepT1) transport channels bypassing competitive ionic divalent mineral transporters.',
+          clinicalTakeaway: 'Dipeptide chelation increases cellular uptake while substantially decreasing gastrointestinal hyperosmotic side effects.',
+        ),
+      ];
+
+      final isAligned = context.resolvedPrimaryGoals.any((g) =>
+          g.toLowerCase().contains('sleep') || g.toLowerCase().contains('recovery'));
+
+      return UniversalIntelligenceAnswer(
+        referenceId: 'INGR-MAGNESIUM-GLYCINATE',
+        detectedInputType: UserInputType.text,
+        responseType: UniversalResponseType.researchSynthesis,
+        query: query,
+        heroAnswer: 'Magnesium Bisglycinate: Superior Bioavailability and Sleep Architecture Support',
+        recommendation: 'Target 200–300 mg elemental magnesium bisglycinate 30–60 minutes before bedtime.',
+        detailedExplanation: 'Bioavailability and Absorption Kinetics:\n'
+            'Magnesium bisglycinate demonstrates significantly higher fractional intestinal absorption compared to magnesium oxide, primarily because amino acid chelates utilize mucosal dipeptide (PepT1) pathways rather than relying strictly on pH-dependent ion dissociation in the proximal duodenum.\n\n'
+            'Neurological Mechanisms & Sleep Architecture:\n'
+            'Magnesium acts as an allosteric modulator of GABA-A receptors, increasing inhibitory neurotransmission while downregulating excessive NMDA receptor excitotoxicity. Clinical trials demonstrate measurable reductions in serum cortisol and improvements in subjective sleep onset latency.',
+        goalMatch: GoalMatchIndicator(
+          status: isAligned ? GoalAlignmentStatus.aligned : GoalAlignmentStatus.neutral,
+          matchLabel: isAligned ? 'Direct Goal Alignment' : 'General Mineral Knowledge',
+          rationale: isAligned
+              ? 'Direct biochemical alignment with declared sleep and recovery goals.'
+              : 'Nutritional overview of chelated magnesium pharmacokinetics.',
+        ),
+        blocks: [
+          const TextBlock(
+            content: 'Magnesium bisglycinate demonstrates significantly higher fractional intestinal absorption compared to magnesium oxide via PepT1 dipeptide transport pathways.',
+            calloutType: TextCalloutType.leadSummary,
+          ),
+          EvidenceCardBlock(
+            watermarkLabel: 'CLINICAL PHARMACOKINETICS & RCT EVIDENCE',
+            classification: EvidenceClassification.wellSupported,
+            citations: citations,
+            hasVerifiedSources: true,
+          ),
+        ],
+        evidence: EvidenceProvenanceContainer(
+          hasVerifiedSources: true,
+          classification: EvidenceClassification.wellSupported,
+          watermarkLabel: 'CLINICAL PHARMACOKINETICS & RCT EVIDENCE',
+          citations: citations,
+          claims: claims,
+        ),
+        practicalSteps: const [
+          'Target 200–300 mg elemental magnesium bisglycinate 30–60 minutes before bedtime',
+          'Pair with a light evening snack to support optimal gastric transit',
+          'Avoid taking concurrently with high-dose calcium supplements (>500mg) to prevent mineral transport competition',
+        ],
+        uncertaintyDisclaimer: 'Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace clinical insomnia diagnosis.',
+      );
+    }
 
     if (lower.contains('isabgol') || lower.contains('psyllium')) {
       return UniversalIntelligenceAnswer(

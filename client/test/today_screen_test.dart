@@ -18,7 +18,9 @@ import 'package:nutrient_earth_client/features/today/presentation/widgets/feedba
 Widget createTestHost({required Widget child}) {
   return ProviderScope(
     child: MaterialApp(
-      theme: NETheme.lightTheme,
+      theme: NETheme.lightTheme.copyWith(
+        splashFactory: NoSplash.splashFactory,
+      ),
       home: child,
     ),
   );
@@ -166,7 +168,7 @@ void main() {
       expect(find.text('Your daily plan'), findsOneWidget);
       expect(find.text('3 of 5 completed'), findsOneWidget);
       expect(find.text('Morning hydration + mineral electrolyte water'), findsOneWidget);
-      expect(find.text('Why this routine fits your goals '), findsOneWidget);
+      expect(find.textContaining('Why this routine fits your goals', findRichText: true), findsOneWidget);
       expect(find.text('Goal: Endurance Recovery'), findsOneWidget);
 
       // Tap task 4 (Afternoon hydration check)
@@ -273,7 +275,7 @@ void main() {
 
       // Section 4: Daily Plan
       expect(find.text('Your daily plan'), findsOneWidget);
-      expect(find.text('3 of 5 completed'), findsOneWidget);
+      expect(find.text('2 of 5 done'), findsOneWidget);
 
       // Section 5: Learn Section
       expect(find.text('Learn for today'), findsOneWidget);
@@ -281,13 +283,13 @@ void main() {
       // Section 6: Feedback Footer
       expect(find.text('Share your feedback'), findsOneWidget);
 
-      // Toggle Daily Plan Task 4 (Afternoon hydration check)
-      final taskFinder = find.text('Afternoon hydration check (500ml water or herbal tea)');
+      // Toggle Daily Plan Task 4 (Mid-afternoon fresh air & reset)
+      final taskFinder = find.text('Mid-afternoon fresh air & reset');
       await tester.ensureVisible(taskFinder);
       await tester.pumpAndSettle();
       await tester.tap(taskFinder);
       await tester.pumpAndSettle();
-      expect(find.text('4 of 5 completed'), findsOneWidget);
+      expect(find.text('3 of 5 done'), findsOneWidget);
 
       // Open Navigation Drawer
       final menuFinder = find.byIcon(Icons.menu_rounded);

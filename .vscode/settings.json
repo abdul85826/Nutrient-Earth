@@ -52,5 +52,5 @@
   "webhint.enable": false,
   "html.validate.scripts": false,
   "html.validate.styles": false,
-  "cmake.sourceDirectory": "D:/Documents/NE_App/Nutrient_Earth/client/windows/flutter"
+  "cmake.sourceDirectory": "${workspaceFolder}/client/windows"
 }

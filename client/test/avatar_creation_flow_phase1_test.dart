@@ -128,8 +128,9 @@ void main() {
           overrides: [
             profileRepositoryProvider.overrideWithValue(mockRepo),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
+          child: MaterialApp(
+            theme: ThemeData(splashFactory: NoSplash.splashFactory),
+            home: const Scaffold(
               body: Center(
                 child: AvatarStateSwitcher(size: 110.0),
               ),
@@ -167,8 +168,9 @@ void main() {
           overrides: [
             profileRepositoryProvider.overrideWithValue(mockRepo),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
+          child: MaterialApp(
+            theme: ThemeData(splashFactory: NoSplash.splashFactory),
+            home: const Scaffold(
               body: Center(
                 child: AvatarStateSwitcher(size: 110.0),
               ),

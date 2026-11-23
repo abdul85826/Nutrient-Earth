@@ -126,6 +126,39 @@ class UniversalInputDescriptor {
     required this.createdAt,
   });
 
+  /// Convenience factory to create a text query descriptor
+  factory UniversalInputDescriptor.fromText(
+    String text, {
+    String? id,
+    InputSourceType source = InputSourceType.userText,
+  }) {
+    return UniversalInputDescriptor(
+      id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      type: UserInputType.text,
+      source: source,
+      rawContent: text,
+      sanitizedContent: text.trim(),
+      createdAt: DateTime.now(),
+    );
+  }
+
+  /// Convenience factory to create a barcode descriptor
+  factory UniversalInputDescriptor.fromBarcode(
+    String barcode, {
+    String? id,
+    InputSourceType source = InputSourceType.barcodeScanner,
+  }) {
+    return UniversalInputDescriptor(
+      id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      type: UserInputType.barcode,
+      source: source,
+      rawContent: barcode,
+      barcodeValue: barcode,
+      sanitizedContent: barcode.trim(),
+      createdAt: DateTime.now(),
+    );
+  }
+
   /// The effective text query to be passed to orchestrators or search engines.
   String get effectiveQuery => sanitizedContent ?? rawContent;
 

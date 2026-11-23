@@ -45,7 +45,7 @@ class UniversalProductVerificationCard extends ConsumerStatefulWidget {
 
 class _UniversalProductVerificationCardState
     extends ConsumerState<UniversalProductVerificationCard> {
-  VerificationInputMode _mode = VerificationInputMode.barcodeScan;
+  final VerificationInputMode _mode = VerificationInputMode.barcodeScan;
   final TextEditingController _inputController = TextEditingController(text: '8901234567890');
 
   bool _isLoading = false;

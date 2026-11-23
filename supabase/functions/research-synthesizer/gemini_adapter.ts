@@ -237,7 +237,33 @@ Respond ONLY with a valid JSON object matching this schema:
 }`;
       parts.push({ text: foodPrompt });
     } else {
-      const textPrompt = `You are the Nutrient Earth Clinical Evidence Synthesizer.
+      const lower = request.query.toLowerCase().trim();
+      const isGreeting = /^(hi+|hey+|hello+|howdy|hola|greetings|good\s+(morning|afternoon|evening)|hi\s+there|hey\s+there|sup|yo)[!.,\s]*$/i.test(lower);
+      const isCasual = ['how are you', 'how are you doing', 'who are you', 'what is nutrient earth', 'what can you do', 'thank you', 'thanks'].some(
+        p => lower === p || lower.startsWith(`${p} `) || lower.endsWith(` ${p}`)
+      );
+      const isConversational = isGreeting || isCasual || request.taskType === ('conversational' as any);
+
+      let textPrompt: string;
+      if (isConversational) {
+        textPrompt = `You are Nutrient Earth, an intelligent, helpful, and friendly health intelligence companion.
+Respond ONLY with a valid JSON object matching this schema:
+{
+  "referenceId": "REF-GEMINI-CONV",
+  "domainCategory": "Nutrient Earth Assistant",
+  "quickAnswer": "<Warm, friendly, helpful direct answer>",
+  "detailedExplanation": "<Helpful conversational response explaining what you can help with or answering their casual question>",
+  "answerSummary": "<Direct answer>",
+  "evidenceBadge": "",
+  "effectivenessAssessment": "neutral",
+  "citations": [],
+  "claims": [],
+  "practicalSteps": [],
+  "uncertaintyDisclaimer": ""
+}
+Never include fake citations or medical disclaimers for friendly greetings and casual conversations.`;
+      } else {
+        textPrompt = `You are the Nutrient Earth Clinical Evidence Synthesizer.
 Inquiry: "${request.query}"
 Respond ONLY with a valid JSON object matching this schema:
 {
@@ -246,7 +272,7 @@ Respond ONLY with a valid JSON object matching this schema:
   "quickAnswer": "<1-2 sentence direct clinical finding>",
   "detailedExplanation": "<Rigorous physiological mechanism including cellular/receptor pathways>",
   "answerSummary": "<Comprehensive synthesis>",
-  "evidenceBadge": "GRADE A • RCT EVIDENCE",
+  "evidenceBadge": "PEER REVIEWED EVIDENCE",
   "effectivenessAssessment": "stronglySupported",
   "citations": [
     {
@@ -254,7 +280,8 @@ Respond ONLY with a valid JSON object matching this schema:
       "authorsOrJournal": "<Journal and year>",
       "year": "<YYYY>",
       "evidenceGrade": "<Study design>",
-      "pmid": "<PubMed ID if known>",
+      "pmid": "<PubMed ID strictly as digits e.g. 11794633>",
+      "doi": "<DOI if known>",
       "verificationStatus": "peerReviewedArchive"
     }
   ],
@@ -267,7 +294,9 @@ Respond ONLY with a valid JSON object matching this schema:
   ],
   "practicalSteps": ["<Practical dosage or timing>"],
   "uncertaintyDisclaimer": "Nutrient Earth provides nutritional research syntheses for educational guidance."
-}`;
+}
+Never hallucinate non-existent citations or PMIDs. If no specific peer-reviewed trial is known, set citations: [].`;
+      }
       parts.push({ text: textPrompt });
     }
 
@@ -343,27 +372,57 @@ Respond ONLY with a valid JSON object matching this schema:
     latencyMs: number
   ): ResearchAnswerPayload {
     const foodAnalysis = parsed.foodAnalysis as FoodAnalysisPayload | undefined;
+    const isConversational = String(parsed.domainCategory || '').toLowerCase().includes('assistant') ||
+      /^(hi+|hey+|hello+|howdy|hola|good\s+(morning|afternoon|evening))/i.test(query.trim());
+
+    const rawCitations = Array.isArray(parsed.citations) ? parsed.citations : [];
+    const citations: import('./types.ts').ResearchCitationPayload[] = rawCitations
+      .map((c: Record<string, unknown>) => {
+        const pmidRaw = c.pmid ? String(c.pmid).trim() : undefined;
+        const validPmid = pmidRaw && /^\d{4,10}$/.test(pmidRaw) ? pmidRaw : undefined;
+        const doiRaw = c.doi ? String(c.doi).trim() : undefined;
+        const validDoi = doiRaw && /^10\.\d{4,9}\//.test(doiRaw) ? doiRaw : undefined;
+
+        if (!validPmid && !validDoi) {
+          return null;
+        }
+
+        return {
+          title: String(c.title || 'Peer-Reviewed Clinical Evidence'),
+          authorsOrJournal: String(c.authorsOrJournal || 'Clinical Science Archive'),
+          year: String(c.year || new Date().getFullYear().toString()),
+          evidenceGrade: String(c.evidenceGrade || 'Peer-Reviewed Study'),
+          studyDesign: c.studyDesign ? String(c.studyDesign) : undefined,
+          url: validPmid ? `https://pubmed.ncbi.nlm.nih.gov/${validPmid}/` : (validDoi ? `https://doi.org/${validDoi}` : undefined),
+          pmid: validPmid,
+          doi: validDoi,
+          verificationStatus: 'peerReviewedArchive',
+        };
+      })
+      .filter((c): c is import('./types.ts').ResearchCitationPayload => c !== null);
 
     return {
-      contractVersion: '2026.1',
+      contractVersion: '2026.3',
       query: query,
       referenceId: String(parsed.referenceId || `REF-GEMINI-${Date.now().toString(36).toUpperCase()}`),
-      domainCategory: String(parsed.domainCategory || 'Multimodal Nutritional Assessment'),
+      domainCategory: String(parsed.domainCategory || (isConversational ? 'Nutrient Earth Assistant' : 'Multimodal Nutritional Assessment')),
       quickAnswer: parsed.quickAnswer ? String(parsed.quickAnswer) : undefined,
       detailedExplanation: parsed.detailedExplanation ? String(parsed.detailedExplanation) : undefined,
       answerSummary: String(parsed.answerSummary || parsed.detailedExplanation || parsed.quickAnswer || ''),
-      evidenceBadge: String(parsed.evidenceBadge || 'MULTIMODAL AI SYNTHESIS'),
-      effectivenessAssessment: String(parsed.effectivenessAssessment || 'stronglySupported'),
-      citations: Array.isArray(parsed.citations) ? (parsed.citations as any) : [],
+      evidenceBadge: isConversational ? '' : String(parsed.evidenceBadge || (citations.length > 0 ? 'PEER REVIEWED EVIDENCE' : '')),
+      effectivenessAssessment: String(parsed.effectivenessAssessment || (isConversational ? 'neutral' : 'stronglySupported')),
+      citations: citations,
       claims: Array.isArray(parsed.claims) ? (parsed.claims as any) : [],
       foodAnalysis: foodAnalysis,
       practicalSteps: Array.isArray(parsed.practicalSteps)
         ? parsed.practicalSteps.map(String)
-        : ['Log this meal in your nutrition tracker to monitor daily micronutrient balance.'],
-      uncertaintyDisclaimer: String(
-        parsed.uncertaintyDisclaimer ||
-        'Nutrient Earth provides nutritional research syntheses for educational guidance.'
-      ),
+        : [],
+      uncertaintyDisclaimer: isConversational
+        ? ''
+        : String(
+            parsed.uncertaintyDisclaimer ||
+            'Nutrient Earth provides nutritional research syntheses for educational guidance.'
+          ),
       provider: 'Google Gemini Multimodal AI',
       modelUsed: model,
       latencyMs: latencyMs,

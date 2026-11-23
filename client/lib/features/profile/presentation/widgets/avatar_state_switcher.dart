@@ -9,8 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/domain/personalization/user_profile_context.dart';
-import '../../../../core/services/profile_repository.dart';
 import '../../../today/state/today_state.dart';
+import 'package:nutrient_earth_client/features/living_avatar/application/controllers/living_avatar_controller.dart';
+import 'package:nutrient_earth_client/features/living_avatar/presentation/widgets/living_avatar_view.dart';
 
 /// Active skin tone choice state for avatar preview and creation
 final avatarSelectedSkinToneProvider = StateProvider<String>((ref) => '#E0AC69');
@@ -22,11 +23,13 @@ final avatarSelectedSkinToneProvider = StateProvider<String>((ref) => '#E0AC69')
 class AvatarStateSwitcher extends ConsumerWidget {
   final double size;
   final VoidCallback? onAvatarTap;
+  final bool enableAnimation;
 
   const AvatarStateSwitcher({
     super.key,
     this.size = 110.0,
     this.onAvatarTap,
+    this.enableAnimation = true,
   });
 
   @override
@@ -111,47 +114,20 @@ class AvatarStateSwitcher extends ConsumerWidget {
     UserProfileContext? profile,
     TodayState todayState,
   ) {
+    final avatarScene = ref.watch(livingAvatarControllerProvider);
     final hexTone = profile?.skinTone ?? ref.watch(avatarSelectedSkinToneProvider);
-    final skinColor = _parseHexColor(hexTone);
-    final aqi = todayState.telemetry.aqi;
-    final hour = DateTime.now().hour;
+    final effectiveScene = hexTone != avatarScene.identity.skinToneHex
+        ? avatarScene.copyWith(
+            identity: avatarScene.identity.copyWith(skinToneHex: hexTone),
+          )
+        : avatarScene;
 
-    return GestureDetector(
+    return LivingAvatarView(
+      scene: effectiveScene,
+      size: size,
       onTap: onAvatarTap ?? () => showCompanionCreationModal(context, ref),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: const Color(0xFFEAF0EC), // Botanical sage green container
-          border: Border.all(
-            color: const Color(0xFF0A2E1F),
-            width: 2.0,
-          ),
-        ),
-        child: CustomPaint(
-          painter: _AvatarSilhouettePainter(
-            skinTone: skinColor,
-            hour: hour,
-            aqi: aqi,
-          ),
-        ),
-      ),
+      enableAnimation: enableAnimation,
     );
-  }
-
-  static Color _parseHexColor(String? hexString) {
-    if (hexString == null || hexString.isEmpty) {
-      return const Color(0xFFE0AC69);
-    }
-    try {
-      final buffer = StringBuffer();
-      if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-      buffer.write(hexString.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (_) {
-      return const Color(0xFFE0AC69);
-    }
   }
 }
 
@@ -264,25 +240,30 @@ class _CompanionCreationSheetState extends ConsumerState<_CompanionCreationSheet
             ),
             child: Row(
               children: [
-                // Silhouette preview (72x72px)
+                // Living Avatar live preview (72x72px)
                 Container(
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white,
                     border: Border.all(
                       color: const Color(0xFF0A2E1F),
                       width: 2,
                     ),
                   ),
                   child: ClipOval(
-                    child: CustomPaint(
-                      painter: _AvatarSilhouettePainter(
-                        skinTone: _parseColor(selectedHex),
-                        hour: 12,
-                        aqi: todayState.telemetry.aqi,
-                      ),
+                    child: Consumer(
+                      builder: (context, modalRef, _) {
+                        final scene = modalRef.watch(livingAvatarControllerProvider);
+                        final previewScene = scene.copyWith(
+                          identity: scene.identity.copyWith(skinToneHex: selectedHex),
+                        );
+                        return LivingAvatarView(
+                          scene: previewScene,
+                          size: 72,
+                          enableAnimation: false,
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -448,6 +429,7 @@ class _CompanionCreationSheetState extends ConsumerState<_CompanionCreationSheet
       if (mounted) {
         Navigator.of(context).pop();
         if (success) {
+          ref.read(livingAvatarControllerProvider.notifier).updateSkinTone(skinTone);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Your companion has been created and synced.'),
@@ -469,72 +451,4 @@ class _CompanionCreationSheetState extends ConsumerState<_CompanionCreationSheet
       }
     }
   }
-
-  static Color _parseColor(String hex) {
-    try {
-      final buffer = StringBuffer();
-      if (hex.length == 6 || hex.length == 7) buffer.write('ff');
-      buffer.write(hex.replaceFirst('#', ''));
-      return Color(int.parse(buffer.toString(), radix: 16));
-    } catch (_) {
-      return const Color(0xFFE0AC69);
-    }
-  }
-}
-
-/// Dynamic Silhouette Painter
-class _AvatarSilhouettePainter extends CustomPainter {
-  final Color skinTone;
-  final int hour;
-  final int aqi;
-
-  const _AvatarSilhouettePainter({
-    required this.skinTone,
-    required this.hour,
-    required this.aqi,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-
-    final skinPaint = Paint()..color = skinTone;
-    final clothPaint = Paint()..color = const Color(0xFF0A2E1F);
-
-    // Torso
-    final torso = Path()
-      ..moveTo(cx - (size.width * 0.28), size.height)
-      ..quadraticBezierTo(cx - (size.width * 0.2), cy + (size.height * 0.16), cx, cy + (size.height * 0.16))
-      ..quadraticBezierTo(cx + (size.width * 0.2), cy + (size.height * 0.16), cx + (size.width * 0.28), size.height)
-      ..close();
-    canvas.drawPath(torso, clothPaint);
-
-    // Neck
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset(cx, cy + (size.height * 0.08)),
-        width: size.width * 0.14,
-        height: size.height * 0.12,
-      ),
-      skinPaint,
-    );
-
-    // Head
-    canvas.drawCircle(Offset(cx, cy - (size.height * 0.08)), size.width * 0.22, skinPaint);
-
-    // Hair cap
-    final hairPaint = Paint()..color = const Color(0xFF1B1C19);
-    final hair = Path()
-      ..addArc(
-        Rect.fromCircle(center: Offset(cx, cy - (size.height * 0.08)), radius: size.width * 0.23),
-        3.14159,
-        3.14159,
-      );
-    canvas.drawPath(hair, hairPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _AvatarSilhouettePainter old) =>
-      old.skinTone != skinTone || old.hour != hour || old.aqi != aqi;
 }

@@ -14,53 +14,40 @@ import '../evidence/scientific_evidence_contract.dart';
 import '../input_gateway/universal_input_descriptor.dart';
 import '../nutrition/nutrition_models.dart';
 import '../personalization/goal_alignment_evaluator.dart';
+import 'response_content_block.dart';
 
-/// Evidence classification tier based on empirical study rigor.
-enum EvidenceClassification {
-  wellSupported, // Replicated randomized controlled trials, systematic reviews, meta-analyses
-  limitedEvidence, // Small preliminary clinical trials, in-vitro/animal studies
-  mixedEvidence, // Divergent or contradictory clinical outcomes across studies
-  notVerified; // Unverified anecdotal or social media claim without indexed scientific basis
+export 'response_content_block.dart';
 
-  String get displayName {
-    switch (this) {
-      case EvidenceClassification.wellSupported:
-        return 'Well Supported';
-      case EvidenceClassification.limitedEvidence:
-        return 'Limited Evidence';
-      case EvidenceClassification.mixedEvidence:
-        return 'Mixed Evidence';
-      case EvidenceClassification.notVerified:
-        return 'Not Verified';
-    }
-  }
-
-  static EvidenceClassification fromString(String? val) {
-    if (val == null) return EvidenceClassification.notVerified;
-    final lower = val.toLowerCase();
-    if (lower.contains('well') || lower.contains('strong')) return EvidenceClassification.wellSupported;
-    if (lower.contains('limit') || lower.contains('preliminary')) return EvidenceClassification.limitedEvidence;
-    if (lower.contains('mix') || lower.contains('inconclusive')) return EvidenceClassification.mixedEvidence;
-    return EvidenceClassification.notVerified;
-  }
-}
+export '../evidence/scientific_evidence_contract.dart' show EvidenceClassification;
 
 /// Explicit architectural response types adapting UI and processing to intent.
 enum UniversalResponseType {
   conversation,
+  explanation,
   nutritionKnowledge,
   nutritionCalculation,
   researchSynthesis,
   productAnalysis,
+  ingredientAnalysis,
+  imageAnalysis,
+  documentAnalysis,
+  comparison,
+  personalizedGuidance,
+  actionPlan,
   personalHealthInsight,
   clarification,
   safetyResponse,
+  codeSolution,
   error;
 
   String get displayName {
     switch (this) {
       case UniversalResponseType.conversation:
         return 'Conversation';
+      case UniversalResponseType.explanation:
+        return 'Explanation';
+      case UniversalResponseType.codeSolution:
+        return 'Code & Computation';
       case UniversalResponseType.nutritionKnowledge:
         return 'Nutrition Knowledge';
       case UniversalResponseType.nutritionCalculation:
@@ -69,6 +56,18 @@ enum UniversalResponseType {
         return 'Research Synthesis';
       case UniversalResponseType.productAnalysis:
         return 'Product Analysis';
+      case UniversalResponseType.ingredientAnalysis:
+        return 'Ingredient Analysis';
+      case UniversalResponseType.imageAnalysis:
+        return 'Image Analysis';
+      case UniversalResponseType.documentAnalysis:
+        return 'Document Analysis';
+      case UniversalResponseType.comparison:
+        return 'Evidence Comparison';
+      case UniversalResponseType.personalizedGuidance:
+        return 'Personalized Guidance';
+      case UniversalResponseType.actionPlan:
+        return 'Action Plan';
       case UniversalResponseType.personalHealthInsight:
         return 'Health Insight';
       case UniversalResponseType.clarification:
@@ -288,6 +287,33 @@ class EvidenceProvenanceContainer {
     this.limitationsNotes,
   });
 
+  /// Factory for casual conversations, pleasantries, or general definitions without verified research sources
+  const EvidenceProvenanceContainer.empty()
+      : hasVerifiedSources = false,
+        classification = EvidenceClassification.notVerified,
+        watermarkLabel = '',
+        citations = const [],
+        claims = const [],
+        limitationsNotes = null;
+
+  EvidenceProvenanceContainer copyWith({
+    bool? hasVerifiedSources,
+    EvidenceClassification? classification,
+    String? watermarkLabel,
+    List<ScientificSource>? citations,
+    List<ScientificClaim>? claims,
+    String? limitationsNotes,
+  }) {
+    return EvidenceProvenanceContainer(
+      hasVerifiedSources: hasVerifiedSources ?? this.hasVerifiedSources,
+      classification: classification ?? this.classification,
+      watermarkLabel: watermarkLabel ?? this.watermarkLabel,
+      citations: citations ?? this.citations,
+      claims: claims ?? this.claims,
+      limitationsNotes: limitationsNotes ?? this.limitationsNotes,
+    );
+  }
+
   factory EvidenceProvenanceContainer.fromJson(Map<String, dynamic> json) {
     final citationsList = (json['citations'] as List<dynamic>?)
             ?.map((c) => ScientificSource.fromJson(c as Map<String, dynamic>))
@@ -322,10 +348,12 @@ class EvidenceProvenanceContainer {
 
 /// Master Unified Answer Contract (Schema v2026.2).
 class UniversalIntelligenceAnswer {
-  final String contractVersion; // '2026.2'
+  final String contractVersion; // '2026.3'
   final String referenceId;
   final UserInputType detectedInputType;
   final UniversalResponseType responseType;
+  final AnswerDepthStrategy depthStrategy;
+  final List<ResponseContentBlock> blocks;
   final String query;
   final String heroAnswer; // Rule 1: The answer is the hero
   final String recommendation; // Personalized guidance
@@ -346,10 +374,12 @@ class UniversalIntelligenceAnswer {
   final DateTime generatedAt;
 
   UniversalIntelligenceAnswer({
-    this.contractVersion = '2026.2',
+    this.contractVersion = '2026.3',
     required this.referenceId,
     required this.detectedInputType,
     this.responseType = UniversalResponseType.researchSynthesis,
+    this.depthStrategy = AnswerDepthStrategy.standard,
+    this.blocks = const [],
     required this.query,
     required this.heroAnswer,
     required this.recommendation,
@@ -369,6 +399,73 @@ class UniversalIntelligenceAnswer {
     this.legacyGoalAlignment,
     DateTime? generatedAt,
   }) : generatedAt = generatedAt ?? DateTime.now();
+
+  bool get hasBlocks => blocks.isNotEmpty;
+  bool get isConversational => responseType == UniversalResponseType.conversation;
+  List<T> getBlocksOfType<T extends ResponseContentBlock>() => blocks.whereType<T>().toList();
+  TextBlock? get firstTextBlock => blocks.whereType<TextBlock>().firstOrNull;
+  ComparisonTableBlock? get tableBlock => blocks.whereType<ComparisonTableBlock>().firstOrNull;
+  CodeBlock? get codeBlock => blocks.whereType<CodeBlock>().firstOrNull;
+  ActionPlanBlock? get actionPlanBlock => blocks.whereType<ActionPlanBlock>().firstOrNull;
+  MetricCalculationBlock? get metricBlock => blocks.whereType<MetricCalculationBlock>().firstOrNull;
+  EvidenceCardBlock? get evidenceBlock => blocks.whereType<EvidenceCardBlock>().firstOrNull;
+  ProductAuditBlock? get productBlock => blocks.whereType<ProductAuditBlock>().firstOrNull;
+  SafetyNoticeBlock? get safetyBlock => blocks.whereType<SafetyNoticeBlock>().firstOrNull;
+  InteractiveSuggestionsBlock? get suggestionsBlock => blocks.whereType<InteractiveSuggestionsBlock>().firstOrNull;
+
+  UniversalIntelligenceAnswer copyWith({
+    String? contractVersion,
+    String? referenceId,
+    UserInputType? detectedInputType,
+    UniversalResponseType? responseType,
+    AnswerDepthStrategy? depthStrategy,
+    List<ResponseContentBlock>? blocks,
+    String? query,
+    String? heroAnswer,
+    String? recommendation,
+    String? detailedExplanation,
+    GoalMatchIndicator? goalMatch,
+    EvidenceProvenanceContainer? evidence,
+    List<String>? practicalSteps,
+    List<String>? clarificationOptions,
+    ImageQualityAssessment? imageQuality,
+    VideoUnderstandingArtifact? videoAnalysis,
+    NutritionAnalysisProfile? foodComposition,
+    String? urlSourceDetails,
+    String? uncertaintyDisclaimer,
+    String? providerUsed,
+    ResearchProvenanceDossier? provenanceDossier,
+    String? legacyEvidenceBadge,
+    GoalAssessmentResult? legacyGoalAlignment,
+    DateTime? generatedAt,
+  }) {
+    return UniversalIntelligenceAnswer(
+      contractVersion: contractVersion ?? this.contractVersion,
+      referenceId: referenceId ?? this.referenceId,
+      detectedInputType: detectedInputType ?? this.detectedInputType,
+      responseType: responseType ?? this.responseType,
+      depthStrategy: depthStrategy ?? this.depthStrategy,
+      blocks: blocks ?? this.blocks,
+      query: query ?? this.query,
+      heroAnswer: heroAnswer ?? this.heroAnswer,
+      recommendation: recommendation ?? this.recommendation,
+      detailedExplanation: detailedExplanation ?? this.detailedExplanation,
+      goalMatch: goalMatch ?? this.goalMatch,
+      evidence: evidence ?? this.evidence,
+      practicalSteps: practicalSteps ?? this.practicalSteps,
+      clarificationOptions: clarificationOptions ?? this.clarificationOptions,
+      imageQuality: imageQuality ?? this.imageQuality,
+      videoAnalysis: videoAnalysis ?? this.videoAnalysis,
+      foodComposition: foodComposition ?? this.foodComposition,
+      urlSourceDetails: urlSourceDetails ?? this.urlSourceDetails,
+      uncertaintyDisclaimer: uncertaintyDisclaimer ?? this.uncertaintyDisclaimer,
+      providerUsed: providerUsed ?? this.providerUsed,
+      provenanceDossier: provenanceDossier ?? this.provenanceDossier,
+      legacyEvidenceBadge: legacyEvidenceBadge ?? this.legacyEvidenceBadge,
+      legacyGoalAlignment: legacyGoalAlignment ?? this.legacyGoalAlignment,
+      generatedAt: generatedAt ?? this.generatedAt,
+    );
+  }
 
   /// True ONLY when verified evidence exists (Rule 4).
   bool get showEvidenceWatermark => evidence.hasVerifiedSources;
@@ -412,11 +509,19 @@ class UniversalIntelligenceAnswer {
                 const [],
           );
 
+    final depthStrategy = AnswerDepthStrategy.fromString(json['depthStrategy'] as String?);
+    final blocksList = (json['blocks'] as List<dynamic>?)
+            ?.map((b) => ResponseContentBlock.fromJson(b as Map<String, dynamic>))
+            .toList() ??
+        const [];
+
     return UniversalIntelligenceAnswer(
-      contractVersion: json['contractVersion'] as String? ?? '2026.2',
+      contractVersion: json['contractVersion'] as String? ?? '2026.3',
       referenceId: json['referenceId'] as String? ?? 'REF-2026-NE01',
       detectedInputType: detectedType,
       responseType: UniversalResponseType.fromString(json['responseType'] as String?),
+      depthStrategy: depthStrategy,
+      blocks: blocksList,
       query: json['query'] as String? ?? '',
       heroAnswer: hero,
       recommendation: rec,
@@ -456,6 +561,8 @@ class UniversalIntelligenceAnswer {
         'referenceId': referenceId,
         'detectedInputType': detectedInputType.name,
         'responseType': responseType.name,
+        'depthStrategy': depthStrategy.name,
+        'blocks': blocks.map((b) => b.toJson()).toList(),
         'query': query,
         'heroAnswer': heroAnswer,
         'recommendation': recommendation,

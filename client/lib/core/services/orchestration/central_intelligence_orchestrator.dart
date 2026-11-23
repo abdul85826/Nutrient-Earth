@@ -35,23 +35,25 @@ import '../movement/movement_engine_service.dart';
 import '../nutrition/usda_food_data_central_provider.dart';
 import '../personal_state/personal_data_foundation_service.dart';
 import '../personal_state/personal_state_engine.dart';
-import '../personal_state/personal_data_foundation_service.dart';
 import '../research/universal_research_engine.dart';
 import '../security/zero_trust_security_service.dart';
+import '../deterministic/deterministic_calculation_service.dart';
+import '../claims/claim_verification_engine.dart';
 import '../traceability/forensic_trace_service.dart';
 import '../traditional/traditional_living_intelligence_service.dart';
 import '../../domain/decision/decision_record_models.dart';
-import '../../domain/food_science/food_processing_models.dart';
-import '../../domain/food_science/utensil_safety_models.dart';
 import '../../domain/governance/governance_version_models.dart';
-import '../../domain/habits/evidence_backed_practice_models.dart';
 import '../../domain/lineage/knowledge_lineage_models.dart';
 import '../../domain/memory/bitemporal_memory_models.dart';
-import '../../domain/research/universal_research_models.dart';
 import '../../domain/traceability/forensic_trace_models.dart';
 
 enum SpecialistCapability {
-  // Baseline capabilities
+  // Baseline conversational & calculation capabilities
+  conversational,
+  deterministicCalculation,
+  generalKnowledge,
+
+  // Baseline domain capabilities
   research,
   nutrition,
   foodScience,
@@ -184,8 +186,52 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
   @override
   OrchestrationPlan planQuery(String query) {
     final lower = query.toLowerCase().trim();
+    final cleanAlpha = lower.replaceAll(RegExp(r'[^\w\s]'), '').trim();
 
-    // 1. Safety Triage or Oncology check
+    // 0. Conversational Greetings & Casual Dialogue (Zero RAG, Zero RCT Disclaimers)
+    const greetings = {
+      'hi', 'hii', 'hiii', 'hello', 'hey', 'heyy', 'hola', 'namaste',
+      'howdy', 'yo', 'sup', 'good morning', 'good afternoon', 'good evening', 'good night'
+    };
+    if (greetings.contains(cleanAlpha) || cleanAlpha.startsWith('hi ') || cleanAlpha.startsWith('hello ')) {
+      return const OrchestrationPlan(
+        selectedSpecialists: [SpecialistCapability.conversational],
+        queryIntent: 'conversational_greeting',
+        requiresPersonalContext: false,
+        isSafetyCritical: false,
+      );
+    }
+
+    const casualPhrases = [
+      'how are you', 'how are you doing', 'who are you', 'what is nutrient earth',
+      'what can you do', 'thank you', 'thanks', 'nice to meet you'
+    ];
+    if (casualPhrases.any((c) => lower == c || lower.startsWith('$c ') || lower.endsWith(' $c'))) {
+      return const OrchestrationPlan(
+        selectedSpecialists: [SpecialistCapability.conversational],
+        queryIntent: 'conversational_casual',
+        requiresPersonalContext: false,
+        isSafetyCritical: false,
+      );
+    }
+
+    // 1. Deterministic Calculation check
+    if (lower.contains('bmr') ||
+        lower.contains('tdee') ||
+        lower.contains('bmi') ||
+        lower.contains('body mass index') ||
+        (lower.contains('convert') && (lower.contains('kg') || lower.contains('lbs') || lower.contains('mcg') || lower.contains('iu') || lower.contains('mg/dl') || lower.contains('mmol'))) ||
+        lower.contains('calculate calories') ||
+        lower.contains('macronutrient ratio')) {
+      return const OrchestrationPlan(
+        selectedSpecialists: [SpecialistCapability.deterministicCalculation],
+        queryIntent: 'deterministic_calculation',
+        requiresPersonalContext: false,
+        isSafetyCritical: false,
+      );
+    }
+
+    // 2. Safety Triage or Oncology check
     if (_medicalSafetyGuard.isHighStakesQuery(lower)) {
       return const OrchestrationPlan(
         selectedSpecialists: [SpecialistCapability.medicalSafety, SpecialistCapability.research],
@@ -195,7 +241,7 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
       );
     }
 
-    // 2. Traditional / Ayurvedic check
+    // 3. Traditional / Ayurvedic check
     if (lower.contains('ayurveda') ||
         lower.contains('agni') ||
         lower.contains('dosha') ||
@@ -214,7 +260,7 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
       );
     }
 
-    // 3. Food Processing & Cooking Science check
+    // 4. Food Processing & Cooking Science check
     if (lower.contains('cook') ||
         lower.contains('prepare') ||
         lower.contains('spinach') ||
@@ -237,7 +283,7 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
       );
     }
 
-    // 4. Movement, Sleep & Recovery check
+    // 5. Movement, Sleep & Recovery check
     if (lower.contains('walk') ||
         lower.contains('exercise') ||
         lower.contains('movement') ||
@@ -249,6 +295,22 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
         selectedSpecialists: [SpecialistCapability.movementRecovery, SpecialistCapability.research],
         queryIntent: 'movement_and_recovery',
         requiresPersonalContext: true,
+        isSafetyCritical: false,
+      );
+    }
+
+    // 6. General Educational Knowledge (Definitions & biological mechanisms)
+    if ((lower.startsWith('what is ') || lower.startsWith('what are ') || lower.startsWith('explain ') || lower.startsWith('how does ') || lower.startsWith('how do ')) &&
+        !lower.contains('supplement') &&
+        !lower.contains('dose') &&
+        !lower.contains('trial') &&
+        !lower.contains('study') &&
+        !lower.contains('cure') &&
+        !lower.contains('treatment')) {
+      return const OrchestrationPlan(
+        selectedSpecialists: [SpecialistCapability.generalKnowledge],
+        queryIntent: 'general_knowledge_inquiry',
+        requiresPersonalContext: false,
         isSafetyCritical: false,
       );
     }
@@ -273,7 +335,7 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
     _securityService.checkRateLimit(userId: effectiveUserId, action: 'query');
     final sanitizedQuery = _securityService.sanitizeRetrievedContent(query);
 
-    final plan = planQuery(query);
+    final plan = planQuery(sanitizedQuery);
 
     // 2. Start Forensic Distributed Trace & OpenTelemetry Spans
     final trace = _traceService.startTrace(
@@ -306,8 +368,45 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
     String uncertaintyDisclosure = 'Evidence should be interpreted within study population limitations.';
     Map<String, dynamic>? clinicalTriageNotice;
 
+    // Case 0: Conversational & Greeting Dialogue (Zero RAG, Zero fake citations, Zero clinical disclaimers)
+    if (plan.selectedSpecialists.contains(SpecialistCapability.conversational)) {
+      final isGreet = RegExp(r'^(hi+|hey+|hello+|namaste|hola|howdy|yo|sup|good\s+(morning|afternoon|evening))', caseSensitive: false).hasMatch(query.trim());
+      directAnswer = isGreet
+          ? "Hello! I'm Nutrient Earth, your health intelligence companion. How can I help you today?"
+          : "I am Nutrient Earth, ready to help you investigate human physiology, food science, cookware safety, and evidence-grounded wellness.";
+      practicalExplanation =
+          'You can explore:\n• Food chemistry and nutrient bioavailability\n• Cookware and material toxicology (cast iron, stainless steel, non-stick)\n• Deterministic metabolic calculations (BMR, TDEE, BMI, unit conversions)\n• Critical evaluations of clinical trials and scientific literature';
+      actionableProtocols = const [];
+      supportingCitations = const [];
+      evidenceConfidence = '';
+      uncertaintyDisclosure = '';
+    }
+    // Case 0B: Deterministic Calculation Specialist
+    else if (plan.selectedSpecialists.contains(SpecialistCapability.deterministicCalculation)) {
+      final calcResult = DeterministicCalculationService.tryParseAndCalculate(query);
+      if (calcResult != null) {
+        directAnswer = calcResult['displayText'] as String;
+      } else {
+        directAnswer = '### Deterministic Metabolic Engine\n\n'
+            'Please specify parameters to compute (e.g. `calculate BMR 75kg 180cm 30 male` or `convert 150 lbs to kg`).';
+      }
+      practicalExplanation = 'Calculated deterministically using validated scientific equations without generative guessing.';
+      actionableProtocols = const [];
+      supportingCitations = const [];
+      evidenceConfidence = 'Deterministic Mathematical Verification';
+      uncertaintyDisclosure = '';
+    }
+    // Case 0C: General Educational Knowledge
+    else if (plan.selectedSpecialists.contains(SpecialistCapability.generalKnowledge)) {
+      directAnswer = 'General scientific knowledge inquiry: "$query". Grounded in core biochemical and biological consensus.';
+      practicalExplanation = 'Provides foundational biological education without requiring personalized health onboarding or randomized controlled trial citations.';
+      actionableProtocols = const [];
+      supportingCitations = const [];
+      evidenceConfidence = 'General Educational Knowledge';
+      uncertaintyDisclosure = '';
+    }
     // Case A: Medical Safety & Oncology Guard
-    if (plan.selectedSpecialists.contains(SpecialistCapability.medicalSafety)) {
+    else if (plan.selectedSpecialists.contains(SpecialistCapability.medicalSafety)) {
       final triage = _medicalSafetyGuard.evaluateMedicalQuery(query: query);
       directAnswer = triage.structuredResponse;
       practicalExplanation =
@@ -379,16 +478,21 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
     else {
       final docs = await _researchEngine.searchAuthoritativeSources(query: query);
       final doc = docs.isNotEmpty ? docs.first : null;
-      directAnswer = doc != null
-          ? '${doc.title}\n\n${doc.mainText}'
-          : 'Scientific evidence synthesis for inquiry: "$query".';
-      practicalExplanation = 'Synthesized from peer-reviewed publications across PubMed, Europe PMC, and OpenAlex.';
-      actionableProtocols = ['Incorporate evidence into daily routine when clinically appropriate.'];
-      supportingCitations = doc != null && doc.doi != null
-          ? ['DOI: ${doc.doi!} (${doc.authors ?? "Research Study"})']
-          : ['PubMed Central National Library of Medicine Archive'];
-      evidenceConfidence = 'Tier 1 Peer-Reviewed Literature';
-      uncertaintyDisclosure = 'Evidence should be interpreted within study population limitations.';
+      if (doc != null && doc.doi != null && ClaimVerificationEngine.isValidDoi(doc.doi!)) {
+        directAnswer = '${doc.title}\n\n${doc.mainText}';
+        practicalExplanation = 'Synthesized from peer-reviewed publications across PubMed, Europe PMC, and OpenAlex.';
+        actionableProtocols = ['Incorporate evidence into daily routine when clinically appropriate.'];
+        supportingCitations = ['DOI: ${doc.doi!} (${doc.authors ?? "Research Study"})'];
+        evidenceConfidence = 'Tier 1 Peer-Reviewed Literature';
+        uncertaintyDisclosure = 'Evidence should be interpreted within study population limitations.';
+      } else {
+        directAnswer = 'Nutritional and biochemical inquiry: "$query".';
+        practicalExplanation = 'No direct randomized controlled trial matched in local verified index. Findings based on fundamental human biochemistry.';
+        actionableProtocols = const [];
+        supportingCitations = const [];
+        evidenceConfidence = 'Foundational Nutritional Biochemistry';
+        uncertaintyDisclosure = 'No verified peer-reviewed trial was retrieved for this exact search phrasing.';
+      }
     }
 
     // 5. Knowledge Lineage Graph Tracking

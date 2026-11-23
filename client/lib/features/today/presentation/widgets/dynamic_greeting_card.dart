@@ -7,11 +7,13 @@ import '../../../../core/services/diurnal_service.dart';
 class DynamicGreetingCard extends StatelessWidget {
   final DiurnalContext diurnal;
   final VoidCallback? onAvatarTap;
+  final Widget? avatarWidget;
 
   const DynamicGreetingCard({
     super.key,
     required this.diurnal,
     this.onAvatarTap,
+    this.avatarWidget,
   });
 
   @override
@@ -80,35 +82,36 @@ class DynamicGreetingCard extends StatelessWidget {
           InkWell(
             onTap: onAvatarTap,
             borderRadius: BorderRadius.circular(55),
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFE2EDE5),
-                border: Border.all(color: Colors.white, width: 2.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF0B2B26).withValues(alpha: 0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+            child: avatarWidget ??
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFFE2EDE5),
+                    border: Border.all(color: Colors.white, width: 2.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0B2B26).withValues(alpha: 0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Image.asset(
-                diurnal.illustrationAsset,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: const Color(0xFFE2EDE5),
-                  child: const Icon(
-                    Icons.spa_rounded,
-                    color: NETokens.emerald,
-                    size: 40,
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    diurnal.illustrationAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: const Color(0xFFE2EDE5),
+                      child: const Icon(
+                        Icons.spa_rounded,
+                        color: NETokens.emerald,
+                        size: 40,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
           ),
         ],
       ),

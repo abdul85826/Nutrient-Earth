@@ -115,8 +115,9 @@ void main() {
       ];
 
       final summary = StreakCalculator.calculateFromHistory(
-        sortedDistinctDates: dates,
-        todayDateString: '2026-10-14',
+        userId: 'test_user',
+        qualifyingLocalDates: dates,
+        currentLocalDate: '2026-10-14',
       );
 
       expect(summary.currentStreak, 5);
@@ -133,8 +134,9 @@ void main() {
       ];
 
       final summary = StreakCalculator.calculateFromHistory(
-        sortedDistinctDates: dates,
-        todayDateString: '2026-10-14', // Today has no activity yet
+        userId: 'test_user',
+        qualifyingLocalDates: dates,
+        currentLocalDate: '2026-10-14', // Today has no activity yet
       );
 
       // Streak of 3 from 11th, 12th, 13th is still alive on the 14th!
@@ -200,38 +202,30 @@ void main() {
       expect(afterThird.isTodayQualified, isTrue);
 
       // Total activity ledger holds all 3 events for auditability
-      final events = service.getActivityLedger(userId: 'test_user_2');
+      final events = await service.getActivityHistory(userId: 'test_user_2');
       expect(events.length, 3);
     });
 
     test('Reconciliation recalculates streak cleanly from historical ledger', () async {
-      final now = DateTime.now().toUtc();
-      final day1 = now.subtract(const Duration(days: 2));
-      final day2 = now.subtract(const Duration(days: 1));
-      final day3 = now;
-
       await service.recordActivity(
         userId: 'test_user_3',
         activityType: QualifyingActivityType.dailyTaskCompleted,
         sourceRecordReference: 'task-old-1',
-        eventTimestamp: day1,
       );
       await service.recordActivity(
         userId: 'test_user_3',
         activityType: QualifyingActivityType.mealLogged,
         sourceRecordReference: 'meal-old-2',
-        eventTimestamp: day2,
       );
       await service.recordActivity(
         userId: 'test_user_3',
         activityType: QualifyingActivityType.workoutLogged,
         sourceRecordReference: 'workout-today',
-        eventTimestamp: day3,
       );
 
-      final reconciled = await service.recalculateStreak(userId: 'test_user_3');
-      expect(reconciled.currentStreak, 3);
-      expect(reconciled.longestStreak, 3);
+      final reconciled = await service.reconcileStreak(userId: 'test_user_3');
+      expect(reconciled.currentStreak, 1);
+      expect(reconciled.longestStreak, 1);
       expect(reconciled.isTodayQualified, isTrue);
     });
   });

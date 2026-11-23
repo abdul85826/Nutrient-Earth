@@ -344,7 +344,7 @@ void main() {
       await notifier.sendMessage('How does cold plunge affect dopamine?');
       expect(notifier.state.messages.length, greaterThan(1));
 
-      await notifier.startNewConversation();
+      notifier.startNewConversation();
       await Future.delayed(const Duration(milliseconds: 50));
 
       expect(notifier.state.activeConversationId != originalId, isTrue);

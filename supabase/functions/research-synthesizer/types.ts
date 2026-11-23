@@ -130,7 +130,7 @@ export interface EvidenceProvenancePayload {
 }
 
 export interface UniversalIntelligenceAnswerPayload {
-  contractVersion: '2026.2';
+  contractVersion: '2026.2' | '2026.3';
   referenceId: string;
   detectedInputType: UserInputType;
   query: string;
@@ -142,6 +142,9 @@ export interface UniversalIntelligenceAnswerPayload {
   practicalSteps: string[];
   foodAnalysis?: FoodAnalysisPayload;
   uncertaintyDisclaimer: string;
+  depthStrategy?: string;
+  responseType?: string;
+  blocks?: any[];
   providerUsed: string;
   generatedAt: string;
 }
@@ -167,6 +170,9 @@ export interface ResearchAnswerPayload {
   foodAnalysis?: FoodAnalysisPayload;
   practicalSteps: string[];
   uncertaintyDisclaimer: string;
+  depthStrategy?: string;
+  responseType?: string;
+  blocks?: any[];
   provider: string;
   modelUsed?: string;
   latencyMs?: number;
@@ -192,10 +198,18 @@ export interface AdapterOperationalMetrics {
   lastLatencyMs?: number;
 }
 
+export type ClinicalReliabilityTier = 
+  | 'deterministic_gold'
+  | 'high_clinical_rigor'
+  | 'standard_synthesis'
+  | 'unverified_draft';
+
 export interface ModelCapabilityDescriptor {
   id: string;
   providerId: AIProviderId;
   displayName: string;
+  version: string;
+  clinicalReliabilityTier: ClinicalReliabilityTier;
   supportsMultimodal: boolean;
   supportsStructuredOutput: boolean;
   maxContextTokens: number;

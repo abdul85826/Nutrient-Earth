@@ -429,16 +429,29 @@ class ChatStreamNotifier extends StateNotifier<ChatState> {
           }
         }
 
+        final isConversational = orchestrated.invokedSpecialists.contains(SpecialistCapability.conversational);
+        final isCalculation = orchestrated.invokedSpecialists.contains(SpecialistCapability.deterministicCalculation);
+        final hasCitations = orchestrated.supportingCitations.isNotEmpty;
+
+        ChatCapabilityType capType = ChatCapabilityType.scientificResearch;
+        if (isConversational) {
+          capType = ChatCapabilityType.ordinaryConversation;
+        } else if (isCalculation) {
+          capType = ChatCapabilityType.nutritionCalculation;
+        } else if (!hasCitations) {
+          capType = ChatCapabilityType.ordinaryConversation;
+        }
+
         final resolvedAssistant = ChatMessage(
           id: assistantPlaceholderId,
           conversationId: state.activeConversationId,
           role: ChatRole.assistant,
           text: buffer.toString().trim(),
           timestamp: DateTime.now(),
-          capabilityType: ChatCapabilityType.scientificResearch,
-          evidenceBadge: orchestrated.evidenceConfidence,
-          mechanismCallout: orchestrated.practicalExplanation,
-          disclaimer: orchestrated.uncertaintyDisclosure,
+          capabilityType: capType,
+          evidenceBadge: isConversational ? null : (orchestrated.evidenceConfidence.isNotEmpty ? orchestrated.evidenceConfidence : null),
+          mechanismCallout: isConversational ? null : orchestrated.practicalExplanation,
+          disclaimer: isConversational ? null : (orchestrated.uncertaintyDisclosure.isNotEmpty ? orchestrated.uncertaintyDisclosure : null),
         );
 
         _replacePlaceholder(assistantPlaceholderId, resolvedAssistant);

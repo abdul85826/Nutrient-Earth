@@ -122,7 +122,7 @@ class ResearchAnswer {
               : u.heroAnswer)
           : u.detailedExplanation,
       evidenceBadge: u.legacyEvidenceBadge ??
-          (u.showEvidenceWatermark ? 'VERIFIED SOURCES AVAILABLE' : 'NO VERIFIED SOURCES'),
+          (u.showEvidenceWatermark ? 'VERIFIED SOURCES AVAILABLE' : ''),
       citations: u.evidence.citations.map((src) => ResearchCitation(
         title: src.title,
         authorsOrJournal: src.authorsOrJournal,
@@ -833,6 +833,13 @@ class ResearchPipelineService {
           }).toList();
 
           if (validCitations.isNotEmpty) {
+            return answer;
+          }
+
+          // If valid citations is empty, return the answer directly if it is conversational or general
+          if (answer.domainCategory.toLowerCase().contains('assistant') ||
+              answer.domainCategory.toLowerCase().contains('knowledge') ||
+              answer.citations.isEmpty) {
             return answer;
           }
         }

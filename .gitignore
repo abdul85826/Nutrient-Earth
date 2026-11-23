@@ -56,8 +56,8 @@ client/.pub/
 client/build/
 **/build/
 !/build/
+/build/*
 !/build/web/
-!/build/web/**
 client/coverage/
 client/android/app/build/
 client/android/.gradle/

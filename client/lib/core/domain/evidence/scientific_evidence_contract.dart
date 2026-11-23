@@ -27,6 +27,36 @@ enum StudyDesignGrade {
   unspecified,
 }
 
+/// Evidence classification tier based on empirical study rigor.
+enum EvidenceClassification {
+  wellSupported, // Replicated randomized controlled trials, systematic reviews, meta-analyses
+  limitedEvidence, // Small preliminary clinical trials, in-vitro/animal studies
+  mixedEvidence, // Divergent or contradictory clinical outcomes across studies
+  notVerified; // Unverified anecdotal or social media claim without indexed scientific basis
+
+  String get displayName {
+    switch (this) {
+      case EvidenceClassification.wellSupported:
+        return 'Well Supported';
+      case EvidenceClassification.limitedEvidence:
+        return 'Limited Evidence';
+      case EvidenceClassification.mixedEvidence:
+        return 'Mixed Evidence';
+      case EvidenceClassification.notVerified:
+        return 'Not Verified';
+    }
+  }
+
+  static EvidenceClassification fromString(String? val) {
+    if (val == null) return EvidenceClassification.notVerified;
+    final lower = val.toLowerCase();
+    if (lower.contains('well') || lower.contains('strong')) return EvidenceClassification.wellSupported;
+    if (lower.contains('limit') || lower.contains('preliminary')) return EvidenceClassification.limitedEvidence;
+    if (lower.contains('mix') || lower.contains('inconclusive')) return EvidenceClassification.mixedEvidence;
+    return EvidenceClassification.notVerified;
+  }
+}
+
 class ScientificSource {
   final String title;
   final String authorsOrJournal;

@@ -164,7 +164,18 @@ class DefaultTraditionalLivingIntelligenceService implements TraditionalLivingIn
   MilletProfile? getMilletByName(String name) {
     final lower = name.toLowerCase();
     return _millets.cast<MilletProfile?>().firstWhere(
-          (m) => m != null && (m.commonName.toLowerCase().contains(lower) || m.regionalNames.toLowerCase().contains(lower)),
+          (m) {
+            if (m == null) return false;
+            if (m.commonName.toLowerCase().contains(lower) || m.regionalNames.toLowerCase().contains(lower)) {
+              return true;
+            }
+            if (lower.contains('ragi') && m.commonName.toLowerCase().contains('ragi')) return true;
+            if (lower.contains('bajra') && m.commonName.toLowerCase().contains('bajra')) return true;
+            if (lower.contains('jowar') && m.commonName.toLowerCase().contains('jowar')) return true;
+            if (lower.contains('foxtail') && m.commonName.toLowerCase().contains('foxtail')) return true;
+            if (lower.contains('kodo') && m.commonName.toLowerCase().contains('kodo')) return true;
+            return false;
+          },
           orElse: () => null,
         );
   }

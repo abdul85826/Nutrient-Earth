@@ -141,8 +141,34 @@ export class GroqProviderAdapter {
 
     const modelToUse = modelOverride ?? this.defaultModel;
 
-    // 3. Construct System Prompt & Messages for Structured JSON Extraction
-    const systemPrompt = `You are the Nutrient Earth Clinical Evidence Synthesizer.
+    // 3. Construct System Prompt & Messages dynamically based on query intent
+    const lower = request.query.toLowerCase().trim();
+    const isGreeting = /^(hi+|hey+|hello+|howdy|hola|greetings|good\s+(morning|afternoon|evening)|hi\s+there|hey\s+there|sup|yo)[!.,\s]*$/i.test(lower);
+    const isCasual = ['how are you', 'how are you doing', 'who are you', 'what is nutrient earth', 'what can you do', 'thank you', 'thanks'].some(
+      p => lower === p || lower.startsWith(`${p} `) || lower.endsWith(` ${p}`)
+    );
+    const isConversational = isGreeting || isCasual || request.taskType === ('conversational' as any);
+
+    let systemPrompt: string;
+    if (isConversational) {
+      systemPrompt = `You are Nutrient Earth, an intelligent, helpful, and friendly health intelligence companion.
+Respond ONLY with a valid JSON object matching this schema exactly without markdown formatting:
+{
+  "referenceId": "REF-CONV-001",
+  "domainCategory": "Nutrient Earth Assistant",
+  "quickAnswer": "<Warm, natural, and helpful direct answer>",
+  "detailedExplanation": "<Helpful conversational response explaining what you can help with or answering their casual question>",
+  "answerSummary": "<Direct answer>",
+  "evidenceBadge": "",
+  "effectivenessAssessment": "neutral",
+  "citations": [],
+  "claims": [],
+  "practicalSteps": [],
+  "uncertaintyDisclaimer": ""
+}
+Never include fake citations or medical disclaimers for friendly greetings and casual conversations.`;
+    } else {
+      systemPrompt = `You are the Nutrient Earth Clinical Evidence Synthesizer.
 Respond ONLY with a valid JSON object matching this schema exactly without markdown formatting:
 {
   "referenceId": "REF-GROQ-001",
@@ -150,7 +176,7 @@ Respond ONLY with a valid JSON object matching this schema exactly without markd
   "quickAnswer": "<1-2 sentence direct clinical finding>",
   "detailedExplanation": "<Rigorous physiological mechanism including cellular/receptor pathways>",
   "answerSummary": "<Comprehensive synthesis>",
-  "evidenceBadge": "GRADE A • RCT EVIDENCE",
+  "evidenceBadge": "PEER REVIEWED EVIDENCE",
   "effectivenessAssessment": "stronglySupported",
   "comparisonCallout": "<Optional comparative absorption takeaway>",
   "citations": [
@@ -159,7 +185,7 @@ Respond ONLY with a valid JSON object matching this schema exactly without markd
       "authorsOrJournal": "<Journal name and year>",
       "year": "<YYYY>",
       "evidenceGrade": "<Study design e.g. Randomized Controlled Trial>",
-      "pmid": "<PubMed ID if known>",
+      "pmid": "<PubMed ID strictly as digits e.g. 11794633>",
       "doi": "<DOI if known>",
       "verificationStatus": "peerReviewedArchive"
     }
@@ -172,10 +198,11 @@ Respond ONLY with a valid JSON object matching this schema exactly without markd
       "clinicalTakeaway": "<Practical application>"
     }
   ],
-  "practicalSteps": ["<Specific dosage or timing recommendation>"],
+  "practicalSteps": ["<Specific practical recommendation>"],
   "uncertaintyDisclaimer": "Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized medical diagnoses."
 }
-Never hallucinate citations or make claims unsupported by clinical science.`;
+Never hallucinate citations or make claims unsupported by clinical science. If no peer-reviewed citation is known, set citations: [].`;
+    }
 
     const userMessageContent = `Scientific Inquiry: "${request.query}"${
       request.userContext?.primary_goals ? `\nTarget Goals: ${request.userContext.primary_goals.join(', ')}` : ''
@@ -263,41 +290,61 @@ Never hallucinate citations or make claims unsupported by clinical science.`;
     latencyMs: number
   ): ResearchAnswerPayload {
     const rawCitations = Array.isArray(parsed.citations) ? parsed.citations : [];
-    const citations: ResearchCitationPayload[] = rawCitations.map((c: Record<string, unknown>) => ({
-      title: String(c.title || 'Nutritional Literature Review'),
-      authorsOrJournal: String(c.authorsOrJournal || 'Clinical Nutrition Science'),
-      year: String(c.year || new Date().getFullYear().toString()),
-      evidenceGrade: String(c.evidenceGrade || 'Peer-Reviewed Clinical Evidence'),
-      studyDesign: c.studyDesign ? String(c.studyDesign) : undefined,
-      url: c.url ? String(c.url) : (c.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${c.pmid}/` : undefined),
-      pmid: c.pmid ? String(c.pmid) : undefined,
-      doi: c.doi ? String(c.doi) : undefined,
-      verificationStatus: String(c.verificationStatus || 'peerReviewedArchive'),
-    }));
+    const isConversational = String(parsed.domainCategory || '').toLowerCase().includes('assistant') ||
+      /^(hi+|hey+|hello+|howdy|hola|good\s+(morning|afternoon|evening))/i.test(query.trim());
+
+    // Sanitize citations: strictly validate that PMID or DOI is authentic
+    const citations: ResearchCitationPayload[] = rawCitations
+      .map((c: Record<string, unknown>) => {
+        const pmidRaw = c.pmid ? String(c.pmid).trim() : undefined;
+        const validPmid = pmidRaw && /^\d{4,10}$/.test(pmidRaw) ? pmidRaw : undefined;
+        const doiRaw = c.doi ? String(c.doi).trim() : undefined;
+        const validDoi = doiRaw && /^10\.\d{4,9}\//.test(doiRaw) ? doiRaw : undefined;
+
+        // Skip citations that have neither valid numeric PMID nor valid DOI
+        if (!validPmid && !validDoi) {
+          return null;
+        }
+
+        return {
+          title: String(c.title || 'Peer-Reviewed Clinical Evidence'),
+          authorsOrJournal: String(c.authorsOrJournal || 'Clinical Science Archive'),
+          year: String(c.year || new Date().getFullYear().toString()),
+          evidenceGrade: String(c.evidenceGrade || 'Peer-Reviewed Study'),
+          studyDesign: c.studyDesign ? String(c.studyDesign) : undefined,
+          url: validPmid ? `https://pubmed.ncbi.nlm.nih.gov/${validPmid}/` : (validDoi ? `https://doi.org/${validDoi}` : undefined),
+          pmid: validPmid,
+          doi: validDoi,
+          verificationStatus: 'peerReviewedArchive',
+        };
+      })
+      .filter((c): c is ResearchCitationPayload => c !== null);
 
     const answerSummary = String(parsed.answerSummary || parsed.detailedExplanation || parsed.quickAnswer || '');
 
     return {
-      contractVersion: '2026.1',
+      contractVersion: '2026.3',
       query: query,
       referenceId: String(parsed.referenceId || `REF-GROQ-${Date.now().toString(36).toUpperCase()}`),
-      domainCategory: String(parsed.domainCategory || 'Nutritional Biochemistry'),
+      domainCategory: String(parsed.domainCategory || (isConversational ? 'Nutrient Earth Assistant' : 'Nutritional Biochemistry')),
       quickAnswer: parsed.quickAnswer ? String(parsed.quickAnswer) : undefined,
       detailedExplanation: parsed.detailedExplanation ? String(parsed.detailedExplanation) : undefined,
       answerSummary: answerSummary,
-      evidenceBadge: String(parsed.evidenceBadge || 'GRADE A • RCT EVIDENCE'),
-      effectivenessAssessment: String(parsed.effectivenessAssessment || 'stronglySupported'),
+      evidenceBadge: isConversational ? '' : String(parsed.evidenceBadge || (citations.length > 0 ? 'PEER REVIEWED EVIDENCE' : '')),
+      effectivenessAssessment: String(parsed.effectivenessAssessment || (isConversational ? 'neutral' : 'moderatelySupported')),
       comparisonCallout: parsed.comparisonCallout ? String(parsed.comparisonCallout) : undefined,
       comparisonIndex: typeof parsed.comparisonIndex === 'number' ? parsed.comparisonIndex : undefined,
       citations: citations,
       claims: Array.isArray(parsed.claims) ? parsed.claims : [],
       practicalSteps: Array.isArray(parsed.practicalSteps)
         ? parsed.practicalSteps.map(String)
-        : ['Consult with a qualified healthcare professional before beginning supplementation.'],
-      uncertaintyDisclaimer: String(
-        parsed.uncertaintyDisclaimer ||
-        'Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized medical diagnoses.'
-      ),
+        : [],
+      uncertaintyDisclaimer: isConversational
+        ? ''
+        : String(
+            parsed.uncertaintyDisclaimer ||
+            'Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized medical diagnoses.'
+          ),
       provider: 'Groq Cloud High-Speed Inference',
       modelUsed: model,
       latencyMs: latencyMs,

@@ -47,6 +47,15 @@ class MockTestProfileRepo implements ProfileRepository {
   MockTestProfileRepo({this.onboardingCompleted = true});
 
   @override
+  Future<bool> updateAvatar({
+    required String skinTone,
+    Map<String, dynamic>? avatarConfig,
+  }) async => true;
+
+  @override
+  Future<bool> clearCacheForUser(String userId) async => true;
+
+  @override
   UserProfileContext? getCachedProfileSync(String? userId) {
     if (userId == null) return null;
     return UserProfileContext(
