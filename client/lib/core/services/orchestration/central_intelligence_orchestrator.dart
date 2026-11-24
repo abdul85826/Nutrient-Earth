@@ -46,6 +46,8 @@ import '../../domain/governance/governance_version_models.dart';
 import '../../domain/lineage/knowledge_lineage_models.dart';
 import '../../domain/memory/bitemporal_memory_models.dart';
 import '../../domain/traceability/forensic_trace_models.dart';
+import '../../domain/ai_gateway/model_provider.dart';
+import '../../domain/ai_gateway/model_router.dart';
 
 enum SpecialistCapability {
   // Baseline conversational & calculation capabilities
@@ -148,6 +150,7 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
   final DecisionTraceabilityService _decisionService;
   final ZeroTrustSecurityService _securityService;
   final ReproducibleExecutionService _executionService;
+  final AIModelRouter _modelRouter;
 
   DefaultCentralIntelligenceOrchestrator({
     required UniversalResearchEngine researchEngine,
@@ -166,6 +169,7 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
     DecisionTraceabilityService? decisionService,
     ZeroTrustSecurityService? securityService,
     ReproducibleExecutionService? executionService,
+    AIModelRouter? modelRouter,
   })  : _researchEngine = researchEngine,
         _foodEngine = foodEngine,
         _utensilService = utensilService,
@@ -181,7 +185,8 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
         _lineageService = lineageService ?? DefaultKnowledgeLineageService(),
         _decisionService = decisionService ?? DefaultDecisionTraceabilityService(),
         _securityService = securityService ?? DefaultZeroTrustSecurityService(),
-        _executionService = executionService ?? DefaultReproducibleExecutionService();
+        _executionService = executionService ?? DefaultReproducibleExecutionService(),
+        _modelRouter = modelRouter ?? AIModelRouter();
 
   @override
   OrchestrationPlan planQuery(String query) {
@@ -371,11 +376,20 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
     // Case 0: Conversational & Greeting Dialogue (Zero RAG, Zero fake citations, Zero clinical disclaimers)
     if (plan.selectedSpecialists.contains(SpecialistCapability.conversational)) {
       final isGreet = RegExp(r'^(hi+|hey+|hello+|namaste|hola|howdy|yo|sup|good\s+(morning|afternoon|evening))', caseSensitive: false).hasMatch(query.trim());
-      directAnswer = isGreet
-          ? "Hello! I'm Nutrient Earth, your health intelligence companion. How can I help you today?"
-          : "I am Nutrient Earth, ready to help you investigate human physiology, food science, cookware safety, and evidence-grounded wellness.";
-      practicalExplanation =
-          'You can explore:\n• Food chemistry and nutrient bioavailability\n• Cookware and material toxicology (cast iron, stainless steel, non-stick)\n• Deterministic metabolic calculations (BMR, TDEE, BMI, unit conversions)\n• Critical evaluations of clinical trials and scientific literature';
+      if (isGreet) {
+        directAnswer = "Hello! I'm Nutrient Earth, your health intelligence companion. How can I help you today?";
+      } else {
+        final aiRes = await _modelRouter.routeAndExecute(
+          AIModelRequest(
+            query: query,
+            taskType: ModelTaskType.generalScientificResearch,
+            systemPromptOverride: 'You are Nutrient Earth, a friendly and intelligent health and nutrition science assistant. Reply conversationally, directly, and concisely.',
+          ),
+          userId: userId,
+        );
+        directAnswer = aiRes.answerText.trim();
+      }
+      practicalExplanation = '';
       actionableProtocols = const [];
       supportingCitations = const [];
       evidenceConfidence = '';
@@ -398,8 +412,15 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
     }
     // Case 0C: General Educational Knowledge
     else if (plan.selectedSpecialists.contains(SpecialistCapability.generalKnowledge)) {
-      directAnswer = 'General scientific knowledge inquiry: "$query". Grounded in core biochemical and biological consensus.';
-      practicalExplanation = 'Provides foundational biological education without requiring personalized health onboarding or randomized controlled trial citations.';
+      final aiRes = await _modelRouter.routeAndExecute(
+        AIModelRequest(
+          query: query,
+          taskType: ModelTaskType.generalScientificResearch,
+        ),
+        userId: userId,
+      );
+      directAnswer = aiRes.answerText.trim();
+      practicalExplanation = '';
       actionableProtocols = const [];
       supportingCitations = const [];
       evidenceConfidence = 'General Educational Knowledge';
@@ -486,12 +507,19 @@ class DefaultCentralIntelligenceOrchestrator implements CentralIntelligenceOrche
         evidenceConfidence = 'Tier 1 Peer-Reviewed Literature';
         uncertaintyDisclosure = 'Evidence should be interpreted within study population limitations.';
       } else {
-        directAnswer = 'Nutritional and biochemical inquiry: "$query".';
-        practicalExplanation = 'No direct randomized controlled trial matched in local verified index. Findings based on fundamental human biochemistry.';
+        final aiRes = await _modelRouter.routeAndExecute(
+          AIModelRequest(
+            query: query,
+            taskType: ModelTaskType.generalScientificResearch,
+          ),
+          userId: userId,
+        );
+        directAnswer = aiRes.answerText.trim();
+        practicalExplanation = '';
         actionableProtocols = const [];
         supportingCitations = const [];
-        evidenceConfidence = 'Foundational Nutritional Biochemistry';
-        uncertaintyDisclosure = 'No verified peer-reviewed trial was retrieved for this exact search phrasing.';
+        evidenceConfidence = 'Foundational Nutritional Science';
+        uncertaintyDisclosure = '';
       }
     }
 
@@ -608,5 +636,6 @@ final centralIntelligenceOrchestratorProvider = Provider<CentralIntelligenceOrch
     decisionService: ref.watch(decisionTraceabilityServiceProvider),
     securityService: ref.watch(zeroTrustSecurityServiceProvider),
     executionService: ref.watch(reproducibleExecutionServiceProvider),
+    modelRouter: ref.watch(modelRouterProvider),
   );
 });

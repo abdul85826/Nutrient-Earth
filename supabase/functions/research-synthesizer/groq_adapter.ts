@@ -59,7 +59,7 @@ export class GroqProviderAdapter {
     this.config = {
       failureThreshold: customConfig?.failureThreshold ?? 3,
       cooldownPeriodMs: customConfig?.cooldownPeriodMs ?? 45000, // 45s cooldown
-      timeoutMs: customConfig?.timeoutMs ?? 8000,               // 8s timeout
+      timeoutMs: customConfig?.timeoutMs ?? 12000,               // 12s timeout
       maxRetries: customConfig?.maxRetries ?? 2,                // 2 transient retries
     };
   }
@@ -168,45 +168,30 @@ Respond ONLY with a valid JSON object matching this schema exactly without markd
 }
 Never include fake citations or medical disclaimers for friendly greetings and casual conversations.`;
     } else {
-      systemPrompt = `You are the Nutrient Earth Clinical Evidence Synthesizer.
-Respond ONLY with a valid JSON object matching this schema exactly without markdown formatting:
+      systemPrompt = `You are Nutrient Earth's health and science assistant.
+Answer the user's exact question directly in simple, clear, natural English. Put the direct answer in the very first sentence.
+Never use robotic academic templates, filler introductions, or artificial section headers unless the user asks for a detailed breakdown.
+Adapt length to the question: 1–3 sentences for simple questions, structured lists or tables only when comparing or explaining multi-step topics.
+
+Respond ONLY with a valid JSON object matching this schema:
 {
   "referenceId": "REF-GROQ-001",
-  "domainCategory": "Nutritional Biochemistry & Clinical Pharmacokinetics",
-  "quickAnswer": "<1-2 sentence direct clinical finding>",
-  "detailedExplanation": "<Rigorous physiological mechanism including cellular/receptor pathways>",
-  "answerSummary": "<Comprehensive synthesis>",
-  "evidenceBadge": "PEER REVIEWED EVIDENCE",
+  "domainCategory": "Health & Nutrition Intelligence",
+  "quickAnswer": "<Direct, natural, plain-English answer in 1-2 sentences>",
+  "detailedExplanation": "<Clear, helpful, natural explanation without robotic jargon>",
+  "answerSummary": "<Direct answer>",
+  "evidenceBadge": "",
   "effectivenessAssessment": "stronglySupported",
-  "comparisonCallout": "<Optional comparative absorption takeaway>",
-  "citations": [
-    {
-      "title": "<Actual peer-reviewed study title>",
-      "authorsOrJournal": "<Journal name and year>",
-      "year": "<YYYY>",
-      "evidenceGrade": "<Study design e.g. Randomized Controlled Trial>",
-      "pmid": "<PubMed ID strictly as digits e.g. 11794633>",
-      "doi": "<DOI if known>",
-      "verificationStatus": "peerReviewedArchive"
-    }
-  ],
-  "claims": [
-    {
-      "claimText": "<Verifiable scientific claim>",
-      "supportStatus": "supported",
-      "physiologicalMechanism": "<Biochemical transport mechanism>",
-      "clinicalTakeaway": "<Practical application>"
-    }
-  ],
-  "practicalSteps": ["<Specific practical recommendation>"],
-  "uncertaintyDisclaimer": "Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized medical diagnoses."
+  "citations": [],
+  "claims": [],
+  "practicalSteps": [],
+  "uncertaintyDisclaimer": ""
 }
-Never hallucinate citations or make claims unsupported by clinical science. If no peer-reviewed citation is known, set citations: [].`;
+Only include citations if the user asked for clinical studies or research papers. Never fabricate citations or study titles.`;
     }
 
-    const userMessageContent = `Scientific Inquiry: "${request.query}"${
-      request.userContext?.primary_goals ? `\nTarget Goals: ${request.userContext.primary_goals.join(', ')}` : ''
-    }${request.userContext?.dietary_preference ? `\nDietary Preference: ${request.userContext.dietary_preference}` : ''}`;
+    const userMessageContent = `User Question: "${request.query}"${request.userContext?.primary_goals ? `\nTarget Goals: ${request.userContext.primary_goals.join(', ')}` : ''
+      }${request.userContext?.dietary_preference ? `\nDietary Preference: ${request.userContext.dietary_preference}` : ''}`;
 
     const requestBody = {
       model: modelToUse,
@@ -215,7 +200,7 @@ Never hallucinate citations or make claims unsupported by clinical science. If n
         { role: 'user', content: userMessageContent },
       ],
       response_format: { type: 'json_object' },
-      temperature: 0.1,
+      temperature: 0.3,
       max_tokens: 1500,
     };
 
@@ -271,7 +256,7 @@ Never hallucinate citations or make claims unsupported by clinical science. If n
       } catch (err: unknown) {
         clearTimeout(timeoutId);
         lastError = err instanceof Error ? err : new Error(String(err));
-        
+
         // Retry transient network or 503 errors
         if (attempts <= this.config.maxRetries) {
           await new Promise((r) => setTimeout(r, 500 * Math.pow(2, attempts - 1)));
@@ -342,9 +327,9 @@ Never hallucinate citations or make claims unsupported by clinical science. If n
       uncertaintyDisclaimer: isConversational
         ? ''
         : String(
-            parsed.uncertaintyDisclaimer ||
-            'Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized medical diagnoses.'
-          ),
+          parsed.uncertaintyDisclaimer ||
+          'Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized medical diagnoses.'
+        ),
       provider: 'Groq Cloud High-Speed Inference',
       modelUsed: model,
       latencyMs: latencyMs,

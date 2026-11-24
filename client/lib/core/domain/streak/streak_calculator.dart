@@ -6,6 +6,20 @@
 
 import 'qualifying_activity_models.dart';
 
+class StreakEvaluation {
+  final bool isStreakAlive;
+  final bool isTodayCompleted;
+  final int effectiveStreak;
+  final String streakLabel;
+
+  const StreakEvaluation({
+    required this.isStreakAlive,
+    required this.isTodayCompleted,
+    required this.effectiveStreak,
+    required this.streakLabel,
+  });
+}
+
 class StreakCalculator {
   StreakCalculator._();
 
@@ -66,6 +80,35 @@ class StreakCalculator {
 
     // Gap > 1 day: streak has lapsed
     return 0;
+  }
+
+  /// Detailed streak status evaluation returning flags and UI labels.
+  static StreakEvaluation evaluateStreakStatus({
+    required String todayDateString,
+    required String? lastQualifyingDateString,
+    required int storedCurrentStreak,
+  }) {
+    final effective = evaluateCurrentStreak(
+      recordedStreak: storedCurrentStreak,
+      lastQualifyingDate: lastQualifyingDateString,
+      currentLocalDate: todayDateString,
+    );
+    final isToday = lastQualifyingDateString == todayDateString;
+    final isAlive = effective > 0;
+    String label;
+    if (isToday) {
+      label = 'Streak saved for today';
+    } else if (isAlive) {
+      label = 'Active today · complete a task';
+    } else {
+      label = 'Start your streak today';
+    }
+    return StreakEvaluation(
+      isStreakAlive: isAlive,
+      isTodayCompleted: isToday,
+      effectiveStreak: effective,
+      streakLabel: label,
+    );
   }
 
   /// Reconstructs streak history deterministically from an unordered collection of

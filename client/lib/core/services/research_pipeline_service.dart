@@ -14,6 +14,8 @@ import '../domain/orchestration/universal_question_service.dart';
 import '../domain/personalization/goal_alignment_evaluator.dart';
 import '../domain/personalization/goal_match_calculation_service.dart';
 import '../domain/personalization/user_profile_context.dart';
+import '../domain/ai_gateway/model_provider.dart';
+import '../domain/ai_gateway/model_router.dart';
 import 'multimodal/image_quality_service.dart';
 import 'multimodal/product_candidate_service.dart';
 import 'multimodal/social_platform_retrieval_service.dart';
@@ -745,6 +747,39 @@ class ResearchPipelineService {
           nutrition: structured.nutritionAnalysis,
         );
 
+        if (structured.quickAnswer.contains('No directly matching peer-reviewed trials')) {
+          try {
+            final aiRes = await AIModelRouter().routeAndExecute(
+              AIModelRequest(
+                query: cleanQuery,
+                taskType: ModelTaskType.generalScientificResearch,
+              ),
+              userId: userProfile?.userId,
+            );
+            final rawText = aiRes.answerText.trim();
+            final firstSentenceEnd = rawText.indexOf(RegExp(r'[\.\!\?]\s'));
+            final hero = (firstSentenceEnd != -1 && firstSentenceEnd < 140)
+                ? rawText.substring(0, firstSentenceEnd + 1).trim()
+                : (rawText.length > 120 ? '${rawText.substring(0, 117)}...' : rawText);
+
+            return UniversalIntelligenceAnswer(
+              referenceId: 'AI-${DateTime.now().millisecondsSinceEpoch}',
+              detectedInputType: descriptor.inputType,
+              query: cleanQuery,
+              heroAnswer: hero,
+              recommendation: 'Incorporate evidenced lifestyle and nutritional principles.',
+              detailedExplanation: rawText,
+              goalMatch: goalMatch,
+              evidence: const EvidenceProvenanceContainer.empty(),
+              practicalSteps: const [],
+              uncertaintyDisclaimer: '',
+              blocks: [
+                TextBlock(content: rawText, calloutType: TextCalloutType.leadSummary),
+              ],
+            );
+          } catch (_) {}
+        }
+
         final hasSources = structured.sources.isNotEmpty;
 
         return UniversalIntelligenceAnswer(
@@ -860,6 +895,42 @@ class ResearchPipelineService {
       userProfile: userProfile,
       nutrition: structured.nutritionAnalysis,
     );
+
+    if (structured.quickAnswer.contains('No directly matching peer-reviewed trials')) {
+      try {
+        final aiRes = await AIModelRouter().routeAndExecute(
+          AIModelRequest(
+            query: cleanQuery,
+            taskType: ModelTaskType.generalScientificResearch,
+          ),
+          userId: userProfile?.userId,
+        );
+        final rawText = aiRes.answerText.trim();
+        final firstSentenceEnd = rawText.indexOf(RegExp(r'[\.\!\?]\s'));
+        final hero = (firstSentenceEnd != -1 && firstSentenceEnd < 140)
+            ? rawText.substring(0, firstSentenceEnd + 1).trim()
+            : (rawText.length > 120 ? '${rawText.substring(0, 117)}...' : rawText);
+
+        final universal = UniversalIntelligenceAnswer(
+          referenceId: 'AI-${DateTime.now().millisecondsSinceEpoch}',
+          detectedInputType: UserInputType.text,
+          query: cleanQuery,
+          heroAnswer: hero,
+          recommendation: 'Incorporate evidenced lifestyle and nutritional principles.',
+          detailedExplanation: rawText,
+          goalMatch: goalMatch,
+          evidence: const EvidenceProvenanceContainer.empty(),
+          practicalSteps: const [],
+          uncertaintyDisclaimer: '',
+          providerUsed: aiRes.providerId,
+          legacyEvidenceBadge: null,
+          legacyGoalAlignment: null,
+        );
+
+        return ResearchAnswer.fromUniversalAnswer(universal);
+      } catch (_) {}
+    }
+
     final hasSources = structured.sources.isNotEmpty;
 
     final universal = UniversalIntelligenceAnswer(

@@ -60,7 +60,7 @@ void main() {
       final yesterdayStr = '2026-10-14';
 
       // User was active yesterday and had a 4-day streak, but has not completed today yet
-      final evaluation = StreakCalculator.evaluateCurrentStreak(
+      final evaluation = StreakCalculator.evaluateStreakStatus(
         todayDateString: todayStr,
         lastQualifyingDateString: yesterdayStr,
         storedCurrentStreak: 4,
@@ -76,7 +76,7 @@ void main() {
     test('Today Completed: Streak increments if user was active today', () {
       final todayStr = '2026-10-15';
 
-      final evaluation = StreakCalculator.evaluateCurrentStreak(
+      final evaluation = StreakCalculator.evaluateStreakStatus(
         todayDateString: todayStr,
         lastQualifyingDateString: todayStr,
         storedCurrentStreak: 5,
@@ -92,7 +92,7 @@ void main() {
       final todayStr = '2026-10-15';
       final olderDateStr = '2026-10-13'; // 2-day gap
 
-      final evaluation = StreakCalculator.evaluateCurrentStreak(
+      final evaluation = StreakCalculator.evaluateStreakStatus(
         todayDateString: todayStr,
         lastQualifyingDateString: olderDateStr,
         storedCurrentStreak: 5,

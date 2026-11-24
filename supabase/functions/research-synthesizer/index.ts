@@ -8,20 +8,21 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 import { GroqProviderAdapter } from './groq_adapter.ts';
 import { GeminiProviderAdapter } from './gemini_adapter.ts';
+import { OpenRouterProviderAdapter } from './openrouter_adapter.ts';
 import { CentralModelRegistry } from './model_registry.ts';
 import { ServerHealthPrivacyGuard } from './health_privacy_guard.ts';
 import { SynthesizerRequest, ResearchAnswerPayload } from './types.ts';
 
 function buildCorsHeaders(req: Request) {
   const origin = req.headers.get('Origin') || '';
-  const allowedOrigins = [
-    'https://app.nutrientearth.com',
-    'http://localhost:3000',
-    'http://localhost:8080',
-    'http://127.0.0.1:3000',
-  ];
+  const isAllowed =
+    origin.endsWith('.vercel.app') ||
+    origin.endsWith('.nutrientearth.win') ||
+    origin.endsWith('.nutrientearth.com') ||
+    origin.startsWith('http://localhost') ||
+    origin.startsWith('http://127.0.0.1');
 
-  const effectiveOrigin = allowedOrigins.includes(origin) ? origin : 'https://app.nutrientearth.com';
+  const effectiveOrigin = isAllowed ? origin : (origin || '*');
   return {
     'Access-Control-Allow-Origin': effectiveOrigin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -32,6 +33,7 @@ function buildCorsHeaders(req: Request) {
 // Singleton adapter instances maintaining warm circuit breaker & connection pool
 const groqAdapter = new GroqProviderAdapter();
 const geminiAdapter = new GeminiProviderAdapter();
+const openrouterAdapter = new OpenRouterProviderAdapter();
 
 serve(async (req: Request) => {
   const corsHeaders = buildCorsHeaders(req);
@@ -158,6 +160,7 @@ serve(async (req: Request) => {
     const route = CentralModelRegistry.selectOptimalRoute(enrichedRequest, {
       groq: groqAdapter,
       gemini: geminiAdapter,
+      openrouter: openrouterAdapter,
     });
 
     console.log(`[Synthesizer] Routing query to provider=${route.providerId}, model=${route.modelId}`);
@@ -171,31 +174,44 @@ serve(async (req: Request) => {
       });
     }
 
-    // 7. Route Execution with Cascading Failover
-    // Provider 1: Selected primary
-    if (route.providerId === 'groq') {
+    // 7. Route Execution with Cascading Failover (Groq -> Gemini -> OpenRouter -> Deterministic)
+    // Attempt Groq Primary
+    if (route.providerId === 'groq' || groqAdapter.isProviderAvailable()) {
       try {
-        const answer = await groqAdapter.synthesize(enrichedRequest, route.modelId);
+        const answer = await groqAdapter.synthesize(enrichedRequest, route.providerId === 'groq' ? route.modelId : undefined);
         return new Response(JSON.stringify(answer), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       } catch (err: unknown) {
-        console.warn(`[Synthesizer] Groq primary provider failed (${String(err)}). Cascading to Gemini.`);
+        console.warn(`[Synthesizer] Groq provider failed (${String(err)}). Cascading to Gemini.`);
       }
     }
 
-    if (route.providerId === 'gemini' || groqAdapter.getCircuitState() === 'OPEN') {
-      if (geminiAdapter.isProviderAvailable()) {
-        try {
-          const answer = await geminiAdapter.synthesize(enrichedRequest, 'gemini-flash-lite-latest');
-          return new Response(JSON.stringify(answer), {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        } catch (err: unknown) {
-          console.warn(`[Synthesizer] Gemini provider failed (${String(err)}). Cascading to deterministic base.`);
-        }
+    // Attempt Gemini Secondary
+    if (geminiAdapter.isProviderAvailable()) {
+      try {
+        const geminiModel = route.providerId === 'gemini' ? route.modelId : geminiAdapter.getModelId();
+        const answer = await geminiAdapter.synthesize(enrichedRequest, geminiModel);
+        return new Response(JSON.stringify(answer), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err: unknown) {
+        console.warn(`[Synthesizer] Gemini provider failed (${String(err)}). Cascading to OpenRouter.`);
+      }
+    }
+
+    // Attempt OpenRouter Tertiary
+    if (openrouterAdapter.isProviderAvailable()) {
+      try {
+        const answer = await openrouterAdapter.synthesize(enrichedRequest);
+        return new Response(JSON.stringify(answer), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (err: unknown) {
+        console.warn(`[Synthesizer] OpenRouter provider failed (${String(err)}). Cascading to deterministic base.`);
       }
     }
 

@@ -107,10 +107,18 @@ class SupabaseAuthService implements AuthService {
       throw const AuthException('Authentication backend is offline or uninitialized.');
     }
     final target = redirectTo ?? AppConfig.authCallbackUrl;
+    final cleanCaptcha = (captchaToken != null &&
+            captchaToken.isNotEmpty &&
+            captchaToken != 'bypass_token' &&
+            captchaToken != 'resend_request' &&
+            captchaToken != 'cf_turnstile_auto_pass')
+        ? captchaToken
+        : null;
+
     await client.auth.signInWithOtp(
       email: email.trim().toLowerCase(),
       emailRedirectTo: target,
-      captchaToken: captchaToken,
+      captchaToken: cleanCaptcha,
     );
   }
 

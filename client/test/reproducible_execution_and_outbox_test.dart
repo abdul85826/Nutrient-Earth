@@ -103,7 +103,7 @@ void main() {
       // 2. Best effort replay
       final bestEffort = await executionService.replayExecution(
         executionId: 'exec_deterministic_calc_002',
-        mode: ReplayMode.bestEffortLive,
+        mode: ReplayMode.bestEffortStochastic,
       );
       expect(bestEffort['replay_status'], equals('best_effort_executed'));
       expect(bestEffort['stochastic_variance_expected'], isFalse); // deterministic calculation
@@ -172,7 +172,7 @@ void main() {
       expect(dlq.length, equals(1));
       expect(dlq.first.id, equals(event.id));
       expect(dlq.first.status, equals(OutboxJobStatus.deadLetter));
-      expect(dlq.first.failureReason, contains('Network 503'));
+      expect(dlq.first.deadLetterReason, contains('Network 503'));
     });
   });
 

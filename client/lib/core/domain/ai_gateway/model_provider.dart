@@ -1,10 +1,15 @@
 // ==============================================================================
 // Nutrient Earth — Model Provider Abstraction Layer
-// Multi-provider LLM interface supporting DeepSeek, Gemini, and Deterministic Clinical Engine.
-// RESILIENCE & PRIVACY DIRECTIVE: Transparent failover, deterministic offline fallback,
-// zero personal health data leakage to untrusted public endpoints.
+// Multi-provider LLM interface supporting Groq, Gemini, OpenRouter, DeepSeek,
+// and Deterministic Clinical Engine.
+// RESILIENCE & PRIVACY DIRECTIVE: Cascading transparent failover, zero personal
+// health data leakage to untrusted public endpoints, pure natural language.
 // ==============================================================================
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import '../../config/app_config.dart';
 import '../../config/supabase_config.dart';
 import '../evidence/scientific_evidence_repository.dart';
 import '../personalization/user_profile_context.dart';
@@ -16,6 +21,17 @@ enum ModelTaskType {
   multimodalAudioInquiry,
   personalHealthConsultation,
 }
+
+const String kNutrientEarthSystemPrompt = '''
+You are Nutrient Earth, an intelligent health, nutrition, and physiological science assistant.
+Provide clear, accurate, natural, and direct answers in plain, everyday English.
+- Always provide the direct answer in the very first sentence.
+- If the user greets you or makes small talk, respond warmly, conversationally, and concisely in 1-2 sentences.
+- If asked a general knowledge, food science, or health question, give a clear, direct, and factual explanation.
+- Do not make up fake citations, fake PMIDs, or pretend clinical trials exist.
+- Do not output artificial boilerplate, repetitive disclaimers, or rigid academic templates unless specifically requested.
+- When explaining complex biological or nutritional concepts, break them down simply, clearly, and practically.
+''';
 
 class AIModelRequest {
   final String query;
@@ -65,13 +81,359 @@ abstract class AIModelProvider {
   Future<AIModelResponse> generateResponse(AIModelRequest request);
 }
 
-/// 1. DeepSeek R1 / V3 Provider via Supabase Edge Function
-class DeepSeekEdgeProvider implements AIModelProvider {
-  @override
-  String get providerId => 'deepseek-edge-function';
+/// 1. Groq Cloud Direct Provider (Ultra-Fast Inference: Qwen / Llama-3.3)
+class GroqAIProvider implements AIModelProvider {
+  final String? apiKeyOverride;
+  final String? modelOverride;
+  final http.Client? client;
+
+  GroqAIProvider({
+    this.apiKeyOverride,
+    this.modelOverride,
+    this.client,
+  });
 
   @override
-  String get modelName => 'DeepSeek-R1-Distill-Qwen-32B';
+  String get providerId => 'groq-cloud';
+
+  @override
+  String get modelName => modelOverride ?? 'qwen/qwen3.8-27b';
+
+  @override
+  bool get supportsMultimodal => false;
+
+  @override
+  Future<AIModelResponse> generateResponse(AIModelRequest request) async {
+    final apiKey = apiKeyOverride ?? AppConfig.groqApiKey;
+    if (apiKey.trim().isEmpty) {
+      throw StateError('Groq API Key is not configured.');
+    }
+
+    final stopwatch = Stopwatch()..start();
+    final httpClient = client ?? http.Client();
+
+    try {
+      final prompt = request.systemPromptOverride ?? kNutrientEarthSystemPrompt;
+      final uri = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+
+      final body = jsonEncode({
+        'model': modelName,
+        'messages': [
+          {'role': 'system', 'content': prompt},
+          {'role': 'user', 'content': request.query},
+        ],
+        'temperature': 0.3,
+        'max_tokens': 1024,
+      });
+
+      final response = await httpClient.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+
+      stopwatch.stop();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        final choices = data['choices'] as List<dynamic>?;
+        if (choices != null && choices.isNotEmpty) {
+          final firstChoice = choices.first as Map<String, dynamic>;
+          final msg = firstChoice['message'] as Map<String, dynamic>?;
+          final content = msg?['content'] as String? ?? '';
+          if (content.trim().isNotEmpty) {
+            return AIModelResponse(
+              answerText: content.trim(),
+              providerId: providerId,
+              modelName: modelName,
+              latencyMs: stopwatch.elapsedMilliseconds,
+              rawData: data,
+            );
+          }
+        }
+      }
+
+      // If the primary model failed with 404 or 400, attempt verified fallback model openai/gpt-oss-120b
+      if (response.statusCode != 200 && modelName != 'openai/gpt-oss-120b') {
+        final fallbackBody = jsonEncode({
+          'model': 'openai/gpt-oss-120b',
+          'messages': [
+            {'role': 'system', 'content': prompt},
+            {'role': 'user', 'content': request.query},
+          ],
+          'temperature': 0.3,
+          'max_tokens': 1024,
+        });
+
+        final retryRes = await httpClient.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+          },
+          body: fallbackBody,
+        );
+
+        if (retryRes.statusCode == 200) {
+          final data = jsonDecode(utf8.decode(retryRes.bodyBytes)) as Map<String, dynamic>;
+          final choices = data['choices'] as List<dynamic>?;
+          if (choices != null && choices.isNotEmpty) {
+            final firstChoice = choices.first as Map<String, dynamic>;
+            final msg = firstChoice['message'] as Map<String, dynamic>?;
+            final content = msg?['content'] as String? ?? '';
+            if (content.trim().isNotEmpty) {
+              return AIModelResponse(
+                answerText: content.trim(),
+                providerId: providerId,
+                modelName: 'openai/gpt-oss-120b',
+                latencyMs: stopwatch.elapsedMilliseconds,
+                rawData: data,
+              );
+            }
+          }
+        }
+      }
+
+      throw StateError('Groq API returned status ${response.statusCode}: ${response.body}');
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+}
+
+/// 2. Google Gemini Direct Provider (Gemini 3.5 Flash Lite)
+class GeminiAIProvider implements AIModelProvider {
+  final String? apiKeyOverride;
+  final String? modelOverride;
+  final http.Client? client;
+
+  GeminiAIProvider({
+    this.apiKeyOverride,
+    this.modelOverride,
+    this.client,
+  });
+
+  @override
+  String get providerId => 'google-gemini';
+
+  @override
+  String get modelName => modelOverride ?? 'gemini-3.5-flash-lite';
+
+  @override
+  bool get supportsMultimodal => true;
+
+  @override
+  Future<AIModelResponse> generateResponse(AIModelRequest request) async {
+    final apiKey = apiKeyOverride ?? AppConfig.geminiApiKey;
+    if (apiKey.trim().isEmpty) {
+      throw StateError('Gemini API Key is not configured.');
+    }
+
+    final stopwatch = Stopwatch()..start();
+    final httpClient = client ?? http.Client();
+
+    try {
+      final prompt = request.systemPromptOverride ?? kNutrientEarthSystemPrompt;
+      final uri = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/$modelName:generateContent?key=$apiKey',
+      );
+
+      final userParts = <Map<String, dynamic>>[
+        {'text': request.query},
+      ];
+
+      final body = jsonEncode({
+        'systemInstruction': {
+          'parts': [
+            {'text': prompt}
+          ]
+        },
+        'contents': [
+          {
+            'role': 'user',
+            'parts': userParts,
+          }
+        ],
+        'generationConfig': {
+          'temperature': 0.3,
+          'maxOutputTokens': 1024,
+        }
+      });
+
+      final response = await httpClient.post(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      stopwatch.stop();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        final candidates = data['candidates'] as List<dynamic>?;
+        if (candidates != null && candidates.isNotEmpty) {
+          final firstCandidate = candidates.first as Map<String, dynamic>;
+          final contentMap = firstCandidate['content'] as Map<String, dynamic>?;
+          final parts = contentMap?['parts'] as List<dynamic>?;
+          if (parts != null && parts.isNotEmpty) {
+            final text = (parts.first as Map<String, dynamic>)['text'] as String? ?? '';
+            if (text.trim().isNotEmpty) {
+              return AIModelResponse(
+                answerText: text.trim(),
+                providerId: providerId,
+                modelName: modelName,
+                latencyMs: stopwatch.elapsedMilliseconds,
+                rawData: data,
+              );
+            }
+          }
+        }
+      }
+
+      throw StateError('Gemini API returned status ${response.statusCode}: ${response.body}');
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+}
+
+/// 3. OpenRouter Direct Provider (Llama 3.3 70B Instruct / Fallback Gateway)
+class OpenRouterAIProvider implements AIModelProvider {
+  final String? apiKeyOverride;
+  final String? modelOverride;
+  final http.Client? client;
+
+  OpenRouterAIProvider({
+    this.apiKeyOverride,
+    this.modelOverride,
+    this.client,
+  });
+
+  @override
+  String get providerId => 'openrouter';
+
+  @override
+  String get modelName => modelOverride ?? 'meta-llama/llama-3.3-70b-instruct';
+
+  @override
+  bool get supportsMultimodal => false;
+
+  @override
+  Future<AIModelResponse> generateResponse(AIModelRequest request) async {
+    final apiKey = apiKeyOverride ?? AppConfig.openRouterApiKey;
+    if (apiKey.trim().isEmpty) {
+      throw StateError('OpenRouter API Key is not configured.');
+    }
+
+    final stopwatch = Stopwatch()..start();
+    final httpClient = client ?? http.Client();
+
+    try {
+      final prompt = request.systemPromptOverride ?? kNutrientEarthSystemPrompt;
+      final uri = Uri.parse('https://openrouter.ai/api/v1/chat/completions');
+
+      final body = jsonEncode({
+        'model': modelName,
+        'messages': [
+          {'role': 'system', 'content': prompt},
+          {'role': 'user', 'content': request.query},
+        ],
+        'temperature': 0.3,
+        'max_tokens': 1024,
+      });
+
+      final response = await httpClient.post(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://nutrientearth.win',
+          'X-Title': 'Nutrient Earth',
+        },
+        body: body,
+      );
+
+      stopwatch.stop();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        final choices = data['choices'] as List<dynamic>?;
+        if (choices != null && choices.isNotEmpty) {
+          final firstChoice = choices.first as Map<String, dynamic>;
+          final msg = firstChoice['message'] as Map<String, dynamic>?;
+          final content = msg?['content'] as String? ?? '';
+          if (content.trim().isNotEmpty) {
+            return AIModelResponse(
+              answerText: content.trim(),
+              providerId: providerId,
+              modelName: modelName,
+              latencyMs: stopwatch.elapsedMilliseconds,
+              rawData: data,
+            );
+          }
+        }
+      }
+
+      // If primary model failed with 404/error, fallback to qwen/qwen-2.5-72b-instruct
+      if (response.statusCode != 200 && modelName != 'qwen/qwen-2.5-72b-instruct') {
+        final fallbackBody = jsonEncode({
+          'model': 'qwen/qwen-2.5-72b-instruct',
+          'messages': [
+            {'role': 'system', 'content': prompt},
+            {'role': 'user', 'content': request.query},
+          ],
+          'temperature': 0.3,
+          'max_tokens': 1024,
+        });
+
+        final retryRes = await httpClient.post(
+          uri,
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://nutrientearth.win',
+            'X-Title': 'Nutrient Earth',
+          },
+          body: fallbackBody,
+        );
+
+        if (retryRes.statusCode == 200) {
+          final data = jsonDecode(utf8.decode(retryRes.bodyBytes)) as Map<String, dynamic>;
+          final choices = data['choices'] as List<dynamic>?;
+          if (choices != null && choices.isNotEmpty) {
+            final firstChoice = choices.first as Map<String, dynamic>;
+            final msg = firstChoice['message'] as Map<String, dynamic>?;
+            final content = msg?['content'] as String? ?? '';
+            if (content.trim().isNotEmpty) {
+              return AIModelResponse(
+                answerText: content.trim(),
+                providerId: providerId,
+                modelName: 'qwen/qwen-2.5-72b-instruct',
+                latencyMs: stopwatch.elapsedMilliseconds,
+                rawData: data,
+              );
+            }
+          }
+        }
+      }
+
+      throw StateError('OpenRouter API returned status ${response.statusCode}: ${response.body}');
+    } finally {
+      if (client == null) httpClient.close();
+    }
+  }
+}
+
+/// 4. Supabase Edge Function Provider (Research Synthesizer)
+class DeepSeekEdgeProvider implements AIModelProvider {
+  @override
+  String get providerId => 'supabase-edge-function';
+
+  @override
+  String get modelName => 'research-synthesizer-multi-model';
 
   @override
   bool get supportsMultimodal => false;
@@ -80,7 +442,7 @@ class DeepSeekEdgeProvider implements AIModelProvider {
   Future<AIModelResponse> generateResponse(AIModelRequest request) async {
     final client = SupabaseConfig.client;
     if (client == null) {
-      throw StateError('Supabase client uninitialized for DeepSeek edge inference.');
+      throw StateError('Supabase client uninitialized for edge inference.');
     }
 
     final stopwatch = Stopwatch()..start();
@@ -104,7 +466,7 @@ class DeepSeekEdgeProvider implements AIModelProvider {
         final rawAnswer = data['answerSummary'] as String? ?? data['quickAnswer'] as String?;
         final answer = rawAnswer?.trim() ?? '';
         if (answer.isEmpty) {
-          throw StateError('Edge function returned an empty or whitespace-only answer summary.');
+          throw StateError('Edge function returned an empty answer.');
         }
 
         return AIModelResponse(
@@ -119,59 +481,54 @@ class DeepSeekEdgeProvider implements AIModelProvider {
       throw StateError('Edge function returned status ${response.status}');
     } catch (e) {
       stopwatch.stop();
-      throw StateError('DeepSeek provider invocation failed: $e');
+      throw StateError('Edge provider invocation failed: $e');
     }
   }
 }
 
-/// 2. Gemini 1.5 Flash Provider for Multimodal Inputs (Image/Voice)
+/// 5. Legacy Multimodal Adapter (Delegates to GeminiAIProvider)
 class GeminiMultimodalProvider implements AIModelProvider {
   final bool enableDebugStub;
+  final GeminiAIProvider _geminiProvider;
 
-  const GeminiMultimodalProvider({this.enableDebugStub = false});
+  GeminiMultimodalProvider({this.enableDebugStub = false})
+      : _geminiProvider = GeminiAIProvider();
 
   @override
   String get providerId => 'gemini-flash-multimodal';
 
   @override
-  String get modelName => 'gemini-1.5-flash-latest';
+  String get modelName => 'gemini-3.5-flash-lite';
 
   @override
   bool get supportsMultimodal => true;
 
   @override
   Future<AIModelResponse> generateResponse(AIModelRequest request) async {
-    if (!enableDebugStub) {
-      // In production, real Gemini calls route through secure server-side Edge Gateway.
-      // Throw UnimplementedError so the router transparently falls over to the deterministic clinical engine.
-      throw UnimplementedError(
-        'Direct client-side Gemini multimodal invocation is gated. Use server-side edge function proxy.',
-      );
+    try {
+      return await _geminiProvider.generateResponse(request);
+    } catch (e) {
+      if (enableDebugStub) {
+        final stopwatch = Stopwatch()..start();
+        final synthesis = request.multimodalImagePath != null
+            ? 'Meal scan analysis (simulated): whole food meal components detected.'
+            : 'Scientific research inquiry (simulated): "${request.query}".';
+        stopwatch.stop();
+        return AIModelResponse(
+          answerText: synthesis,
+          providerId: providerId,
+          modelName: modelName,
+          latencyMs: stopwatch.elapsedMilliseconds,
+          isFallback: true,
+          rawData: const {'simulated': true, 'debugStub': true},
+        );
+      }
+      rethrow;
     }
-
-    final stopwatch = Stopwatch()..start();
-    final String synthesis;
-    if (request.multimodalImagePath != null) {
-      synthesis = 'Meal scan analysis (simulated): whole food meal components detected.';
-    } else if (request.multimodalAudioPath != null) {
-      synthesis = 'Voice query analysis (simulated): "${request.query}".';
-    } else {
-      synthesis = 'Scientific research inquiry (simulated): "${request.query}".';
-    }
-    stopwatch.stop();
-
-    return AIModelResponse(
-      answerText: synthesis,
-      providerId: providerId,
-      modelName: modelName,
-      latencyMs: stopwatch.elapsedMilliseconds,
-      isFallback: true,
-      rawData: const {'simulated': true, 'debugStub': true},
-    );
   }
 }
 
-/// 3. Deterministic Clinical Knowledge Engine (100% Reliable Offline & Privacy Provider)
+/// 6. Deterministic Clinical Knowledge Engine (100% Reliable Offline & Privacy Provider)
 class DeterministicClinicalKnowledgeProvider implements AIModelProvider {
   @override
   String get providerId => 'deterministic-clinical-engine';
@@ -199,7 +556,7 @@ class DeterministicClinicalKnowledgeProvider implements AIModelProvider {
         buffer.writeln('Clinical Recommendation: ${claim.clinicalTakeaway}');
       }
     } else {
-      buffer.writeln('Evidence-based translational nutrition indicates that targeted lifestyle interventions and nutrient timing optimize metabolic homeostasis.');
+      buffer.writeln('Nutrient Earth was unable to reach external AI models. Please check your network connection and retry.');
     }
 
     if (searchResult.contradictoryFinding != null) {
@@ -210,11 +567,11 @@ class DeterministicClinicalKnowledgeProvider implements AIModelProvider {
     stopwatch.stop();
 
     return AIModelResponse(
-      answerText: buffer.toString(),
+      answerText: buffer.toString().trim(),
       providerId: providerId,
       modelName: modelName,
       latencyMs: stopwatch.elapsedMilliseconds,
-      isFallback: false,
+      isFallback: true,
     );
   }
 }

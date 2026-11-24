@@ -459,7 +459,7 @@ void main() {
   });
 
   group('Master Research Integrity Verification Engine End-to-End Orchestration', () {
-    const engine = ResearchIntegrityVerificationEngine();
+    final engine = ResearchIntegrityVerificationEngine();
 
     test('Processes and publishes verified human clinical trial with 11-part editorial article', () {
       const pop = TargetPopulation(

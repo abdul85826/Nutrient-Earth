@@ -141,6 +141,8 @@ class BitemporalPersonalFact {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  Map<String, dynamic> get factValue => currentValue;
+
   const BitemporalPersonalFact({
     required this.id,
     required this.userId,

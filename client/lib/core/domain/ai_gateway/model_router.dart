@@ -1,11 +1,13 @@
 // ==============================================================================
 // Nutrient Earth — Central Task-Based AI Model Router
-// Routes requests dynamically across DeepSeek, Gemini, and Deterministic Clinical Engine.
-// Enforces PII isolation, timeouts, bounded retries, and authorization-aware caching.
+// Routes requests dynamically across Groq, Gemini, OpenRouter, Supabase Edge,
+// and Deterministic Clinical Engine.
+// Enforces PII isolation, timeouts, cascading failover, and authorization-aware caching.
 // ==============================================================================
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'model_provider.dart';
@@ -23,8 +25,10 @@ class CachedModelEntry {
 }
 
 class AIModelRouter {
-  final AIModelProvider deepSeekProvider;
+  final AIModelProvider groqProvider;
   final AIModelProvider geminiProvider;
+  final AIModelProvider openRouterProvider;
+  final AIModelProvider deepSeekProvider;
   final AIModelProvider deterministicProvider;
   final Duration requestTimeout;
   final Duration cacheTtl;
@@ -32,13 +36,17 @@ class AIModelRouter {
   final Map<String, CachedModelEntry> _cache = {};
 
   AIModelRouter({
-    AIModelProvider? deepSeekProvider,
+    AIModelProvider? groqProvider,
     AIModelProvider? geminiProvider,
+    AIModelProvider? openRouterProvider,
+    AIModelProvider? deepSeekProvider,
     AIModelProvider? deterministicProvider,
-    this.requestTimeout = const Duration(seconds: 5),
+    this.requestTimeout = const Duration(seconds: 10),
     this.cacheTtl = const Duration(minutes: 15),
-  })  : deepSeekProvider = deepSeekProvider ?? DeepSeekEdgeProvider(),
-        geminiProvider = geminiProvider ?? const GeminiMultimodalProvider(),
+  })  : groqProvider = groqProvider ?? GroqAIProvider(),
+        geminiProvider = geminiProvider ?? GeminiAIProvider(),
+        openRouterProvider = openRouterProvider ?? OpenRouterAIProvider(),
+        deepSeekProvider = deepSeekProvider ?? DeepSeekEdgeProvider(),
         deterministicProvider = deterministicProvider ?? DeterministicClinicalKnowledgeProvider();
 
   /// Evaluates whether a request can safely read/write cache entries.
@@ -53,7 +61,7 @@ class AIModelRouter {
     return true;
   }
 
-  /// Routes and generates response with multi-layer fallback and caching.
+  /// Routes and generates response with multi-layer cascading fallback and caching.
   Future<AIModelResponse> routeAndExecute(AIModelRequest request, {String? userId}) async {
     final cacheable = _isCacheable(request, userId);
     final cacheKey = cacheable ? _computeCacheKey(request, userId!) : null;
@@ -70,8 +78,7 @@ class AIModelRouter {
     final isProtected = request.containsPersonalHealthData ||
         request.taskType == ModelTaskType.personalHealthConsultation;
     if (isProtected) {
-      final response = await deterministicProvider.generateResponse(request);
-      return response;
+      return await deterministicProvider.generateResponse(request);
     }
 
     // 3. Multimodal Routing: Images and Voice route to multimodal-capable models
@@ -81,29 +88,51 @@ class AIModelRouter {
             .generateResponse(request)
             .timeout(requestTimeout);
         return response;
-      } catch (_) {
-        // Fall back to deterministic clinical engine if multimodal endpoint fails
-        final fallbackResponse = await deterministicProvider.generateResponse(request);
-        return fallbackResponse;
+      } catch (e) {
+        debugPrint('[AIModelRouter] Multimodal model failed: $e. Falling over to deterministic engine.');
+        return await deterministicProvider.generateResponse(request);
       }
     }
 
-    // 4. Primary Research Routing: DeepSeek with timeout & transparent fallback
-    try {
-      final response = await deepSeekProvider
-          .generateResponse(request)
-          .timeout(requestTimeout);
+    // 4. Cascading Multi-Model Intelligence Stack:
+    // Tier 1: Groq Cloud (Ultra-fast Qwen / Llama-3.3)
+    // Tier 2: Google Gemini (Gemini 3.5 Flash Lite)
+    // Tier 3: OpenRouter (Llama 3.3 70B Instruct)
+    // Tier 4: Supabase Edge Synthesizer
+    final candidates = [
+      groqProvider,
+      geminiProvider,
+      openRouterProvider,
+      deepSeekProvider,
+    ];
 
-      if (cacheable && cacheKey != null) {
-        _cache[cacheKey] = CachedModelEntry(response: response, cachedAt: DateTime.now());
+    for (final provider in candidates) {
+      try {
+        final response = await provider
+            .generateResponse(request)
+            .timeout(requestTimeout);
+
+        if (response.answerText.trim().isNotEmpty) {
+          if (cacheable && cacheKey != null) {
+            _cache[cacheKey] = CachedModelEntry(response: response, cachedAt: DateTime.now());
+          }
+          return response;
+        }
+      } catch (e) {
+        debugPrint('[AIModelRouter] ${provider.providerId} failed: $e. Falling over...');
+        continue;
       }
-      return response;
-    } catch (_) {
-      // Automatic transparent failover to Deterministic Clinical Knowledge Engine.
-      // Do NOT cache fallback responses so temporary failures do not pollute the cache.
-      final fallbackResponse = await deterministicProvider.generateResponse(request);
-      return fallbackResponse;
     }
+
+    // 5. Offline Fallback: Deterministic Clinical Knowledge Engine
+    final fallbackResponse = await deterministicProvider.generateResponse(request);
+    return AIModelResponse(
+      answerText: fallbackResponse.answerText,
+      providerId: fallbackResponse.providerId,
+      modelName: fallbackResponse.modelName,
+      latencyMs: fallbackResponse.latencyMs,
+      isFallback: true,
+    );
   }
 
   void clearCache() {

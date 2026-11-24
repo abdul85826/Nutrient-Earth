@@ -78,8 +78,6 @@ class MockTestProfileRepo implements ProfileRepository {
   Future<bool> saveUserProfile(UserProfileContext profile) async => true;
   Future<bool> markOnboardingCompleted(String userId) async => true;
   Future<bool> clearProfile() async => true;
-  @override
-  Future<bool> clearCacheForUser(String userId) async => true;
 }
 
 class MockControlledAuthService implements AuthService {

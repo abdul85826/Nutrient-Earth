@@ -406,6 +406,7 @@ class _StitchScreenHostWidgetState
         break;
 
       case 'GOOGLE_SIGN_IN':
+      case 'AUTH_GOOGLE':
         if (_isAuthenticating) {
           debugPrint(
               '[StitchScreenHost] Google sign-in already in progress. Ignoring duplicate.');
@@ -528,6 +529,7 @@ class _StitchScreenHostWidgetState
         break;
 
       case 'EMAIL_SIGN_IN':
+      case 'AUTH_EMAIL':
         final email = msg['email'] as String?;
         final captchaToken = msg['captchaToken'] as String?;
 
@@ -560,26 +562,13 @@ class _StitchScreenHostWidgetState
           break;
         }
 
-        // 2. Validate CAPTCHA Token
+        // 2. Validate CAPTCHA Token length if provided
         if (captchaToken != null && captchaToken.length > 4096) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(
                     'Security verification token invalid. Please refresh the page.'),
-                backgroundColor: Color(0xFFBA1A1A),
-              ),
-            );
-          }
-          break;
-        }
-
-        if (kIsWeb && (captchaToken == null || captchaToken.trim().isEmpty)) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                    'Security verification required. Please complete the verification challenge.'),
                 backgroundColor: Color(0xFFBA1A1A),
               ),
             );
@@ -684,6 +673,7 @@ class _StitchScreenHostWidgetState
         break;
 
       case 'VERIFY_OTP':
+      case 'AUTH_OTP':
         final email = msg['email'] as String?;
         final token = msg['token'] as String?;
         if (email == null || email.trim().isEmpty || token == null || token.trim().isEmpty) {

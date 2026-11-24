@@ -9,14 +9,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-import 'package:client/core/services/acquisition/direct_source_client.dart';
-import 'package:client/core/services/acquisition/direct_pubmed_client.dart';
-import 'package:client/core/services/acquisition/direct_europe_pmc_client.dart';
-import 'package:client/core/services/acquisition/direct_openalex_client.dart';
-import 'package:client/core/services/acquisition/direct_clinical_trials_client.dart';
-import 'package:client/core/services/acquisition/direct_open_food_facts_client.dart';
-import 'package:client/core/services/acquisition/direct_pubchem_client.dart';
-import 'package:client/core/services/knowledge_graph/health_knowledge_graph_service.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_source_client.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_pubmed_client.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_europe_pmc_client.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_openalex_client.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_clinical_trials_client.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_open_food_facts_client.dart';
+import 'package:nutrient_earth_client/core/services/acquisition/direct_pubchem_client.dart';
+import 'package:nutrient_earth_client/core/services/knowledge_graph/health_knowledge_graph_service.dart';
 
 void main() {
   group('1. Direct Source Client Foundation & Integrity Hashing', () {

@@ -66,7 +66,7 @@ export class GeminiProviderAdapter {
   ) {
     this.apiKey = envOverrides?.apiKey ?? Deno.env.get('GEMINI_API_KEY') ?? '';
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-    this.defaultModel = envOverrides?.defaultModel ?? Deno.env.get('GEMINI_MODEL_ID') ?? 'gemini-flash-lite-latest';
+    this.defaultModel = envOverrides?.defaultModel ?? Deno.env.get('GEMINI_MODEL_ID') ?? 'gemini-3.5-flash-lite';
 
     this.config = {
       failureThreshold: customConfig?.failureThreshold ?? 3,
@@ -263,39 +263,27 @@ Respond ONLY with a valid JSON object matching this schema:
 }
 Never include fake citations or medical disclaimers for friendly greetings and casual conversations.`;
       } else {
-        textPrompt = `You are the Nutrient Earth Clinical Evidence Synthesizer.
+        textPrompt = `You are Nutrient Earth's health and science assistant.
+Answer the user's exact question directly in simple, clear, natural English. Put the direct answer in the very first sentence.
+Never use robotic academic templates, filler introductions, or artificial section headers unless the user asks for a detailed breakdown.
+Adapt length to the question: 1–3 sentences for simple questions, structured lists or tables only when comparing or explaining multi-step topics.
+
 Inquiry: "${request.query}"
 Respond ONLY with a valid JSON object matching this schema:
 {
   "referenceId": "REF-GEMINI-001",
-  "domainCategory": "Nutritional Biochemistry",
-  "quickAnswer": "<1-2 sentence direct clinical finding>",
-  "detailedExplanation": "<Rigorous physiological mechanism including cellular/receptor pathways>",
-  "answerSummary": "<Comprehensive synthesis>",
-  "evidenceBadge": "PEER REVIEWED EVIDENCE",
+  "domainCategory": "Health & Nutrition Intelligence",
+  "quickAnswer": "<Direct, natural, plain-English answer in 1-2 sentences>",
+  "detailedExplanation": "<Clear, helpful, natural explanation without robotic jargon>",
+  "answerSummary": "<Direct answer>",
+  "evidenceBadge": "",
   "effectivenessAssessment": "stronglySupported",
-  "citations": [
-    {
-      "title": "<Actual study title>",
-      "authorsOrJournal": "<Journal and year>",
-      "year": "<YYYY>",
-      "evidenceGrade": "<Study design>",
-      "pmid": "<PubMed ID strictly as digits e.g. 11794633>",
-      "doi": "<DOI if known>",
-      "verificationStatus": "peerReviewedArchive"
-    }
-  ],
-  "claims": [
-    {
-      "claimText": "<Scientific claim>",
-      "supportStatus": "supported",
-      "physiologicalMechanism": "<Biochemical transport mechanism>"
-    }
-  ],
-  "practicalSteps": ["<Practical dosage or timing>"],
-  "uncertaintyDisclaimer": "Nutrient Earth provides nutritional research syntheses for educational guidance."
+  "citations": [],
+  "claims": [],
+  "practicalSteps": [],
+  "uncertaintyDisclaimer": ""
 }
-Never hallucinate non-existent citations or PMIDs. If no specific peer-reviewed trial is known, set citations: [].`;
+Only include citations if the user asked for clinical studies or research papers. Never fabricate citations or study titles.`;
       }
       parts.push({ text: textPrompt });
     }
@@ -420,9 +408,9 @@ Never hallucinate non-existent citations or PMIDs. If no specific peer-reviewed 
       uncertaintyDisclaimer: isConversational
         ? ''
         : String(
-            parsed.uncertaintyDisclaimer ||
-            'Nutrient Earth provides nutritional research syntheses for educational guidance.'
-          ),
+          parsed.uncertaintyDisclaimer ||
+          'Nutrient Earth provides nutritional research syntheses for educational guidance.'
+        ),
       provider: 'Google Gemini Multimodal AI',
       modelUsed: model,
       latencyMs: latencyMs,

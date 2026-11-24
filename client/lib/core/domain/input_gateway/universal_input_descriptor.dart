@@ -166,6 +166,9 @@ class UniversalInputDescriptor {
   UserInputType get inputType => type;
   String get rawPayload => rawContent;
 
+  /// Whether this input is an image.
+  bool get isImage => type == UserInputType.image;
+
   /// Whether this input requires specialized heavy binary processing (video or vision).
   bool get isHeavyMedia =>
       type == UserInputType.videoUpload || type == UserInputType.image || type == UserInputType.documentPdf;

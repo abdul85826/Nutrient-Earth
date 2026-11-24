@@ -409,27 +409,48 @@ class DeterministicCalculationService {
   // ---------------------------------------------------------------------------
   // 5. Intelligent Query Parser & Dispatcher
   // ---------------------------------------------------------------------------
+  static bool isMathOrCalculationQuery(String rawQuery) {
+    final query = rawQuery.toLowerCase().trim();
+    if (query.contains('bmr') || query.contains('tdee') || query.contains('bmi') || query.contains('body mass index')) return true;
+    if (query.contains('%') || query.contains('percent of')) return true;
+    if (RegExp(r'\d+\s*[\+\-\*\/×÷]\s*\d+').hasMatch(query)) return true;
+    if (query.contains('convert') && (query.contains('to') || query.contains('in'))) return true;
+    return false;
+  }
+
   static Map<String, dynamic>? tryParseAndCalculate(String rawQuery) {
     final query = rawQuery.toLowerCase().trim();
 
-    // A. BMR or TDEE pattern: e.g. "calculate bmr 75kg 180cm 30 male"
+    // A. BMR or TDEE pattern: e.g. "calculate bmr 75kg 180cm 30 male" or "calculate my BMR: 30yo male, 80kg, 180cm"
     if (query.contains('bmr') || query.contains('tdee') || query.contains('metabolic rate')) {
-      final numbers = RegExp(r'(\d+(?:\.\d+)?)').allMatches(query).map((m) => double.parse(m.group(1)!)).toList();
       final isMale = !query.contains('female') && !query.contains('woman') && !query.contains('girl');
+
+      // Unit-aware extraction
+      final kgMatch = RegExp(r'(\d+(?:\.\d+)?)\s*(?:kg|kilos?|kilograms?)', caseSensitive: false).firstMatch(query);
+      final cmMatch = RegExp(r'(\d+(?:\.\d+)?)\s*(?:cm|centimeters?)', caseSensitive: false).firstMatch(query);
+      final ageMatch = RegExp(r'(\d+)\s*(?:yo|y\.?o\.?|years?\s*old|age)', caseSensitive: false).firstMatch(query);
 
       double weightKg = 70.0;
       double heightCm = 175.0;
       int age = 30;
 
-      if (numbers.length >= 3) {
-        weightKg = numbers[0];
-        heightCm = numbers[1];
-        age = numbers[2].toInt();
-      } else if (numbers.length == 2) {
-        weightKg = numbers[0];
-        heightCm = numbers[1];
-      } else if (numbers.length == 1) {
-        weightKg = numbers[0];
+      if (kgMatch != null) weightKg = double.parse(kgMatch.group(1)!);
+      if (cmMatch != null) heightCm = double.parse(cmMatch.group(1)!);
+      if (ageMatch != null) age = int.parse(ageMatch.group(1)!);
+
+      // Positional fallback if no unit was matched
+      if (kgMatch == null && cmMatch == null && ageMatch == null) {
+        final numbers = RegExp(r'(\d+(?:\.\d+)?)').allMatches(query).map((m) => double.parse(m.group(1)!)).toList();
+        if (numbers.length >= 3) {
+          weightKg = numbers[0];
+          heightCm = numbers[1];
+          age = numbers[2].toInt();
+        } else if (numbers.length == 2) {
+          weightKg = numbers[0];
+          heightCm = numbers[1];
+        } else if (numbers.length == 1) {
+          weightKg = numbers[0];
+        }
       }
 
       final result = calculateBmrAndTdee(
@@ -444,7 +465,7 @@ class DeterministicCalculationService {
         'calculationType': 'BMR_TDEE',
         'result': result.toJson(),
         'displayText': '### Mifflin-St Jeor Basal Metabolic Calculation\n\n'
-            '• **Biological Parameters**: ${isMale ? "Male" : "Female"}, ${weightKg}kg, ${heightCm}cm, age ${age}y\n'
+            '• **Biological Parameters**: ${isMale ? "Male" : "Female"}, ${weightKg.toStringAsFixed(0)}kg, ${heightCm.toStringAsFixed(0)}cm, age ${age}y\n'
             '• **BMR (Basal Metabolic Rate)**: **${result.bmrKcal.toStringAsFixed(0)} kcal/day**\n'
             '• **TDEE (Sedentary)**: **${result.tdeeKcal.toStringAsFixed(0)} kcal/day**\n'
             '• **TDEE (Moderate Exercise 3-5x/wk)**: **${(result.bmrKcal * 1.55).toStringAsFixed(0)} kcal/day**\n\n'
@@ -453,14 +474,23 @@ class DeterministicCalculationService {
       };
     }
 
-    // B. BMI pattern: e.g. "calculate bmi 70kg 175cm"
+    // B. BMI pattern: e.g. "calculate bmi 70kg 175cm" or "bmi 180cm 80kg"
     if (query.contains('bmi') || query.contains('body mass index')) {
-      final numbers = RegExp(r'(\d+(?:\.\d+)?)').allMatches(query).map((m) => double.parse(m.group(1)!)).toList();
+      final kgMatch = RegExp(r'(\d+(?:\.\d+)?)\s*(?:kg|kilos?|kilograms?)', caseSensitive: false).firstMatch(query);
+      final cmMatch = RegExp(r'(\d+(?:\.\d+)?)\s*(?:cm|centimeters?)', caseSensitive: false).firstMatch(query);
+
       double weightKg = 70.0;
       double heightCm = 175.0;
-      if (numbers.length >= 2) {
-        weightKg = numbers[0];
-        heightCm = numbers[1];
+
+      if (kgMatch != null) weightKg = double.parse(kgMatch.group(1)!);
+      if (cmMatch != null) heightCm = double.parse(cmMatch.group(1)!);
+
+      if (kgMatch == null && cmMatch == null) {
+        final numbers = RegExp(r'(\d+(?:\.\d+)?)').allMatches(query).map((m) => double.parse(m.group(1)!)).toList();
+        if (numbers.length >= 2) {
+          weightKg = numbers[0];
+          heightCm = numbers[1];
+        }
       }
 
       final result = calculateBmi(weightKg: weightKg, heightCm: heightCm);
@@ -546,6 +576,84 @@ class DeterministicCalculationService {
               'Conversion factor: `${res.conversionFactorText}`',
         };
       }
+    }
+
+    // F. General Percentage Calculations: e.g. "What is 25% of 480?" or "15 percent of 2000"
+    final percentMatch = RegExp(
+      r'(?:what\s+is\s+|calculate\s+)?(\d+(?:\.\d+)?)\s*(?:%|percent)\s+of\s+(\d+(?:\.\d+)?)',
+      caseSensitive: false,
+    ).firstMatch(query);
+    if (percentMatch != null) {
+      final pVal = double.parse(percentMatch.group(1)!);
+      final bVal = double.parse(percentMatch.group(2)!);
+      final computed = (pVal / 100.0) * bVal;
+      final pStr = pVal == pVal.roundToDouble() ? pVal.toInt().toString() : pVal.toString();
+      final bStr = bVal == bVal.roundToDouble() ? bVal.toInt().toString() : bVal.toString();
+      final resStr = computed == computed.roundToDouble() ? computed.toInt().toString() : computed.toStringAsFixed(2);
+
+      return {
+        'calculationType': 'PERCENTAGE_CALCULATION',
+        'result': {
+          'outputValue': resStr,
+          'formula': '$pStr% × $bStr = ($pStr / 100) × $bStr = $resStr',
+          'toUnit': '',
+        },
+        'displayText': '### Calculation Result\n\n'
+            '**$pStr% of $bStr is $resStr.**\n\n'
+            '• **Base Value**: $bStr\n'
+            '• **Percentage**: $pStr%\n'
+            '• **Result**: **$resStr**\n\n'
+            'Formula: `($pStr / 100) × $bStr = $resStr`',
+      };
+    }
+
+    // G. Basic Arithmetic Calculations: e.g. "What is 120 + 340?" or "500 * 4"
+    final arithMatch = RegExp(
+      r'^(?:what\s+is\s+|calculate\s+)?(\d+(?:\.\d+)?)\s*([\+\-\*\/×÷])\s*(\d+(?:\.\d+)?)\s*\??$',
+      caseSensitive: false,
+    ).firstMatch(query);
+    if (arithMatch != null) {
+      final a = double.parse(arithMatch.group(1)!);
+      final op = arithMatch.group(2)!;
+      final b = double.parse(arithMatch.group(3)!);
+      double computed;
+      String opSymbol = op;
+      switch (op) {
+        case '+':
+          computed = a + b;
+          break;
+        case '-':
+          computed = a - b;
+          break;
+        case '*':
+        case '×':
+          computed = a * b;
+          opSymbol = '×';
+          break;
+        case '/':
+        case '÷':
+          if (b == 0) return null;
+          computed = a / b;
+          opSymbol = '÷';
+          break;
+        default:
+          return null;
+      }
+      final aStr = a == a.roundToDouble() ? a.toInt().toString() : a.toString();
+      final bStr = b == b.roundToDouble() ? b.toInt().toString() : b.toString();
+      final resStr = computed == computed.roundToDouble() ? computed.toInt().toString() : computed.toStringAsFixed(2);
+
+      return {
+        'calculationType': 'BASIC_ARITHMETIC',
+        'result': {
+          'outputValue': resStr,
+          'formula': '$aStr $opSymbol $bStr = $resStr',
+          'toUnit': '',
+        },
+        'displayText': '### Arithmetic Calculation\n\n'
+            '**$aStr $opSymbol $bStr = $resStr**\n\n'
+            'Calculated with exact mathematical precision.',
+      };
     }
 
     return null;

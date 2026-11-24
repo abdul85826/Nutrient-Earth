@@ -144,6 +144,24 @@ class AppConfig {
   /// Enforces separate development vs production configurations and prevents
   /// production from ever redirecting to localhost.
   static String get authCallbackUrl {
+    // 1. On Web, dynamically derive the callback from the current origin
+    // so authentication works seamlessly across custom domains (www.nutrientearth.win),
+    // preview deployments (*.vercel.app), and local development (localhost).
+    if (kIsWeb) {
+      try {
+        final origin = Uri.base.origin;
+        if (origin.isNotEmpty && origin != 'null') {
+          final cleanOrigin = origin.endsWith('/')
+              ? origin.substring(0, origin.length - 1)
+              : origin;
+          return '$cleanOrigin/auth/callback';
+        }
+      } catch (_) {
+        // Fall back below if Uri.base is unavailable
+      }
+    }
+
+    // 2. Explicit Environment Overrides
     const fromEnv = String.fromEnvironment('AUTH_REDIRECT_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
 
@@ -156,22 +174,6 @@ class AppConfig {
     if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
 
     if (kIsWeb) {
-      try {
-        final origin = Uri.base.origin;
-        if (origin.isNotEmpty && origin != 'null') {
-          // Strict Production Guard: Production must never redirect to localhost
-          if (isProduction || origin.contains('nutrientearth.win') || origin.contains('vercel.app')) {
-            return '$defaultProdOrigin/auth/callback';
-          }
-          if (origin.contains('localhost') || origin.contains('127.0.0.1')) {
-            return '$defaultProdOrigin/auth/callback';
-          }
-          return '$origin/auth/callback';
-        }
-      } catch (_) {
-        // Fall back below if Uri.base is unavailable
-      }
-
       return isProduction
           ? '$defaultProdOrigin/auth/callback'
           : '$defaultDevOrigin/auth/callback';
@@ -224,6 +226,58 @@ class AppConfig {
     }
 
     final fromConfig = _configMap['TURNSTILE_SITE_KEY']?.toString();
+    if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
+
+    return '';
+  }
+
+  /// Groq Cloud API Key
+  static String get groqApiKey {
+    const fromEnv = String.fromEnvironment('GROQ_API_KEY');
+    if (fromEnv.isNotEmpty) return fromEnv;
+
+    if (dotenv.isInitialized) {
+      final val = dotenv.env['GROQ_API_KEY'];
+      if (val != null && val.isNotEmpty) return val;
+    }
+
+    final fromConfig = _configMap['GROQ_API_KEY']?.toString();
+    if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
+
+    return '';
+  }
+
+  /// Google Gemini API Key
+  static String get geminiApiKey {
+    const fromEnv = String.fromEnvironment('GEMINI_API_KEY');
+    if (fromEnv.isNotEmpty) return fromEnv;
+
+    if (dotenv.isInitialized) {
+      final val = dotenv.env['GEMINI_API_KEY'];
+      if (val != null && val.isNotEmpty) return val;
+    }
+
+    final fromConfig = _configMap['GEMINI_API_KEY']?.toString();
+    if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
+
+    return '';
+  }
+
+  /// OpenRouter API Key
+  static String get openRouterApiKey {
+    const fromEnv = String.fromEnvironment('OPENROUTER_API_KEY');
+    if (fromEnv.isNotEmpty) return fromEnv;
+
+    const fromEnvUltra = String.fromEnvironment('OPENROUTER_API_KEY_ULTRA');
+    if (fromEnvUltra.isNotEmpty) return fromEnvUltra;
+
+    if (dotenv.isInitialized) {
+      final val = dotenv.env['OPENROUTER_API_KEY_ULTRA'] ?? dotenv.env['OPENROUTER_API_KEY'] ?? dotenv.env['OPENROUTER_API_KEY_SUPER'];
+      if (val != null && val.isNotEmpty) return val;
+    }
+
+    final fromConfig = _configMap['OPENROUTER_API_KEY_ULTRA']?.toString() ??
+        _configMap['OPENROUTER_API_KEY']?.toString();
     if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
 
     return '';

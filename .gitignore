@@ -98,6 +98,7 @@ htmlcov/
 # -----------------------------------------------------------------------------
 # INFRASTRUCTURE & LOCAL DATA
 # -----------------------------------------------------------------------------
+predictive-maintenance-6g-manufacturing/
 infrastructure/docker/data/
 postgres_data/
 redis_data/

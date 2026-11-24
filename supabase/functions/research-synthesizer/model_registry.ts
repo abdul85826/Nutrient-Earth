@@ -12,6 +12,7 @@ import {
 } from './types.ts';
 import { GroqProviderAdapter } from './groq_adapter.ts';
 import { GeminiProviderAdapter } from './gemini_adapter.ts';
+import { OpenRouterProviderAdapter } from './openrouter_adapter.ts';
 import { ServerHealthPrivacyGuard } from './health_privacy_guard.ts';
 
 export class CentralModelRegistry {
@@ -19,7 +20,7 @@ export class CentralModelRegistry {
     {
       id: 'qwen/qwen3.8-27b',
       providerId: 'groq',
-      displayName: 'Qwen 3.8 27B (Groq LPUs)',
+      displayName: 'Qwen 3.8 27B (Groq LPU)',
       version: '3.8.2026',
       clinicalReliabilityTier: 'standard_synthesis',
       supportsMultimodal: false,
@@ -29,10 +30,22 @@ export class CentralModelRegistry {
       isAvailable: true,
     },
     {
-      id: 'gemini-flash-lite-latest',
+      id: 'openai/gpt-oss-120b',
+      providerId: 'groq',
+      displayName: 'GPT-OSS 120B (Groq LPU)',
+      version: '120b.2026',
+      clinicalReliabilityTier: 'high_clinical_rigor',
+      supportsMultimodal: false,
+      supportsStructuredOutput: true,
+      maxContextTokens: 128000,
+      taskSuitability: ['intent_classification', 'general_scientific_inquiry'],
+      isAvailable: true,
+    },
+    {
+      id: 'gemini-3.5-flash-lite',
       providerId: 'gemini',
-      displayName: 'Google Gemini Flash-Lite (Multimodal)',
-      version: '2.5.flash-lite',
+      displayName: 'Google Gemini 3.5 Flash-Lite (Multimodal)',
+      version: '3.5.flash-lite',
       clinicalReliabilityTier: 'high_clinical_rigor',
       supportsMultimodal: true,
       supportsStructuredOutput: true,
@@ -46,10 +59,26 @@ export class CentralModelRegistry {
       isAvailable: true,
     },
     {
-      id: 'nvidia/nemotron-3-ultra-550b-a55b',
+      id: 'gemini-2.5-flash-lite',
+      providerId: 'gemini',
+      displayName: 'Google Gemini 2.5 Flash-Lite (Multimodal)',
+      version: '2.5.flash-lite',
+      clinicalReliabilityTier: 'high_clinical_rigor',
+      supportsMultimodal: true,
+      supportsStructuredOutput: true,
+      maxContextTokens: 1048576,
+      taskSuitability: [
+        'food_image_analysis',
+        'document_processing',
+        'general_scientific_inquiry',
+      ],
+      isAvailable: true,
+    },
+    {
+      id: 'meta-llama/llama-3.3-70b-instruct',
       providerId: 'openrouter',
-      displayName: 'NVIDIA Nemotron 3 Ultra 550B',
-      version: '3.0.ultra',
+      displayName: 'Llama 3.3 70B Instruct (OpenRouter)',
+      version: '3.3.instruct',
       clinicalReliabilityTier: 'high_clinical_rigor',
       supportsMultimodal: false,
       supportsStructuredOutput: true,
@@ -85,8 +114,6 @@ export class CentralModelRegistry {
 
   /**
    * Qualifies a fallback model to ensure fallback degradation cannot compromise clinical safety.
-   * If a fallback lacks sufficient clinical reliability tier for clinical tasks, it routes
-   * strictly to the deterministic gold engine.
    */
   public static qualifyFallbackModel(
     taskType: TaskType | undefined,
@@ -117,7 +144,7 @@ export class CentralModelRegistry {
    */
   public static selectOptimalRoute(
     request: SynthesizerRequest,
-    adapters: { groq: GroqProviderAdapter; gemini: GeminiProviderAdapter }
+    adapters: { groq: GroqProviderAdapter; gemini: GeminiProviderAdapter; openrouter?: OpenRouterProviderAdapter }
   ): { providerId: AIProviderId; modelId: string } {
     // 1. Strict Data Privacy Enforcement: Personal health context or clinical consultation
     const isPersonalHealth =
@@ -137,10 +164,9 @@ export class CentralModelRegistry {
       if (adapters.gemini.isProviderAvailable()) {
         return {
           providerId: 'gemini',
-          modelId: 'gemini-flash-lite-latest',
+          modelId: adapters.gemini.getModelId(),
         };
       }
-      // If Gemini circuit is open, return deterministic engine with fallback
       return {
         providerId: 'deterministic',
         modelId: 'NutrientEarth-Deterministic-v2026.1',
@@ -151,34 +177,36 @@ export class CentralModelRegistry {
     if (request.preferredProvider === 'groq' && adapters.groq.isProviderAvailable()) {
       return {
         providerId: 'groq',
-        modelId: request.preferredModel ?? 'qwen/qwen3.8-27b',
+        modelId: request.preferredModel ?? adapters.groq.getModelId(),
       };
     }
     if (request.preferredProvider === 'gemini' && adapters.gemini.isProviderAvailable()) {
       return {
         providerId: 'gemini',
-        modelId: request.preferredModel ?? 'gemini-flash-lite-latest',
+        modelId: request.preferredModel ?? adapters.gemini.getModelId(),
+      };
+    }
+    if (request.preferredProvider === 'openrouter' && adapters.openrouter && adapters.openrouter.isProviderAvailable()) {
+      return {
+        providerId: 'openrouter',
+        modelId: request.preferredModel ?? adapters.openrouter.getModelId(),
       };
     }
 
     // 4. Task-based standard routing:
-    // Lightweight intent classification or fast Q&A: Prefer Groq LPU
-    if (request.taskType === 'intent_classification') {
-      if (adapters.groq.isProviderAvailable()) {
-        return { providerId: 'groq', modelId: 'qwen/qwen3.8-27b' };
-      }
-      if (adapters.gemini.isProviderAvailable()) {
-        return { providerId: 'gemini', modelId: 'gemini-flash-lite-latest' };
-      }
-    }
-
-    // General scientific inquiry: Groq primary (speed), Gemini secondary (depth)
+    // Groq primary (speed)
     if (adapters.groq.isProviderAvailable()) {
-      return { providerId: 'groq', modelId: 'qwen/qwen3.8-27b' };
+      return { providerId: 'groq', modelId: adapters.groq.getModelId() };
     }
 
+    // Gemini secondary (depth)
     if (adapters.gemini.isProviderAvailable()) {
-      return { providerId: 'gemini', modelId: 'gemini-flash-lite-latest' };
+      return { providerId: 'gemini', modelId: adapters.gemini.getModelId() };
+    }
+
+    // OpenRouter tertiary fallback
+    if (adapters.openrouter && adapters.openrouter.isProviderAvailable()) {
+      return { providerId: 'openrouter', modelId: adapters.openrouter.getModelId() };
     }
 
     // 5. Ultimate Fallback: Internal Deterministic Knowledge Base

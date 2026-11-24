@@ -17,6 +17,10 @@ enum QualifyingActivityType {
   const QualifyingActivityType(this.wireName, this.description);
 
   bool get isEligibleForStreak => this != QualifyingActivityType.nonQualifying;
+  bool get isQualifying => isEligibleForStreak;
+
+  static const QualifyingActivityType unknown = nonQualifying;
+  static QualifyingActivityType fromRaw(String? name) => fromString(name);
 
   static QualifyingActivityType fromString(String? name) {
     if (name == null) return QualifyingActivityType.nonQualifying;

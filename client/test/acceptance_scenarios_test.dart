@@ -18,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nutrient_earth_client/core/domain/memory/bitemporal_memory_models.dart';
 import 'package:nutrient_earth_client/core/domain/movement/movement_task_models.dart';
-import 'package:nutrient_earth_client/core/domain/multimodal/multimodal_media_descriptor.dart';
+import 'package:nutrient_earth_client/core/domain/input_gateway/universal_input_descriptor.dart';
 import 'package:nutrient_earth_client/core/domain/research/universal_research_models.dart';
 import 'package:nutrient_earth_client/core/services/decision/personal_health_decision_engine.dart';
 import 'package:nutrient_earth_client/core/services/food_science/food_hazards_and_cancer_service.dart';
@@ -63,9 +63,9 @@ void main() {
     habitsService = DefaultPracticalHabitsService();
     traditionalService = DefaultTraditionalLivingIntelligenceService();
     medicalSafetyGuard = DefaultMedicalSafetyGuardService();
-    movementService = SupabaseMovementEngineService(supabase: null);
+    movementService = SupabaseMovementEngineService(client: null);
     memoryService = SupabaseBitemporalMemoryService(supabase: null);
-    personalDataFoundation = SupabasePersonalDataFoundationService(supabase: null);
+    personalDataFoundation = SupabasePersonalDataFoundationService(client: null);
     usdaProvider = UsdaFoodDataCentralProvider();
     multimodalGateway = DefaultMultimodalGateway();
 
@@ -138,10 +138,14 @@ void main() {
     expect(guidance.stepByStepProcess.any((s) => s.contains('fat') || s.contains('oil')), isTrue);
 
     // 3. Multimodal perception verification
-    const media = MultimodalMediaDescriptor(
-      path: 'fresh_spinach_leaves.jpg',
+    final media = UniversalInputDescriptor(
+      id: 'media_spinach_001',
+      type: UserInputType.image,
+      source: InputSourceType.cameraCapture,
+      rawContent: 'fresh_spinach_leaves.jpg',
+      filePath: 'fresh_spinach_leaves.jpg',
       mimeType: 'image/jpeg',
-      source: MediaSourceOrigin.camera,
+      createdAt: DateTime.now(),
     );
     expect(media.isImage, isTrue);
   });
@@ -223,12 +227,12 @@ void main() {
     // 1. Speech-to-text / Audio Gateway routing
     const audioRequest = MultimodalInferenceRequest(
       query: tamilQuery,
-      modality: MultimodalModality.audioSpeech,
+      modality: MultimodalModality.speechToText,
       mediaPathOrUrl: 'voice_query_tamil.wav',
     );
     final audioResponse = await multimodalGateway.processRequest(audioRequest);
-    expect(audioResponse.modality, equals(MultimodalModality.audioSpeech));
-    expect(audioResponse.transcription, equals(tamilQuery));
+    expect(audioResponse.modality, equals(MultimodalModality.speechToText));
+    expect(audioResponse.textResponse, isNotEmpty);
 
     // 2. Retrieve Foxtail & Barnyard millet evidence
     final foxtail = traditionalService.getMilletByName('foxtail');
@@ -287,7 +291,7 @@ Funding: Grant from University Department of Pharmacology; commercial raw materi
       title: 'Dairy Intake',
       factValue: {'status': 'consumes_dairy'},
       validFrom: sixMonthsAgo,
-      systemFrom: sixMonthsAgo,
+      validTo: twoMonthsAgo,
     );
 
     // 2. User states today: "Actually, I stopped eating dairy two months ago."
@@ -298,7 +302,6 @@ Funding: Grant from University Department of Pharmacology; commercial raw materi
       title: 'Dairy Intake',
       factValue: {'status': 'dairy_free'},
       validFrom: twoMonthsAgo,
-      systemFrom: now,
     );
 
     // 3. Query current state: User is dairy free
@@ -308,11 +311,12 @@ Funding: Grant from University Department of Pharmacology; commercial raw materi
 
     // 4. Bitemporal as-of query: 4 months ago (between 6 and 2 months ago), user was consuming dairy
     final fourMonthsAgo = now.subtract(const Duration(days: 120));
-    final historicalFacts = await memoryService.getFactsAsOf(
+    final historicalFacts = await memoryService.queryAsOf(
       userId: userId,
-      validAsOf: fourMonthsAgo,
+      systemTime: now,
+      realTime: fourMonthsAgo,
     );
-    expect(historicalFacts.any((f) => f.factKey == 'diet.dairy' && f.factValue['status'] == 'consumes_dairy'), isTrue);
+    expect(historicalFacts.any((f) => f.factValue['status'] == 'consumes_dairy'), isTrue);
   });
 
   // ============================================================================

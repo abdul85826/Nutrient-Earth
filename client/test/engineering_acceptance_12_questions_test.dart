@@ -81,42 +81,42 @@ void main() {
 
     // Q2: Can the user understand why an answer or recommendation was given, which facts influenced it, which sources supported it, and what alternatives were rejected?
     test('Q2: User understands recommendation, facts, sources, and rejected alternatives (Zero CoT leak)', () async {
-      final decision = DecisionRecord(
-        id: 'dec_sprouted_ragi_001',
+      final decision = await decisionService.recordDecision(
         traceId: 'tr_q2_test',
         userId: 'usr_sarah_q2',
-        objective: 'Optimize breakfast for postprandial glucose stability with iron absorption',
-        factsConsidered: ['Celiac disease diagnosis', 'Mild iron deficiency'],
-        researchCitations: ['PMID: 31200000', 'ICMR Dietary Guidelines 2024'],
-        safetyRulesApplied: ['Strict gluten-free threshold <20ppm', 'Non-prescriptive guidance'],
-        alternativesConsidered: [
+        recommendationId: 'rec_ragi_001',
+        userObjective: 'Optimize breakfast for postprandial glucose stability with iron absorption',
+        personalStateVersion: 'v1.0',
+        retrievedEvidenceRefs: ['PMID: 31200000', 'ICMR Dietary Guidelines 2024'],
+        applicableSafetyRules: ['Strict gluten-free threshold <20ppm', 'Non-prescriptive guidance'],
+        dietaryConstraints: ['Celiac disease diagnosis', 'Mild iron deficiency'],
+        selectedRecommendation: {'item': 'Sprouted ragi porridge with roasted amaranth'},
+        alternativesConsidered: const [
           AlternativeConsidered(
             name: 'Whole wheat sourdough',
-            score: 0.2,
-            isAccepted: false,
+            description: 'Traditional sourdough fermentation',
             rejectionReason: 'Contains gluten; contraindicated for celiac disease.',
+            confidenceScore: 0.2,
           ),
           AlternativeConsidered(
             name: 'Sprouted ragi porridge with roasted amaranth',
-            score: 0.95,
-            isAccepted: true,
+            description: 'Gluten-free nutrient dense porridge',
+            rejectionReason: '',
+            confidenceScore: 0.95,
           ),
         ],
         uncertaintyDisclosure: 'Exact phytate degradation varies with soaking temperature (12h vs 24h).',
-        finalRecommendationSummary: 'Consume sprouted ragi porridge with lemon juice to maximize non-heme iron bioavailability.',
-        createdAt: DateTime.now().toUtc(),
+        finalDeliveredOutput: 'Consume sprouted ragi porridge with lemon juice to maximize non-heme iron bioavailability.',
       );
 
-      await decisionService.recordDecision(decision);
-      final retrieved = await decisionService.getDecisionRecord('dec_sprouted_ragi_001');
+      final retrieved = await decisionService.getDecisionRecord(decision.id);
 
       expect(retrieved, isNotNull);
-      expect(retrieved!.objective, contains('glucose stability'));
-      expect(retrieved.factsConsidered, contains('Celiac disease diagnosis'));
-      expect(retrieved.researchCitations, contains('PMID: 31200000'));
-      expect(retrieved.alternativesConsidered.first.isAccepted, isFalse);
+      expect(retrieved!.userObjective, contains('glucose stability'));
+      expect(retrieved.dietaryConstraints, contains('Celiac disease diagnosis'));
+      expect(retrieved.retrievedEvidenceRefs, contains('PMID: 31200000'));
       expect(retrieved.alternativesConsidered.first.rejectionReason, contains('Contains gluten'));
-      expect(retrieved.alternativesConsidered.last.isAccepted, isTrue);
+      expect(retrieved.alternativesConsidered.last.confidenceScore, equals(0.95));
     });
 
     // Q3: If a user asks "where did you learn this about me?", can the system trace the fact to its exact origin?
@@ -130,20 +130,22 @@ void main() {
       );
 
       final factNode = await lineageService.registerNode(
-        nodeType: LineageNodeType.bitemporalFact,
+        nodeType: LineageNodeType.extractedFact,
         entityId: 'fact_gluten_intolerance',
         entityTable: 'bitemporal_personal_facts',
         userId: 'usr_sarah_q3',
         contentHashSha256: 'hash_structured_fact',
       );
 
-      await lineageService.registerEdge(
+      await lineageService.linkNodes(
         sourceNodeId: inputNode.id,
         targetNodeId: factNode.id,
-        relationshipType: LineageRelationshipType.derivedFrom,
+        relationshipType: LineageRelationshipType.extractedFrom,
       );
 
-      final upstreamSources = await lineageService.getUpstreamSources(factNode.id);
+      final upstreamSources = await lineageService.getUpstreamSources(
+        targetNodeId: factNode.id,
+      );
       expect(upstreamSources.length, equals(1));
       expect(upstreamSources.first.nodeType, equals(LineageNodeType.userInput));
       expect(upstreamSources.first.entityId, equals('msg_999'));
@@ -153,9 +155,9 @@ void main() {
     test('Q4: Distinct node types categorize statement, inference, sensor reading, and document', () async {
       final nodeTypes = [
         LineageNodeType.userInput,
-        LineageNodeType.inference,
-        LineageNodeType.deviceSensor,
-        LineageNodeType.externalDocument,
+        LineageNodeType.evidenceAssessment,
+        LineageNodeType.outcomeTelemetry,
+        LineageNodeType.evidenceDocument,
       ];
 
       for (final type in nodeTypes) {
@@ -260,21 +262,19 @@ void main() {
     test('Q9: Version governance tracks prompt, policy, and model versions with rollback capability', () async {
       final v1 = GovernanceVersion(
         id: 'gov_prompt_v1',
-        versionType: 'prompt_template',
-        identifier: 'clinical_synthesis',
+        entityType: 'prompt_template',
+        entityIdentifier: 'clinical_synthesis',
         version: 'v1.0.0',
-        contentHashSha256: 'hash_v1_prompt',
-        status: 'active',
+        status: GovernanceEntityStatus.active,
         createdAt: DateTime.now().toUtc(),
       );
 
       final v2 = GovernanceVersion(
         id: 'gov_prompt_v2',
-        versionType: 'prompt_template',
-        identifier: 'clinical_synthesis',
+        entityType: 'prompt_template',
+        entityIdentifier: 'clinical_synthesis',
         version: 'v2.0.0',
-        contentHashSha256: 'hash_v2_prompt',
-        status: 'active',
+        status: GovernanceEntityStatus.active,
         createdAt: DateTime.now().toUtc(),
       );
 

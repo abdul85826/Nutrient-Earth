@@ -28,7 +28,7 @@ void main() {
       memoryService = SupabaseBitemporalMemoryService(supabase: null);
       movementService = SupabaseMovementEngineService(supabase: null);
       researchService = SupabaseDailyResearchService(supabase: null);
-      foundationService = SupabasePersonalDataFoundationService(supabase: null);
+      foundationService = SupabasePersonalDataFoundationService(client: null);
 
       exportService = DefaultPersonalDataExportService(
         memoryService: memoryService,

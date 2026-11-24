@@ -38,9 +38,9 @@ void main() {
         habitsService: DefaultPracticalHabitsService(),
         traditionalService: DefaultTraditionalLivingIntelligenceService(),
         medicalSafetyGuard: DefaultMedicalSafetyGuardService(),
-        movementService: DefaultMovementEngineService(supabase: null),
+        movementService: SupabaseMovementEngineService(client: null),
         memoryService: SupabaseBitemporalMemoryService(supabase: null),
-        personalDataFoundation: SupabasePersonalDataFoundationService(supabase: null),
+        personalDataFoundation: SupabasePersonalDataFoundationService(client: null),
         usdaProvider: UsdaFoodDataCentralProvider(),
       );
     });
@@ -89,8 +89,8 @@ void main() {
       memoryService = SupabaseBitemporalMemoryService(supabase: null);
       decisionEngine = DefaultPersonalHealthDecisionEngine(
         memoryService: memoryService,
-        movementService: DefaultMovementEngineService(supabase: null),
-        personalDataFoundation: SupabasePersonalDataFoundationService(supabase: null),
+        movementService: SupabaseMovementEngineService(client: null),
+        personalDataFoundation: SupabasePersonalDataFoundationService(client: null),
       );
     });
 

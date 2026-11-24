@@ -3,6 +3,7 @@
 // Production PKCE OAuth & Email Magic-Link Callback Handler
 // ==============================================================================
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -47,9 +48,22 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
   }
 
   Future<void> _processAuthenticationCallback() async {
-    // 1. Check for provider error in redirect URL
-    if (widget.error != null && widget.error!.isNotEmpty) {
-      final desc = widget.errorDescription ?? widget.error!;
+    // 1. Check for provider error in redirect URL or fragment
+    String? effectiveError = widget.error ??
+        (kIsWeb ? Uri.base.queryParameters['error'] : null);
+    String? effectiveErrorDesc = widget.errorDescription ??
+        (kIsWeb ? Uri.base.queryParameters['error_description'] : null);
+
+    if (kIsWeb && effectiveError == null && Uri.base.fragment.contains('error=')) {
+      try {
+        final fragUri = Uri.parse('?${Uri.base.fragment}');
+        effectiveError = fragUri.queryParameters['error'];
+        effectiveErrorDesc = fragUri.queryParameters['error_description'];
+      } catch (_) {}
+    }
+
+    if (effectiveError != null && effectiveError.isNotEmpty) {
+      final desc = effectiveErrorDesc ?? effectiveError;
       setState(() {
         _isProcessing = false;
         _errorMessage = desc.toLowerCase().contains('cancel')
@@ -65,29 +79,40 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
     final journeyNotifier = ref.read(onboardingJourneyProvider.notifier);
 
     try {
-      // 2. PKCE code exchange if code parameter is present
-      if (widget.code != null && widget.code!.isNotEmpty) {
+      // 2. PKCE code exchange if code parameter is present in widget or browser URL
+      final codeToExchange = widget.code ??
+          (kIsWeb ? Uri.base.queryParameters['code'] : null);
+
+      if (codeToExchange != null && codeToExchange.isNotEmpty) {
         setState(() {
           _statusMessage = 'Exchanging authentication token...';
         });
 
         try {
-          await authService.exchangeCodeForSession(widget.code!);
+          await authService.exchangeCodeForSession(codeToExchange);
         } catch (exchangeError) {
-          debugPrint('[AuthCallbackScreen] exchangeCodeForSession error: $exchangeError');
-          // If exchange failed because session was already automatically established by SDK, continue
-          if (!authService.isAuthenticated) {
-            rethrow;
-          }
+          debugPrint('[AuthCallbackScreen] exchangeCodeForSession warning: $exchangeError');
         }
       }
 
-      // 3. Verify authenticated user presence
-      final user = authService.currentUser;
+      // 3. Verify authenticated user presence with polling wait for session settlement
+      var user = authService.currentUser;
+      if (user == null || !authService.isAuthenticated) {
+        setState(() {
+          _statusMessage = 'Finalizing your secure session...';
+        });
+        for (int i = 0; i < 16; i++) {
+          await Future.delayed(const Duration(milliseconds: 250));
+          if (!mounted) return;
+          user = authService.currentUser;
+          if (user != null && authService.isAuthenticated) break;
+        }
+      }
+
       if (user == null || !authService.isAuthenticated) {
         setState(() {
           _isProcessing = false;
-          _errorMessage = 'No active session was found. Please sign in again.';
+          _errorMessage = 'No active session was found. Please return to sign-in and retry.';
         });
         return;
       }

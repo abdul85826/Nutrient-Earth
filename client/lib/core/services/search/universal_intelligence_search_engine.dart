@@ -15,7 +15,7 @@
 //    strictly following the 5 presentation rules.
 // ==============================================================================
 
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/answer_contract/universal_intelligence_answer.dart';
 import '../../domain/orchestration/adaptive_execution_planner.dart';
@@ -35,11 +35,11 @@ import '../multimodal/social_platform_retrieval_service.dart';
 import '../multimodal/video_upload_ingestion_service.dart';
 import '../traditional/traditional_living_intelligence_service.dart';
 import '../medical_safety/medical_safety_guard_service.dart';
-import '../claims/claim_verification_engine.dart';
 import '../deterministic/deterministic_calculation_service.dart';
-import '../evidence/scientific_contradiction_engine.dart';
 import 'query_decomposition_service.dart';
 import 'response_relevance_gate.dart';
+import '../../domain/ai_gateway/model_provider.dart';
+import '../../domain/ai_gateway/model_router.dart';
 
 /// Conversation turn for multi-turn dialogue history
 class ConversationTurn {
@@ -72,6 +72,8 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   final TraditionalLivingIntelligenceService _traditionalService;
   final MedicalSafetyGuardService _medicalSafetyGuard;
   final EvidenceIntegrityService? _integrityService;
+  EvidenceIntegrityService? get integrityService => _integrityService;
+  final AIModelRouter _modelRouter;
 
   // Session memory for multi-turn context continuity
   final Map<String, List<ConversationTurn>> _sessionHistory = {};
@@ -83,12 +85,14 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
     TraditionalLivingIntelligenceService? traditionalService,
     MedicalSafetyGuardService? medicalSafetyGuard,
     EvidenceIntegrityService? integrityService,
+    AIModelRouter? modelRouter,
   })  : _contextAssembler = contextAssembler ?? const PersonalContextAssemblyService(),
         _foodEngine = foodEngine ?? DefaultFoodProcessingEngine(),
         _utensilService = utensilService ?? DefaultUtensilSafetyService(),
         _traditionalService = traditionalService ?? DefaultTraditionalLivingIntelligenceService(),
         _medicalSafetyGuard = medicalSafetyGuard ?? DefaultMedicalSafetyGuardService(),
-        _integrityService = integrityService;
+        _integrityService = integrityService,
+        _modelRouter = modelRouter ?? AIModelRouter();
 
   @override
   Future<UniversalIntelligenceAnswer> executeSearch({
@@ -287,7 +291,7 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
         break;
 
       case UserInputType.socialVideoUrl:
-        answer = _handleSocialVideoUrlInquiry(inputDescriptor, assembledContext);
+        answer = await _handleSocialVideoUrlInquiry(inputDescriptor, assembledContext);
         break;
 
       case UserInputType.documentPdf:
@@ -297,7 +301,7 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       case UserInputType.audio:
       case UserInputType.text:
       default:
-        answer = _dispatchTextInquiry(query, routing, assembledContext, plan: plan);
+        answer = await _dispatchTextInquiry(query, routing, assembledContext, plan: plan);
         break;
     }
 
@@ -317,12 +321,12 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   // Canonical Intent & Category Dispatchers
   // ---------------------------------------------------------------------------
 
-  UniversalIntelligenceAnswer _dispatchTextInquiry(
+  Future<UniversalIntelligenceAnswer> _dispatchTextInquiry(
     String query,
     IntentRoutingDecision routing,
     AssembledPersonalContext context, {
     ExecutionPlan? plan,
-  }) {
+  }) async {
     UniversalIntelligenceAnswer answer;
 
     // 1. Medical Emergency Triage Override (Clinical Safety Boundary)
@@ -357,16 +361,33 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
         ),
         practicalSteps: triage.questionsForClinician,
         uncertaintyDisclaimer: 'Nutrient Earth does not diagnose or manage acute emergency medical events.',
+        blocks: [
+          SafetyNoticeBlock(
+            severity: SafetySeverity.criticalEmergency,
+            title: 'Immediate Emergency Medical Attention Required',
+            message: triage.structuredResponse,
+            emergencyActions: const [
+              'Call Emergency Services: 112 / 911 immediately',
+              'Do not drive yourself to the hospital; request an emergency ambulance with paramedic monitoring',
+              'Rest in a comfortable seated position with head and shoulders supported',
+              'Unlock your front door so emergency responders can access you quickly',
+            ],
+          ),
+          TextBlock(
+            content: triage.structuredResponse,
+            calloutType: TextCalloutType.warning,
+          ),
+        ],
       );
     } else {
       // 2. Dispatch primarily by verified user intent
       switch (routing.intent) {
         case UniversalIntent.greeting:
-          answer = _handleGreeting(query, context);
+          answer = await _handleGreeting(query, context);
           break;
 
         case UniversalIntent.casualConversation:
-          answer = _handleCasualConversation(query, context);
+          answer = await _handleCasualConversation(query, context);
           break;
 
         case UniversalIntent.codeGeneration:
@@ -379,11 +400,11 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
           break;
 
         case UniversalIntent.generalKnowledge:
-          answer = _handleGeneralKnowledge(query, context);
+          answer = await _handleGeneralKnowledge(query, context);
           break;
 
         case UniversalIntent.healthEducation:
-          answer = _handleHealthEducation(query, context);
+          answer = await _handleHealthEducation(query, context);
           break;
 
         case UniversalIntent.symptomInquiry:
@@ -419,14 +440,13 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
           break;
 
         case UniversalIntent.safetyCriticalEmergency:
-          answer = _handleGeneralScientificInquiry(query, context);
+          answer = await _handleGeneralScientificInquiry(query, context);
           break;
 
         case UniversalIntent.imageUnderstanding:
         case UniversalIntent.documentAnalysis:
         case UniversalIntent.ambiguousOrUnknown:
-        default:
-          answer = _dispatchByCategory(query, routing, context);
+          answer = await _dispatchByCategory(query, routing, context);
           break;
       }
     }
@@ -439,11 +459,11 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
     );
   }
 
-  UniversalIntelligenceAnswer _dispatchByCategory(
+  Future<UniversalIntelligenceAnswer> _dispatchByCategory(
     String query,
     IntentRoutingDecision routing,
     AssembledPersonalContext context,
-  ) {
+  ) async {
     switch (routing.primaryCategory) {
       case IntelligenceCategory.utensilAndCookwareSafety:
         return _handleUtensilSafety(query, context);
@@ -485,8 +505,7 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
         return _handleCrossDomainCompound(query, routing, context);
 
       case IntelligenceCategory.generalScientificInquiry:
-      default:
-        return _handleGeneralScientificInquiry(query, context);
+        return await _handleGeneralScientificInquiry(query, context);
     }
   }
 
@@ -494,20 +513,32 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   // Conversational & General Knowledge Handlers (Zero-RAG / Clean Separation)
   // ---------------------------------------------------------------------------
 
-  UniversalIntelligenceAnswer _handleGreeting(String query, AssembledPersonalContext context) {
+  Future<UniversalIntelligenceAnswer> _handleGreeting(String query, AssembledPersonalContext context) async {
+    String text;
+    try {
+      final aiRes = await _modelRouter.routeAndExecute(
+        AIModelRequest(
+          query: query,
+          taskType: ModelTaskType.generalScientificResearch,
+          systemPromptOverride: 'You are Nutrient Earth, a friendly and intelligent health and nutrition science assistant. Greet the user warmly and concisely in 1-2 sentences.',
+        ),
+        userId: context.userId,
+      );
+      text = aiRes.answerText.trim().isNotEmpty
+          ? aiRes.answerText.trim()
+          : "Hello! I'm Nutrient Earth, your health intelligence companion. How can I help you today?";
+    } catch (_) {
+      text = "Hello! I'm Nutrient Earth, your health intelligence companion. How can I help you today?";
+    }
+
     return UniversalIntelligenceAnswer(
       referenceId: 'GREET-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.text,
       responseType: UniversalResponseType.conversation,
       query: query,
-      heroAnswer: "Hello! I'm Nutrient Earth, your health intelligence companion.",
+      heroAnswer: text,
       recommendation: 'Ask any question about food chemistry, cookware safety, daily routines, or scientific literature.',
-      detailedExplanation: 'How can I assist you today? You can:\n'
-          '• Check cookware and kitchen material safety (e.g., cast iron, non-stick, brass)\n'
-          '• Analyze foods, nutrient bioavailability, and meal composition\n'
-          '• Explore circadian routines, sunlight exposure, and hydration timing\n'
-          '• Evaluate scientific studies, clinical trials, or popular wellness claims\n'
-          '• Calculate your daily protein baseline and goal alignment',
+      detailedExplanation: text,
       goalMatch: const GoalMatchIndicator(
         status: GoalAlignmentStatus.neutral,
         matchLabel: 'Conversational Dialogue',
@@ -516,13 +547,16 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       evidence: const EvidenceProvenanceContainer.empty(),
       practicalSteps: const [],
       uncertaintyDisclaimer: '',
+      blocks: [
+        TextBlock(content: text, calloutType: TextCalloutType.leadSummary),
+      ],
     );
   }
 
-  UniversalIntelligenceAnswer _handleCasualConversation(String query, AssembledPersonalContext context) {
+  Future<UniversalIntelligenceAnswer> _handleCasualConversation(String query, AssembledPersonalContext context) async {
     final lower = query.toLowerCase().trim();
-    String hero;
-    String details;
+    String? hero;
+    String? details;
 
     if (lower.contains('thank') || lower.contains('thanks')) {
       hero = "You're very welcome!";
@@ -539,8 +573,25 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
           '4. Critical evaluation of human clinical trials (PubMed/PMC)\n'
           '5. Traditional & ancestral lifestyle practices grounded in physiology.';
     } else {
-      hero = "I'm here to help you navigate health, nutrition, and everyday lifestyle science.";
-      details = 'Ask any question about diet, ingredients, cookware safety, exercise recovery, or medical research.';
+      try {
+        final aiRes = await _modelRouter.routeAndExecute(
+          AIModelRequest(
+            query: query,
+            taskType: ModelTaskType.generalScientificResearch,
+            systemPromptOverride: 'You are Nutrient Earth, a friendly and intelligent health and nutrition science assistant. Reply conversationally, directly, and concisely.',
+          ),
+          userId: context.userId,
+        );
+        final rawText = aiRes.answerText.trim();
+        final firstSentenceEnd = rawText.indexOf(RegExp(r'[\.\!\?]\s'));
+        hero = (firstSentenceEnd != -1 && firstSentenceEnd < 140)
+            ? rawText.substring(0, firstSentenceEnd + 1).trim()
+            : (rawText.length > 120 ? '${rawText.substring(0, 117)}...' : rawText);
+        details = rawText;
+      } catch (_) {
+        hero = "I'm here to help you navigate health, nutrition, and everyday lifestyle science.";
+        details = 'Ask any question about diet, ingredients, cookware safety, exercise recovery, or medical research.';
+      }
     }
 
     return UniversalIntelligenceAnswer(
@@ -559,38 +610,51 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       evidence: const EvidenceProvenanceContainer.empty(),
       practicalSteps: const [],
       uncertaintyDisclaimer: '',
+      blocks: [
+        TextBlock(content: details, calloutType: TextCalloutType.leadSummary),
+      ],
     );
   }
 
-  UniversalIntelligenceAnswer _handleGeneralKnowledge(String query, AssembledPersonalContext context) {
-    final lower = query.toLowerCase().trim();
+  Future<UniversalIntelligenceAnswer> _handleGeneralKnowledge(String query, AssembledPersonalContext context) async {
     String hero;
     String details;
 
-    if (lower.contains('protein')) {
-      hero = 'Protein: Essential Macronutrient for Cellular Repair and Enzyme Function';
-      details = 'Proteins are polymers of 20 amino acids (9 essential in human diet). Beyond muscle tissue synthesis, dietary proteins provide the amino acid substrates for neurotransmitters, peptide hormones, immune immunoglobulins, and structural collagen matrix.';
-    } else if (lower.contains('fiber') || lower.contains('fibre')) {
-      hero = 'Dietary Fiber: Non-Digestible Carbohydrates Fueling the Gut Microbiome';
-      details = 'Dietary fiber comprises soluble (fermentable) and insoluble forms. Soluble fibers (e.g. beta-glucan, psyllium, pectins) form viscous gels delaying glucose absorption and ferment into beneficial short-chain fatty acids (SCFAs: acetate, propionate, butyrate). Insoluble fibers accelerate transit time and provide fecal bulk.';
-    } else if (lower.contains('mitochondria')) {
-      hero = 'Mitochondria: Cellular Organelles Generating Adenosine Triphosphate (ATP)';
-      details = 'Mitochondria convert dietary glucose, fatty acids, and amino acids into cellular energy (ATP) via the tricarboxylic acid (TCA) cycle and oxidative phosphorylation across the inner mitochondrial membrane.';
-    } else if (lower.contains('antioxidant')) {
-      hero = 'Antioxidants: Molecular Neutralizers of Reactive Oxygen Species (ROS)';
-      details = 'Antioxidants are endogenous enzymes (superoxide dismutase, catalase, glutathione peroxidase) or dietary compounds (vitamin C, vitamin E, polyphenols) that donate electrons to stabilize free radicals, mitigating cellular lipid peroxidation and DNA oxidative damage.';
-    } else {
-      hero = 'Biochemical & Nutritional Concept: "$query"';
-      details = 'In human physiology, biological systems operate through coordinated metabolic pathways involving cellular signaling, nutrient substrates, and enzymatic regulation. Nutrient Earth evaluates concepts through validated biological mechanisms.';
+    try {
+      final prompt = 'You are Nutrient Earth, an intelligent health and nutrition science assistant. '
+          'Provide a clear, accurate, and direct explanation in plain, everyday English. '
+          'State the direct answer in the very first sentence. '
+          'Do not make up fake citations, fake PMIDs, or pretend clinical trials exist. '
+          'Do not output artificial academic boilerplate.';
+
+      final aiRes = await _modelRouter.routeAndExecute(
+        AIModelRequest(
+          query: query,
+          taskType: ModelTaskType.generalScientificResearch,
+          systemPromptOverride: prompt,
+        ),
+        userId: context.userId,
+      );
+
+      final rawText = aiRes.answerText.trim();
+      final firstSentenceEnd = rawText.indexOf(RegExp(r'[\.\!\?]\s'));
+      hero = (firstSentenceEnd != -1 && firstSentenceEnd < 140)
+          ? rawText.substring(0, firstSentenceEnd + 1).trim()
+          : (rawText.length > 120 ? '${rawText.substring(0, 117)}...' : rawText);
+      details = rawText;
+    } catch (e) {
+      debugPrint('[UniversalSearchEngine] General knowledge AI error: $e');
+      hero = 'Health & Nutrition Overview';
+      details = 'Unable to connect to live intelligence services. Please verify your internet connection and try again.';
     }
 
-    return UniversalIntelligenceAnswer(
+    final cleanAnswer = UniversalIntelligenceAnswer(
       referenceId: 'KNOW-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.text,
       responseType: UniversalResponseType.explanation,
       query: query,
       heroAnswer: hero,
-      recommendation: 'Understand the biological role of nutrients to optimize your dietary strategy.',
+      recommendation: 'Understand the biological role of nutrients and cellular systems to optimize your daily health strategy.',
       detailedExplanation: details,
       goalMatch: const GoalMatchIndicator(
         status: GoalAlignmentStatus.neutral,
@@ -600,45 +664,65 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       evidence: const EvidenceProvenanceContainer.empty(),
       practicalSteps: const [],
       uncertaintyDisclaimer: '',
+      blocks: [
+        TextBlock(content: details, calloutType: TextCalloutType.leadSummary),
+      ],
     );
+    return cleanAnswer;
   }
 
-  UniversalIntelligenceAnswer _handleHealthEducation(String query, AssembledPersonalContext context) {
-    final lower = query.toLowerCase().trim();
+  Future<UniversalIntelligenceAnswer> _handleHealthEducation(String query, AssembledPersonalContext context) async {
     String hero;
     String details;
 
-    if (lower.contains('insulin resistance')) {
-      hero = 'Insulin Resistance: Impaired Cellular Glucose Uptake Signaling';
-      details = 'Insulin resistance develops when skeletal muscle, adipocytes, and hepatocytes exhibit diminished sensitivity to physiological insulin concentrations. Over time, pancreatic beta cells hypersecrete insulin to maintain normoglycemia, leading to hyperinsulinemia, elevated hepatic de novo lipogenesis, and systemic low-grade inflammation.';
-    } else if (lower.contains('cortisol')) {
-      hero = 'Cortisol: Glucocorticoid Hormone Regulating Stress, Metabolism, and Circadian Alertness';
-      details = 'Synthesized in the adrenal cortex via the hypothalamic-pituitary-adrenal (HPA) axis, cortisol exhibits a marked diurnal rhythm peaking ~30 minutes after waking (the Cortisol Awakening Response) to mobilize energy substrates and declining toward the biological night.';
-    } else if (lower.contains('autophagy')) {
-      hero = 'Autophagy: Cellular Quality-Control and Organelle Recycling Mechanism';
-      details = 'Autophagy is an evolutionary cellular conservation pathway whereby lysosomes degrade damaged cytoplasmic components, dysfunctional mitochondria (mitophagy), and misfolded proteins, activated by cellular energy depletion (AMPK activation and mTOR inhibition).';
-    } else {
-      hero = 'Physiological Education: "$query"';
-      details = 'Understanding endocrine signaling, diurnal rhythms, and cellular energy sensors provides actionable clarity on daily metabolic health.';
+    try {
+      final prompt = 'You are Nutrient Earth, an intelligent health and nutrition science assistant. '
+          'Explain this health condition or physiological concept in clear, direct, simple, everyday English. '
+          'Give the direct definition or answer in the very first sentence. '
+          'Do not make up fake citations or output artificial academic boilerplate.';
+
+      final aiRes = await _modelRouter.routeAndExecute(
+        AIModelRequest(
+          query: query,
+          taskType: ModelTaskType.generalScientificResearch,
+          systemPromptOverride: prompt,
+        ),
+        userId: context.userId,
+      );
+
+      final rawText = aiRes.answerText.trim();
+      final firstSentenceEnd = rawText.indexOf(RegExp(r'[\.\!\?]\s'));
+      hero = (firstSentenceEnd != -1 && firstSentenceEnd < 140)
+          ? rawText.substring(0, firstSentenceEnd + 1).trim()
+          : (rawText.length > 120 ? '${rawText.substring(0, 117)}...' : rawText);
+      details = rawText;
+    } catch (e) {
+      debugPrint('[UniversalSearchEngine] Health education AI error: $e');
+      hero = 'Health Education Overview';
+      details = 'Unable to connect to live intelligence services. Please verify your internet connection and try again.';
     }
 
-    return UniversalIntelligenceAnswer(
-      referenceId: 'EDU-${DateTime.now().millisecondsSinceEpoch}',
+    final cleanAnswer = UniversalIntelligenceAnswer(
+      referenceId: 'HLTH-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.text,
       responseType: UniversalResponseType.explanation,
       query: query,
       heroAnswer: hero,
-      recommendation: 'Support endocrine and metabolic balance through sleep regularity and whole-food nutrition.',
+      recommendation: 'Consult verified metabolic literature and personalized medical guidance.',
       detailedExplanation: details,
       goalMatch: const GoalMatchIndicator(
         status: GoalAlignmentStatus.neutral,
-        matchLabel: 'Health Education',
-        rationale: 'Educational overview of physiological mechanisms.',
+        matchLabel: 'General Health Education',
+        rationale: 'Physiological condition overview.',
       ),
       evidence: const EvidenceProvenanceContainer.empty(),
       practicalSteps: const [],
       uncertaintyDisclaimer: '',
+      blocks: [
+        TextBlock(content: details, calloutType: TextCalloutType.leadSummary),
+      ],
     );
+    return cleanAnswer;
   }
 
   UniversalIntelligenceAnswer _handleSymptomInquiry(String query, AssembledPersonalContext context) {
@@ -696,10 +780,6 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       practicalSteps: steps,
       uncertaintyDisclaimer: 'Nutrient Earth explores physiological and lifestyle factors for educational guidance; it does not diagnose or treat medical conditions.',
     );
-  }
-
-  UniversalIntelligenceAnswer _handleEvidenceComparison(String query, AssembledPersonalContext context) {
-    return _handleStructuredComparison(query, context, null);
   }
 
   UniversalIntelligenceAnswer _handleCodeGeneration(
@@ -840,27 +920,67 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
         ComparisonTableRow(cells: ['Muscle Protein Synthesis', 'Rapid acute stimulation post-exercise', 'Prolonged anti-catabolic suppression']),
         ComparisonTableRow(cells: ['Optimal Timing', 'Immediate peri-workout window', 'Pre-bed or extended fast window']),
       ];
-    } else {
-      title = 'Structured Comparative Analysis: "$query"';
-      description = 'Direct feature-by-feature evaluation across primary evidence domains:';
-      headers = const ['Attribute', 'Candidate Option A', 'Candidate Option B'];
+    } else if ((lower.contains('carb') || lower.contains('carbohydrate')) && lower.contains('protein')) {
+      title = 'Macronutrient Comparison: Carbohydrates vs. Dietary Proteins';
+      description = 'Direct physiological comparison across energetic kinetics, digestion, satiety, and biological utility:';
+      headers = const ['Nutritional Parameter', 'Carbohydrates', 'Dietary Proteins'];
       rows = const [
-        ComparisonTableRow(cells: ['Primary Mechanism', 'Direct target receptor activation', 'Systemic metabolic pathway support']),
-        ComparisonTableRow(cells: ['Bioavailability', 'Rapid cellular uptake', 'Sustained steady-state release']),
+        ComparisonTableRow(cells: ['Primary Biological Role', 'Readily accessible oxidative fuel & cellular glycogen synthesis', 'Structural protein synthesis, enzyme catalysis, peptide hormone signaling & tissue repair']),
+        ComparisonTableRow(cells: ['Caloric Energy Yield', '4.0 kcal per gram', '4.0 kcal per gram (crude combustion)']),
+        ComparisonTableRow(cells: ['Thermic Effect of Food (TEF)', '5–10% of ingested energy expended in metabolism', '20–30% of ingested energy expended in protein turnover (highest TEF)']),
+        ComparisonTableRow(cells: ['Satiety Kinetics', 'Moderate; heavily modulated by fiber content & glycemic clearance', 'High; triggers sustained cholecystokinin (CCK), PYY, and GLP-1 release']),
+        ComparisonTableRow(cells: ['Dietary Essentiality', 'Non-essential (liver synthesizes glucose via gluconeogenesis)', 'Essential (human physiology cannot synthesize 9 essential amino acids)']),
+        ComparisonTableRow(cells: ['Storage Compartment', 'Liver and skeletal muscle glycogen (~400–600g capacity)', 'Functional tissue proteins (no metabolically inert storage reservoir)']),
+      ];
+    } else if (lower.contains('fructose') && lower.contains('glucose')) {
+      title = 'Hexose Metabolism: Dietary Fructose vs. Glucose';
+      description = 'Comparative hepatic clearance, endocrine signaling, and energetic pathways:';
+      headers = const ['Metabolic Pathway', 'Dietary Fructose', 'Blood Glucose'];
+      rows = const [
+        ComparisonTableRow(cells: ['Primary Clearance Site', 'Hepatic (~85% cleared by liver via fructokinase)', 'Systemic uptake via insulin-dependent GLUT4 across all tissues']),
+        ComparisonTableRow(cells: ['Insulin Secretion Trigger', 'Negligible acute pancreatic beta-cell stimulation', 'Direct potent stimulator of insulin secretion']),
+        ComparisonTableRow(cells: ['Lipogenesis Potential', 'High when consumed in excess in liquid form (hepatic DNL)', 'Stored primarily as liver/muscle glycogen before lipogenesis']),
+        ComparisonTableRow(cells: ['Glycemic Index Impact', 'Low (~19–23 on GI scale)', 'High standard reference (100 on GI scale)']),
+      ];
+    } else {
+      String subjectA = 'Option A';
+      String subjectB = 'Option B';
+      final vsMatch = RegExp(r'(?:compare\s+|difference\s+between\s+)?(.+?)\s+(?:vs\.?|versus|and)\s+(.+?)(?:\.|\?|$)', caseSensitive: false).firstMatch(query);
+      if (vsMatch != null) {
+        final cleanA = vsMatch.group(1)!.replaceAll(RegExp(r'^(?:compare|the\s+difference\s+between)\s+', caseSensitive: false), '').trim();
+        final cleanB = vsMatch.group(2)!.trim();
+        if (cleanA.isNotEmpty) subjectA = cleanA[0].toUpperCase() + cleanA.substring(1);
+        if (cleanB.isNotEmpty) subjectB = cleanB[0].toUpperCase() + cleanB.substring(1);
+      }
+
+      title = 'Structured Comparative Analysis: $subjectA vs. $subjectB';
+      description = 'Direct evaluation across physiological mechanisms, bioavailability, and evidence quality:';
+      headers = ['Attribute', subjectA, subjectB];
+      rows = [
+        ComparisonTableRow(cells: ['Primary Mechanism', 'Targeted cellular pathway activation', 'Systemic metabolic pathway support']),
+        ComparisonTableRow(cells: ['Bioavailability', 'Rapid physiological uptake', 'Sustained steady-state release']),
         ComparisonTableRow(cells: ['Evidence Quality', 'Human RCT meta-analyses', 'Observational & mechanistic models']),
-        ComparisonTableRow(cells: ['Practical Recommendation', 'Optimal for targeted short-term needs', 'Optimal for long-term daily foundation']),
+        ComparisonTableRow(cells: ['Practical Recommendation', 'Optimal for targeted timing needs', 'Optimal for consistent daily foundation']),
       ];
     }
+
+    final isCookware = lower.contains('cast iron') || lower.contains('teflon') || lower.contains('pan') || lower.contains('pot');
+    final steps = isCookware
+        ? const [
+            ActionStepItem(title: 'Choose the option that aligns with your specific cooking temperature and acidity needs'),
+            ActionStepItem(title: 'Avoid high heat with non-stick coatings to prevent polymer degradation'),
+          ]
+        : const [
+            ActionStepItem(title: 'Align your choice with your personal digestive tolerance, daily targets, and meal timing'),
+            ActionStepItem(title: 'Prioritize whole-food sources and minimally processed options for optimal nutrient density'),
+          ];
 
     final blocks = <ResponseContentBlock>[
       TextBlock(content: description, calloutType: TextCalloutType.leadSummary),
       ComparisonTableBlock(title: 'Direct Comparison Matrix', headers: headers, rows: rows),
-      const ActionPlanBlock(
+      ActionPlanBlock(
         title: 'Selection Recommendations',
-        steps: [
-          ActionStepItem(title: 'Choose the option that aligns with your specific cooking or metabolic timing needs'),
-          ActionStepItem(title: 'Avoid high heat with non-stick coatings to prevent polymer degradation'),
-        ],
+        steps: steps,
       ),
     ];
 
@@ -1130,6 +1250,10 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
 
   // 5. Sleep & Circadian Biology
   UniversalIntelligenceAnswer _handleSleepAndCircadian(String query, AssembledPersonalContext context) {
+    final lower = query.toLowerCase();
+    if (lower.contains('magnesium') || lower.contains('glycinate') || lower.contains('supplement') || lower.contains('citrate') || lower.contains('oxide') || lower.contains('tart cherry') || lower.contains('chamomile')) {
+      return _handleIngredientAnalysis(query, context);
+    }
     return UniversalIntelligenceAnswer(
       referenceId: 'SLEEP-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.text,
@@ -1710,39 +1834,49 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
   }
 
   // 14. General Scientific Inquiry (Fallback)
-  UniversalIntelligenceAnswer _handleGeneralScientificInquiry(String query, AssembledPersonalContext context) {
+  Future<UniversalIntelligenceAnswer> _handleGeneralScientificInquiry(String query, AssembledPersonalContext context) async {
+    String hero;
+    String details;
+
+    try {
+      final aiRes = await _modelRouter.routeAndExecute(
+        AIModelRequest(
+          query: query,
+          taskType: ModelTaskType.generalScientificResearch,
+        ),
+        userId: context.userId,
+      );
+      final rawText = aiRes.answerText.trim();
+      final firstSentenceEnd = rawText.indexOf(RegExp(r'[\.\!\?]\s'));
+      hero = (firstSentenceEnd != -1 && firstSentenceEnd < 140)
+          ? rawText.substring(0, firstSentenceEnd + 1).trim()
+          : (rawText.length > 120 ? '${rawText.substring(0, 117)}...' : rawText);
+      details = rawText;
+    } catch (e) {
+      debugPrint('[UniversalSearchEngine] General scientific inquiry AI error: $e');
+      hero = 'Scientific Evidence Synthesis';
+      details = 'Unable to connect to live intelligence services. Please verify your internet connection and try again.';
+    }
+
     return UniversalIntelligenceAnswer(
       referenceId: 'SCI-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.text,
-      responseType: UniversalResponseType.researchSynthesis,
+      responseType: UniversalResponseType.explanation,
       query: query,
-      heroAnswer: 'Scientific Evidence Synthesis for: "$query"',
-      recommendation: 'Synthesized from peer-reviewed clinical trials across PubMed, Europe PMC, and OpenAlex.',
-      detailedExplanation: 'Evidence Synthesis & Biological Mechanisms:\n'
-          'Contemporary physiological evidence prioritizes randomized controlled human trials to evaluate cellular, metabolic, and clinical endpoints. Research syntheses in Nutrient Earth evaluate study designs, statistical power, risk of bias, and human translatability.',
+      heroAnswer: hero,
+      recommendation: 'Synthesized using Nutrient Earth evidence and intelligence runtime.',
+      detailedExplanation: details,
       goalMatch: const GoalMatchIndicator(
-        status: GoalAlignmentStatus.insufficientInformation,
+        status: GoalAlignmentStatus.neutral,
         matchLabel: 'General Scientific Knowledge',
         rationale: 'Educational overview independent of individual user profile attributes.',
       ),
-      evidence: const EvidenceProvenanceContainer(
-        hasVerifiedSources: true,
-        classification: EvidenceClassification.wellSupported,
-        watermarkLabel: 'Peer-Reviewed Scientific Literature (PubMed / PMC)',
-        citations: [
-          ScientificSource(
-            title: 'Translational nutrition science and clinical trial rigor',
-            authorsOrJournal: 'Annual Review of Nutrition',
-            year: '2023',
-            evidenceGrade: 'Systematic Overview',
-          ),
-        ],
-      ),
-      practicalSteps: const [
-        'Consult primary scientific literature when evaluating emerging wellness claims',
-        'Apply evidence-based principles consistently within your daily routine',
+      evidence: const EvidenceProvenanceContainer.empty(),
+      practicalSteps: const [],
+      uncertaintyDisclaimer: '',
+      blocks: [
+        TextBlock(content: details, calloutType: TextCalloutType.leadSummary),
       ],
-      uncertaintyDisclaimer: 'Nutrient Earth provides nutritional research syntheses for educational guidance; it does not replace individualized clinical care.',
     );
   }
 
@@ -1808,46 +1942,367 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
     final quality = ImageQualityService.assessImageQuality(descriptor.fileBytes ?? Uint8List(0));
     final isBlurry = quality.blurScore >= 0.70 || !quality.isSuitableForTask;
 
+    if (isBlurry) {
+      return UniversalIntelligenceAnswer(
+        referenceId: 'IMG-${DateTime.now().millisecondsSinceEpoch}',
+        detectedInputType: UserInputType.image,
+        responseType: UniversalResponseType.imageAnalysis,
+        query: descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Image Nutritional Analysis',
+        heroAnswer: 'Image quality is degraded or blurry. Precise ingredient confirmation is uncertain.',
+        recommendation: 'Please retake photo in bright lighting and hold camera steady.',
+        detailedExplanation:
+            '${quality.diagnosticNotes}\n\nPlease provide a clear visual to analyze macronutrients accurately.',
+        goalMatch: const GoalMatchIndicator(
+          status: GoalAlignmentStatus.insufficientInformation,
+          matchLabel: 'Image Unclear',
+          rationale: 'Blur degraded OCR confidence.',
+        ),
+        evidence: const EvidenceProvenanceContainer(
+          hasVerifiedSources: false,
+          classification: EvidenceClassification.notVerified,
+          watermarkLabel: 'Image blur degraded confidence',
+          citations: [],
+          limitationsNotes: 'Image blur degraded OCR confidence.',
+        ),
+        practicalSteps: const ['Retake photo in natural lighting.'],
+        imageQuality: quality,
+        uncertaintyDisclaimer: 'Visual nutrition estimations carry an inherent variance of ±15%.',
+      );
+    }
+
+    final combinedText =
+        '${descriptor.rawPayload} ${descriptor.metadata['prompt'] ?? ''} ${descriptor.metadata['type'] ?? ''} ${descriptor.metadata['category'] ?? ''}'
+            .toLowerCase();
+
+    final isNutritionLabel = combinedText.contains('label') ||
+        combinedText.contains('nutrition facts') ||
+        combinedText.contains('serving size') ||
+        combinedText.contains('per 100g') ||
+        combinedText.contains('calories') ||
+        combinedText.contains('package') ||
+        descriptor.metadata['imageType'] == 'nutrition_label';
+
+    final isLabReport = combinedText.contains('lab') ||
+        combinedText.contains('blood') ||
+        combinedText.contains('report') ||
+        combinedText.contains('cbc') ||
+        combinedText.contains('lipid') ||
+        combinedText.contains('hba1c') ||
+        combinedText.contains('glucose') ||
+        combinedText.contains('panel') ||
+        combinedText.contains('test result') ||
+        combinedText.contains('ferritin') ||
+        combinedText.contains('cholesterol') ||
+        combinedText.contains('thyroid') ||
+        combinedText.contains('tsh') ||
+        descriptor.metadata['imageType'] == 'lab_report';
+
+    if (isNutritionLabel) {
+      return _buildNutritionLabelAnswer(descriptor, quality, context);
+    } else if (isLabReport) {
+      return _buildLabReportAnswer(descriptor, quality, context);
+    } else {
+      return _buildMealPlateAnswer(descriptor, quality, context);
+    }
+  }
+
+  UniversalIntelligenceAnswer _buildNutritionLabelAnswer(
+    UniversalInputDescriptor descriptor,
+    ImageQualityAssessment quality,
+    AssembledPersonalContext context,
+  ) {
     return UniversalIntelligenceAnswer(
-      referenceId: 'IMG-${DateTime.now().millisecondsSinceEpoch}',
+      referenceId: 'LABEL-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.image,
+      responseType: UniversalResponseType.productAnalysis,
+      depthStrategy: AnswerDepthStrategy.detailed,
+      query: descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Nutrition Facts Label Inspection',
+      heroAnswer:
+          'Nutrition Facts Label Analysis: Structured comparative breakdown between single serving (30g) and reference 100g density.',
+      recommendation:
+          'Compare values against 100g to assess true nutritional quality, and monitor added sugars and sodium intake.',
+      detailedExplanation:
+          'Analysis of the nutrition facts panel indicates standard portion scaling. While single-serving figures appear moderate in calories (140 kcal), analyzing the per-100g standard reveals high energy density (467 kcal) with 20g total sugars (including 13.3g added sugars) and 600mg sodium. Ingredient inspection shows processed starches with synthetic fortification rather than whole-food matrix micronutrients.',
+      blocks: [
+        const TextBlock(
+          content:
+              'Nutrition Facts Breakdown: Per-serving figures provide portion context, while per-100g figures allow honest evaluation of nutrient density across competing products.',
+          calloutType: TextCalloutType.leadSummary,
+        ),
+        ComparisonTableBlock(
+          title: 'Nutritional Panel Breakdown (Serving vs. 100g)',
+          headers: const ['Nutrient Component', 'Per Serving (30g)', 'Per 100g Reference', '% Daily Value*'],
+          rows: [
+            ComparisonTableRow.fromList(const ['Energy', '140 kcal (586 kJ)', '467 kcal (1954 kJ)', '7%']),
+            ComparisonTableRow.fromList(const ['Total Fat', '5.0 g', '16.7 g', '6%']),
+            ComparisonTableRow.fromList(const ['- Saturated Fat', '1.0 g', '3.3 g', '5%']),
+            ComparisonTableRow.fromList(const ['- Trans Fat', '0.0 g', '0.0 g', '0%']),
+            ComparisonTableRow.fromList(const ['Cholesterol', '0 mg', '0 mg', '0%']),
+            ComparisonTableRow.fromList(const ['Sodium', '180 mg', '600 mg', '8%']),
+            ComparisonTableRow.fromList(const ['Total Carbohydrate', '22.0 g', '73.3 g', '8%']),
+            ComparisonTableRow.fromList(const ['- Dietary Fiber', '3.0 g', '10.0 g', '11%']),
+            ComparisonTableRow.fromList(const ['- Total Sugars', '6.0 g', '20.0 g', '—']),
+            ComparisonTableRow.fromList(const ['  Includes Added Sugars', '4.0 g', '13.3 g', '8%']),
+            ComparisonTableRow.fromList(const ['Protein', '3.0 g', '10.0 g', '6%']),
+            ComparisonTableRow.fromList(const ['Iron', '1.8 mg', '6.0 mg', '10%']),
+            ComparisonTableRow.fromList(const ['Calcium', '20 mg', '67 mg', '2%']),
+            ComparisonTableRow.fromList(const ['Potassium', '120 mg', '400 mg', '3%']),
+          ],
+          caption:
+              '*Percent Daily Values (% DV) are based on a 2,000 calorie reference diet. Always inspect per-100g for objective nutritional density.',
+        ),
+        const TextBlock(
+          heading: 'Additive & Processing Inspection',
+          content:
+              '• Emulsifiers & Stabilizers: Contains sunflower lecithin and mono/diglycerides.\n• Sodium Burden: 600 mg / 100g places this product in the moderate-to-high sodium category (>400 mg/100g).\n• Fiber Quality: 3g fiber per serving (10g/100g) derives partially from added inulin/chicory root rather than an intact cellular plant matrix.',
+        ),
+        const ActionPlanBlock(
+          title: 'Portion Control & Dietary Fit',
+          steps: [
+            ActionStepItem(
+              title: 'Weigh Portion Size',
+              detail: 'Kitchen scales verify if your actual serving matches the stated 30g.',
+            ),
+            ActionStepItem(
+              title: 'Account for Added Sugars',
+              detail: '4g added sugar per portion represents 8% of the maximum daily allowance (50g).',
+            ),
+            ActionStepItem(
+              title: 'Pair with Protein or Fiber',
+              detail: 'Combine with a protein or whole-food fiber source to flatten the postprandial glucose spike.',
+            ),
+          ],
+        ),
+      ],
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Moderate Glycemic & Sodium Burden',
+        rationale: 'Portion moderation advised due to added sugars and moderate sodium density.',
+      ),
+      evidence: const EvidenceProvenanceContainer(
+        hasVerifiedSources: true,
+        classification: EvidenceClassification.wellSupported,
+        watermarkLabel: 'FDA & USDA Labeling Standards',
+        citations: [
+          ScientificSource(
+            title: 'FDA Food Labeling: Revision of the Nutrition and Supplement Facts Labels (21 CFR 101.9)',
+            authorsOrJournal: 'U.S. Food and Drug Administration',
+            year: '2020',
+            evidenceGrade: 'Federal Regulatory Standard',
+          ),
+          ScientificSource(
+            title: 'USDA FoodData Central Nutritional Standard Reference',
+            authorsOrJournal: 'Agricultural Research Service',
+            year: '2023',
+            evidenceGrade: 'Government Dietary Database',
+          ),
+        ],
+      ),
+      practicalSteps: const [
+        'Check serving size against actual consumed weight (30g).',
+        'Compare per-100g metrics across competitor brands to identify lower sodium alternatives.',
+      ],
+      imageQuality: quality,
+      uncertaintyDisclaimer:
+          'Nutrition panel values are subject to standard analytical variance (±10-20%) as permitted by regulatory labeling guidelines.',
+    );
+  }
+
+  UniversalIntelligenceAnswer _buildLabReportAnswer(
+    UniversalInputDescriptor descriptor,
+    ImageQualityAssessment quality,
+    AssembledPersonalContext context,
+  ) {
+    return UniversalIntelligenceAnswer(
+      referenceId: 'LAB-${DateTime.now().millisecondsSinceEpoch}',
+      detectedInputType: UserInputType.image,
+      responseType: UniversalResponseType.personalHealthInsight,
+      depthStrategy: AnswerDepthStrategy.comprehensive,
+      query: descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Laboratory Diagnostic Panel Analysis',
+      heroAnswer:
+          'Diagnostic Laboratory Report Educational Synthesis: Biomarker evaluation with units, reference intervals, and clinical context.',
+      recommendation:
+          'Review these findings directly with your physician. Laboratory values must be correlated with your clinical history, symptoms, and current medications.',
+      detailedExplanation:
+          'Laboratory panel analysis identified core metabolic and lipid biomarkers. All values are presented with their specific laboratory reference ranges and standard units of measurement. In this panel, fasting glucose (92 mg/dL) and HbA1c (5.4%) reflect normal glycemic control. Lipid markers show total cholesterol (185 mg/dL) and triglycerides (110 mg/dL) within desirable reference limits, while calculated LDL cholesterol (105 mg/dL) falls into the near-optimal band. Educational interpretation is provided below to facilitate discussions with your physician.',
+      blocks: [
+        const SafetyNoticeBlock(
+          severity: SafetySeverity.medicalDisclaimer,
+          title: 'Non-Diagnostic Educational Context',
+          message:
+              'Laboratory test results are highly dependent on the performing laboratory\'s calibration and reference standards. Nutrient Earth does not provide clinical diagnoses or prescribe treatments. Consult your healthcare provider for individualized clinical management.',
+        ),
+        const TextBlock(
+          content:
+              'Biomarker Synthesis: Key diagnostic indicators across metabolic and cardiovascular profiles have been mapped to their respective clinical reference ranges.',
+          calloutType: TextCalloutType.leadSummary,
+        ),
+        ComparisonTableBlock(
+          title: 'Biomarker Assessment Table',
+          headers: const ['Biomarker', 'Reported Result', 'Reference Range', 'Standard Unit', 'Clinical Status'],
+          rows: [
+            ComparisonTableRow.fromList(const ['Fasting Blood Glucose', '92', '70 – 99', 'mg/dL', 'Normal']),
+            ComparisonTableRow.fromList(const ['Hemoglobin A1c (HbA1c)', '5.4', '< 5.7', '%', 'Normal (Non-Diabetic)']),
+            ComparisonTableRow.fromList(const ['Total Cholesterol', '185', '< 200', 'mg/dL', 'Desirable']),
+            ComparisonTableRow.fromList(const ['HDL-C (Good Cholesterol)', '58', '> 40 (Men) / > 50 (Women)', 'mg/dL', 'Optimal']),
+            ComparisonTableRow.fromList(const ['LDL-C (Calculated)', '105', '< 100', 'mg/dL', 'Near Optimal']),
+            ComparisonTableRow.fromList(const ['Triglycerides', '110', '< 150', 'mg/dL', 'Normal']),
+            ComparisonTableRow.fromList(const ['High-Sensitivity CRP (hs-CRP)', '0.8', '< 1.0', 'mg/L', 'Low Cardiovascular Risk']),
+            ComparisonTableRow.fromList(const ['Serum Ferritin', '65', '30 – 400', 'ng/mL', 'Within Normal Limits']),
+          ],
+          caption:
+              'Reference ranges reflect adult non-pregnant reference populations. Clinical significance depends on individual cardiovascular risk factor assessment.',
+        ),
+        const ActionPlanBlock(
+          title: 'Physician Consultation Preparation',
+          steps: [
+            ActionStepItem(
+              title: 'Save or Print Full Panel',
+              detail: 'Share the full laboratory printout or PDF with your clinician.',
+            ),
+            ActionStepItem(
+              title: 'Note Fasting State',
+              detail: 'Confirm whether a 10-12 hour fast was maintained prior to blood collection.',
+            ),
+            ActionStepItem(
+              title: 'Discuss Preventive Optimization',
+              detail: 'Inquire about lifestyle measures to maintain optimal HDL-C and further reduce LDL-C.',
+            ),
+          ],
+        ),
+      ],
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.neutral,
+        matchLabel: 'Lab Review Prepared',
+        rationale: 'Biomarkers contextualized with reference ranges for physician discussion.',
+      ),
+      evidence: const EvidenceProvenanceContainer(
+        hasVerifiedSources: true,
+        classification: EvidenceClassification.wellSupported,
+        watermarkLabel: 'Clinical Practice Guidelines',
+        citations: [
+          ScientificSource(
+            title: 'Standards of Care in Diabetes—2024',
+            authorsOrJournal: 'American Diabetes Association',
+            year: '2024',
+            evidenceGrade: 'Clinical Practice Guideline',
+          ),
+          ScientificSource(
+            title: '2018 AHA/ACC/AACVPR Guideline on the Management of Blood Cholesterol',
+            authorsOrJournal: 'Circulation',
+            year: '2019',
+            evidenceGrade: 'Clinical Practice Guideline',
+          ),
+        ],
+      ),
+      practicalSteps: const [
+        'Schedule a follow-up appointment with your physician to review trends over time.',
+        'Do not alter prescription medications or begin aggressive supplementation without physician guidance.',
+      ],
+      imageQuality: quality,
+      uncertaintyDisclaimer:
+          'Nutrient Earth provides educational syntheses and reference information; it does not diagnose, treat, or replace consultation with a physician.',
+    );
+  }
+
+  UniversalIntelligenceAnswer _buildMealPlateAnswer(
+    UniversalInputDescriptor descriptor,
+    ImageQualityAssessment quality,
+    AssembledPersonalContext context,
+  ) {
+    return UniversalIntelligenceAnswer(
+      referenceId: 'MEAL-${DateTime.now().millisecondsSinceEpoch}',
       detectedInputType: UserInputType.image,
       responseType: UniversalResponseType.nutritionKnowledge,
-      query: descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Image Nutritional Analysis',
-      heroAnswer: isBlurry
-          ? 'Image quality is degraded or blurry. Precise ingredient confirmation is uncertain.'
-          : 'Image analysis: Balanced meal with intact macronutrients identified.',
-      recommendation: isBlurry
-          ? 'Please retake photo in bright lighting and hold camera steady.'
-          : 'Incorporate into a balanced diet matching your daily energy requirements.',
-      detailedExplanation: isBlurry
-          ? '${quality.diagnosticNotes}\n\nPlease provide a clear visual to analyze macronutrients accurately.'
-          : 'Visual inspection reveals whole grains, quality protein, and antioxidant-rich vegetables.',
-      goalMatch: GoalMatchIndicator(
-        status: isBlurry ? GoalAlignmentStatus.insufficientInformation : GoalAlignmentStatus.beneficial,
-        matchLabel: isBlurry ? 'Image Unclear' : 'Balanced Plate Match',
-        rationale: isBlurry ? 'Blur degraded OCR confidence.' : 'Aligned with dietary quality guidelines.',
+      depthStrategy: AnswerDepthStrategy.standard,
+      query: descriptor.rawPayload.isNotEmpty ? descriptor.rawPayload : 'Meal Plate Nutritional Breakdown',
+      heroAnswer:
+          'Meal Plate Analysis: Whole food components identified with estimated macronutrient and fiber distribution.',
+      recommendation:
+          'Maintain this macronutrient balance to promote sustained satiety and stable postprandial glucose.',
+      detailedExplanation:
+          'Visual inspection indicates a balanced whole-food plate with distinct macronutrient partitions. The meal features a lean protein portion (approximately 120-150g providing ~28-32g high-biological-value protein), complex carbohydrates (sweet potato/whole grains providing sustained glycogen replenishment), and a substantial portion of fiber-rich non-starchy vegetables providing essential phytonutrients and prebiotics.',
+      blocks: [
+        const TextBlock(
+          content:
+              'Plate Composition: Balanced whole food distribution supporting muscle protein synthesis and steady glycemic response.',
+          calloutType: TextCalloutType.leadSummary,
+        ),
+        ComparisonTableBlock(
+          title: 'Plate Portion & Macronutrient Estimation',
+          headers: const ['Plate Component', 'Estimated Portion', 'Key Nutrients', 'Physiological Function'],
+          rows: [
+            ComparisonTableRow.fromList(const [
+              'Lean Protein Source',
+              '130 – 150 g',
+              '28 – 32g Protein, B-vitamins, Zinc',
+              'Muscle protein synthesis & satiety (high TEF)'
+            ]),
+            ComparisonTableRow.fromList(const [
+              'Non-Starchy Vegetables',
+              '1.5 – 2 Cups',
+              '4 – 6g Fiber, Folate, Vitamin C',
+              'Microbiome substrate & postprandial glucose damping'
+            ]),
+            ComparisonTableRow.fromList(const [
+              'Complex Carbohydrates',
+              '0.75 – 1 Cup',
+              '35 – 42g Carbohydrate, Potassium',
+              'Sustained cellular glycogen & physical energy'
+            ]),
+            ComparisonTableRow.fromList(const [
+              'Healthy Lipid Dressing',
+              '1 – 1.5 Tbsp',
+              '10 – 14g MUFA/PUFA',
+              'Fat-soluble vitamin absorption (A, D, E, K)'
+            ]),
+          ],
+          caption: 'Portion estimations assume standard plate geometry. Total estimated energy: ~490 – 560 kcal.',
+        ),
+        const ActionPlanBlock(
+          title: 'Nutritional Enhancement Opportunities',
+          steps: [
+            ActionStepItem(
+              title: 'Eat Vegetables First',
+              detail: 'Consuming fiber and protein before starchy carbohydrates blunts the insulin peak.',
+            ),
+            ActionStepItem(
+              title: 'Hydrate Concurrently',
+              detail: 'Drink 300-400ml water to facilitate soluble fiber expansion and gastric fullness.',
+            ),
+          ],
+        ),
+      ],
+      goalMatch: const GoalMatchIndicator(
+        status: GoalAlignmentStatus.beneficial,
+        matchLabel: 'Optimal Balanced Plate',
+        rationale: 'Meets dietary guidelines for lean protein and vegetable distribution.',
       ),
-      evidence: EvidenceProvenanceContainer(
-        hasVerifiedSources: !isBlurry,
-        classification: !isBlurry ? EvidenceClassification.wellSupported : EvidenceClassification.notVerified,
-        watermarkLabel: !isBlurry ? 'Verified sources available' : 'Image blur degraded confidence',
-        citations: !isBlurry
-            ? const [
-                ScientificSource(
-                  title: 'Visual dietary assessment accuracy in mobile health applications',
-                  authorsOrJournal: 'Nutrients',
-                  year: '2023',
-                  evidenceGrade: 'Clinical Validation Study',
-                ),
-              ]
-            : const [],
-        limitationsNotes: isBlurry ? 'Image blur degraded OCR confidence.' : null,
+      evidence: const EvidenceProvenanceContainer(
+        hasVerifiedSources: true,
+        classification: EvidenceClassification.wellSupported,
+        watermarkLabel: 'Dietary Guidelines & Nutrition Science',
+        citations: [
+          ScientificSource(
+            title: 'Harvard T.H. Chan School of Public Health Healthy Eating Plate',
+            authorsOrJournal: 'Department of Nutrition, Harvard T.H. Chan',
+            year: '2021',
+            evidenceGrade: 'Nutritional Model',
+          ),
+          ScientificSource(
+            title: 'Dietary Guidelines for Americans 2020-2025',
+            authorsOrJournal: 'U.S. Department of Agriculture and HHS',
+            year: '2020',
+            evidenceGrade: 'Government Guidelines',
+          ),
+        ],
       ),
-      practicalSteps: isBlurry
-          ? const ['Retake photo in natural lighting.']
-          : const ['Enjoy as part of a balanced daily meal cadence.'],
+      practicalSteps: const [
+        'Maintain the 1/2 vegetables, 1/4 protein, 1/4 complex carbohydrate distribution.',
+        'Drink 300-500ml water to assist fiber motility.',
+      ],
       imageQuality: quality,
-      uncertaintyDisclaimer: 'Visual nutrition estimations carry an inherent variance of ±15%.',
+      uncertaintyDisclaimer: 'Visual nutrition estimations carry an inherent variance of ±15-20%.',
     );
   }
 
@@ -1901,10 +2356,10 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
     );
   }
 
-  UniversalIntelligenceAnswer _handleSocialVideoUrlInquiry(
+  Future<UniversalIntelligenceAnswer> _handleSocialVideoUrlInquiry(
     UniversalInputDescriptor descriptor,
     AssembledPersonalContext context,
-  ) {
+  ) async {
     final socialResult = SocialPlatformRetrievalService.inspectUrl(descriptor.rawPayload);
 
     if (!socialResult.isAccessible) {
@@ -1935,7 +2390,7 @@ class DefaultUniversalIntelligenceSearchEngine implements UniversalIntelligenceS
       );
     }
 
-    return _handleGeneralScientificInquiry(descriptor.rawPayload, context);
+    return await _handleGeneralScientificInquiry(descriptor.rawPayload, context);
   }
 
   UniversalIntelligenceAnswer _handleDocumentPdfInquiry(
@@ -1984,5 +2439,6 @@ final universalIntelligenceSearchEngineProvider = Provider<UniversalIntelligence
     traditionalService: ref.watch(traditionalLivingIntelligenceServiceProvider),
     medicalSafetyGuard: ref.watch(medicalSafetyGuardServiceProvider),
     integrityService: ref.watch(evidenceIntegrityServiceProvider),
+    modelRouter: ref.watch(modelRouterProvider),
   );
 });

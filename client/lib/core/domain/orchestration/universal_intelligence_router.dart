@@ -195,6 +195,27 @@ enum IntelligenceCategory {
   bool get isZeroOnboardingAccessible => defaultOnboardingRequirement == 0.0;
 }
 
+/// The 4 Production Execution Lanes
+enum IntelligenceLane {
+  conversationalAndGeneralKnowledge,
+  deterministicMathAndBiometrics,
+  evidenceBasedClinicalResearch,
+  acuteEmergencyTriage;
+
+  String get displayName {
+    switch (this) {
+      case IntelligenceLane.conversationalAndGeneralKnowledge:
+        return 'Lane 1: Direct Conversational & General Knowledge';
+      case IntelligenceLane.deterministicMathAndBiometrics:
+        return 'Lane 2: Deterministic Math & Biometrics';
+      case IntelligenceLane.evidenceBasedClinicalResearch:
+        return 'Lane 3: Evidence-Based Clinical Research';
+      case IntelligenceLane.acuteEmergencyTriage:
+        return 'Lane 4: Acute Emergency Triage';
+    }
+  }
+}
+
 /// Routing decision holding classified intent, RAG decision, category, and metadata
 class IntentRoutingDecision {
   final UniversalIntent intent;
@@ -226,6 +247,33 @@ class IntentRoutingDecision {
   });
 
   bool get isCompound => secondaryCategories.isNotEmpty;
+
+  /// The 4-Lane Intelligence Architecture mapping
+  IntelligenceLane get lane {
+    if (isSafetyCritical || intent == UniversalIntent.safetyCriticalEmergency) {
+      return IntelligenceLane.acuteEmergencyTriage;
+    }
+    if (intent == UniversalIntent.codeGeneration || _isCalculationQuery(rawQuery)) {
+      return IntelligenceLane.deterministicMathAndBiometrics;
+    }
+    if (intent == UniversalIntent.scientificResearch ||
+        intent == UniversalIntent.evidenceComparison ||
+        intent == UniversalIntent.productSafetyResearch ||
+        ragDecision.shouldExecuteExternalRag ||
+        requiresEvidenceCitations) {
+      return IntelligenceLane.evidenceBasedClinicalResearch;
+    }
+    return IntelligenceLane.conversationalAndGeneralKnowledge;
+  }
+
+  static bool _isCalculationQuery(String q) {
+    final lower = q.toLowerCase();
+    if (lower.contains('bmr') || lower.contains('tdee') || lower.contains('bmi') || lower.contains('body mass index')) return true;
+    if (lower.contains('%') || lower.contains('percent of')) return true;
+    if (RegExp(r'\d+\s*[\+\-\*\/×÷]\s*\d+').hasMatch(lower)) return true;
+    if (lower.contains('convert') && (lower.contains('to') || lower.contains('in'))) return true;
+    return false;
+  }
 }
 
 class UniversalIntelligenceRouter {
@@ -501,20 +549,26 @@ class UniversalIntelligenceRouter {
       );
     }
 
-    // 8. Simple Definition Check (Direct concept lookups)
-    final isSimpleConceptDefinition = (lower == 'what is protein' ||
-        lower == 'what is insulin resistance' ||
-        lower == 'what is autophagy' ||
-        lower == 'what is cortisol' ||
-        lower == 'what are mitochondria' ||
-        lower == 'what is dietary fiber' ||
-        lower == 'what is fibre' ||
-        lower == 'what are antioxidants');
+    // 8. Definition & Conceptual Explanation Check (Direct concept lookups)
+    final isDefinitionOrExplanation = lower.startsWith('what is ') ||
+        lower.startsWith('what are ') ||
+        lower.startsWith('explain ') ||
+        lower.startsWith('definition of ') ||
+        lower.startsWith('define ') ||
+        (lower.startsWith('how does ') && lower.contains('work'));
 
-    if (isSimpleConceptDefinition) {
-      final isHealthEdu = lower.contains('insulin resistance') ||
+    if (isDefinitionOrExplanation) {
+      final isHealthEdu = lower.contains('diabetes') ||
+          lower.contains('diabetic') ||
+          lower.contains('insulin') ||
           lower.contains('cortisol') ||
-          lower.contains('autophagy');
+          lower.contains('autophagy') ||
+          lower.contains('hypertension') ||
+          lower.contains('blood pressure') ||
+          lower.contains('cholesterol') ||
+          lower.contains('inflammation') ||
+          lower.contains('glycemic') ||
+          lower.contains('atherosclerosis');
 
       return IntentRoutingDecision(
         intent: isHealthEdu ? UniversalIntent.healthEducation : UniversalIntent.generalKnowledge,

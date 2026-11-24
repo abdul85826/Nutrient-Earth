@@ -47,6 +47,12 @@ class MockProfileRepo implements ProfileRepository {
   }
 
   @override
+  Future<bool> updateAvatar({
+    required String skinTone,
+    Map<String, dynamic>? avatarConfig,
+  }) async => true;
+
+  @override
   Future<bool> clearCacheForUser(String userId) async {
     storage.remove(userId);
     return true;

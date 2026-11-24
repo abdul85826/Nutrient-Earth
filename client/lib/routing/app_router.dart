@@ -4,6 +4,7 @@
 // ==============================================================================
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -76,10 +77,23 @@ String? appRouterRedirect(
     return null;
   }
 
-  // 2. Intercept OAuth redirect landing at root '/' or '/splash' with code or error parameters
-  if ((path == '/' || path == '/splash') &&
-      (state.uri.queryParameters.containsKey('code') || state.uri.queryParameters.containsKey('error'))) {
-    return '/auth/callback?${state.uri.query}';
+  // 2. Intercept OAuth or Magic Link redirect landing with code, error, or hash tokens anywhere
+  final hasCode = state.uri.queryParameters.containsKey('code') ||
+      (kIsWeb && Uri.base.queryParameters.containsKey('code'));
+  final hasError = state.uri.queryParameters.containsKey('error') ||
+      (kIsWeb && Uri.base.queryParameters.containsKey('error'));
+  final hasHashToken = kIsWeb &&
+      (Uri.base.fragment.contains('access_token') ||
+          Uri.base.fragment.contains('type=magiclink') ||
+          Uri.base.fragment.contains('type=recovery') ||
+          Uri.base.fragment.contains('type=signup') ||
+          Uri.base.fragment.contains('error='));
+
+  if (path != '/auth/callback' && (hasCode || hasError || hasHashToken)) {
+    final query = state.uri.query.isNotEmpty
+        ? state.uri.query
+        : (kIsWeb ? Uri.base.query : '');
+    return '/auth/callback${query.isNotEmpty ? '?$query' : ''}';
   }
 
   // Helper: Determine whether the user has completed all onboarding questions
