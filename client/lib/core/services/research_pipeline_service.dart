@@ -120,9 +120,12 @@ class ResearchAnswer {
       query: u.query,
       answerSummary: u.heroAnswer.isNotEmpty
           ? (u.detailedExplanation.isNotEmpty
-              ? '${u.heroAnswer}\n\n${u.detailedExplanation}'
-              : u.heroAnswer)
-          : u.detailedExplanation,
+              ? (u.heroAnswer.trim() == u.detailedExplanation.trim() ||
+                      u.detailedExplanation.trim().startsWith(u.heroAnswer.trim())
+                  ? u.detailedExplanation.trim()
+                  : '${u.heroAnswer.trim()}\n\n${u.detailedExplanation.trim()}')
+              : u.heroAnswer.trim())
+          : u.detailedExplanation.trim(),
       evidenceBadge: u.legacyEvidenceBadge ??
           (u.showEvidenceWatermark ? 'VERIFIED SOURCES AVAILABLE' : ''),
       citations: u.evidence.citations.map((src) => ResearchCitation(

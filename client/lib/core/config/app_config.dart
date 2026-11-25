@@ -265,6 +265,9 @@ class AppConfig {
 
   /// OpenRouter API Key
   static String get openRouterApiKey {
+    const fromEnvSuper = String.fromEnvironment('OPENROUTER_API_KEY_SUPER');
+    if (fromEnvSuper.isNotEmpty) return fromEnvSuper;
+
     const fromEnv = String.fromEnvironment('OPENROUTER_API_KEY');
     if (fromEnv.isNotEmpty) return fromEnv;
 

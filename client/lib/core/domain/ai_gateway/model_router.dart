@@ -10,6 +10,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../config/app_config.dart';
 import 'model_provider.dart';
 
 class CachedModelEntry {
@@ -99,10 +100,12 @@ class AIModelRouter {
     // Tier 2: Google Gemini (Gemini 3.5 Flash Lite)
     // Tier 3: OpenRouter (Llama 3.3 70B Instruct)
     // Tier 4: Supabase Edge Synthesizer
+    final hasActiveOpenRouter = AppConfig.openRouterApiKey.trim().isNotEmpty;
     final candidates = [
+      if (hasActiveOpenRouter) openRouterProvider,
       groqProvider,
       geminiProvider,
-      openRouterProvider,
+      if (!hasActiveOpenRouter) openRouterProvider,
       deepSeekProvider,
     ];
 

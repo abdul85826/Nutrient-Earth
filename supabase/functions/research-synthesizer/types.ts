@@ -1,6 +1,8 @@
+/// <reference path="../deno.d.ts" />
 // ==============================================================================
 // Types for Nutrient Earth Multi-Provider AI Gateway & Synthesizer
 // ==============================================================================
+
 
 export type UserInputType =
   | 'text'

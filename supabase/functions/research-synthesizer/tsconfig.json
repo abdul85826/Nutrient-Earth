@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "allowJs": true
+  },
+  "include": [
+    "*.ts",
+    "../deno.d.ts"
+  ]
+}

@@ -1,3 +1,4 @@
+/// <reference path="../deno.d.ts" />
 // ==============================================================================
 // Supabase Edge Function: research-synthesizer
 // Production Multi-Provider AI Gateway & Clinical Evidence Synthesizer

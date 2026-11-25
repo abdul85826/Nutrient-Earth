@@ -14,15 +14,6 @@ declare namespace Deno {
   export const env: Env;
 }
 
-declare var Deno: {
-  env: {
-    get(key: string): string | undefined;
-    set(key: string, value: string): void;
-    delete(key: string): void;
-    toObject(): Record<string, string>;
-  };
-};
-
 declare module 'https://*' {
   const content: any;
   export default content;

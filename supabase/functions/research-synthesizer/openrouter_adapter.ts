@@ -1,3 +1,4 @@
+/// <reference path="../deno.d.ts" />
 // ==============================================================================
 // Nutrient Earth — Real OpenRouter Server-Side Provider Adapter
 // High-resilience fallback research synthesis via OpenRouter.

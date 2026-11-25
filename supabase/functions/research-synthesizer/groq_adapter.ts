@@ -1,3 +1,4 @@
+/// <reference path="../deno.d.ts" />
 // ==============================================================================
 // Nutrient Earth — Real Groq Server-Side Provider Adapter
 // High-throughput, low-latency research synthesis and intent routing via Groq Cloud.
@@ -279,31 +280,32 @@ Only include citations if the user asked for clinical studies or research papers
       /^(hi+|hey+|hello+|howdy|hola|good\s+(morning|afternoon|evening))/i.test(query.trim());
 
     // Sanitize citations: strictly validate that PMID or DOI is authentic
-    const citations: ResearchCitationPayload[] = rawCitations
-      .map((c: Record<string, unknown>): ResearchCitationPayload | null => {
+    const citations: ResearchCitationPayload[] = [];
+    if (Array.isArray(parsed.citations)) {
+      for (const item of parsed.citations) {
+        if (!item || typeof item !== 'object') continue;
+        const c = item as Record<string, unknown>;
         const pmidRaw = c.pmid ? String(c.pmid).trim() : undefined;
         const validPmid = pmidRaw && /^\d{4,10}$/.test(pmidRaw) ? pmidRaw : undefined;
         const doiRaw = c.doi ? String(c.doi).trim() : undefined;
         const validDoi = doiRaw && /^10\.\d{4,9}\//.test(doiRaw) ? doiRaw : undefined;
 
         // Skip citations that have neither valid numeric PMID nor valid DOI
-        if (!validPmid && !validDoi) {
-          return null;
+        if (validPmid || validDoi) {
+          citations.push({
+            title: String(c.title || 'Peer-Reviewed Clinical Evidence'),
+            authorsOrJournal: String(c.authorsOrJournal || 'Clinical Science Archive'),
+            year: String(c.year || new Date().getFullYear().toString()),
+            evidenceGrade: String(c.evidenceGrade || 'Peer-Reviewed Study'),
+            studyDesign: c.studyDesign ? String(c.studyDesign) : undefined,
+            url: validPmid ? `https://pubmed.ncbi.nlm.nih.gov/${validPmid}/` : (validDoi ? `https://doi.org/${validDoi}` : undefined),
+            pmid: validPmid,
+            doi: validDoi,
+            verificationStatus: 'peerReviewedArchive',
+          });
         }
-
-        return {
-          title: String(c.title || 'Peer-Reviewed Clinical Evidence'),
-          authorsOrJournal: String(c.authorsOrJournal || 'Clinical Science Archive'),
-          year: String(c.year || new Date().getFullYear().toString()),
-          evidenceGrade: String(c.evidenceGrade || 'Peer-Reviewed Study'),
-          studyDesign: c.studyDesign ? String(c.studyDesign) : undefined,
-          url: validPmid ? `https://pubmed.ncbi.nlm.nih.gov/${validPmid}/` : (validDoi ? `https://doi.org/${validDoi}` : undefined),
-          pmid: validPmid,
-          doi: validDoi,
-          verificationStatus: 'peerReviewedArchive',
-        };
-      })
-      .filter((c): c is ResearchCitationPayload => c !== null);
+      }
+    }
 
     const answerSummary = String(parsed.answerSummary || parsed.detailedExplanation || parsed.quickAnswer || '');
 

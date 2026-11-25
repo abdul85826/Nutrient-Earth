@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "strict": false,
+    "skipLibCheck": true,
+    "allowJs": true
+  },
+  "include": [
+    "supabase/**/*.ts",
+    "supabase/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "client"
+  ]
+}

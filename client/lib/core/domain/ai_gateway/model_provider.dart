@@ -546,8 +546,13 @@ class DeterministicClinicalKnowledgeProvider implements AIModelProvider {
     final searchResult = ScientificEvidenceRepository.searchEvidence(request.query);
     final claim = searchResult.claims.isNotEmpty ? searchResult.claims.first : null;
 
+    final lower = request.query.toLowerCase().trim();
+    final isGreeting = RegExp(r'^(hi+|hey+|hello+|howdy|hola|greetings|good\s+(morning|afternoon|evening))[!.,\s]*$', caseSensitive: false).hasMatch(lower);
+
     final buffer = StringBuffer();
-    if (claim != null) {
+    if (isGreeting) {
+      buffer.writeln('Hello! I am Nutrient Earth, your evidence-based health and nutrition intelligence companion. Ask me any question about nutrition, dietary science, cookware safety, or clinical health.');
+    } else if (claim != null) {
       buffer.writeln(claim.claimText);
       buffer.writeln();
       buffer.writeln('Physiological Mechanism: ${claim.physiologicalMechanism}');
