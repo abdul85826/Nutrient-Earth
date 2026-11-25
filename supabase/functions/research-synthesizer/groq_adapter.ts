@@ -280,7 +280,7 @@ Only include citations if the user asked for clinical studies or research papers
 
     // Sanitize citations: strictly validate that PMID or DOI is authentic
     const citations: ResearchCitationPayload[] = rawCitations
-      .map((c: Record<string, unknown>) => {
+      .map((c: Record<string, unknown>): ResearchCitationPayload | null => {
         const pmidRaw = c.pmid ? String(c.pmid).trim() : undefined;
         const validPmid = pmidRaw && /^\d{4,10}$/.test(pmidRaw) ? pmidRaw : undefined;
         const doiRaw = c.doi ? String(c.doi).trim() : undefined;

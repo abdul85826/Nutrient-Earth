@@ -13,7 +13,7 @@ export type UserInputType =
   | 'barcode'
   | 'healthData';
 
-export type TaskType = 
+export type TaskType =
   | 'general_scientific_inquiry'
   | 'personalized_clinical_guidance'
   | 'biometric_trend_analysis'
@@ -75,7 +75,7 @@ export interface ScientificClaimPayload {
 }
 
 export interface GoalAssessmentResultPayload {
-  status: 'aligned' | 'partiallyAligned' | 'misaligned' | 'insufficientInformation';
+  status: 'aligned' | 'partiallyAligned' | 'misaligned' | 'insufficientInformation' | 'neutral';
   matchedGoals: string[];
   alignmentRationale: string;
   contraindicationsOrWarnings: string[];
@@ -112,7 +112,7 @@ export interface FoodAnalysisPayload {
 
 export interface GoalMatchIndicatorPayload {
   matchPercentage?: number;
-  status: 'aligned' | 'partiallyAligned' | 'misaligned' | 'insufficientInformation';
+  status: 'aligned' | 'partiallyAligned' | 'misaligned' | 'insufficientInformation' | 'neutral';
   matchLabel: string;
   rationale: string;
   positiveFactors: string[];
@@ -198,7 +198,7 @@ export interface AdapterOperationalMetrics {
   lastLatencyMs?: number;
 }
 
-export type ClinicalReliabilityTier = 
+export type ClinicalReliabilityTier =
   | 'deterministic_gold'
   | 'high_clinical_rigor'
   | 'standard_synthesis'
@@ -216,3 +216,28 @@ export interface ModelCapabilityDescriptor {
   taskSuitability: TaskType[];
   isAvailable: boolean;
 }
+
+export interface DeepSeekChatCompletionRequest {
+  model: string;
+  messages: Array<{ role: string; content: string }>;
+  temperature?: number;
+  max_tokens?: number;
+  response_format?: { type: string };
+}
+
+export interface DeepSeekChatCompletionResponse {
+  id?: string;
+  choices: Array<{
+    message?: {
+      content?: string;
+      role?: string;
+    };
+    finish_reason?: string;
+  }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
+}
+

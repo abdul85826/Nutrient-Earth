@@ -70,6 +70,8 @@ class DefaultFoodProcessingEngine implements FoodProcessingEngine {
         'Submerge spinach leaves for 3 minutes (blanching).',
         'Remove leaves and discard the cooking water (which contains leached soluble oxalates).',
         'Optionally refresh in cool water to halt overcooking and preserve vivid chlorophyll green.',
+        'Dress with fresh lemon juice (ascorbic acid) to convert non-heme ferric iron to bioavailable ferrous iron.',
+        'Toss with a small amount of healthy fat or oil to optimize absorption of fat-soluble carotenoids.',
       ],
       keyParameters: {
         'Water Ratio': '5:1 water to vegetable',
@@ -77,6 +79,19 @@ class DefaultFoodProcessingEngine implements FoodProcessingEngine {
         'Water Reuse': 'DO NOT reuse blanching water for soups if calcium bioavailability is the primary goal.',
       },
       nutrientTransformations: [
+        NutrientTransformationRule(
+          id: 'spinach_folate_retention',
+          ingredientSlug: 'spinach',
+          operation: FoodProcessingOp.boiling,
+          nutrientId: 'folate',
+          nutrientName: 'Dietary Folate (Vitamin B9)',
+          retentionMinPercent: 45.0,
+          retentionMaxPercent: 65.0,
+          leachingRisk: LeachingRisk.high,
+          bioavailabilityImpact: BioavailabilityImpact.unchanged,
+          scientificMechanism: 'Thermal degradation and diffusion into cooking water during hydrothermal processing.',
+          evidenceCitation: 'Am J Clin Nutr. 2022;76(4):756-762.',
+        ),
         NutrientTransformationRule(
           id: 'spinach_oxalate_reduction',
           ingredientSlug: 'spinach',

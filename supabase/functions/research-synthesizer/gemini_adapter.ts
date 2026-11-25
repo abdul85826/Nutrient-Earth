@@ -10,6 +10,7 @@ import {
   FoodAnalysisPayload,
   MultimodalImagePayload,
   ResearchAnswerPayload,
+  ResearchCitationPayload,
   SynthesizerRequest,
   AdapterOperationalMetrics,
 } from './types.ts';
@@ -364,8 +365,8 @@ Only include citations if the user asked for clinical studies or research papers
       /^(hi+|hey+|hello+|howdy|hola|good\s+(morning|afternoon|evening))/i.test(query.trim());
 
     const rawCitations = Array.isArray(parsed.citations) ? parsed.citations : [];
-    const citations: import('./types.ts').ResearchCitationPayload[] = rawCitations
-      .map((c: Record<string, unknown>) => {
+    const citations: ResearchCitationPayload[] = rawCitations
+      .map((c: Record<string, unknown>): ResearchCitationPayload | null => {
         const pmidRaw = c.pmid ? String(c.pmid).trim() : undefined;
         const validPmid = pmidRaw && /^\d{4,10}$/.test(pmidRaw) ? pmidRaw : undefined;
         const doiRaw = c.doi ? String(c.doi).trim() : undefined;
@@ -387,7 +388,7 @@ Only include citations if the user asked for clinical studies or research papers
           verificationStatus: 'peerReviewedArchive',
         };
       })
-      .filter((c): c is import('./types.ts').ResearchCitationPayload => c !== null);
+      .filter((c): c is ResearchCitationPayload => c !== null);
 
     return {
       contractVersion: '2026.3',

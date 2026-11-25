@@ -90,7 +90,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
 
     if (_supabase != null) {
       try {
-        final response = await _supabase!.rpc('record_bitemporal_fact', params: {
+        final response = await _supabase.rpc('record_bitemporal_fact', params: {
           'p_user_id': userId,
           'p_category': category.dbValue,
           'p_fact_key': factKey,
@@ -106,7 +106,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
         });
 
         final factId = response as String;
-        final factData = await _supabase!
+        final factData = await _supabase
             .from('bitemporal_personal_facts')
             .select()
             .eq('id', factId)
@@ -133,8 +133,8 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
     for (int i = 0; i < _localVersions.length; i++) {
       final v = _localVersions[i];
       if (v.factId == factId && v.supersededAt == null) {
-        final overlaps = (validTo == null && (v.validTo == null || !v.validTo!.isBefore(validFrom))) ||
-            (validTo != null && !v.validFrom.isAfter(validTo) && (v.validTo == null || !v.validTo!.isBefore(validFrom)));
+        final overlaps = (validTo == null && (v.validTo == null || v.validTo!.isAfter(validFrom))) ||
+            (validTo != null && v.validFrom.isBefore(validTo) && (v.validTo == null || v.validTo!.isAfter(validFrom)));
 
         if (overlaps) {
           _localVersions[i] = BitemporalFactVersion(
@@ -204,7 +204,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
 
     if (_supabase != null) {
       try {
-        await _supabase!
+        await _supabase
             .from('bitemporal_fact_versions')
             .update({
               'superseded_at': now.toIso8601String(),
@@ -214,7 +214,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
             .eq('user_id', userId)
             .isFilter('superseded_at', null);
 
-        await _supabase!
+        await _supabase
             .from('bitemporal_personal_facts')
             .update({
               'is_active': false,
@@ -277,7 +277,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
   }) async {
     if (_supabase != null) {
       try {
-        var query = _supabase!
+        var query = _supabase
             .from('bitemporal_personal_facts')
             .select()
             .eq('user_id', userId)
@@ -314,7 +314,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
         // Query versions matching dual bitemporal condition:
         // System time: recorded_at <= systemTime AND (superseded_at IS NULL OR superseded_at > systemTime)
         // Valid time: valid_from <= realTime AND (valid_to IS NULL OR valid_to > realTime)
-        final data = await _supabase!
+        final data = await _supabase
             .from('bitemporal_fact_versions')
             .select('*, bitemporal_personal_facts!inner(category)')
             .eq('user_id', userId)
@@ -367,7 +367,7 @@ class SupabaseBitemporalMemoryService implements BitemporalMemoryService {
   }) async {
     if (_supabase != null) {
       try {
-        final data = await _supabase!
+        final data = await _supabase
             .from('bitemporal_fact_versions')
             .select('*, bitemporal_personal_facts!inner(fact_key)')
             .eq('user_id', userId)
