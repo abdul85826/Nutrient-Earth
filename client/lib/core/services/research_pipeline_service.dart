@@ -839,9 +839,8 @@ class ResearchPipelineService {
         SensitiveDataRoutingGuard.containsPersonalHealthSignals(cleanQuery);
 
     final client = SupabaseConfig.client;
-    final hasActiveSession = client?.auth.currentSession != null;
 
-    if (!isPersonalData && client != null && hasActiveSession) {
+    if (!isPersonalData && client != null) {
       try {
         final response = await client.functions.invoke(
           'research-synthesizer',

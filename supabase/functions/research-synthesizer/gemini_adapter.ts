@@ -67,7 +67,7 @@ export class GeminiProviderAdapter {
   ) {
     this.apiKey = envOverrides?.apiKey ?? Deno.env.get('GEMINI_API_KEY') ?? '';
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-    this.defaultModel = envOverrides?.defaultModel ?? Deno.env.get('GEMINI_MODEL_ID') ?? 'gemini-3.5-flash-lite';
+    this.defaultModel = envOverrides?.defaultModel ?? Deno.env.get('GEMINI_MODEL_ID') ?? 'gemini-2.0-flash';
 
     this.config = {
       failureThreshold: customConfig?.failureThreshold ?? 3,

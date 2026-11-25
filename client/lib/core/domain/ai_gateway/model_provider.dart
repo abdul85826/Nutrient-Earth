@@ -97,7 +97,7 @@ class GroqAIProvider implements AIModelProvider {
   String get providerId => 'groq-cloud';
 
   @override
-  String get modelName => modelOverride ?? 'qwen/qwen3.8-27b';
+  String get modelName => modelOverride ?? 'llama-3.3-70b-versatile';
 
   @override
   bool get supportsMultimodal => false;
@@ -156,10 +156,10 @@ class GroqAIProvider implements AIModelProvider {
         }
       }
 
-      // If the primary model failed with 404 or 400, attempt verified fallback model openai/gpt-oss-120b
-      if (response.statusCode != 200 && modelName != 'openai/gpt-oss-120b') {
+      // If the primary model failed with 404 or 400, attempt verified fallback model llama-3.1-8b-instant
+      if (response.statusCode != 200 && modelName != 'llama-3.1-8b-instant') {
         final fallbackBody = jsonEncode({
-          'model': 'openai/gpt-oss-120b',
+          'model': 'llama-3.1-8b-instant',
           'messages': [
             {'role': 'system', 'content': prompt},
             {'role': 'user', 'content': request.query},
@@ -188,7 +188,7 @@ class GroqAIProvider implements AIModelProvider {
               return AIModelResponse(
                 answerText: content.trim(),
                 providerId: providerId,
-                modelName: 'openai/gpt-oss-120b',
+                modelName: 'llama-3.1-8b-instant',
                 latencyMs: stopwatch.elapsedMilliseconds,
                 rawData: data,
               );
@@ -220,7 +220,7 @@ class GeminiAIProvider implements AIModelProvider {
   String get providerId => 'google-gemini';
 
   @override
-  String get modelName => modelOverride ?? 'gemini-3.5-flash-lite';
+  String get modelName => modelOverride ?? 'gemini-2.0-flash';
 
   @override
   bool get supportsMultimodal => true;
@@ -498,7 +498,7 @@ class GeminiMultimodalProvider implements AIModelProvider {
   String get providerId => 'gemini-flash-multimodal';
 
   @override
-  String get modelName => 'gemini-3.5-flash-lite';
+  String get modelName => 'gemini-2.0-flash';
 
   @override
   bool get supportsMultimodal => true;

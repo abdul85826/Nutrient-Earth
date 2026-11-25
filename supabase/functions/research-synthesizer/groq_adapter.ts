@@ -54,7 +54,7 @@ export class GroqProviderAdapter {
   ) {
     this.apiKey = envOverrides?.apiKey ?? Deno.env.get('GROQ_API_KEY') ?? '';
     this.baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
-    this.defaultModel = envOverrides?.defaultModel ?? Deno.env.get('GROQ_MODEL_ID') ?? 'qwen/qwen3.8-27b';
+    this.defaultModel = envOverrides?.defaultModel ?? Deno.env.get('GROQ_MODEL_ID') ?? 'llama-3.3-70b-versatile';
 
     this.config = {
       failureThreshold: customConfig?.failureThreshold ?? 3,

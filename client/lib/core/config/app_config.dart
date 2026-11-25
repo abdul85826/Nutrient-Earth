@@ -272,12 +272,15 @@ class AppConfig {
     if (fromEnvUltra.isNotEmpty) return fromEnvUltra;
 
     if (dotenv.isInitialized) {
-      final val = dotenv.env['OPENROUTER_API_KEY_ULTRA'] ?? dotenv.env['OPENROUTER_API_KEY'] ?? dotenv.env['OPENROUTER_API_KEY_SUPER'];
+      final val = dotenv.env['OPENROUTER_API_KEY_SUPER'] ??
+          dotenv.env['OPENROUTER_API_KEY'] ??
+          dotenv.env['OPENROUTER_API_KEY_ULTRA'];
       if (val != null && val.isNotEmpty) return val;
     }
 
-    final fromConfig = _configMap['OPENROUTER_API_KEY_ULTRA']?.toString() ??
-        _configMap['OPENROUTER_API_KEY']?.toString();
+    final fromConfig = _configMap['OPENROUTER_API_KEY_SUPER']?.toString() ??
+        _configMap['OPENROUTER_API_KEY']?.toString() ??
+        _configMap['OPENROUTER_API_KEY_ULTRA']?.toString();
     if (fromConfig != null && fromConfig.isNotEmpty) return fromConfig;
 
     return '';

@@ -209,6 +209,32 @@ class UniversalQuestionService {
   static UniversalIntelligenceAnswer? handleGeneralQuestion(String query) {
     final lower = query.toLowerCase().trim();
 
+    // 0. Conversational Greetings (Zero-RAG, Natural Direct Dialogue)
+    if (classifyScope(query) == QuestionScope.conversationalGreeting) {
+      return UniversalIntelligenceAnswer(
+        referenceId: 'GREET-${DateTime.now().millisecondsSinceEpoch}',
+        detectedInputType: UserInputType.text,
+        responseType: UniversalResponseType.conversation,
+        query: query,
+        heroAnswer: "Hello! I'm Nutrient Earth, your health intelligence companion. How can I help you today?",
+        recommendation: 'Ask any question about nutritional science, whole foods, cookware safety, or daily wellness protocols.',
+        detailedExplanation: 'I can help you analyze food ingredients, evaluate scientific clinical trials, compare dietary approaches, and calculate nutritional parameters based on verified biological mechanisms.',
+        practicalSteps: const [
+          'Ask about a food, ingredient, or nutrient (e.g., "What are the benefits of blueberries?")',
+          'Evaluate cookware or packaging safety (e.g., "Is cast iron safe?")',
+          'Explore daily wellness protocols (e.g., "When should I take magnesium?")',
+        ],
+        evidence: const EvidenceProvenanceContainer(
+          hasVerifiedSources: false,
+          classification: EvidenceClassification.notVerified,
+          watermarkLabel: 'Conversational Dialogue',
+          citations: [],
+        ),
+        goalMatch: _generalGoalMatch,
+        uncertaintyDisclaimer: '',
+      );
+    }
+
     // 1. Protein
     if (lower.contains('what is protein') || lower == 'explain protein' || lower == 'protein') {
       return UniversalIntelligenceAnswer(

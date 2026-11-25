@@ -53,9 +53,9 @@ export class OpenRouterProviderAdapter {
   ) {
     this.apiKey =
       envOverrides?.apiKey ??
+      Deno.env.get('OPENROUTER_API_KEY_SUPER') ??
       Deno.env.get('OPENROUTER_API_KEY') ??
       Deno.env.get('OPENROUTER_API_KEY_ULTRA') ??
-      Deno.env.get('OPENROUTER_API_KEY_SUPER') ??
       '';
     this.baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
     this.defaultModel =

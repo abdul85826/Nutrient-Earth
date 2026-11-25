@@ -112,10 +112,10 @@ void main() {
   group('AIModelRouter Cascading Multi-Model Intelligence Stack', () {
     test('Cascades from failing Groq to succeeding Gemini', () async {
       final router = AIModelRouter(
-        groqProvider: MockFailingProvider('groq-cloud', 'qwen/qwen3.8-27b'),
+        groqProvider: MockFailingProvider('groq-cloud', 'llama-3.3-70b-versatile'),
         geminiProvider: MockSuccessProvider(
           'google-gemini',
-          'gemini-3.5-flash-lite',
+          'gemini-2.0-flash',
           'An apple is a crisp, sweet or tart edible fruit produced by an apple tree.',
         ),
         openRouterProvider: MockFailingProvider('openrouter', 'meta-llama/llama-3.3-70b-instruct'),
@@ -126,15 +126,15 @@ void main() {
       );
 
       expect(response.providerId, 'google-gemini');
-      expect(response.modelName, 'gemini-3.5-flash-lite');
+      expect(response.modelName, 'gemini-2.0-flash');
       expect(response.answerText, contains('An apple is a crisp'));
       expect(response.isFallback, isFalse);
     });
 
     test('Falls over to OpenRouter when both Groq and Gemini fail', () async {
       final router = AIModelRouter(
-        groqProvider: MockFailingProvider('groq-cloud', 'qwen/qwen3.8-27b'),
-        geminiProvider: MockFailingProvider('google-gemini', 'gemini-3.5-flash-lite'),
+        groqProvider: MockFailingProvider('groq-cloud', 'llama-3.3-70b-versatile'),
+        geminiProvider: MockFailingProvider('google-gemini', 'gemini-2.0-flash'),
         openRouterProvider: MockSuccessProvider(
           'openrouter',
           'meta-llama/llama-3.3-70b-instruct',
@@ -153,7 +153,7 @@ void main() {
 
     test('Strict Privacy Routing: Personal health consultations route to deterministic engine', () async {
       final router = AIModelRouter(
-        groqProvider: MockSuccessProvider('groq-cloud', 'qwen/qwen3.8-27b', 'Public LLM reply'),
+        groqProvider: MockSuccessProvider('groq-cloud', 'llama-3.3-70b-versatile', 'Public LLM reply'),
       );
 
       final response = await router.routeAndExecute(
@@ -177,7 +177,7 @@ void main() {
       final mockRouter = AIModelRouter(
         groqProvider: MockSuccessProvider(
           'groq-cloud',
-          'qwen/qwen3.8-27b',
+          'llama-3.3-70b-versatile',
           '',
           (req) {
             final q = req.query.toLowerCase();
